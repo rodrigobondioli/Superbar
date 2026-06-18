@@ -97,8 +97,8 @@ export default function LoginPage({
         <div className="absolute top-8 left-8">
           <Image
             src="/superbar-logo.svg"
-            width={80}
-            height={27}
+            width={92}
+            height={31}
             alt="Superbar"
             priority
           />
