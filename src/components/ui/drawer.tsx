@@ -109,7 +109,7 @@ function SugestaoContent({ onClose }: { onClose: () => void }) {
       </div>
       <button
         onClick={onClose}
-        style={{ background:'#260078', border:'none', borderRadius:'6px', padding:'12px 20px', color:'#000', fontWeight:700, fontSize:'14px', cursor:'pointer', marginTop:'4px' }}>
+        style={{ background:'#260078', border:'none', borderRadius:'6px', padding:'12px 20px', color:'white', fontWeight:700, fontSize:'14px', cursor:'pointer', marginTop:'4px' }}>
         Enviar sugestão
       </button>
     </div>

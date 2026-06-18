@@ -213,7 +213,7 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
           onClick={() => valid && onConfirm(nome.trim())}
           style={{
             background: valid ? ACCENT : "rgba(255,255,255,0.05)",
-            color: valid ? "#000" : "rgba(255,255,255,0.18)",
+            color: valid ? "white" : "rgba(255,255,255,0.18)",
             border: "none", borderRadius: 16,
             padding: "20px", fontSize: 16, fontWeight: 800,
             cursor: valid ? "pointer" : "default",
@@ -543,7 +543,7 @@ function ProductsScreen({
                 borderRadius: 99,
                 border: active ? "none" : "1px solid rgba(255,255,255,0.1)",
                 background: active ? ACCENT : "rgba(255,255,255,0.04)",
-                color: active ? "#000" : "rgba(255,255,255,0.5)",
+                color: active ? "white" : "rgba(255,255,255,0.5)",
                 fontSize: 13, fontWeight: active ? 700 : 400,
                 cursor: active ? "default" : "pointer",
                 whiteSpace: "nowrap", fontFamily: FONT,

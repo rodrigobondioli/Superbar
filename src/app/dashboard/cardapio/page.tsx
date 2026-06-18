@@ -14,8 +14,7 @@ export default async function CardapioPage() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {/* Header */}
       <div style={{ padding: "32px 40px 24px", flexShrink: 0 }}>
-        <p style={LABEL}>{current.bar.nome}</p>
-        <h1 style={{ ...H1, marginTop: 6 }}>Cardápio</h1>
+        <h1 style={H1}>Cardápio</h1>
         <p style={SUBTITLE}>Gerencie categorias e produtos do seu bar.</p>
       </div>
 

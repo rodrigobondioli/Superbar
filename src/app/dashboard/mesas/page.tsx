@@ -22,8 +22,7 @@ export default async function MesasPage() {
     <div style={{ padding: "32px 40px" }}>
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <p style={LABEL}>{current.bar.nome}</p>
-        <h1 style={{ ...H1, marginTop: 6 }}>Mesas</h1>
+        <h1 style={H1}>Mesas</h1>
         <p style={SUBTITLE}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
       </div>
 

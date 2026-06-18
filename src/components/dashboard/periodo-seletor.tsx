@@ -54,7 +54,7 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
               cursor: "pointer",
               transition: "all 0.15s",
               background: isActive ? "#260078" : "transparent",
-              color: isActive ? "#000" : "rgba(255,255,255,0.38)",
+              color: isActive ? "white" : "rgba(255,255,255,0.38)",
             }}
           >
             {opcao.label}

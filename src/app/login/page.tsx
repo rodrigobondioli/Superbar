@@ -157,7 +157,7 @@ export default function LoginPage({
                   border: "none",
                   borderRadius: "12px",
                   padding: "14px",
-                  color: loading ? "rgba(0,0,0,0.4)" : "#000",
+                  color: loading ? "rgba(255,255,255,0.5)" : "white",
                   fontWeight: "700",
                   fontSize: "14px",
                   cursor: loading ? "default" : "pointer",

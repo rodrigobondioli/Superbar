@@ -46,6 +46,16 @@ export async function reativarMembro(membroId: string) {
   revalidatePath("/dashboard/equipe");
 }
 
+export async function removerMembro(membroId: string) {
+  const current = await assertDono();
+  const supabase = await createClient();
+  await semTipo(supabase.from("bar_members"))
+    .delete()
+    .eq("id", membroId)
+    .eq("bar_id", current.bar.id);
+  revalidatePath("/dashboard/equipe");
+}
+
 export async function convidarMembro(formData: FormData) {
   const email = formData.get("email") as string;
   const role  = formData.get("role") as BarRole;
