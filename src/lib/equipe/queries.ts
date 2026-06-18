@@ -25,6 +25,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       user_id,
       role,
       ativo,
+      nome,
       created_at,
       profiles!bar_members_user_id_fkey(nome, email)
     `)
@@ -35,6 +36,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       user_id: string;
       role: BarRole;
       ativo: boolean;
+      nome: string | null;
       created_at: string;
       profiles: { nome: string; email: string } | null;
     }[]>();
@@ -62,7 +64,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
     return {
       id: m.id,
       userId: m.user_id,
-      nome: m.profiles?.nome ?? "—",
+      nome: m.nome || m.profiles?.nome || "—",
       email: m.profiles?.email ?? "—",
       role: m.role,
       ativo: m.ativo,

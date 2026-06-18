@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getMembrosEquipe } from "@/lib/equipe/queries";
-import { convidarMembro } from "@/lib/equipe/actions";
-import { LABEL, H1, SUBTITLE, CARD, BTN_PRIMARY, INPUT } from "@/lib/ui";
+import { LABEL, H1, SUBTITLE, CARD } from "@/lib/ui";
 import { EquipeMembros } from "@/components/equipe/equipe-membros";
+import { ConvidarForm } from "@/components/equipe/convidar-form";
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -39,28 +39,7 @@ export default async function EquipePage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
           {/* Convidar */}
-          {isDono && (
-            <div style={{ ...CARD, padding: "20px 22px" }}>
-              <p style={{ ...LABEL, marginBottom: 16 }}>Adicionar membro</p>
-              <form action={convidarMembro} style={{ display: "grid", gridTemplateColumns: "1fr 160px auto", gap: 10, alignItems: "flex-end" }}>
-                <div>
-                  <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>E-mail</label>
-                  <input name="email" type="email" required placeholder="nome@email.com" style={INPUT} />
-                </div>
-                <div>
-                  <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>Função</label>
-                  <select name="role" defaultValue="bartender" style={{ ...INPUT, colorScheme: "dark" }}>
-                    <option value="gerente">Gerente</option>
-                    <option value="bar_manager">Bar Manager</option>
-                    <option value="bartender">Bartender</option>
-                    <option value="garcom">Garçom</option>
-                    <option value="caixa">Caixa</option>
-                  </select>
-                </div>
-                <button type="submit" style={{ ...BTN_PRIMARY, marginBottom: 1 }}>+ Adicionar</button>
-              </form>
-            </div>
-          )}
+          {isDono && <ConvidarForm />}
 
           {/* Lista de membros (client component) */}
           <EquipeMembros

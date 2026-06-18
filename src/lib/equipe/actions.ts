@@ -56,43 +56,58 @@ export async function removerMembro(membroId: string) {
   revalidatePath("/dashboard/equipe");
 }
 
-export async function convidarMembro(formData: FormData) {
-  const email = formData.get("email") as string;
-  const role  = formData.get("role") as BarRole;
-  if (!email || !role) throw new Error("Email e role obrigatórios");
+export type ConvidarState = { error?: string; ok?: boolean } | null;
 
-  const current = await assertDono();
-  const supabase = await createClient();
+export async function convidarMembro(
+  _prev: ConvidarState,
+  formData: FormData,
+): Promise<ConvidarState> {
+  const nome     = (formData.get("nome") as string ?? "").trim();
+  const sobrenome = (formData.get("sobrenome") as string ?? "").trim();
+  const email    = (formData.get("email") as string ?? "").trim();
+  const role     = formData.get("role") as BarRole;
 
-  // Verifica se o usuário já existe no sistema
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("email", email)
-    .maybeSingle() as { data: { id: string } | null };
+  if (!email || !role) return { error: "E-mail e função são obrigatórios." };
 
-  if (!profile) {
-    // Usuário não existe ainda — retorna instrução para o dono
-    throw new Error("Usuário não encontrado. Peça para ele criar conta primeiro em app.superbar.com.br/login");
+  const nomeCompleto = [nome, sobrenome].filter(Boolean).join(" ") || null;
+
+  try {
+    const current = await getCurrentBar();
+    if (!current) return { error: "Não autenticado." };
+    if (current.role !== "dono" && current.role !== "gerente")
+      return { error: "Sem permissão." };
+
+    const supabase = await createClient();
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle() as { data: { id: string } | null };
+
+    if (!profile) {
+      return { error: "Usuário não encontrado. Peça para ele criar conta primeiro em superbar.com.br/login e tente novamente." };
+    }
+
+    const { data: existing } = await semTipo(supabase.from("bar_members"))
+      .select("id, ativo")
+      .eq("bar_id", current.bar.id)
+      .eq("user_id", profile.id)
+      .maybeSingle() as { data: { id: string; ativo: boolean } | null };
+
+    if (existing) {
+      if (existing.ativo) return { error: "Esse usuário já faz parte da equipe." };
+      await semTipo(supabase.from("bar_members"))
+        .update({ ativo: true, role, ...(nomeCompleto ? { nome: nomeCompleto } : {}) })
+        .eq("id", existing.id);
+    } else {
+      await semTipo(supabase.from("bar_members"))
+        .insert({ bar_id: current.bar.id, user_id: profile.id, role, ...(nomeCompleto ? { nome: nomeCompleto } : {}) });
+    }
+
+    revalidatePath("/dashboard/equipe");
+    return { ok: true };
+  } catch {
+    return { error: "Erro inesperado. Tente novamente." };
   }
-
-  // Verifica se já é membro
-  const { data: existing } = await semTipo(supabase.from("bar_members"))
-    .select("id, ativo")
-    .eq("bar_id", current.bar.id)
-    .eq("user_id", profile.id)
-    .maybeSingle() as { data: { id: string; ativo: boolean } | null };
-
-  if (existing) {
-    if (existing.ativo) throw new Error("Esse usuário já faz parte da equipe");
-    // Reativa
-    await semTipo(supabase.from("bar_members"))
-      .update({ ativo: true, role })
-      .eq("id", existing.id);
-  } else {
-    await semTipo(supabase.from("bar_members"))
-      .insert({ bar_id: current.bar.id, user_id: profile.id, role });
-  }
-
-  revalidatePath("/dashboard/equipe");
 }
