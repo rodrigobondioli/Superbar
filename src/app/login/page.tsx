@@ -96,7 +96,7 @@ export default function LoginPage({
         {/* Logo — top-left */}
         <div className="absolute top-8 left-8">
           <Image
-            src="/santé-logo.svg"
+            src="/superbar-logo.svg"
             width={80}
             height={27}
             alt="Superbar"
