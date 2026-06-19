@@ -145,7 +145,7 @@ export default async function DashboardPage() {
 
         {/* Greeting */}
         <h1
-          className="lg:text-[32px] text-[24px]"
+          className="lg:text-[24px] text-[18px]"
           style={{
             fontWeight: 700,
             color: "var(--fg)",
