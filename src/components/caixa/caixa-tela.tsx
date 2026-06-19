@@ -287,37 +287,59 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
       {/* Pagamento */}
       <div style={{ padding: "14px 20px 18px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         {error && <p style={{ fontSize: 12, color: "rgba(239,68,68,0.85)", margin: "0 0 10px" }}>{error}</p>}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 8,
-        }}>
-          {METODOS.map(m => (
-            <button
-              key={m.key}
-              onClick={() => m.key === "cortesia" ? setShowCortesia(true) : pagar(m.key)}
-              disabled={isPending}
-              style={{
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                gap: 5, padding: "14px 8px", borderRadius: 10, border: "none",
-                background: m.key === "cortesia"
-                  ? "rgba(255,165,0,0.10)"
-                  : "rgba(255,255,255,0.06)",
-                cursor: isPending ? "not-allowed" : "pointer",
-                opacity: isPending ? 0.5 : 1,
-                transition: "background 150ms",
-              }}
-            >
-              <span style={{ fontSize: 20 }}>{m.icon}</span>
-              <span style={{
-                fontSize: 11, fontWeight: 700,
-                color: m.key === "cortesia" ? "rgba(255,165,0,0.80)" : "rgba(255,255,255,0.65)",
-                letterSpacing: "0.01em",
-              }}>
-                {m.label}
-              </span>
-            </button>
-          ))}
+
+        {/* Primários: Pix e Dinheiro */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          {(["pix", "dinheiro"] as PagamentoMetodo[]).map(key => {
+            const m = METODOS.find(x => x.key === key)!;
+            return (
+              <button
+                key={key}
+                onClick={() => pagar(key)}
+                disabled={isPending}
+                style={{
+                  flex: 1, height: 64,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  background: "rgba(255,255,255,0.09)", borderRadius: 12, border: "none",
+                  cursor: isPending ? "not-allowed" : "pointer",
+                  opacity: isPending ? 0.5 : 1,
+                  transition: "background 150ms",
+                }}
+              >
+                <span style={{ fontSize: 22 }}>{m.icon}</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "white" }}>{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Secundários: Débito, Crédito, Cortesia */}
+        <div style={{ display: "flex", gap: 8 }}>
+          {(["debito", "credito", "cortesia"] as PagamentoMetodo[]).map(key => {
+            const m = METODOS.find(x => x.key === key)!;
+            const isCortesia = key === "cortesia";
+            return (
+              <button
+                key={key}
+                onClick={() => isCortesia ? setShowCortesia(true) : pagar(key)}
+                disabled={isPending}
+                style={{
+                  flex: 1, height: 52,
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+                  background: isCortesia ? "rgba(255,165,0,0.09)" : "rgba(255,255,255,0.05)",
+                  borderRadius: 10, border: "none",
+                  cursor: isPending ? "not-allowed" : "pointer",
+                  opacity: isPending ? 0.5 : 1,
+                  transition: "background 150ms",
+                }}
+              >
+                <span style={{ fontSize: 15 }}>{m.icon}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isCortesia ? "rgba(255,165,0,0.75)" : "rgba(255,255,255,0.50)" }}>
+                  {m.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
