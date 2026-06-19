@@ -26,11 +26,11 @@ export default async function BartenderLayout({
   // Busca membros ativos para a tela "Quem é você?"
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rows } = await (supabase.from("bar_members") as any)
-    .select("id, nome, role, profiles(nome)")
+    .select("id, nome, role")
     .eq("bar_id", current.bar.id)
     .eq("ativo", true)
     .order("created_at", { ascending: true }) as {
-      data: { id: string; nome: string | null; role: string; profiles: { nome: string } | null }[] | null
+      data: { id: string; nome: string | null; role: string }[] | null;
     };
 
   const membros: MembroSimples[] = (rows ?? []).map(r => ({

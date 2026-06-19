@@ -34,7 +34,7 @@ export function DashboardSidebar({ barNome }: DashboardSidebarProps) {
       style={{
         width: "220px",
         height: "100vh",
-        overflow: "hidden",
+        overflowY: "auto",
         background: "#0a0a10",
         borderRight: "1px solid rgba(255,255,255,0.06)",
       }}
@@ -108,20 +108,20 @@ export function DashboardSidebar({ barNome }: DashboardSidebarProps) {
         </div>
 
         {/* Modo Bartender */}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ padding: '12px 16px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <Link
             href="/bartender"
             style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '10px 12px', borderRadius: 10,
-              background: 'rgba(38,0,120,0.25)',
-              border: '1px solid rgba(124,58,237,0.25)',
-              color: 'rgba(160,130,255,0.9)',
-              fontSize: 13, fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              padding: '11px 12px', borderRadius: 10,
+              background: 'rgba(38,0,120,0.40)',
+              border: '1px solid rgba(124,58,237,0.40)',
+              color: 'rgba(180,150,255,1)',
+              fontSize: 13, fontWeight: 700,
               textDecoration: 'none',
             }}
           >
-            <MonitorSmartphone style={{ width: 15, height: 15 }} />
+            <MonitorSmartphone style={{ width: 14, height: 14 }} />
             Modo Bartender
           </Link>
         </div>

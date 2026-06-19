@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#0a0a10" }}>
-      <aside style={{ width: "220px", flexShrink: 0, height: "100vh", overflow: "hidden", background: "#0a0a10", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+      <aside style={{ width: "220px", flexShrink: 0, height: "100vh", overflowY: "auto", background: "#0a0a10", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
         <DashboardSidebar barNome={current.bar.nome} userNome={current.userNome} role={current.role} />
       </aside>
       <main style={{ flex: 1, height: "100vh", overflowY: "auto", background: "#0a0a10" }}>{children}</main>
