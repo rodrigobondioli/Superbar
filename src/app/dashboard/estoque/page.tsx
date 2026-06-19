@@ -16,10 +16,7 @@ export default async function EstoquePage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
-            Operação
-          </p>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: "6px 0 0" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
             Estoque
           </h1>
           <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "6px 0 0" }}>

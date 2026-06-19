@@ -576,7 +576,6 @@ export function CardapioClient({ cardapio }: { cardapio: CategoriaComProdutosAdm
       {/* Page header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexShrink: 0 }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Admin</p>
           <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "4px 0 0" }}>Gerencie categorias e produtos do seu bar.</p>
         </div>

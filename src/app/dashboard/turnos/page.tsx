@@ -41,8 +41,7 @@ export default async function TurnosPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={label}>Histórico</p>
-          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: "6px 0 0" }}>
+          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
             Turnos
           </h1>
           <p style={{ fontSize: "14px", color: "var(--fg-muted)", margin: "6px 0 0" }}>
