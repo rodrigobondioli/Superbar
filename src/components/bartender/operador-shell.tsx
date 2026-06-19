@@ -142,11 +142,9 @@ export function OperadorShell({
 
         {/* Direita */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {operador && (
+          {operador ? (
             <>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
-                <span style={{ color: "white", fontWeight: 600 }}>{operador.nome}</span>
-              </span>
+              <span style={{ fontSize: 13, color: "white", fontWeight: 600 }}>{operador.nome}</span>
               <button
                 onClick={trocar}
                 style={{
@@ -161,26 +159,16 @@ export function OperadorShell({
                 Trocar
               </button>
             </>
+          ) : (
+            <form action={signOut}>
+              <button type="submit" style={{
+                fontSize: 12, color: "rgba(255,255,255,0.30)",
+                background: "none", border: "none", cursor: "pointer",
+              }}>
+                Sair
+              </button>
+            </form>
           )}
-          <Link
-            href="/dashboard"
-            style={{
-              fontSize: 12, fontWeight: 500,
-              color: "rgba(255,255,255,0.30)",
-              textDecoration: "none",
-              padding: "6px 0",
-            }}
-          >
-            ← Dashboard
-          </Link>
-          <form action={signOut}>
-            <button type="submit" style={{
-              fontSize: 12, color: "rgba(255,255,255,0.20)",
-              background: "none", border: "none", cursor: "pointer", padding: "6px 0",
-            }}>
-              Sair
-            </button>
-          </form>
         </div>
       </header>
 

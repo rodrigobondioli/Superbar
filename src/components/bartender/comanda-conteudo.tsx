@@ -1,5 +1,5 @@
 import { Minus } from "lucide-react";
-import { fecharComanda, removerItem } from "@/lib/bartender/actions";
+import { fecharComanda, cancelarComanda, removerItem } from "@/lib/bartender/actions";
 import type { ItemAgrupado } from "@/lib/bartender/queries";
 import type { Comanda } from "@/types/database";
 
@@ -69,26 +69,37 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
           <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Subtotal</span>
           <span style={{ fontSize: 22, fontWeight: 600, color: 'white', fontFamily: 'monospace' }}>{currency.format(subtotal)}</span>
         </div>
-        <form action={comanda ? fecharComanda.bind(null, comanda.id) : undefined}>
-          <button
-            type="submit"
-            disabled={itens.length === 0}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: '#260078',
-              color: 'white',
-              border: 'none',
-              borderRadius: 10,
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: itens.length === 0 ? 'not-allowed' : 'pointer',
-              opacity: itens.length === 0 ? 0.4 : 1,
-            }}
-          >
-            Fechar e enviar
-          </button>
-        </form>
+        {itens.length === 0 ? (
+          <form action={comanda ? cancelarComanda.bind(null, comanda.id) : undefined}>
+            <button
+              type="submit"
+              style={{
+                width: '100%', padding: '14px',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'rgba(255,255,255,0.45)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 10, fontSize: 15, fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Cancelar comanda
+            </button>
+          </form>
+        ) : (
+          <form action={comanda ? fecharComanda.bind(null, comanda.id) : undefined}>
+            <button
+              type="submit"
+              style={{
+                width: '100%', padding: '14px',
+                background: '#260078', color: 'white',
+                border: 'none', borderRadius: 10,
+                fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              Fechar e enviar
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

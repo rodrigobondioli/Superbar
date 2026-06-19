@@ -85,6 +85,16 @@ export async function fecharComanda(comandaId: string) {
   redirect("/bartender");
 }
 
+export async function cancelarComanda(comandaId: string) {
+  const supabase = await createClient();
+  await semTipo(supabase.from("comandas"))
+    .update({ status: "cancelada", fechada_em: new Date().toISOString() })
+    .eq("id", comandaId)
+    .eq("status", "aberta");
+
+  redirect("/bartender");
+}
+
 // kept for backwards compat
 export async function criarComanda(formData: FormData) {
   return abrirComanda(null);
