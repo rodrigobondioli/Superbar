@@ -68,6 +68,8 @@ export interface Bar {
     fuso_horario?: string;
     alerta_turno_horas?: number;
     moeda?: string;
+    meta_mensal?: number;
+    meta_anual?: number;
   };
   ativo: boolean;
   created_at: string;

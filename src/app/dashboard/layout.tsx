@@ -15,34 +15,7 @@ export default async function DashboardLayout({
 
   const current = await getCurrentBar();
 
-  if (!current) {
-    return (
-      <div
-        className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center"
-        style={{ background: "var(--bg)" }}
-      >
-        <p style={{ fontSize: "14px", color: "var(--fg-muted)" }}>
-          Nenhum bar vinculado a esse usuário ainda.
-        </p>
-        <form action={signOut}>
-          <button
-            style={{
-              fontSize: "13px",
-              color: "var(--fg-subtle)",
-              textDecoration: "underline",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              transition: "color 150ms",
-            }}
-            className="hover:!text-[var(--fg)]"
-          >
-            Sair
-          </button>
-        </form>
-      </div>
-    );
-  }
+  if (!current) redirect("/onboarding");
 
   return (
     <div style={{ display: "flex", height: "100dvh", overflow: "hidden", background: "var(--bg)" }}>

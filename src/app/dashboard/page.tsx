@@ -342,11 +342,12 @@ export default async function DashboardPage() {
 
           {/* Meta do mês */}
           {(() => {
-            const fakeAtual = 3480;
-            const fakeMeta = 5000;
-            const fakeProgresso = Math.min(Math.round((fakeAtual / fakeMeta) * 100), 100);
-            const fakeFalta = fakeMeta - fakeAtual;
-            const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+            const metaConfigurada = current.bar.configuracoes?.meta_mensal;
+            const meta = metaConfigurada ?? metaMes.meta;
+            const atual = metaMes.faturamentoAtual;
+            const progresso = meta > 0 ? Math.min(Math.round((atual / meta) * 100), 100) : 0;
+            const falta = Math.max(meta - atual, 0);
+            const atingida = atual >= meta && meta > 0;
             return (
               <div style={card}>
                 <p style={{ ...overline, margin: 0 }}>Meta do mês</p>
@@ -357,23 +358,27 @@ export default async function DashboardPage() {
                   fontVariantNumeric: "tabular-nums",
                   margin: "12px 0 2px",
                 }}>
-                  {fmt.format(fakeAtual)}
+                  {currency.format(atual)}
                 </p>
                 <p style={{ fontSize: "12px", color: "var(--fg-subtle)", margin: "0 0 20px" }}>
-                  de {fmt.format(fakeMeta)} · {fakeProgresso}%
+                  de {currency.format(meta)} · {progresso}%
+                  {!metaConfigurada && (
+                    <span style={{ marginLeft: 6, color: "var(--fg-subtle)", fontStyle: "italic" }}>
+                      (automática)
+                    </span>
+                  )}
                 </p>
-                {/* Barra de progresso — sem glow, sem degradê */}
                 <div style={{ background: "var(--border-strong)", borderRadius: "2px", height: "3px", marginBottom: "12px", overflow: "hidden" }}>
                   <div style={{
-                    background: "var(--accent)",
+                    background: atingida ? "var(--ok)" : "var(--accent)",
                     borderRadius: "2px",
                     height: "3px",
-                    width: `${fakeProgresso}%`,
+                    width: `${progresso}%`,
                     transition: "width 0.6s ease",
                   }} />
                 </div>
-                <p style={{ fontSize: "12px", color: "var(--fg-subtle)", margin: 0 }}>
-                  falta {fmt.format(fakeFalta)} para bater a meta
+                <p style={{ fontSize: "12px", color: atingida ? "var(--ok)" : "var(--fg-subtle)", margin: 0 }}>
+                  {atingida ? "Meta atingida!" : `falta ${currency.format(falta)} para bater a meta`}
                 </p>
               </div>
             );

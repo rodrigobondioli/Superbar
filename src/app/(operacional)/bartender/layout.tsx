@@ -15,13 +15,7 @@ export default async function BartenderLayout({
 
   const current = await getCurrentBar();
 
-  if (!current) {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--bg)", padding: "0 16px", textAlign: "center" }}>
-        <p style={{ fontSize: 14, color: "var(--fg-muted)" }}>Nenhum bar vinculado a esse usuário ainda.</p>
-      </div>
-    );
-  }
+  if (!current) redirect("/onboarding");
 
   // Busca membros ativos para a tela "Quem é você?"
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

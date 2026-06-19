@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Building2, User } from "lucide-react";
+import { X, Building2, User, Target } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
 import { atualizarPerfil, atualizarConta, type ActionResult } from "@/lib/settings/actions";
 import type { Bar } from "@/types/database";
@@ -113,6 +113,34 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
             <input name="cidade" defaultValue={endereco.cidade ?? ""} placeholder="Cidade" style={inp} />
             <input name="estado" defaultValue={endereco.estado ?? ""} placeholder="UF" maxLength={2} style={inp} />
             <input name="cep" defaultValue={endereco.cep ?? ""} placeholder="CEP" style={inp} />
+          </div>
+        </div>
+
+        {/* Metas */}
+        <div style={{ paddingTop: 8, borderTop: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+            <Target style={{ width: 12, height: 12, color: "var(--fg-subtle)" }} />
+            <span style={{ ...lbl, margin: 0 }}>Metas de faturamento</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <label style={lbl}>Meta mensal (R$)</label>
+              <input
+                name="meta_mensal"
+                defaultValue={bar.configuracoes?.meta_mensal ?? ""}
+                placeholder="Ex: 30000"
+                style={inp}
+              />
+            </div>
+            <div>
+              <label style={lbl}>Meta anual (R$)</label>
+              <input
+                name="meta_anual"
+                defaultValue={bar.configuracoes?.meta_anual ?? ""}
+                placeholder="Ex: 360000"
+                style={inp}
+              />
+            </div>
           </div>
         </div>
 
