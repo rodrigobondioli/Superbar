@@ -138,15 +138,24 @@ export default async function DashboardPage() {
             userEmail={current.userEmail}
             userAvatarUrl={current.userAvatarUrl}
           />
-          <div style={{
-            width: "32px", height: "32px", borderRadius: "50%",
-            background: "var(--accent)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "12px", fontWeight: 700, color: "var(--accent-fg)",
-            flexShrink: 0,
-          }}>
-            {primeiroNome.charAt(0).toUpperCase()}
-          </div>
+          {current.userAvatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={current.userAvatarUrl}
+              alt={primeiroNome}
+              style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", display: "block", flexShrink: 0 }}
+            />
+          ) : (
+            <div style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "var(--accent)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "12px", fontWeight: 700, color: "var(--accent-fg)",
+              flexShrink: 0,
+            }}>
+              {primeiroNome.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
 
         {/* Greeting */}

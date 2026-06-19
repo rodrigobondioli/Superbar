@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { X, Building2, User } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
 import { atualizarPerfil, atualizarConta, type ActionResult } from "@/lib/settings/actions";
@@ -51,6 +52,7 @@ function Feedback({ result }: { result: ActionResult }) {
 // ─── Bar Profile Section ──────────────────────────────────────────────────────
 
 function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
+  const router = useRouter();
   const [logoUrl, setLogoUrl] = useState<string | null>(bar.logo_url ?? null);
   const [result, setResult] = useState<ActionResult>(null);
   const [pending, setPending] = useState(false);
@@ -63,6 +65,7 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
     fd.set("logo_url", logoUrl ?? "");
     const r = await atualizarPerfil(barId, fd);
     setResult(r);
+    if (r && "ok" in r && r.ok) router.refresh();
     setPending(false);
   }
 
@@ -146,6 +149,7 @@ function MinhaConta({
   userEmail: string;
   userAvatarUrl: string | null;
 }) {
+  const router = useRouter();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(userAvatarUrl);
   const [result, setResult] = useState<ActionResult>(null);
   const [pending, setPending] = useState(false);
@@ -156,6 +160,7 @@ function MinhaConta({
     fd.set("avatar_url", avatarUrl ?? "");
     const r = await atualizarConta(userId, fd);
     setResult(r);
+    if (r && "ok" in r && r.ok) router.refresh();
     setPending(false);
   }
 

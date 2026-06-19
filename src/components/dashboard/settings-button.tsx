@@ -28,7 +28,7 @@ export function SettingsButton({
         style={{
           display: "flex", alignItems: "center", justifyContent: "center",
           width: "32px", height: "32px",
-          borderRadius: "4px",
+          borderRadius: "50%",
           border: "1px solid var(--border)",
           color: "var(--fg-muted)",
           background: "transparent",
