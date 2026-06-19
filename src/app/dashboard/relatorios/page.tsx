@@ -13,18 +13,18 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 const dataCurta = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 
 const card: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  border: "none",
-  borderRadius: "12px",
+  background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
+  borderRadius: "4px",
   padding: "24px",
 };
 
 const sectionLabel: React.CSSProperties = {
   fontSize: "11px",
   fontWeight: 500,
-  color: "rgba(255,255,255,0.38)",
+  color: "var(--fg-subtle)",
   textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
 };
 
 export default async function RelatoriosPage({
@@ -48,10 +48,10 @@ export default async function RelatoriosPage({
     <div style={{ display: "flex", flexDirection: "column" }}>
       {/* Page header */}
       <div style={{ padding: "32px 40px", paddingBottom: 0 }}>
-        <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#ffffff", margin: 0 }}>
+        <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
           Relatórios
         </h1>
-        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.40)", marginTop: "4px", marginBottom: 0 }}>
+        <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "4px", marginBottom: 0 }}>
           Análise de desempenho por período
         </p>
       </div>
@@ -70,7 +70,7 @@ export default async function RelatoriosPage({
             Faturamento no período · {dataCurta.format(periodo.inicio)} – {dataCurta.format(periodo.fim)}
           </p>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginTop: "12px" }}>
-            <p style={{ fontSize: "30px", fontWeight: 600, color: "#ffffff", margin: 0 }}>
+            <p style={{ fontSize: "30px", fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
               {currency.format(comparacao.atual)}
             </p>
             <TrendBadge percent={comparacao.percentual} />
@@ -102,21 +102,21 @@ export default async function RelatoriosPage({
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "12px 8px",
-                        background: i % 2 === 1 ? "rgba(255,255,255,0.03)" : undefined,
+                        background: i % 2 === 1 ? "color-mix(in srgb, var(--fg) 2%, transparent)" : undefined,
                       }}
                     >
-                      <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)" }}>{produto.produtoNome}</span>
+                      <span style={{ fontSize: "14px", color: "var(--fg)" }}>{produto.produtoNome}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                        <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)" }}>
+                        <span style={{ fontSize: "13px", color: "var(--fg-subtle)" }}>
                           {produto.quantidadeVendida} un.
                         </span>
-                        <span style={{ fontSize: "13px", color: "#ffffff", minWidth: "90px", textAlign: "right" }}>
+                        <span style={{ fontSize: "13px", color: "var(--fg)", minWidth: "90px", textAlign: "right", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
                           {currency.format(produto.faturamento)}
                         </span>
                         <span style={{
                           fontSize: "11px",
                           fontWeight: 500,
-                          color: "rgba(255,255,255,0.40)",
+                          color: "var(--fg-subtle)",
                           minWidth: "38px",
                           textAlign: "right",
                         }}>
@@ -127,7 +127,7 @@ export default async function RelatoriosPage({
                   );
                 })}
                 {ranking.length === 0 && (
-                  <li style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", padding: "12px 8px" }}>
+                  <li style={{ fontSize: "13px", color: "var(--fg-muted)", padding: "12px 8px" }}>
                     Sem vendas neste período.
                   </li>
                 )}

@@ -15,23 +15,24 @@ const dataHora = new Intl.DateTimeFormat("pt-BR", {
 const sectionLabel: React.CSSProperties = {
   fontSize: "11px",
   fontWeight: 500,
-  color: "rgba(255,255,255,0.38)",
+  color: "var(--fg-subtle)",
   textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
   margin: 0,
 };
 
 const card: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  borderRadius: "12px",
+  background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
+  borderRadius: "4px",
   padding: "24px",
 };
 
 const statusConfig: Record<ComandaStatus, { bg: string; color: string; label: string }> = {
-  aberta:                { bg: "rgba(74,222,128,0.12)",  color: "rgba(74,222,128,0.9)",    label: "Aberta" },
-  aguardando_pagamento:  { bg: "rgba(251,191,36,0.12)",  color: "rgba(251,191,36,0.9)",    label: "Aguardando pagamento" },
-  paga:                  { bg: "rgba(255,255,255,0.07)",  color: "rgba(255,255,255,0.45)",  label: "Paga" },
-  cancelada:             { bg: "rgba(239,68,68,0.12)",   color: "rgba(239,68,68,0.85)",    label: "Cancelada" },
+  aberta:                { bg: "var(--ok-bg)",                                                color: "var(--ok)",      label: "Aberta" },
+  aguardando_pagamento:  { bg: "var(--warn-bg)",                                              color: "var(--warn)",    label: "Aguardando pagamento" },
+  paga:                  { bg: "color-mix(in srgb, var(--fg) 8%, transparent)",              color: "var(--fg-muted)", label: "Paga" },
+  cancelada:             { bg: "var(--danger-bg)",                                            color: "var(--danger)",  label: "Cancelada" },
 };
 
 export default async function TurnoDetalhePage({
@@ -54,7 +55,7 @@ export default async function TurnoDetalhePage({
       <div>
         <Link href="/dashboard/turnos" style={{
           fontSize: "13px",
-          color: "rgba(255,255,255,0.38)",
+          color: "var(--fg-subtle)",
           textDecoration: "none",
           display: "inline-block",
           marginBottom: "12px",
@@ -63,22 +64,22 @@ export default async function TurnoDetalhePage({
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#ffffff", margin: 0 }}>
+          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
             Turno de {dataHora.format(new Date(turno.abertoEm))}
           </h1>
           <span style={{
             fontSize: "11px",
             fontWeight: 500,
             padding: "3px 10px",
-            borderRadius: "99px",
-            background: isAberto ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.07)",
-            color: isAberto ? "rgba(74,222,128,0.9)" : "rgba(255,255,255,0.45)",
+            borderRadius: "2px",
+            background: isAberto ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 8%, transparent)",
+            color: isAberto ? "var(--ok)" : "var(--fg-muted)",
           }}>
             {isAberto ? "Aberto" : "Fechado"}
           </span>
         </div>
 
-        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.40)", margin: "6px 0 0" }}>
+        <p style={{ fontSize: "13px", color: "var(--fg-subtle)", margin: "6px 0 0" }}>
           Aberto por {turno.abertoPorNome}
           {turno.fechadoPorNome && <> · Fechado por {turno.fechadoPorNome}</>}
           {turno.fechadoEm && <> · {dataHora.format(new Date(turno.fechadoEm))}</>}
@@ -89,13 +90,13 @@ export default async function TurnoDetalhePage({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div style={card}>
           <p style={sectionLabel}>Faturamento do turno</p>
-          <p style={{ fontSize: "30px", fontWeight: 600, color: "#ffffff", margin: "10px 0 0", fontFamily: "monospace" }}>
+          <p style={{ fontSize: "30px", fontWeight: 600, color: "var(--fg)", margin: "10px 0 0", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
             {currency.format(turno.totalVendas)}
           </p>
         </div>
         <div style={card}>
           <p style={sectionLabel}>Comandas pagas</p>
-          <p style={{ fontSize: "30px", fontWeight: 600, color: "#ffffff", margin: "10px 0 0" }}>
+          <p style={{ fontSize: "30px", fontWeight: 600, color: "var(--fg)", margin: "10px 0 0", fontFamily: "var(--font-mono)" }}>
             {turno.totalComandas}
           </p>
         </div>
@@ -103,7 +104,7 @@ export default async function TurnoDetalhePage({
 
       {/* Comandas card */}
       <div style={card}>
-        <h2 style={{ fontSize: "14px", fontWeight: 500, color: "rgba(255,255,255,0.85)", margin: "0 0 16px" }}>
+        <h2 style={{ fontSize: "14px", fontWeight: 500, color: "var(--fg)", margin: "0 0 16px", fontFamily: "var(--font-mono)" }}>
           Comandas
         </h2>
         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
@@ -115,20 +116,20 @@ export default async function TurnoDetalhePage({
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "12px 8px",
-                background: i % 2 === 1 ? "rgba(255,255,255,0.02)" : undefined,
+                background: i % 2 === 1 ? "color-mix(in srgb, var(--fg) 2%, transparent)" : undefined,
               }}>
-                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)" }}>
+                <span style={{ fontSize: "14px", color: "var(--fg)" }}>
                   {comanda.identificador ?? "Sem identificação"}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.50)", fontFamily: "monospace" }}>
+                  <span style={{ fontSize: "13px", color: "var(--fg-muted)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
                     {currency.format(comanda.total)}
                   </span>
                   <span style={{
                     fontSize: "11px",
                     fontWeight: 500,
                     padding: "3px 10px",
-                    borderRadius: "99px",
+                    borderRadius: "2px",
                     background: cfg.bg,
                     color: cfg.color,
                     whiteSpace: "nowrap",
@@ -140,7 +141,7 @@ export default async function TurnoDetalhePage({
             );
           })}
           {comandas.length === 0 && (
-            <li style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)", padding: "12px 8px" }}>
+            <li style={{ fontSize: "14px", color: "var(--fg-subtle)", padding: "12px 8px" }}>
               Nenhuma comanda neste turno.
             </li>
           )}

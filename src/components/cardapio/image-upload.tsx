@@ -83,12 +83,12 @@ export function ImageUpload({ currentUrl, autoUrl, onUpload }: ImageUploadProps)
           {isAuto && (
             <div style={{
               position: "absolute", bottom: 4, left: 4,
-              background: "rgba(38,0,120,0.85)",
+              background: "color-mix(in srgb, var(--accent) 85%, transparent)",
               borderRadius: 4, padding: "2px 5px",
               display: "flex", alignItems: "center", gap: 3,
             }}>
-              <Sparkles style={{ width: 9, height: 9, color: "rgba(160,130,255,0.9)" }} />
-              <span style={{ fontSize: 9, color: "rgba(160,130,255,0.9)", fontWeight: 500 }}>auto</span>
+              <Sparkles style={{ width: 9, height: 9, color: "var(--accent-bright)" }} />
+              <span style={{ fontSize: 9, color: "var(--accent-bright)", fontWeight: 500 }}>auto</span>
             </div>
           )}
           {!isAuto && (
@@ -98,22 +98,21 @@ export function ImageUpload({ currentUrl, autoUrl, onUpload }: ImageUploadProps)
               style={{
                 position: "absolute", top: -6, right: -6,
                 width: 20, height: 20, borderRadius: "50%",
-                background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.70)", cursor: "pointer",
+                background: "var(--bg-elevated)", border: "1px solid var(--border)",
+                color: "var(--fg-muted)", cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
               <X style={{ width: 10, height: 10 }} />
             </button>
           )}
-          {/* Trocar sempre visível — permite substituir inclusive imagens automáticas */}
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             style={{
               position: "absolute", bottom: 4, right: 4,
-              background: "rgba(0,0,0,0.65)", border: "none", borderRadius: 4,
-              color: "rgba(255,255,255,0.70)", cursor: "pointer", padding: "3px 5px",
+              background: "var(--bg-inset)", border: "none", borderRadius: 4,
+              color: "var(--fg-muted)", cursor: "pointer", padding: "3px 5px",
               fontSize: 10,
             }}
           >
@@ -127,19 +126,21 @@ export function ImageUpload({ currentUrl, autoUrl, onUpload }: ImageUploadProps)
           onDragOver={e => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
           style={{
-            width: 80, height: 80, borderRadius: 10,
-            border: "1.5px dashed rgba(255,255,255,0.12)",
+            width: 80, height: 80, borderRadius: 8,
+            border: "1.5px dashed var(--border)",
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             gap: 6, cursor: "pointer",
-            background: uploading ? "rgba(109,40,217,0.12)" : "rgba(255,255,255,0.04)",
+            background: uploading
+              ? "color-mix(in srgb, var(--accent-bright) 12%, transparent)"
+              : "color-mix(in srgb, var(--fg) 4%, transparent)",
             transition: "background 0.15s",
             position: "relative",
           }}
         >
           {uploading ? (
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.40)" }}>Enviando…</span>
+            <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>Enviando…</span>
           ) : (
-            <ImageIcon style={{ width: 24, height: 24, color: "rgba(255,255,255,0.18)" }} />
+            <ImageIcon style={{ width: 24, height: 24, color: "var(--fg-subtle)" }} />
           )}
         </div>
       )}
@@ -152,8 +153,9 @@ export function ImageUpload({ currentUrl, autoUrl, onUpload }: ImageUploadProps)
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
       />
 
+      {/* danger token allowed here as file input error feedback */}
       {error && (
-        <p style={{ fontSize: 11, color: "rgba(239,68,68,0.9)", marginTop: 4 }}>{error}</p>
+        <p style={{ fontSize: 11, color: "var(--danger)", marginTop: 4 }}>{error}</p>
       )}
     </div>
   );

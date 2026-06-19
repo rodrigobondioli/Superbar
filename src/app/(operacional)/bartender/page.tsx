@@ -40,7 +40,7 @@ export default async function BartenderPage() {
           <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
             Fila de pedidos
           </p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: "4px 0 0" }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: "4px 0 0" }}>
             Tempo real
           </p>
         </div>

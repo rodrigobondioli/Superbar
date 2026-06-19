@@ -8,10 +8,9 @@ export interface CardProps extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default:
-    "rounded-xl border border-white/20 bg-surface-card p-6 transition-[border-color,box-shadow] duration-150 hover:border-indigo/80 hover:shadow-indigo-sm",
-  hero: "bg-gradient-card rounded-2xl border border-white/20 px-12 py-10",
-  glass: "rounded-xl border border-white/20 bg-surface-card/70 backdrop-blur-md",
+  default: "rounded-md border border-border bg-bg-elevated p-6 transition-[border-color] duration-150 hover:border-border-strong",
+  hero: "bg-bg-elevated rounded-lg border border-border px-12 py-10",
+  glass: "rounded-md border border-border bg-bg-elevated",
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(

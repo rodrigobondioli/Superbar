@@ -28,10 +28,10 @@ const CARD_STYLE: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   height: 160,
-  borderRadius: 16,
+  borderRadius: 8,
   overflow: "hidden",
   position: "relative",
-  transition: "transform 0.15s, box-shadow 0.15s",
+  transition: "opacity 0.15s",
 };
 
 function MesaCard({
@@ -55,8 +55,8 @@ function MesaCard({
     const inner = (
       <div style={{
         ...CARD_STYLE,
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
+        background: "color-mix(in srgb, var(--fg) 3%, transparent)",
+        border: "1px solid var(--border)",
         padding: "18px 18px 16px",
         justifyContent: "space-between",
         cursor: "pointer",
@@ -65,13 +65,13 @@ function MesaCard({
         boxSizing: "border-box",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.60)", letterSpacing: "-0.2px" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "var(--fg-muted)", letterSpacing: "-0.2px" }}>
             {label}
           </span>
           <span style={{
-            fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 99,
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.28)",
+            fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 4,
+            background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+            color: "var(--fg-subtle)",
             textTransform: "uppercase", letterSpacing: "0.08em",
           }}>
             Livre
@@ -81,13 +81,13 @@ function MesaCard({
         <div>
           <p style={{
             fontSize: 13, fontWeight: 600,
-            color: "rgba(255,255,255,0.25)",
+            color: "var(--fg-subtle)",
             margin: "0 0 6px",
           }}>
             + Abrir comanda
           </p>
           {capacidade && (
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.18)", margin: 0 }}>
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0, opacity: 0.6 }}>
               {capacidade} lugares
             </p>
           )}
@@ -107,11 +107,15 @@ function MesaCard({
     return inner;
   }
 
-  // ── Ocupada ──
-  const accentColor = querPagar ? "#f59e0b" : "#7c3aed";
-  const bgColor     = querPagar ? "rgba(120,53,0,0.28)"  : "rgba(38,0,120,0.22)";
-  const borderColor = querPagar ? "rgba(245,158,11,0.40)" : "rgba(109,40,217,0.35)";
-  const totalColor  = querPagar ? "#fbbf24" : "white";
+  // ── Ocupada — semantic colors allowed in Bartender ──
+  const bgColor     = querPagar
+    ? "color-mix(in srgb, var(--warn) 12%, transparent)"
+    : "color-mix(in srgb, var(--accent) 22%, transparent)";
+  const borderColor = querPagar
+    ? "color-mix(in srgb, var(--warn) 40%, transparent)"
+    : "color-mix(in srgb, var(--accent-bright) 35%, transparent)";
+  const topBarColor = querPagar ? "var(--warn)" : "var(--accent-bright)";
+  const totalColor  = querPagar ? "var(--warn)" : "var(--fg)";
 
   return (
     <Link
@@ -122,39 +126,32 @@ function MesaCard({
         border: `1px solid ${borderColor}`,
         textDecoration: "none",
         padding: "0",
-        ...(querPagar ? { boxShadow: `0 0 0 1px rgba(245,158,11,0.12), 0 4px 24px rgba(245,158,11,0.08)` } : {}),
       }}
     >
-      {/* Barra de cor no topo */}
-      <div style={{
-        height: 3,
-        background: querPagar
-          ? "linear-gradient(90deg, #f59e0b, #fbbf24)"
-          : "linear-gradient(90deg, #6d28d9, #8b5cf6)",
-        flexShrink: 0,
-      }} />
+      {/* Barra de cor no topo — solid */}
+      <div style={{ height: 3, background: topBarColor, flexShrink: 0 }} />
 
       <div style={{ flex: 1, padding: "14px 16px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         {/* Topo: nome + badge */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: "white", letterSpacing: "-0.3px", lineHeight: 1.1 }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", lineHeight: 1.1 }}>
             {label}
           </span>
           {querPagar ? (
             <span style={{
-              fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 99,
-              background: "rgba(245,158,11,0.20)", color: "#fbbf24",
-              border: "1px solid rgba(245,158,11,0.35)",
+              fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 4,
+              background: "color-mix(in srgb, var(--warn) 20%, transparent)",
+              color: "var(--warn)",
+              border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
               textTransform: "uppercase", letterSpacing: "0.06em",
               flexShrink: 0, whiteSpace: "nowrap",
             }}>
-              🧾 Quer pagar
+              Quer pagar
             </span>
           ) : (
             <span style={{
               width: 8, height: 8, borderRadius: "50%",
-              background: "#4ade80",
-              boxShadow: "0 0 6px rgba(74,222,128,0.6)",
+              background: "var(--ok)",
               flexShrink: 0, marginTop: 4,
             }} />
           )}
@@ -168,6 +165,7 @@ function MesaCard({
             margin: 0,
             letterSpacing: "-0.5px",
             fontVariantNumeric: "tabular-nums",
+            fontFamily: "var(--font-mono)",
           }}>
             {currency.format(comanda.total)}
           </p>
@@ -177,14 +175,17 @@ function MesaCard({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{
             fontSize: 11, fontWeight: 600,
-            color: querPagar ? "rgba(251,191,36,0.65)" : "rgba(255,255,255,0.38)",
-            background: querPagar ? "rgba(245,158,11,0.10)" : "rgba(255,255,255,0.06)",
-            borderRadius: 6, padding: "2px 7px",
+            color: querPagar ? "var(--warn)" : "var(--fg-subtle)",
+            background: querPagar
+              ? "color-mix(in srgb, var(--warn) 10%, transparent)"
+              : "color-mix(in srgb, var(--fg) 6%, transparent)",
+            borderRadius: 4, padding: "2px 7px",
+            opacity: querPagar ? 1 : 0.8,
           }}>
             {tempoAberta(comanda.aberta_em)}
           </span>
           {capacidade && (
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.22)" }}>
+            <span style={{ fontSize: 10, color: "var(--fg-subtle)", opacity: 0.6 }}>
               {capacidade} lug.
             </span>
           )}
@@ -257,12 +258,12 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
           <p style={{
-            fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.35)",
+            fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)",
             textTransform: "uppercase", letterSpacing: "0.08em", margin: 0,
           }}>
             Mesas
           </p>
-          <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: "4px 0 0", letterSpacing: "-0.3px" }}>
+          <p style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: "4px 0 0", letterSpacing: "-0.3px", fontFamily: "var(--font-mono)" }}>
             {totalOcupadas === 0
               ? "Todas as mesas livres"
               : `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}`}
@@ -271,12 +272,11 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         {querPagarCount > 0 && (
           <div style={{
             display: "flex", alignItems: "center", gap: 6,
-            background: "rgba(245,158,11,0.12)",
-            border: "1px solid rgba(245,158,11,0.25)",
-            borderRadius: 10, padding: "6px 12px",
+            background: "color-mix(in srgb, var(--warn) 12%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--warn) 25%, transparent)",
+            borderRadius: 8, padding: "6px 12px",
           }}>
-            <span style={{ fontSize: 13 }}>🧾</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#fbbf24" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--warn)" }}>
               {querPagarCount} quer{querPagarCount > 1 ? "em" : ""} pagar
             </span>
           </div>
@@ -285,11 +285,12 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
       {mesas.length === 0 && (
         <div style={{
-          background: "rgba(255,255,255,0.04)", borderRadius: 12,
+          background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+          borderRadius: 8, border: "1px solid var(--border)",
           padding: "28px 20px", textAlign: "center", marginBottom: 16,
         }}>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.40)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", margin: "8px 0 0" }}>
+          <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "8px 0 0", opacity: 0.7 }}>
             Configure as mesas em Dashboard → Mesas.
           </p>
         </div>

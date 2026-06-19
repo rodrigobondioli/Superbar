@@ -8,7 +8,7 @@ export default function MarketingLayout({
   return (
     <>
       <SiteNav />
-      <main className="pt-24">{children}</main>
+      <main className="pt-14">{children}</main>
     </>
   );
 }

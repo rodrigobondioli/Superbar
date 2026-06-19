@@ -17,8 +17,8 @@ export default async function BartenderLayout({
 
   if (!current) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "#0a0a10", padding: "0 16px", textAlign: "center" }}>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.80)" }}>Nenhum bar vinculado a esse usuário ainda.</p>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--bg)", padding: "0 16px", textAlign: "center" }}>
+        <p style={{ fontSize: 14, color: "var(--fg-muted)" }}>Nenhum bar vinculado a esse usuário ainda.</p>
       </div>
     );
   }

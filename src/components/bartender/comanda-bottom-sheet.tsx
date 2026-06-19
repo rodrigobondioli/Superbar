@@ -37,15 +37,15 @@ export function ComandaBottomSheet({ itemCount, subtotal, children }: ComandaBot
           className="flex min-h-[4.5rem] shrink-0 items-center justify-between gap-3 px-4 transition duration-150 active:scale-[0.99]"
         >
           <div className="flex items-center gap-3">
-            <span className="flex h-9 min-w-9 items-center justify-center rounded-full bg-indigo px-2 font-mono text-body-sm font-bold text-white">
+            <span className="flex h-9 min-w-9 items-center justify-center rounded bg-accent px-2 font-mono text-body-sm font-bold text-accent-fg">
               {itemCount}
             </span>
-            <span className="text-body-sm text-white-50">{open ? "Comanda atual" : "Ver comanda"}</span>
+            <span className="text-body-sm text-fg-subtle">{open ? "Comanda atual" : "Ver comanda"}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-body font-mono font-bold text-white">{currency.format(subtotal)}</span>
+            <span className="text-body font-mono font-bold text-fg">{currency.format(subtotal)}</span>
             <ChevronUp
-              className={cn("h-5 w-5 text-white-50 transition-transform duration-200", open && "rotate-180")}
+              className={cn("h-5 w-5 text-fg-subtle transition-transform duration-200", open && "rotate-180")}
             />
           </div>
         </button>

@@ -10,12 +10,10 @@ export interface ButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "rounded-pill bg-indigo px-7 py-3 font-medium text-white hover:bg-indigo-light",
-  secondary:
-    "rounded-pill border border-white-20 bg-transparent px-7 py-3 text-white hover:border-indigo",
-  ghost: "px-5 py-3 text-white-80 hover:text-white",
-  // Apenas surfaces operacionais (PDV, Bartender) — touch target mínimo 48px, DESIGN.md §7.2
-  op: "min-h-12 rounded-lg bg-indigo font-semibold text-white hover:bg-indigo-light",
+  primary: "rounded-md bg-accent px-[18px] py-[10px] font-medium text-accent-fg hover:brightness-110",
+  secondary: "rounded-md border border-border-strong bg-transparent px-[18px] py-[10px] text-fg hover:border-fg-muted",
+  ghost: "px-[14px] py-[10px] text-fg-muted hover:text-fg",
+  op: "min-h-12 rounded-md bg-accent font-semibold text-accent-fg hover:brightness-110",
 };
 
 const opSizeClasses: Record<ButtonSize, string> = {

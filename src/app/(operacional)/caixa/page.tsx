@@ -13,11 +13,11 @@ export default async function CaixaPage() {
       <div style={{
         minHeight: "100dvh", display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", gap: 12,
-        background: "#0a0a10", padding: "0 24px", textAlign: "center",
+        background: "var(--bg)", padding: "0 24px", textAlign: "center",
       }}>
         <p style={{ fontSize: 32 }}>🔒</p>
-        <p style={{ fontSize: 16, fontWeight: 600, color: "white", margin: 0 }}>Turno não aberto</p>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.40)", margin: 0 }}>
+        <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Turno não aberto</p>
+        <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>
           O dono precisa abrir um turno antes de usar o caixa.
         </p>
       </div>

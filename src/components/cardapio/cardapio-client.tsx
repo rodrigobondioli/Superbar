@@ -23,12 +23,12 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const input: React.CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
-  borderRadius: 8,
+  background: "var(--bg-inset)",
+  border: "1px solid var(--border)",
+  borderRadius: 4,
   padding: "9px 12px",
   fontSize: 13,
-  color: "white",
+  color: "var(--fg)",
   outline: "none",
   colorScheme: "dark",
   width: "100%",
@@ -37,30 +37,31 @@ const input: React.CSSProperties = {
 
 const lbl: React.CSSProperties = {
   fontSize: 11,
-  color: "rgba(255,255,255,0.38)",
+  color: "var(--fg-subtle)",
   textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
   marginBottom: 5,
   display: "block",
+  fontWeight: 500,
 };
 
 const btnPrimary: React.CSSProperties = {
-  background: "#260078",
-  color: "white",
+  background: "var(--accent)",
+  color: "var(--accent-fg)",
   border: "none",
-  borderRadius: 8,
+  borderRadius: 4,
   padding: "9px 18px",
   fontSize: 13,
-  fontWeight: 700,
+  fontWeight: 600,
   cursor: "pointer",
   whiteSpace: "nowrap",
 };
 
 const btnSecondary: React.CSSProperties = {
-  background: "rgba(255,255,255,0.07)",
-  color: "rgba(255,255,255,0.70)",
-  border: "none",
-  borderRadius: 8,
+  background: "transparent",
+  color: "var(--fg-muted)",
+  border: "1px solid var(--border-strong)",
+  borderRadius: 4,
   padding: "9px 18px",
   fontSize: 13,
   fontWeight: 500,
@@ -76,8 +77,8 @@ const iconBtn: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   padding: 6,
-  borderRadius: 6,
-  color: "rgba(255,255,255,0.35)",
+  borderRadius: 4,
+  color: "var(--fg-subtle)",
 };
 
 // ─── Variante Form ────────────────────────────────────────────────────────────
@@ -163,23 +164,23 @@ function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produ
       onMouseLeave={() => setHovered(false)}
       style={{
         display: "flex", alignItems: "center", gap: 10,
-        padding: "6px 10px", borderRadius: 8,
-        background: hovered ? "rgba(255,255,255,0.04)" : "transparent",
+        padding: "6px 10px", borderRadius: 4,
+        background: hovered ? "color-mix(in srgb, var(--fg) 4%, transparent)" : "transparent",
         transition: "background 0.1s",
       }}
     >
       {/* Foto */}
       <div style={{
-        width: 32, height: 32, borderRadius: 6, flexShrink: 0,
+        width: 32, height: 32, borderRadius: 4, flexShrink: 0,
         background: variante.imagem_url
           ? `url(${variante.imagem_url}) center/cover`
-          : "rgba(255,255,255,0.06)",
+          : "var(--bg-inset)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        {!variante.imagem_url && <ImageIcon style={{ width: 14, height: 14, color: "rgba(255,255,255,0.20)" }} />}
+        {!variante.imagem_url && <ImageIcon style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />}
       </div>
-      <span style={{ flex: 1, fontSize: 13, color: "rgba(255,255,255,0.80)" }}>{variante.nome}</span>
-      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
+      <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>{variante.nome}</span>
+      <span style={{ fontSize: 12, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums" }}>
         {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(variante.preco)}
       </span>
       <div style={{ display: "flex", gap: 2, opacity: hovered ? 1 : 0, transition: "opacity 0.1s" }}>
@@ -190,7 +191,7 @@ function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produ
           <button
             type="submit"
             onClick={e => { if (!window.confirm(`Deletar variante "${variante.nome}"?`)) e.preventDefault(); }}
-            style={{ ...iconBtn, color: "rgba(239,68,68,0.6)" }}
+            style={{ ...iconBtn, color: "var(--danger)" }}
             title="Deletar variante"
           >
             <Trash2 style={{ width: 12, height: 12 }} />
@@ -228,8 +229,9 @@ function ProdutoForm({
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.04)",
-      borderRadius: 12,
+      background: "var(--bg-elevated)",
+      border: "1px solid var(--border)",
+      borderRadius: 4,
       padding: 16,
       marginBottom: 10,
     }}>
@@ -331,29 +333,29 @@ function ProdutoRow({
           alignItems: "center",
           gap: 12,
           padding: "10px 12px",
-          borderRadius: variantesOpen ? "8px 8px 0 0" : 8,
-          background: hovered || variantesOpen ? "rgba(255,255,255,0.04)" : "transparent",
+          borderRadius: variantesOpen ? "4px 4px 0 0" : 4,
+          background: hovered || variantesOpen ? "color-mix(in srgb, var(--fg) 4%, transparent)" : "transparent",
           opacity: produto.ativo ? 1 : 0.45,
           transition: "background 0.1s",
         }}
       >
         {/* Thumb */}
         <div style={{
-          width: 40, height: 40, borderRadius: 6, flexShrink: 0,
+          width: 40, height: 40, borderRadius: 4, flexShrink: 0,
           background: produto.imagem_url
             ? `url(${produto.imagem_url}) center/cover`
-            : "rgba(255,255,255,0.06)",
+            : "var(--bg-inset)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          {!produto.imagem_url && <ImageIcon style={{ width: 16, height: 16, color: "rgba(255,255,255,0.18)" }} />}
+          {!produto.imagem_url && <ImageIcon style={{ width: 16, height: 16, color: "var(--fg-subtle)" }} />}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: "white", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {produto.nome}
           </p>
           {produto.descricao && (
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {produto.descricao}
             </p>
           )}
@@ -365,9 +367,9 @@ function ProdutoRow({
           onClick={() => { setVariantesOpen(v => !v); setAddingVariante(false); }}
           style={{
             display: "flex", alignItems: "center", gap: 4,
-            background: variantesOpen ? "rgba(109,40,217,0.25)" : "rgba(255,255,255,0.06)",
-            border: "none", borderRadius: 99, padding: "3px 9px",
-            color: variantesOpen ? "rgba(167,139,250,0.9)" : "rgba(255,255,255,0.40)",
+            background: variantesOpen ? "color-mix(in srgb, var(--accent-bright) 16%, transparent)" : "color-mix(in srgb, var(--fg) 6%, transparent)",
+            border: "none", borderRadius: 4, padding: "3px 9px",
+            color: variantesOpen ? "var(--accent-bright)" : "var(--fg-muted)",
             fontSize: 11, fontWeight: 500, cursor: "pointer",
             flexShrink: 0,
           }}
@@ -378,7 +380,7 @@ function ProdutoRow({
             : <ChevronDown style={{ width: 11, height: 11 }} />}
         </button>
 
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+        <span style={{ fontSize: 13, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
           {currency.format(produto.preco)}
         </span>
 
@@ -390,7 +392,7 @@ function ProdutoRow({
           <form action={toggleProduto.bind(null, produto.id, produto.ativo)}>
             <button
               type="submit"
-              style={{ ...iconBtn, color: produto.ativo ? "rgba(255,255,255,0.35)" : "rgba(74,222,128,0.7)" }}
+              style={{ ...iconBtn, color: produto.ativo ? "var(--fg-subtle)" : "var(--ok)" }}
               title={produto.ativo ? "Desativar" : "Ativar"}
             >
               {produto.ativo ? <EyeOff style={{ width: 13, height: 13 }} /> : <Eye style={{ width: 13, height: 13 }} />}
@@ -400,7 +402,7 @@ function ProdutoRow({
             <button
               type="submit"
               onClick={e => { if (!window.confirm(`Deletar "${produto.nome}"?`)) e.preventDefault(); }}
-              style={{ ...iconBtn, color: "rgba(239,68,68,0.6)" }}
+              style={{ ...iconBtn, color: "var(--danger)" }}
               title="Deletar produto"
             >
               <Trash2 style={{ width: 13, height: 13 }} />
@@ -412,13 +414,13 @@ function ProdutoRow({
       {/* Painel de variantes */}
       {variantesOpen && (
         <div style={{
-          background: "rgba(255,255,255,0.025)",
-          borderRadius: "0 0 8px 8px",
+          background: "color-mix(in srgb, var(--fg) 2%, transparent)",
+          borderRadius: "0 0 4px 4px",
           padding: "8px 12px 12px",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
+          borderTop: "1px solid var(--border)",
         }}>
           {variantes.length === 0 && !addingVariante && (
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", margin: "4px 0 8px" }}>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "4px 0 8px" }}>
               Nenhuma variante ainda. Adicione sabores, tamanhos ou tipos.
             </p>
           )}
@@ -439,7 +441,7 @@ function ProdutoRow({
               style={{
                 display: "flex", alignItems: "center", gap: 5,
                 background: "none", border: "none", cursor: "pointer",
-                color: "rgba(167,139,250,0.70)", fontSize: 12,
+                color: "var(--accent-bright)", fontSize: 12,
                 padding: "6px 0", marginTop: 2,
               }}
             >
@@ -479,7 +481,7 @@ function CategoriaItem({
           onKeyDown={e => { if (e.key === "Escape") setEditingNome(false); }}
         />
         <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
-          <button type="submit" style={{ ...iconBtn, color: "rgba(74,222,128,0.9)" }}>
+          <button type="submit" style={{ ...iconBtn, color: "var(--ok)" }}>
             <Check style={{ width: 13, height: 13 }} />
           </button>
           <button type="button" onClick={() => setEditingNome(false)} style={iconBtn}>
@@ -498,9 +500,9 @@ function CategoriaItem({
         alignItems: "center",
         gap: 8,
         padding: "8px 12px",
-        borderRadius: 8,
+        borderRadius: 4,
         cursor: "pointer",
-        background: selected ? "rgba(38,0,120,0.35)" : "transparent",
+        background: selected ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
         transition: "background 0.1s",
       }}
       className="group"
@@ -509,12 +511,12 @@ function CategoriaItem({
         flex: 1,
         fontSize: 13,
         fontWeight: selected ? 500 : 400,
-        color: selected ? "white" : "rgba(255,255,255,0.60)",
+        color: selected ? "var(--fg)" : "var(--fg-muted)",
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>
         {grupo.categoria.nome}
       </span>
-      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", flexShrink: 0 }}>
+      <span style={{ fontSize: 11, color: "var(--fg-subtle)", flexShrink: 0 }}>
         {grupo.produtos.length}
       </span>
 
@@ -530,7 +532,7 @@ function CategoriaItem({
         <form action={desativarCategoria.bind(null, grupo.categoria.id)}>
           <button
             type="submit"
-            style={{ ...iconBtn, width: 22, height: 22, padding: 0, opacity: selected ? 0.7 : 0, color: "rgba(239,68,68,0.7)" }}
+            style={{ ...iconBtn, width: 22, height: 22, padding: 0, opacity: selected ? 0.7 : 0, color: "var(--danger)" }}
             title="Excluir categoria"
           >
             <Trash2 style={{ width: 11, height: 11 }} />
@@ -556,7 +558,7 @@ export function CardapioClient({ cardapio }: { cardapio: CategoriaComProdutosAdm
       <div style={{
         width: 240,
         flexShrink: 0,
-        borderRight: "1px solid rgba(255,255,255,0.06)",
+        borderRight: "1px solid var(--border)",
         paddingRight: 16,
         overflowY: "auto",
         paddingBottom: 16,
@@ -598,8 +600,8 @@ export function CardapioClient({ cardapio }: { cardapio: CategoriaComProdutosAdm
               display: "flex", alignItems: "center", gap: 6,
               width: "100%", padding: "8px 12px", marginTop: 4,
               background: "none", border: "none",
-              color: "rgba(255,255,255,0.30)", fontSize: 13, cursor: "pointer",
-              borderRadius: 8,
+              color: "var(--fg-subtle)", fontSize: 13, cursor: "pointer",
+              borderRadius: 4,
             }}
           >
             <Plus style={{ width: 13, height: 13 }} />
@@ -611,14 +613,14 @@ export function CardapioClient({ cardapio }: { cardapio: CategoriaComProdutosAdm
       {/* ── Right: product list ── */}
       <div style={{ flex: 1, paddingLeft: 28, overflowY: "auto" }}>
         {!selectedGrupo ? (
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", paddingTop: 20 }}>
+          <p style={{ fontSize: 14, color: "var(--fg-subtle)", paddingTop: 20 }}>
             Selecione uma categoria.
           </p>
         ) : (
           <>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 600, color: "white", margin: 0 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>
                 {selectedGrupo.categoria.nome}
               </h2>
               <button
@@ -640,7 +642,7 @@ export function CardapioClient({ cardapio }: { cardapio: CategoriaComProdutosAdm
 
             {/* Product list */}
             {selectedGrupo.produtos.length === 0 && !addingProduto ? (
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)", paddingTop: 8 }}>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", paddingTop: 8 }}>
                 Nenhum produto nesta categoria ainda.
               </p>
             ) : (

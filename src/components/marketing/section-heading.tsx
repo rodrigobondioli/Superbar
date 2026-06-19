@@ -21,10 +21,10 @@ export function SectionHeading({
         className
       )}
     >
-      <p className="text-caption font-medium uppercase tracking-[0.15em] text-white-50">
+      <p className="text-caption font-medium uppercase tracking-[0.15em] text-fg-subtle">
         {overline}
       </p>
-      <h2 className="text-h1 font-semibold text-white">{title}</h2>
+      <h2 className="text-h1 font-semibold text-fg">{title}</h2>
     </div>
   );
 }

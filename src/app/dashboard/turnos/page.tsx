@@ -14,14 +14,15 @@ const dataHora = new Intl.DateTimeFormat("pt-BR", {
 const label: React.CSSProperties = {
   fontSize: "11px",
   fontWeight: 500,
-  color: "rgba(255,255,255,0.38)",
+  color: "var(--fg-subtle)",
   textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
 };
 
 const card: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  borderRadius: "12px",
+  background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
+  borderRadius: "4px",
   overflow: "hidden",
 };
 
@@ -41,10 +42,10 @@ export default async function TurnosPage() {
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
           <p style={label}>Histórico</p>
-          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#ffffff", margin: "6px 0 0" }}>
+          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: "6px 0 0" }}>
             Turnos
           </h1>
-          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", margin: "6px 0 0" }}>
+          <p style={{ fontSize: "14px", color: "var(--fg-muted)", margin: "6px 0 0" }}>
             Registro de todos os turnos abertos e fechados.
           </p>
         </div>
@@ -60,7 +61,7 @@ export default async function TurnosPage() {
                 <th key={i} style={{
                   ...label,
                   padding: "14px 20px",
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: "1px solid var(--border)",
                   textAlign: i >= 4 && i <= 5 ? "right" : "left",
                   fontWeight: 500,
                 }}>
@@ -71,44 +72,42 @@ export default async function TurnosPage() {
           </thead>
           <tbody>
             {turnos.map((turno, i) => (
-              <tr key={turno.id} style={{ background: i % 2 === 1 ? "rgba(255,255,255,0.02)" : undefined }}>
+              <tr key={turno.id} style={{ background: i % 2 === 1 ? "color-mix(in srgb, var(--fg) 2%, transparent)" : undefined }}>
                 <td style={{ padding: "14px 20px" }}>
                   <span style={{
                     display: "inline-block",
                     fontSize: "11px",
                     fontWeight: 500,
                     padding: "3px 10px",
-                    borderRadius: "99px",
-                    background: turno.status === "aberto" ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.07)",
-                    color: turno.status === "aberto" ? "rgba(74,222,128,0.9)" : "rgba(255,255,255,0.45)",
+                    borderRadius: "2px",
+                    background: turno.status === "aberto" ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 8%, transparent)",
+                    color: turno.status === "aberto" ? "var(--ok)" : "var(--fg-muted)",
                   }}>
                     {turno.status === "aberto" ? "Aberto" : "Fechado"}
                   </span>
                 </td>
-                <td style={{ padding: "14px 20px", fontSize: "14px", color: "rgba(255,255,255,0.85)" }}>
+                <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--fg)" }}>
                   {dataHora.format(new Date(turno.abertoEm))}
                 </td>
-                <td style={{ padding: "14px 20px", fontSize: "14px", color: "rgba(255,255,255,0.45)" }}>
+                <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--fg-muted)" }}>
                   {turno.fechadoEm ? dataHora.format(new Date(turno.fechadoEm)) : "—"}
                 </td>
-                <td style={{ padding: "14px 20px", fontSize: "14px", color: "rgba(255,255,255,0.45)" }}>
+                <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--fg-muted)" }}>
                   {turno.abertoPorNome}
                 </td>
-                <td style={{ padding: "14px 20px", fontSize: "14px", color: "rgba(255,255,255,0.85)", textAlign: "right" }}>
+                <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--fg)", textAlign: "right" }}>
                   {turno.totalComandas}
                 </td>
-                <td style={{ padding: "14px 20px", fontSize: "14px", color: "#ffffff", textAlign: "right", fontFamily: "monospace" }}>
+                <td style={{ padding: "14px 20px", fontSize: "14px", color: "var(--fg)", textAlign: "right", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
                   {currency.format(turno.totalVendas)}
                 </td>
                 <td style={{ padding: "14px 20px", textAlign: "right" }}>
                   <Link href={`/dashboard/turnos/${turno.id}`} style={{
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.40)",
+                    color: "var(--fg-subtle)",
                     textDecoration: "none",
                     transition: "color 0.15s",
-                  }}
-                    onMouseOver={undefined}
-                  >
+                  }}>
                     Ver →
                   </Link>
                 </td>
@@ -116,7 +115,7 @@ export default async function TurnosPage() {
             ))}
             {turnos.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: "32px 20px", textAlign: "center", fontSize: "14px", color: "rgba(255,255,255,0.35)" }}>
+                <td colSpan={7} style={{ padding: "32px 20px", textAlign: "center", fontSize: "14px", color: "var(--fg-subtle)" }}>
                   Nenhum turno registrado ainda.
                 </td>
               </tr>

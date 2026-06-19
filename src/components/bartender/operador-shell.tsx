@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { signOut } from "@/lib/auth/actions";
 
 export type MembroSimples = { id: string; nome: string; role: string };
@@ -23,12 +22,12 @@ function QuemEVoce({ membros, onSelect }: { membros: MembroSimples[]; onSelect: 
       padding: "40px 24px",
     }}>
       <p style={{
-        fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.30)",
+        fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)",
         textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 10px",
       }}>
         Quem está operando agora?
       </p>
-      <p style={{ fontSize: 32, fontWeight: 700, color: "white", margin: "0 0 48px", textAlign: "center" }}>
+      <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", margin: "0 0 48px", textAlign: "center", fontFamily: "var(--font-mono)" }}>
         Selecione seu nome
       </p>
 
@@ -45,40 +44,40 @@ function QuemEVoce({ membros, onSelect }: { membros: MembroSimples[]; onSelect: 
             key={m.id}
             onClick={() => onSelect(m)}
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 20,
+              background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
               padding: "28px 24px",
               cursor: "pointer",
               textAlign: "center",
               width: 180,
               flexShrink: 0,
-              transition: "background 0.15s, border-color 0.15s, transform 0.1s",
+              transition: "background 0.15s, border-color 0.15s",
               WebkitTapHighlightColor: "transparent",
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = "rgba(38,0,120,0.35)";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(124,58,237,0.45)";
+              (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--accent) 18%, transparent)";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "color-mix(in srgb, var(--accent-bright) 45%, transparent)";
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+              (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--fg) 4%, transparent)";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
             }}
           >
             <div style={{
               width: 56, height: 56, borderRadius: "50%",
-              background: "rgba(38,0,120,0.50)",
-              border: "1px solid rgba(124,58,237,0.25)",
+              background: "color-mix(in srgb, var(--accent) 50%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--accent-bright) 25%, transparent)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 22, fontWeight: 700, color: "rgba(160,130,255,0.9)",
+              fontSize: 22, fontWeight: 700, color: "var(--accent-bright)",
               margin: "0 auto 16px",
             }}>
               {m.nome[0]?.toUpperCase()}
             </div>
-            <p style={{ fontSize: 17, fontWeight: 600, color: "white", margin: "0 0 6px" }}>
+            <p style={{ fontSize: 17, fontWeight: 600, color: "var(--fg)", margin: "0 0 6px" }}>
               {m.nome}
             </p>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", margin: 0 }}>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
               {ROLE_LABEL[m.role] ?? m.role}
             </p>
           </button>
@@ -120,20 +119,21 @@ export function OperadorShell({
   if (!carregado) return null;
 
   return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#0a0a10" }}>
+    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       {/* Header */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 20px", height: 52, flexShrink: 0,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        background: "#0a0a10",
+        borderBottom: "1px solid var(--border)",
+        background: "var(--bg)",
       }}>
         {/* Esquerda */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "white" }}>{barNome}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>{barNome}</span>
           <span style={{
-            fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 99,
-            background: "rgba(38,0,120,0.30)", color: "rgba(160,130,255,0.85)",
+            fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 4,
+            background: "color-mix(in srgb, var(--accent) 30%, transparent)",
+            color: "var(--accent-bright)",
             letterSpacing: "0.04em", textTransform: "uppercase",
           }}>
             Bartender
@@ -144,15 +144,15 @@ export function OperadorShell({
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {operador ? (
             <>
-              <span style={{ fontSize: 13, color: "white", fontWeight: 600 }}>{operador.nome}</span>
+              <span style={{ fontSize: 13, color: "var(--fg)", fontWeight: 600 }}>{operador.nome}</span>
               <button
                 onClick={trocar}
                 style={{
                   fontSize: 12, fontWeight: 500,
-                  color: "rgba(255,255,255,0.40)",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  borderRadius: 8, padding: "6px 12px",
+                  color: "var(--fg-muted)",
+                  background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 4, padding: "6px 12px",
                   cursor: "pointer",
                 }}
               >
@@ -162,7 +162,7 @@ export function OperadorShell({
           ) : (
             <form action={signOut}>
               <button type="submit" style={{
-                fontSize: 12, color: "rgba(255,255,255,0.30)",
+                fontSize: 12, color: "var(--fg-subtle)",
                 background: "none", border: "none", cursor: "pointer",
               }}>
                 Sair

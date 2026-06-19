@@ -11,7 +11,7 @@ const links = [
 export function SiteNav() {
   return (
     <NavPill className="flex w-[min(640px,calc(100vw-2rem))] items-center justify-between gap-6">
-      <Link href="/" className="text-sm font-semibold tracking-tight text-white">
+      <Link href="/" className="text-sm font-semibold tracking-tight text-fg">
         Superbar
       </Link>
 
@@ -20,7 +20,7 @@ export function SiteNav() {
           <li key={link.href}>
             <Link
               href={link.href}
-              className="text-sm text-white-80 transition-colors hover:text-white"
+              className="text-sm text-fg-muted transition-colors hover:text-fg"
             >
               {link.label}
             </Link>

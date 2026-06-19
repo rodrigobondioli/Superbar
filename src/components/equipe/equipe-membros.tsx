@@ -22,14 +22,14 @@ const ROLE_LABELS: Record<BarRole, string> = {
   dono: "Dono", gerente: "Gerente", bar_manager: "Bar Manager", bartender: "Bartender", garcom: "Garçom", caixa: "Caixa",
 };
 
-// Fundo uniforme — só o texto diferencia o role
+// Color by role — small text identity indicator (minimal exception)
 const ROLE_COLORS: Record<BarRole, string> = {
-  dono:        "rgba(255,255,255,0.85)",
-  gerente:     "rgba(160,130,255,0.9)",
-  bar_manager: "rgba(249,115,22,0.9)",
-  bartender:   "rgba(96,165,250,0.9)",
-  garcom:      "rgba(52,211,153,0.9)",
-  caixa:       "rgba(251,191,36,0.9)",
+  dono:        "var(--fg)",
+  gerente:     "var(--accent-bright)",
+  bar_manager: "var(--fg-muted)",
+  bartender:   "var(--fg-muted)",
+  garcom:      "var(--fg-muted)",
+  caixa:       "var(--fg-muted)",
 };
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -69,17 +69,17 @@ function MembroRow({
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
         <div style={{
           width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-          background: "rgba(255,255,255,0.08)",
+          background: "color-mix(in srgb, var(--fg) 10%, transparent)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "white",
+          fontSize: 12, fontWeight: 700, color: "var(--fg)",
         }}>
           {m.nome[0]?.toUpperCase() ?? "?"}
         </div>
         <div style={{ minWidth: 0 }}>
-          <p style={{ fontSize: 14, fontWeight: 500, color: "white", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {m.nome}
           </p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {m.email}
           </p>
         </div>
@@ -92,8 +92,8 @@ function MembroRow({
             value={role}
             onChange={e => setRole(e.target.value as BarRole)}
             style={{
-              flex: 1, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: 8, padding: "4px 8px", fontSize: 12, color: "white",
+              flex: 1, background: "var(--bg-inset)", border: "1px solid var(--border)",
+              borderRadius: 4, padding: "4px 8px", fontSize: 12, color: "var(--fg)",
               outline: "none", colorScheme: "dark",
             }}
           >
@@ -104,7 +104,7 @@ function MembroRow({
             <option value="garcom">Garçom</option>
             <option value="caixa">Caixa</option>
           </select>
-          <button onClick={saveRole} disabled={saving} style={{ ...BTN_ICON, color: "rgba(74,222,128,0.9)", padding: 4 }}>
+          <button onClick={saveRole} disabled={saving} style={{ ...BTN_ICON, color: "var(--ok)", padding: 4 }}>
             <Check style={{ width: 13, height: 13 }} />
           </button>
           <button onClick={() => { setEditing(false); setRole(m.role); }} style={{ ...BTN_ICON, padding: 4 }}>
@@ -113,15 +113,15 @@ function MembroRow({
         </div>
       ) : (
         <span style={{
-          fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 99,
-          background: "rgba(255,255,255,0.07)", color: ROLE_COLORS[m.role], display: "inline-block",
+          fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 4,
+          background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: ROLE_COLORS[m.role], display: "inline-block",
         }}>
           {ROLE_LABELS[m.role]}
         </span>
       )}
 
       {/* Vendas */}
-      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+      <span style={{ fontSize: 12, color: "var(--fg-muted)", textAlign: "right", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
         {m.totalComandas > 0 ? fmt(m.totalVendas) : "—"}
       </span>
 
@@ -131,7 +131,7 @@ function MembroRow({
           {/* Editar role */}
           <button
             onClick={() => setEditing(e => !e)}
-            style={{ ...BTN_ICON, color: editing ? "rgba(160,130,255,0.8)" : "rgba(255,255,255,0.30)" }}
+            style={{ ...BTN_ICON, color: editing ? "var(--accent-bright)" : "var(--fg-subtle)" }}
             title="Editar função"
           >
             <Pencil style={{ width: 13, height: 13 }} />
@@ -141,7 +141,7 @@ function MembroRow({
           <form action={m.ativo ? desativarMembro.bind(null, m.id) : reativarMembro.bind(null, m.id)}>
             <button
               type="submit"
-              style={{ ...BTN_ICON, color: m.ativo ? "rgba(96,165,250,0.7)" : "rgba(74,222,128,0.7)" }}
+              style={{ ...BTN_ICON, color: m.ativo ? "var(--fg-muted)" : "var(--fg-subtle)" }}
               title={m.ativo ? "Desativar acesso" : "Reativar acesso"}
             >
               {m.ativo
@@ -155,7 +155,7 @@ function MembroRow({
             <button
               type="submit"
               onClick={e => { if (!window.confirm(`Remover ${m.nome} da equipe permanentemente?`)) e.preventDefault(); }}
-              style={{ ...BTN_ICON, color: "rgba(239,68,68,0.55)" }}
+              style={{ ...BTN_ICON, color: "var(--danger)" }}
               title="Remover permanentemente"
             >
               <Trash2 style={{ width: 13, height: 13 }} />
@@ -187,7 +187,7 @@ export function EquipeMembros({
           <div style={{
             display: "grid", gridTemplateColumns: "1fr 160px 80px 88px",
             gap: 12, padding: "10px 18px",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            borderBottom: "1px solid var(--border)",
           }}>
             <span style={lbl}>Nome</span>
             <span style={lbl}>Função</span>
@@ -196,13 +196,13 @@ export function EquipeMembros({
           </div>
 
           {ativos.length === 0 && (
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", padding: "24px 18px", margin: 0 }}>
+            <p style={{ fontSize: 14, color: "var(--fg-subtle)", padding: "24px 18px", margin: 0 }}>
               Nenhum membro ativo.
             </p>
           )}
 
           {ativos.map((m, i) => (
-            <div key={m.id} style={{ borderTop: i > 0 ? "1px solid rgba(255,255,255,0.05)" : undefined }}>
+            <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
               <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
             </div>
           ))}
@@ -212,10 +212,10 @@ export function EquipeMembros({
       {/* Inativos */}
       {inativos.length > 0 && (
         <div>
-          <p style={{ ...LABEL, marginBottom: 12, color: "rgba(255,255,255,0.25)" }}>Sem acesso</p>
+          <p style={{ ...LABEL, marginBottom: 12, color: "var(--fg-subtle)" }}>Sem acesso</p>
           <div style={{ ...CARD, overflow: "hidden" }}>
             {inativos.map((m, i) => (
-              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid rgba(255,255,255,0.05)" : undefined }}>
+              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
                 <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
               </div>
             ))}

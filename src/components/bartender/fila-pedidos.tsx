@@ -5,11 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { atualizarStatusPedido } from "@/lib/menu/actions";
 import type { PedidoCliente, ItemPedidoCliente } from "@/types/database";
 
-const ACCENT = "#260078";
-const BG2    = "rgba(255,255,255,0.04)";
-const BORDER = "rgba(255,255,255,0.07)";
-const FONT   = "var(--font-geist, -apple-system, 'Helvetica Neue', sans-serif)";
-
+// Semantic status colors — allowed in Bartender surface
 const STATUS_LABELS: Record<PedidoCliente["status"], string> = {
   pendente:   "Novo",
   em_preparo: "Em preparo",
@@ -19,11 +15,19 @@ const STATUS_LABELS: Record<PedidoCliente["status"], string> = {
 };
 
 const STATUS_COLORS: Record<PedidoCliente["status"], string> = {
-  pendente:   "#f97316",
-  em_preparo: "#818cf8",
-  pronto:     "#4ade80",
-  entregue:   "rgba(255,255,255,0.3)",
-  cancelado:  "rgba(255,255,255,0.2)",
+  pendente:   "var(--warn)",
+  em_preparo: "var(--accent-bright)",
+  pronto:     "var(--ok)",
+  entregue:   "var(--fg-subtle)",
+  cancelado:  "var(--fg-subtle)",
+};
+
+const STATUS_BG: Record<PedidoCliente["status"], string> = {
+  pendente:   "color-mix(in srgb, var(--warn) 12%, transparent)",
+  em_preparo: "color-mix(in srgb, var(--accent-bright) 12%, transparent)",
+  pronto:     "var(--ok-bg)",
+  entregue:   "color-mix(in srgb, var(--fg) 6%, transparent)",
+  cancelado:  "color-mix(in srgb, var(--fg) 4%, transparent)",
 };
 
 function tempo(created_at: string) {
@@ -54,7 +58,7 @@ function PedidoCard({
       try {
         await atualizarStatusPedido(pedido.id, novoStatus as "em_preparo" | "pronto" | "entregue" | "cancelado");
       } catch {
-        setLocalStatus(pedido.status); // rollback
+        setLocalStatus(pedido.status);
       }
     });
   };
@@ -63,29 +67,27 @@ function PedidoCard({
 
   return (
     <div style={{
-      background: isNew ? "rgba(200,255,0,0.05)" : BG2,
-      border: `1px solid ${isNew ? "rgba(200,255,0,0.2)" : BORDER}`,
-      borderRadius: 16,
+      background: isNew ? "color-mix(in srgb, var(--ok) 5%, transparent)" : "color-mix(in srgb, var(--fg) 4%, transparent)",
+      border: isNew ? "1px solid color-mix(in srgb, var(--ok) 20%, transparent)" : "1px solid var(--border)",
+      borderRadius: 8,
       padding: "18px 20px",
-      fontFamily: FONT,
       opacity: isDone ? 0.45 : 1,
       transition: "opacity 400ms, border-color 600ms, background 600ms",
     }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.3px" }}>
+          <p style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>
             {pedido.nome_cliente ?? "Cliente"}
           </p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: "3px 0 0" }}>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>
             Mesa · {tempo(pedido.created_at)}
           </p>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99,
-          background: `${STATUS_COLORS[localStatus]}18`,
+          fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 4,
+          background: STATUS_BG[localStatus],
           color: STATUS_COLORS[localStatus],
-          border: `1px solid ${STATUS_COLORS[localStatus]}30`,
           letterSpacing: "0.03em",
         }}>
           {STATUS_LABELS[localStatus]}
@@ -98,13 +100,13 @@ function PedidoCard({
           <div key={i} style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
             padding: "7px 0",
-            borderBottom: i < itens.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+            borderBottom: i < itens.length - 1 ? "1px solid var(--border)" : "none",
           }}>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
-              <span style={{ color: ACCENT, fontWeight: 800, marginRight: 6 }}>{item.quantidade}×</span>
+            <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+              <span style={{ color: "var(--accent-bright)", fontWeight: 800, marginRight: 6 }}>{item.quantidade}×</span>
               {item.nome}
             </span>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: "var(--fg-subtle)", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
               {fmt(item.preco * item.quantidade)}
             </span>
           </div>
@@ -113,8 +115,8 @@ function PedidoCard({
 
       {/* Total */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Total</span>
-        <span style={{ fontSize: 16, fontWeight: 900, color: "white", letterSpacing: "-0.4px" }}>
+        <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Total</span>
+        <span style={{ fontSize: 16, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", fontFamily: "var(--font-mono)" }}>
           {fmt(pedido.total)}
         </span>
       </div>
@@ -127,10 +129,10 @@ function PedidoCard({
               <button
                 onClick={() => atualizar("cancelado")}
                 style={{
-                  flex: 1, padding: "11px", borderRadius: 10,
-                  background: "rgba(255,255,255,0.05)", border: "none",
-                  color: "rgba(255,255,255,0.4)", fontSize: 13, fontWeight: 600,
-                  cursor: "pointer", fontFamily: FONT,
+                  flex: 1, padding: "11px", borderRadius: 8,
+                  background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "none",
+                  color: "var(--fg-muted)", fontSize: 13, fontWeight: 600,
+                  cursor: "pointer",
                 }}
               >
                 Cancelar
@@ -138,10 +140,10 @@ function PedidoCard({
               <button
                 onClick={() => atualizar("em_preparo")}
                 style={{
-                  flex: 2, padding: "11px", borderRadius: 10,
-                  background: ACCENT, border: "none",
-                  color: "white", fontSize: 13, fontWeight: 900,
-                  cursor: "pointer", fontFamily: FONT,
+                  flex: 2, padding: "11px", borderRadius: 8,
+                  background: "var(--accent)", border: "none",
+                  color: "var(--accent-fg)", fontSize: 13, fontWeight: 900,
+                  cursor: "pointer",
                 }}
               >
                 Aceitar →
@@ -152,11 +154,11 @@ function PedidoCard({
             <button
               onClick={() => atualizar("pronto")}
               style={{
-                flex: 1, padding: "11px", borderRadius: 10,
-                background: "rgba(74,222,128,0.12)",
-                border: "1px solid rgba(74,222,128,0.25)",
-                color: "#4ade80", fontSize: 13, fontWeight: 800,
-                cursor: "pointer", fontFamily: FONT,
+                flex: 1, padding: "11px", borderRadius: 8,
+                background: "var(--ok-bg)",
+                border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
+                color: "var(--ok)", fontSize: 13, fontWeight: 800,
+                cursor: "pointer",
               }}
             >
               ✓ Marcar como pronto
@@ -166,10 +168,10 @@ function PedidoCard({
             <button
               onClick={() => atualizar("entregue")}
               style={{
-                flex: 1, padding: "11px", borderRadius: 10,
-                background: "rgba(255,255,255,0.06)", border: BORDER,
-                color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 700,
-                cursor: "pointer", fontFamily: FONT,
+                flex: 1, padding: "11px", borderRadius: 8,
+                background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "1px solid var(--border)",
+                color: "var(--fg-muted)", fontSize: 13, fontWeight: 700,
+                cursor: "pointer",
               }}
             >
               Confirmar entrega
@@ -205,42 +207,32 @@ export function FilaPedidos({ barId }: { barId: string }) {
     const supabase = createClient();
     const channel = supabase
       .channel(`pedidos_bar_${barId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "pedidos_cliente",
-          filter: `bar_id=eq.${barId}`,
-        },
-        (payload) => {
-          const novo = payload.new as PedidoCliente;
-          setPedidos((prev) => [novo, ...prev]);
-          setNewIds((prev) => new Set([...prev, novo.id]));
-          setTimeout(() => {
-            setNewIds((prev) => {
-              const next = new Set(prev);
-              next.delete(novo.id);
-              return next;
-            });
-          }, 5000);
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "pedidos_cliente",
-          filter: `bar_id=eq.${barId}`,
-        },
-        (payload) => {
-          const atualizado = payload.new as PedidoCliente;
-          setPedidos((prev) =>
-            prev.map((p) => (p.id === atualizado.id ? atualizado : p))
-          );
-        }
-      )
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "pedidos_cliente",
+        filter: `bar_id=eq.${barId}`,
+      }, (payload) => {
+        const novo = payload.new as PedidoCliente;
+        setPedidos((prev) => [novo, ...prev]);
+        setNewIds((prev) => new Set([...prev, novo.id]));
+        setTimeout(() => {
+          setNewIds((prev) => {
+            const next = new Set(prev);
+            next.delete(novo.id);
+            return next;
+          });
+        }, 5000);
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "pedidos_cliente",
+        filter: `bar_id=eq.${barId}`,
+      }, (payload) => {
+        const atualizado = payload.new as PedidoCliente;
+        setPedidos((prev) => prev.map((p) => (p.id === atualizado.id ? atualizado : p)));
+      })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -251,7 +243,7 @@ export function FilaPedidos({ barId }: { barId: string }) {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 120, color: "rgba(255,255,255,0.3)", fontSize: 13, fontFamily: FONT }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 120, color: "var(--fg-subtle)", fontSize: 13 }}>
         Carregando fila...
       </div>
     );
@@ -261,10 +253,9 @@ export function FilaPedidos({ barId }: { barId: string }) {
     return (
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        height: 140, gap: 10, fontFamily: FONT,
+        height: 140, gap: 10,
       }}>
-        <div style={{ fontSize: 28 }}>🍸</div>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", margin: 0 }}>
+        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>
           Nenhum pedido ainda. Aguardando...
         </p>
       </div>
@@ -275,7 +266,7 @@ export function FilaPedidos({ barId }: { barId: string }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {ativos.length > 0 && (
         <>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "0 0 4px", fontFamily: FONT }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "0 0 4px" }}>
             {ativos.length} pedido{ativos.length > 1 ? "s" : ""} ativo{ativos.length > 1 ? "s" : ""}
           </p>
           {ativos.map(p => (
@@ -286,7 +277,7 @@ export function FilaPedidos({ barId }: { barId: string }) {
 
       {prontos.length > 0 && (
         <>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(74,222,128,0.5)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "12px 0 4px", fontFamily: FONT }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "var(--ok)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "12px 0 4px" }}>
             {prontos.length} pronto{prontos.length > 1 ? "s" : ""} para entregar
           </p>
           {prontos.map(p => (

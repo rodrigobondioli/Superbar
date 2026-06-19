@@ -54,32 +54,32 @@ export default async function EquipePage() {
         <div style={{ position: "sticky", top: 0 }}>
           {ranking.length > 0 ? (
             <div style={{ ...CARD, padding: "20px 20px" }}>
-              <p style={{ ...LABEL, marginBottom: 16 }}>🏆 Ranking · 30 dias</p>
+              <p style={{ ...LABEL, marginBottom: 16 }}>Ranking · 30 dias</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {ranking.map((m, i) => (
                   <div key={m.id} style={{
                     display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px", borderRadius: 8,
-                    background: i === 0 ? "rgba(255,255,255,0.05)" : "transparent",
-                    borderLeft: i === 0 ? "2px solid rgba(160,130,255,0.5)" : "2px solid transparent",
+                    padding: "12px 14px", borderRadius: 4,
+                    background: i === 0 ? "color-mix(in srgb, var(--fg) 5%, transparent)" : "transparent",
+                    borderLeft: i === 0 ? "2px solid var(--accent-bright)" : "2px solid transparent",
                   }}>
                     <span style={{
                       fontSize: 14, fontWeight: 700, minWidth: 24, flexShrink: 0,
-                      color: i === 0 ? "rgba(160,130,255,0.9)" : "rgba(255,255,255,0.25)",
+                      color: i === 0 ? "var(--accent-bright)" : "var(--fg-subtle)",
                     }}>
                       {i + 1}º
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "white", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {m.nome}
                       </p>
-                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.40)", margin: "2px 0 0" }}>
+                      <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
                         {m.totalComandas} cmd · TM {fmt(m.ticketMedio)}
                       </p>
                     </div>
                     <p style={{
                       fontSize: 14, fontWeight: 700, margin: 0, flexShrink: 0, fontVariantNumeric: "tabular-nums",
-                      color: "white",
+                      color: "var(--fg)", fontFamily: "var(--font-mono)",
                     }}>
                       {fmt(m.totalVendas)}
                     </p>
@@ -89,14 +89,14 @@ export default async function EquipePage() {
             </div>
           ) : (
             <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px dashed rgba(255,255,255,0.07)",
-              borderRadius: 12, padding: 24,
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
+              borderRadius: 4, padding: 24,
             }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.35)", margin: "0 0 6px" }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", margin: "0 0 6px" }}>
                 Ranking indisponível
               </p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.22)", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
                 Os dados de performance aparecem aqui após o primeiro turno ser fechado.
               </p>
             </div>

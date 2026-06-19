@@ -15,8 +15,8 @@ export default async function CaixaLayout({
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "#0a0a10",
-      color: "white",
+      background: "var(--bg)",
+      color: "var(--fg)",
     }}>
       {children}
     </div>

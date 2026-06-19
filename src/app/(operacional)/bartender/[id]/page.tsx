@@ -47,22 +47,22 @@ export default async function ComandaPage({ params }: Props) {
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
         padding: "10px 16px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid var(--border)",
         flexShrink: 0,
       }}>
         <Link
           href="/bartender"
-          style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: 13 }}
+          style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--fg-muted)", textDecoration: "none", fontSize: 13 }}
         >
           <ArrowLeft style={{ width: 15, height: 15 }} />
           Mesas
         </Link>
-        <span style={{ color: "rgba(255,255,255,0.20)", fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "white" }}>{mesaLabel}</span>
+        <span style={{ color: "var(--fg-subtle)", fontSize: 13 }}>/</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{mesaLabel}</span>
         {comanda.status !== "aberta" && (
           <span style={{
-            fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 99,
-            background: "rgba(251,191,36,0.12)", color: "rgba(251,191,36,0.9)", marginLeft: 4,
+            fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 2,
+            background: "var(--warn-bg)", color: "var(--warn)", marginLeft: 4,
           }}>
             {comanda.status === "aguardando_pagamento" ? "Aguard. pagamento" : comanda.status}
           </span>
@@ -75,7 +75,7 @@ export default async function ComandaPage({ params }: Props) {
           <ProdutoGrid cardapio={cardapio} comandaId={comanda.id} />
         </div>
 
-        <aside style={{ width: 360, flexShrink: 0, borderLeft: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
+        <aside style={{ width: 360, flexShrink: 0, borderLeft: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
           <ComandaConteudo comanda={comanda} itens={itens} subtotal={subtotal} />
         </aside>
 

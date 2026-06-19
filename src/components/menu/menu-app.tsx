@@ -30,11 +30,11 @@ interface ClienteLocal {
 }
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
-const ACCENT = "#260078";
-const BG     = "#0c0c0c";
-const CARD   = "#181818";
-const CARD2  = "#222222";
-const FONT   = "var(--font-geist, -apple-system, 'Helvetica Neue', sans-serif)";
+const ACCENT = "var(--accent)";
+const BG     = "var(--bg)";
+const CARD   = "var(--bg-elevated)";
+const CARD2  = "color-mix(in srgb, var(--fg) 8%, transparent)";
+const FONT   = "var(--font-sans)";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function storageKey(barSlug: string) {
@@ -134,7 +134,7 @@ function SplashScreen({ bar, onNext }: { bar: Bar; onNext: () => void }) {
           Bem-vindo
         </p>
         <h1 style={{
-          fontSize: 44, fontWeight: 900, color: "white",
+          fontSize: 44, fontWeight: 900, color: "var(--fg)",
           margin: 0, lineHeight: 0.95,
           letterSpacing: "-1.5px",
           fontFamily: FONT,
@@ -142,7 +142,7 @@ function SplashScreen({ bar, onNext }: { bar: Bar; onNext: () => void }) {
           {bar.nome}
         </h1>
         <p style={{
-          fontSize: 14, color: "rgba(255,255,255,0.35)",
+          fontSize: 14, color: "var(--fg-subtle)",
           margin: "18px 0 0", lineHeight: 1.6, fontFamily: FONT,
         }}>
           Mesa pronta. Cardápio a caminho.
@@ -152,14 +152,13 @@ function SplashScreen({ bar, onNext }: { bar: Bar; onNext: () => void }) {
       {/* Progress bar */}
       <div style={{
         position: "absolute", bottom: 52, left: 48, right: 48,
-        height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 99,
+        height: 2, background: "var(--border)", borderRadius: 2,
       }}>
         <div style={{
-          height: "100%", borderRadius: 99,
+          height: "100%", borderRadius: 2,
           background: ACCENT,
           width: `${progress * 100}%`,
           transition: "width 60ms linear",
-          boxShadow: `0 0 10px ${ACCENT}66`,
         }} />
       </div>
     </div>
@@ -183,10 +182,10 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
         <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 22px" }}>
           {bar.nome}
         </p>
-        <h1 style={{ fontSize: 32, fontWeight: 900, color: "white", margin: "0 0 14px", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
+        <h1 style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", margin: "0 0 14px", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
           Antes de começar,<br />como posso te chamar?
         </h1>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.65 }}>
+        <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.65 }}>
           Vou lembrar de você nas próximas visitas.
         </p>
       </div>
@@ -200,11 +199,11 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
           placeholder="Seu nome"
           style={{
             background: CARD2,
-            border: `1.5px solid ${valid ? "rgba(200,255,0,0.3)" : "rgba(255,255,255,0.06)"}`,
-            borderRadius: 16,
+            border: `1.5px solid ${valid ? "var(--accent-bright)" : "var(--border)"}`,
+            borderRadius: 8,
             padding: "20px 22px",
             fontSize: 20, fontWeight: 500,
-            color: "white", outline: "none",
+            color: "var(--fg)", outline: "none",
             colorScheme: "dark",
             width: "100%", boxSizing: "border-box",
             transition: "border-color 200ms",
@@ -214,9 +213,9 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
         <button
           onClick={() => valid && onConfirm(nome.trim())}
           style={{
-            background: valid ? ACCENT : "rgba(255,255,255,0.05)",
-            color: valid ? "white" : "rgba(255,255,255,0.18)",
-            border: "none", borderRadius: 16,
+            background: valid ? ACCENT : "color-mix(in srgb, var(--fg) 5%, transparent)",
+            color: valid ? "var(--accent-fg)" : "var(--fg-subtle)",
+            border: "none", borderRadius: 8,
             padding: "20px", fontSize: 16, fontWeight: 800,
             cursor: valid ? "pointer" : "default",
             transition: "all 250ms",
@@ -259,10 +258,10 @@ function WelcomeBackScreen({
         <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 18px" }}>
           De volta!
         </p>
-        <h1 style={{ fontSize: 36, fontWeight: 900, color: "white", margin: "0 0 10px", lineHeight: 1.0, letterSpacing: "-0.8px" }}>
+        <h1 style={{ fontSize: 36, fontWeight: 900, color: "var(--fg)", margin: "0 0 10px", lineHeight: 1.0, letterSpacing: "-0.8px" }}>
           Boa noite,<br />{cliente.nome} 🥃
         </h1>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
           {cliente.visitas <= 1
             ? "Primeira vez aqui. Que bom ter você!"
             : `${ordinal(cliente.visitas)} visita — você faz parte da família.`}
@@ -272,22 +271,22 @@ function WelcomeBackScreen({
       {/* Last order */}
       {ultimoProduto && (
         <div style={{ padding: "0 20px 20px" }}>
-          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
+          <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
             Da última vez
           </p>
           <div style={{
-            background: CARD, borderRadius: 20, overflow: "hidden",
+            background: CARD, borderRadius: 8, overflow: "hidden",
             display: "flex", alignItems: "stretch",
-            border: "1px solid rgba(200,255,0,0.1)",
+            border: "1px solid var(--border)",
           }}>
             <div style={{ flex: 1, padding: "18px 16px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: "0 0 4px", lineHeight: 1.2 }}>{ultimoProduto.nome}</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px", lineHeight: 1.2 }}>{ultimoProduto.nome}</p>
               <p style={{ fontSize: 15, color: ACCENT, margin: "0 0 16px", fontWeight: 800 }}>{fmt(ultimoProduto.preco)}</p>
               <button
                 onClick={() => onRepeat(ultimoProduto)}
                 style={{
-                  background: ACCENT, color: "white", border: "none",
-                  borderRadius: 10, padding: "9px 16px",
+                  background: ACCENT, color: "var(--accent-fg)", border: "none",
+                  borderRadius: 8, padding: "9px 16px",
                   fontSize: 13, fontWeight: 800, cursor: "pointer",
                   alignSelf: "flex-start", fontFamily: FONT,
                 }}
@@ -312,7 +311,7 @@ function WelcomeBackScreen({
       {/* Sugestões */}
       {sugestoes.length > 0 && (
         <div style={{ padding: "0 20px 20px" }}>
-          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
+          <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
             Você pode gostar
           </p>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
@@ -323,7 +322,7 @@ function WelcomeBackScreen({
                 style={{
                   flexShrink: 0, width: 130,
                   background: CARD, border: "none",
-                  borderRadius: 16, overflow: "hidden",
+                  borderRadius: 8, overflow: "hidden",
                   cursor: "pointer", textAlign: "left", padding: 0,
                 }}
               >
@@ -336,7 +335,7 @@ function WelcomeBackScreen({
                   />
                 )}
                 <div style={{ padding: "10px 12px 13px" }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "white", margin: "0 0 3px", lineHeight: 1.3, fontFamily: FONT }}>{p.nome}</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)", margin: "0 0 3px", lineHeight: 1.3, fontFamily: FONT }}>{p.nome}</p>
                   <p style={{ fontSize: 13, fontWeight: 800, color: ACCENT, margin: 0, fontFamily: FONT }}>{fmt(p.preco)}</p>
                 </div>
               </button>
@@ -350,8 +349,8 @@ function WelcomeBackScreen({
         <button
           onClick={onContinue}
           style={{
-            width: "100%", background: ACCENT, color: "white",
-            border: "none", borderRadius: 16, padding: "20px",
+            width: "100%", background: ACCENT, color: "var(--accent-fg)",
+            border: "none", borderRadius: 8, padding: "20px",
             fontSize: 16, fontWeight: 800, cursor: "pointer",
             letterSpacing: "-0.3px", fontFamily: FONT,
           }}
@@ -381,14 +380,14 @@ function CategoriesScreen({
     <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: FONT }}>
       {/* Header */}
       <div style={{ padding: "60px 24px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0 }}>
-        <h1 style={{ fontSize: 30, fontWeight: 900, color: "white", margin: 0, lineHeight: 1.1, letterSpacing: "-0.6px" }}>
+        <h1 style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: 0, lineHeight: 1.1, letterSpacing: "-0.6px" }}>
           Qual vai ser a<br />boa de hoje?
         </h1>
         {cartCount > 0 && (
           <button
             onClick={onCart}
             style={{
-              background: ACCENT, color: "white", border: "none", borderRadius: 99,
+              background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 8,
               padding: "10px 18px", fontSize: 13, fontWeight: 800,
               cursor: "pointer", flexShrink: 0, marginTop: 4,
               display: "flex", alignItems: "center", gap: 6, fontFamily: FONT,
@@ -408,7 +407,7 @@ function CategoriesScreen({
               key={cat.id}
               onClick={() => onSelect(cat)}
               style={{
-                flex: 1, position: "relative", borderRadius: 22,
+                flex: 1, position: "relative", borderRadius: 8,
                 overflow: "hidden", border: "none", cursor: "pointer",
                 textAlign: "left", padding: 0, background: CARD2,
               }}
@@ -422,7 +421,7 @@ function CategoriesScreen({
               )}
               <div style={{
                 position: "absolute", inset: 0,
-                background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)",
+                background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)",
               }} />
               <div style={{
                 position: "relative", height: "100%",
@@ -430,15 +429,15 @@ function CategoriesScreen({
                 justifyContent: "space-between", padding: "16px 18px",
               }}>
                 <div>
-                  <span style={{ fontSize: 21, fontWeight: 800, color: "white", display: "block", letterSpacing: "-0.4px" }}>
+                  <span style={{ fontSize: 21, fontWeight: 800, color: "var(--fg)", display: "block", letterSpacing: "-0.4px" }}>
                     {cat.nome}
                   </span>
-                  <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 3, display: "block" }}>
+                  <span style={{ fontSize: 12, color: "var(--fg-muted)", marginTop: 3, display: "block" }}>
                     {cat.produtos.length} {cat.produtos.length === 1 ? "item" : "itens"}
                   </span>
                 </div>
                 <div style={{
-                  width: 38, height: 38, borderRadius: "50%",
+                  width: 38, height: 38, borderRadius: 8,
                   background: ACCENT, display: "flex",
                   alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}>
@@ -458,15 +457,15 @@ function CategoriesScreen({
           onClick={onPedirConta}
           style={{
             background: "none", border: "none",
-            color: "rgba(255,255,255,0.28)",
+            color: "var(--fg-subtle)",
             fontSize: 13, cursor: "pointer",
             textDecoration: "underline",
             textUnderlineOffset: 3,
             fontFamily: FONT,
             transition: "color 200ms",
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.55)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.28)"; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--fg-muted)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--fg-subtle)"; }}
         >
           Pronto? Fechar a conta
         </button>
@@ -513,15 +512,15 @@ function ProductsScreen({
         )}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to top, #0c0c0c 0%, rgba(12,12,12,0.45) 55%, rgba(12,12,12,0.15) 100%)",
+          background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 45%, transparent) 55%, transparent 100%)",
         }} />
         <button
           onClick={onBack}
           style={{
             position: "absolute", top: 54, left: 16,
-            background: "rgba(0,0,0,0.5)", backdropFilter: "blur(12px)",
-            border: "none", borderRadius: 99, padding: "8px 16px",
-            color: "white", fontSize: 13, fontWeight: 500,
+            background: "color-mix(in srgb, var(--bg) 70%, transparent)", backdropFilter: "none",
+            border: "1px solid var(--border)", borderRadius: 8, padding: "8px 16px",
+            color: "var(--fg)", fontSize: 13, fontWeight: 500,
             cursor: "pointer", fontFamily: FONT,
           }}
         >
@@ -532,8 +531,8 @@ function ProductsScreen({
             onClick={onCart}
             style={{
               position: "absolute", top: 54, right: 16,
-              background: ACCENT, color: "white",
-              border: "none", borderRadius: 99, padding: "8px 18px",
+              background: ACCENT, color: "var(--accent-fg)",
+              border: "none", borderRadius: 8, padding: "8px 18px",
               fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT,
             }}
           >
@@ -541,10 +540,10 @@ function ProductsScreen({
           </button>
         )}
         <div style={{ position: "absolute", bottom: 16, left: 20 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: "white", margin: 0, letterSpacing: "-0.8px", lineHeight: 1 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.8px", lineHeight: 1 }}>
             {categoria.nome}
           </h1>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: "5px 0 0" }}>
+          <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "5px 0 0" }}>
             {ativos.length} {ativos.length === 1 ? "opção" : "opções"}
           </p>
         </div>
@@ -564,10 +563,10 @@ function ProductsScreen({
               onClick={() => !active && onSwitchCategoria(cat)}
               style={{
                 flexShrink: 0, padding: "7px 16px",
-                borderRadius: 99,
-                border: active ? "none" : "1px solid rgba(255,255,255,0.1)",
-                background: active ? ACCENT : "rgba(255,255,255,0.04)",
-                color: active ? "white" : "rgba(255,255,255,0.5)",
+                borderRadius: 4,
+                border: active ? "none" : "1px solid var(--border)",
+                background: active ? ACCENT : "color-mix(in srgb, var(--fg) 4%, transparent)",
+                color: active ? "var(--accent-fg)" : "var(--fg-subtle)",
                 fontSize: 13, fontWeight: active ? 700 : 400,
                 cursor: active ? "default" : "pointer",
                 whiteSpace: "nowrap", fontFamily: FONT,
@@ -592,7 +591,7 @@ function ProductsScreen({
             key={produto.id}
             onClick={() => onSelect(produto)}
             style={{
-              background: CARD, border: "none", borderRadius: 18,
+              background: CARD, border: "1px solid var(--border)", borderRadius: 8,
               overflow: "hidden", cursor: "pointer",
               textAlign: "left", padding: 0,
               display: "flex", flexDirection: "column",
@@ -619,7 +618,7 @@ function ProductsScreen({
               )}
             </div>
             <div style={{ padding: "11px 13px 14px", flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: "white", margin: "0 0 5px", lineHeight: 1.3 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", margin: "0 0 5px", lineHeight: 1.3 }}>
                 {produto.nome}
               </p>
               <p style={{ fontSize: 14, fontWeight: 800, color: ACCENT, margin: 0 }}>
@@ -665,15 +664,15 @@ function ProductDetailScreen({
         )}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to top, #0c0c0c 0%, rgba(12,12,12,0.2) 60%, transparent)",
+          background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 60%, transparent 100%)",
         }} />
         <button
           onClick={onBack}
           style={{
             position: "absolute", top: 52, left: 20,
-            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)",
-            border: "none", borderRadius: 99, padding: "9px 16px",
-            color: "white", fontSize: 13, cursor: "pointer", fontFamily: FONT,
+            background: "color-mix(in srgb, var(--bg) 70%, transparent)",
+            border: "1px solid var(--border)", borderRadius: 8, padding: "9px 16px",
+            color: "var(--fg)", fontSize: 13, cursor: "pointer", fontFamily: FONT,
           }}
         >
           ← Voltar
@@ -683,8 +682,8 @@ function ProductDetailScreen({
             onClick={onCart}
             style={{
               position: "absolute", top: 52, right: 20,
-              background: ACCENT, border: "none", borderRadius: 99,
-              padding: "9px 16px", color: "white",
+              background: ACCENT, border: "none", borderRadius: 8,
+              padding: "9px 16px", color: "var(--accent-fg)",
               fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT,
             }}
           >
@@ -695,38 +694,38 @@ function ProductDetailScreen({
 
       {/* Content */}
       <div style={{ padding: "24px 24px 160px" }}>
-        <h1 style={{ fontSize: 30, fontWeight: 900, color: "white", margin: "0 0 10px", lineHeight: 1.05, letterSpacing: "-0.5px" }}>
+        <h1 style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 10px", lineHeight: 1.05, letterSpacing: "-0.5px" }}>
           {produto.nome}
         </h1>
         {produto.descricao && (
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", margin: "0 0 20px", lineHeight: 1.7 }}>
+          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 20px", lineHeight: 1.7 }}>
             {produto.descricao}
           </p>
         )}
-        <p style={{ fontSize: 30, fontWeight: 900, color: "white", margin: "0 0 32px", letterSpacing: "-0.5px" }}>
+        <p style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 32px", letterSpacing: "-0.5px" }}>
           {fmt(produto.preco)}
         </p>
 
         {/* Qty picker */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>Quantidade</span>
+          <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>Quantidade</span>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <button
               onClick={() => setQty(Math.max(1, qty - 1))}
               style={{
-                width: 42, height: 42, borderRadius: "50%",
-                background: CARD2, border: "none", color: "white", fontSize: 22,
+                width: 42, height: 42, borderRadius: 8,
+                background: CARD2, border: "none", color: "var(--fg)", fontSize: 22,
                 cursor: qty > 1 ? "pointer" : "default",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 opacity: qty > 1 ? 1 : 0.3, fontFamily: FONT,
               }}
             >−</button>
-            <span style={{ fontSize: 22, fontWeight: 800, color: "white", minWidth: 28, textAlign: "center" }}>{qty}</span>
+            <span style={{ fontSize: 22, fontWeight: 800, color: "var(--fg)", minWidth: 28, textAlign: "center" }}>{qty}</span>
             <button
               onClick={() => setQty(qty + 1)}
               style={{
-                width: 42, height: 42, borderRadius: "50%",
-                background: ACCENT, border: "none", color: "white", fontSize: 22,
+                width: 42, height: 42, borderRadius: 8,
+                background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 22,
                 cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
               }}
@@ -745,9 +744,9 @@ function ProductDetailScreen({
         <button
           onClick={onBack}
           style={{
-            flex: 1, padding: "17px", borderRadius: 16,
+            flex: 1, padding: "17px", borderRadius: 8,
             background: CARD, border: "none",
-            color: "rgba(255,255,255,0.55)",
+            color: "var(--fg-muted)",
             fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
           }}
         >
@@ -756,8 +755,8 @@ function ProductDetailScreen({
         <button
           onClick={() => onAdd(produto, qty)}
           style={{
-            flex: 2.5, padding: "17px", borderRadius: 16,
-            background: ACCENT, border: "none", color: "white",
+            flex: 2.5, padding: "17px", borderRadius: 8,
+            background: ACCENT, border: "none", color: "var(--accent-fg)",
             fontSize: 15, fontWeight: 900, cursor: "pointer",
             letterSpacing: "-0.3px", fontFamily: FONT,
           }}
@@ -825,22 +824,22 @@ function CartScreen({
         padding: "0 40px", textAlign: "center", fontFamily: FONT,
       }}>
         <div style={{
-          width: 88, height: 88, borderRadius: "50%",
-          background: `radial-gradient(circle, ${ACCENT}22 0%, transparent 70%)`,
-          border: `2px solid ${ACCENT}44`,
+          width: 88, height: 88, borderRadius: 8,
+          background: "var(--bg-elevated)",
+          border: "1px solid var(--border)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 38, marginBottom: 28,
         }}>
           ✓
         </div>
-        <h2 style={{ fontSize: 28, fontWeight: 900, color: "white", margin: "0 0 12px", letterSpacing: "-0.5px" }}>
+        <h2 style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: "0 0 12px", letterSpacing: "-0.5px" }}>
           Pedido enviado!
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.7 }}>
+        <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.7 }}>
           O bartender já recebeu.<br />
           Relaxa que vem aí.
         </p>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 40 }}>
+        <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 40 }}>
           {mesaLabel} · {fmt(total)}
         </p>
       </div>
@@ -853,24 +852,24 @@ function CartScreen({
       <div style={{ padding: "52px 24px 24px", flexShrink: 0 }}>
         <button
           onClick={onBack}
-          style={{ background: "none", border: "none", color: "rgba(255,255,255,0.35)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 22, display: "block", fontFamily: FONT }}
+          style={{ background: "none", border: "none", color: "var(--fg-subtle)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 22, display: "block", fontFamily: FONT }}
         >
           ← Continuar pedindo
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{
-            width: 52, height: 52, borderRadius: "50%",
-            background: `linear-gradient(135deg, ${ACCENT}, #80e000)`,
+            width: 52, height: 52, borderRadius: 8,
+            background: ACCENT,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 21, fontWeight: 900, color: "white", flexShrink: 0,
+            fontSize: 21, fontWeight: 900, color: "var(--accent-fg)", flexShrink: 0,
           }}>
             {cliente?.nome?.[0]?.toUpperCase() ?? "?"}
           </div>
           <div>
-            <p style={{ fontSize: 18, fontWeight: 800, color: "white", margin: 0 }}>
+            <p style={{ fontSize: 18, fontWeight: 800, color: "var(--fg)", margin: 0 }}>
               Olá, {cliente?.nome ?? "você"}
             </p>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "3px 0 0" }}>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "3px 0 0" }}>
               {cliente && cliente.visitas > 1
                 ? `${ordinal(cliente.visitas)} visita · ${mesaLabel}`
                 : mesaLabel}
@@ -881,7 +880,7 @@ function CartScreen({
 
       {/* Items */}
       <div style={{ flex: 1, overflow: "auto", padding: "0 24px" }}>
-        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "0 0 18px", fontWeight: 600 }}>
+        <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "0 0 18px", fontWeight: 600 }}>
           Sua consumação
         </p>
         {cart.map((item) => (
@@ -890,21 +889,21 @@ function CartScreen({
               <img
                 src={item.produto.imagem_url}
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                style={{ width: 54, height: 54, borderRadius: 12, objectFit: "cover", flexShrink: 0 }}
+                style={{ width: 54, height: 54, borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
                 alt={item.produto.nome}
               />
             ) : (
-              <div style={{ width: 54, height: 54, borderRadius: 12, background: CARD2, flexShrink: 0 }} />
+              <div style={{ width: 54, height: 54, borderRadius: 8, background: CARD2, flexShrink: 0 }} />
             )}
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0, lineHeight: 1.3 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0, lineHeight: 1.3 }}>
                 {item.quantidade > 1 && (
                   <span style={{ color: ACCENT, fontWeight: 800, marginRight: 6 }}>{item.quantidade}×</span>
                 )}
                 {item.produto.nome}
               </p>
             </div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "white", margin: 0, flexShrink: 0 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", margin: 0, flexShrink: 0 }}>
               {fmt(item.produto.preco * item.quantidade)}
             </p>
           </div>
@@ -912,13 +911,13 @@ function CartScreen({
       </div>
 
       {/* Footer */}
-      <div style={{ padding: "20px 24px 44px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+      <div style={{ padding: "20px 24px 44px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-          <span style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>Total a pagar</span>
-          <span style={{ fontSize: 28, fontWeight: 900, color: "white", letterSpacing: "-0.8px" }}>{fmt(total)}</span>
+          <span style={{ fontSize: 14, color: "var(--fg-subtle)" }}>Total a pagar</span>
+          <span style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.8px" }}>{fmt(total)}</span>
         </div>
         {error && (
-          <p style={{ fontSize: 12, color: "#ff6b6b", textAlign: "center", margin: "0 0 12px" }}>
+          <p style={{ fontSize: 12, color: "var(--danger)", textAlign: "center", margin: "0 0 12px" }}>
             {error}
           </p>
         )}
@@ -926,9 +925,9 @@ function CartScreen({
           onClick={handleEnviar}
           disabled={submitting}
           style={{
-            width: "100%", padding: "20px", borderRadius: 16,
-            background: submitting ? "rgba(38,0,120,0.50)" : ACCENT,
-            border: "none", color: "white",
+            width: "100%", padding: "20px", borderRadius: 8,
+            background: submitting ? "color-mix(in srgb, var(--accent) 50%, transparent)" : ACCENT,
+            border: "none", color: "var(--accent-fg)",
             fontSize: 16, fontWeight: 900,
             cursor: submitting ? "default" : "pointer",
             letterSpacing: "-0.3px", fontFamily: FONT,
@@ -937,7 +936,7 @@ function CartScreen({
         >
           {submitting ? "Enviando..." : "Fazer pedido →"}
         </button>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.18)", textAlign: "center", margin: "14px 0 0" }}>
+        <p style={{ fontSize: 11, color: "var(--fg-subtle)", textAlign: "center", margin: "14px 0 0" }}>
           O bartender recebe o pedido na hora
         </p>
       </div>
@@ -979,10 +978,10 @@ function PedirContaScreen({
         <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 22px" }}>
           {mesaLabel}
         </p>
-        <h1 style={{ fontSize: 34, fontWeight: 900, color: "white", margin: "0 0 16px", lineHeight: 1.05, letterSpacing: "-0.8px" }}>
+        <h1 style={{ fontSize: 34, fontWeight: 900, color: "var(--fg)", margin: "0 0 16px", lineHeight: 1.05, letterSpacing: "-0.8px" }}>
           Fechar a conta?
         </h1>
-        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.7 }}>
+        <p style={{ fontSize: 15, color: "var(--fg-muted)", margin: 0, lineHeight: 1.7 }}>
           Ao confirmar, o garçom vai até você para finalizar o pagamento.
           Você não poderá mais fazer pedidos nesta mesa.
         </p>
@@ -993,9 +992,9 @@ function PedirContaScreen({
           onClick={handleConfirm}
           disabled={isPending}
           style={{
-            padding: "20px", borderRadius: 16,
-            background: isPending ? "rgba(38,0,120,0.50)" : ACCENT,
-            border: "none", color: "white",
+            padding: "20px", borderRadius: 8,
+            background: isPending ? "color-mix(in srgb, var(--accent) 50%, transparent)" : ACCENT,
+            border: "none", color: "var(--accent-fg)",
             fontSize: 16, fontWeight: 900,
             cursor: isPending ? "default" : "pointer",
             letterSpacing: "-0.3px", fontFamily: FONT,
@@ -1008,9 +1007,9 @@ function PedirContaScreen({
           onClick={onBack}
           disabled={isPending}
           style={{
-            padding: "18px", borderRadius: 16,
+            padding: "18px", borderRadius: 8,
             background: CARD, border: "none",
-            color: "rgba(255,255,255,0.45)",
+            color: "var(--fg-muted)",
             fontSize: 15, fontWeight: 600,
             cursor: "pointer", fontFamily: FONT,
           }}
@@ -1035,21 +1034,21 @@ function ContaSolicitadaScreen({ mesa }: { mesa: Mesa }) {
       padding: "0 40px", textAlign: "center",
     }}>
       <div style={{
-        width: 96, height: 96, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(200,255,0,0.12) 0%, transparent 70%)",
-        border: "2px solid rgba(200,255,0,0.2)",
+        width: 96, height: 96, borderRadius: 8,
+        background: "var(--bg-elevated)",
+        border: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 42, marginBottom: 32,
       }}>
         🧾
       </div>
-      <h2 style={{ fontSize: 30, fontWeight: 900, color: "white", margin: "0 0 14px", letterSpacing: "-0.6px", lineHeight: 1.1 }}>
+      <h2 style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 14px", letterSpacing: "-0.6px", lineHeight: 1.1 }}>
         Conta solicitada!
       </h2>
-      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.7 }}>
+      <p style={{ fontSize: 15, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.7 }}>
         Seu garçom vai até você<br />em instantes para finalizar.
       </p>
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.20)", marginTop: 40 }}>
+      <p style={{ fontSize: 12, color: "var(--fg-subtle)", marginTop: 40 }}>
         {mesaLabel}
       </p>
     </div>
@@ -1064,8 +1063,8 @@ function Toast({ visible }: { visible: boolean }) {
       transform: `translateX(-50%) translateY(${visible ? 0 : -16}px)`,
       opacity: visible ? 1 : 0,
       transition: "all 280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-      background: ACCENT, color: "white",
-      padding: "10px 22px", borderRadius: 99,
+      background: ACCENT, color: "var(--accent-fg)",
+      padding: "10px 22px", borderRadius: 8,
       fontSize: 13, fontWeight: 800,
       zIndex: 200, pointerEvents: "none",
       whiteSpace: "nowrap", fontFamily: FONT,

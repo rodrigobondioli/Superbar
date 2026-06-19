@@ -26,36 +26,42 @@ function InsightsBar({ insights }: { insights: CaixaInsights }) {
   return (
     <div style={{ padding: "20px 24px 20px" }}>
 
-      {/* 3 stats — mesma escala, sem caixas */}
+      {/* 3 stats */}
       <div style={{ display: "flex", gap: 0 }}>
         {[
-          { label: "Faturado", value: currency.format(insights.totalTurno),  color: "#ffffff" },
-          { label: "Pagas",    value: String(insights.comandasPagas),         color: "rgba(255,255,255,0.85)" },
-          { label: "Ticket",   value: currency.format(insights.ticketMedio),  color: "rgba(255,255,255,0.50)" },
+          { label: "Faturado", value: currency.format(insights.totalTurno),  primary: true },
+          { label: "Pagas",    value: String(insights.comandasPagas),         primary: false },
+          { label: "Ticket",   value: currency.format(insights.ticketMedio),  primary: false },
         ].map((s, i) => (
           <div key={s.label} style={{
             flex: i === 0 ? 2 : 1,
             paddingLeft: i > 0 ? 20 : 0,
             marginLeft: i > 0 ? 20 : 0,
-            borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.08)" : "none",
+            borderLeft: i > 0 ? "1px solid var(--border)" : "none",
           }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.30)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 5px" }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 5px" }}>
               {s.label}
             </p>
-            <p style={{ fontSize: i === 0 ? 26 : 20, fontWeight: 800, color: s.color, margin: 0, letterSpacing: i === 0 ? "-0.6px" : "-0.3px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+            <p style={{
+              fontSize: i === 0 ? 26 : 20, fontWeight: 800,
+              color: i === 0 ? "var(--fg)" : "var(--fg-muted)",
+              margin: 0, letterSpacing: i === 0 ? "-0.6px" : "-0.3px",
+              fontVariantNumeric: "tabular-nums", lineHeight: 1,
+              fontFamily: "var(--font-mono)",
+            }}>
               {s.value}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Métodos — linha discreta abaixo, sem caixas */}
+      {/* Métodos */}
       {insights.porMetodo.length > 0 && (
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)" }}>
           {insights.porMetodo.map(m => (
-            <span key={m.metodo} style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>
-              <span style={{ color: "rgba(255,255,255,0.28)" }}>{METODO_LABEL[m.metodo]}</span>
-              {" "}<span style={{ fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{currency.format(m.total)}</span>
+            <span key={m.metodo} style={{ fontSize: 12, color: "var(--fg-muted)" }}>
+              <span style={{ color: "var(--fg-subtle)" }}>{METODO_LABEL[m.metodo]}</span>
+              {" "}<span style={{ fontWeight: 700, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>{currency.format(m.total)}</span>
             </span>
           ))}
         </div>
@@ -81,7 +87,7 @@ function MesaChips({
         padding: "0 20px 14px",
         display: "flex", gap: 6,
         overflowX: "auto",
-        background: "#0a0a10",
+        background: "var(--bg)",
       }}
     >
       <button
@@ -89,15 +95,17 @@ function MesaChips({
         style={{
           flexShrink: 0,
           display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-          padding: "9px 14px", borderRadius: 10, border: "none",
-          background: filtro === null ? "rgba(109,40,217,0.35)" : "rgba(255,255,255,0.05)",
+          padding: "9px 14px", borderRadius: 8, border: "none",
+          background: filtro === null
+            ? "color-mix(in srgb, var(--accent) 35%, transparent)"
+            : "color-mix(in srgb, var(--fg) 5%, transparent)",
           cursor: "pointer", transition: "background 150ms", minWidth: 56,
         }}
       >
-        <span style={{ fontSize: 12, fontWeight: 700, color: filtro === null ? "white" : "rgba(255,255,255,0.45)" }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: filtro === null ? "var(--fg)" : "var(--fg-muted)" }}>
           Todas
         </span>
-        <span style={{ fontSize: 11, fontWeight: 600, color: filtro === null ? "rgba(200,180,255,0.75)" : "rgba(255,255,255,0.25)" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: filtro === null ? "var(--accent-bright)" : "var(--fg-subtle)" }}>
           {lista.length}
         </span>
       </button>
@@ -111,15 +119,17 @@ function MesaChips({
             style={{
               flexShrink: 0,
               display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
-              padding: "9px 14px", borderRadius: 10, border: "none",
-              background: ativo ? "rgba(109,40,217,0.35)" : "rgba(255,255,255,0.05)",
+              padding: "9px 14px", borderRadius: 8, border: "none",
+              background: ativo
+                ? "color-mix(in srgb, var(--accent) 35%, transparent)"
+                : "color-mix(in srgb, var(--fg) 5%, transparent)",
               cursor: "pointer", transition: "background 150ms", minWidth: 72, textAlign: "left",
             }}
           >
-            <span style={{ fontSize: 12, fontWeight: 700, color: ativo ? "white" : "rgba(255,255,255,0.50)", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: ativo ? "var(--fg)" : "var(--fg-muted)", whiteSpace: "nowrap" }}>
               {c.mesa}
             </span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: ativo ? "rgba(200,180,255,0.80)" : "rgba(255,255,255,0.28)", fontVariantNumeric: "tabular-nums" }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: ativo ? "var(--accent-bright)" : "var(--fg-subtle)", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
               {currency.format(c.total)}
             </span>
           </button>
@@ -145,17 +155,17 @@ function CortesiaModal({
 
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", backdropFilter: "blur(4px)", zIndex: 50 }} />
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", zIndex: 50 }} />
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
-        background: "#111118", borderTop: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: "20px 20px 0 0", padding: "24px 24px 40px", zIndex: 51,
+        background: "var(--bg-elevated)", borderTop: "1px solid var(--border)",
+        borderRadius: "8px 8px 0 0", padding: "24px 24px 40px", zIndex: 51,
       }}>
-        <div style={{ width: 36, height: 4, borderRadius: 99, background: "rgba(255,255,255,0.12)", margin: "0 auto 20px" }} />
-        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.30)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 5px" }}>
+        <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 20px" }} />
+        <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 5px" }}>
           Cortesia — {comanda.mesa}
         </p>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "white", margin: "0 0 20px" }}>Qual o motivo?</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 20px", fontFamily: "var(--font-mono)" }}>Qual o motivo?</h2>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
           {MOTIVOS_RAPIDOS.map(m => (
@@ -163,9 +173,11 @@ function CortesiaModal({
               key={m}
               onClick={() => setMotivo(m)}
               style={{
-                padding: "7px 14px", borderRadius: 8, border: "none",
-                background: motivo === m ? "rgba(109,40,217,0.20)" : "rgba(255,255,255,0.06)",
-                color: motivo === m ? "rgba(167,139,250,0.90)" : "rgba(255,255,255,0.45)",
+                padding: "7px 14px", borderRadius: 4, border: "none",
+                background: motivo === m
+                  ? "color-mix(in srgb, var(--accent-bright) 20%, transparent)"
+                  : "color-mix(in srgb, var(--fg) 6%, transparent)",
+                color: motivo === m ? "var(--accent-bright)" : "var(--fg-muted)",
                 fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 150ms",
               }}
             >
@@ -180,28 +192,30 @@ function CortesiaModal({
           placeholder="Ou escreva o motivo..."
           style={{
             width: "100%", boxSizing: "border-box",
-            background: "rgba(255,255,255,0.05)", border: "none",
-            borderRadius: 10, padding: "13px 16px",
-            fontSize: 14, color: "white", outline: "none", marginBottom: 16,
+            background: "var(--bg-inset)", border: "1px solid var(--border)",
+            borderRadius: 4, padding: "13px 16px",
+            fontSize: 14, color: "var(--fg)", outline: "none", marginBottom: 16,
             colorScheme: "dark",
           }}
         />
 
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: "14px", background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 10, color: "rgba(255,255,255,0.45)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "14px", background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "none", borderRadius: 8, color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
             Cancelar
           </button>
           <button
             onClick={() => valid && onConfirm(motivo.trim())}
             disabled={!valid}
             style={{
-              flex: 2, padding: "14px", border: "none", borderRadius: 10,
-              background: valid ? "rgba(109,40,217,0.25)" : "rgba(255,255,255,0.04)",
-              color: valid ? "rgba(167,139,250,0.95)" : "rgba(255,255,255,0.18)",
+              flex: 2, padding: "14px", border: "none", borderRadius: 8,
+              background: valid
+                ? "color-mix(in srgb, var(--accent-bright) 25%, transparent)"
+                : "color-mix(in srgb, var(--fg) 4%, transparent)",
+              color: valid ? "var(--accent-bright)" : "var(--fg-subtle)",
               fontSize: 14, fontWeight: 700, cursor: valid ? "pointer" : "default", transition: "all 150ms",
             }}
           >
-            🎁 Confirmar cortesia
+            Confirmar cortesia
           </button>
         </div>
       </div>
@@ -237,17 +251,18 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
 
   if (pago) {
     return (
+      /* ok token — semantic allowed in Caixa */
       <div style={{
-        background: "rgba(74,222,128,0.05)",
-        border: "1px solid rgba(74,222,128,0.12)",
-        borderRadius: 14, padding: "18px 20px",
+        background: "var(--ok-bg)",
+        border: "1px solid color-mix(in srgb, var(--ok) 20%, transparent)",
+        borderRadius: 8, padding: "18px 20px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: "rgba(74,222,128,0.9)", margin: 0 }}>✓ {comanda.mesa}</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", margin: "3px 0 0" }}>Pago via {metodoPago}</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "var(--ok)", margin: 0 }}>✓ {comanda.mesa}</p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>Pago via {metodoPago}</p>
         </div>
-        <p style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.35)", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+        <p style={{ fontSize: 18, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
           {currency.format(comanda.total)}
         </p>
       </div>
@@ -255,14 +270,14 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
   }
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 14, overflow: "hidden" }}>
+    <div style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
       {/* Header do card */}
       <div style={{ padding: "16px 20px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontSize: 17, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.3px" }}>{comanda.mesa}</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.30)", margin: "3px 0 0" }}>aberta há {tempo}</p>
+          <p style={{ fontSize: 17, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>{comanda.mesa}</p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>aberta há {tempo}</p>
         </div>
-        <p style={{ fontSize: 24, fontWeight: 900, color: "white", margin: 0, letterSpacing: "-0.5px", fontVariantNumeric: "tabular-nums" }}>
+        <p style={{ fontSize: 24, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
           {currency.format(comanda.total)}
         </p>
       </div>
@@ -272,11 +287,11 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
         <div style={{ padding: "0 20px 14px" }}>
           {comanda.itens.map((item, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", margin: 0 }}>
-                <span style={{ color: "rgba(255,255,255,0.22)", marginRight: 7 }}>{item.quantidade}×</span>
+              <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+                <span style={{ color: "var(--fg-subtle)", marginRight: 7 }}>{item.quantidade}×</span>
                 {item.nome}
               </p>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
                 {currency.format(item.preco_total)}
               </p>
             </div>
@@ -285,8 +300,9 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
       )}
 
       {/* Pagamento */}
-      <div style={{ padding: "14px 20px 18px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-        {error && <p style={{ fontSize: 12, color: "rgba(239,68,68,0.85)", margin: "0 0 10px" }}>{error}</p>}
+      <div style={{ padding: "14px 20px 18px", borderTop: "1px solid var(--border)" }}>
+        {/* danger token — semantic allowed in Caixa */}
+        {error && <p style={{ fontSize: 12, color: "var(--danger)", margin: "0 0 10px" }}>{error}</p>}
 
         {/* Primários: Pix e Dinheiro */}
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -300,14 +316,14 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
                 style={{
                   flex: 1, height: 64,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  background: "rgba(255,255,255,0.09)", borderRadius: 12, border: "none",
+                  background: "color-mix(in srgb, var(--fg) 9%, transparent)", borderRadius: 8, border: "none",
                   cursor: isPending ? "not-allowed" : "pointer",
                   opacity: isPending ? 0.5 : 1,
                   transition: "background 150ms",
                 }}
               >
                 <span style={{ fontSize: 22 }}>{m.icon}</span>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "white" }}>{m.label}</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--fg)" }}>{m.label}</span>
               </button>
             );
           })}
@@ -326,15 +342,18 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
                 style={{
                   flex: 1, height: 52,
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                  background: isCortesia ? "rgba(109,40,217,0.15)" : "rgba(255,255,255,0.05)",
-                  borderRadius: 10, border: "none",
+                  /* warn token for cortesia — semantic allowed in Caixa */
+                  background: isCortesia
+                    ? "color-mix(in srgb, var(--warn) 12%, transparent)"
+                    : "color-mix(in srgb, var(--fg) 5%, transparent)",
+                  borderRadius: 8, border: "none",
                   cursor: isPending ? "not-allowed" : "pointer",
                   opacity: isPending ? 0.5 : 1,
                   transition: "background 150ms",
                 }}
               >
                 <span style={{ fontSize: 15 }}>{m.icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: isCortesia ? "rgba(167,139,250,0.85)" : "rgba(255,255,255,0.50)" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isCortesia ? "var(--warn)" : "var(--fg-muted)" }}>
                   {m.label}
                 </span>
               </button>
@@ -397,18 +416,19 @@ export function CaixaTela({ comandas, insights, barNome }: {
       {/* Header */}
       <div style={{
         padding: "14px 24px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 10,
-        background: "#0a0a10",
+        background: "var(--bg)",
         height: 56, boxSizing: "border-box",
       }}>
         <div>
-          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>{barNome}</p>
-          <h1 style={{ fontSize: 17, fontWeight: 700, color: "white", margin: "2px 0 0" }}>Caixa</h1>
+          <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>{barNome}</p>
+          <h1 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: "2px 0 0", fontFamily: "var(--font-mono)" }}>Caixa</h1>
         </div>
+        {/* ok token — semantic allowed in Caixa */}
         {listaAtual.length === 0 && (
-          <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(74,222,128,0.85)" }}>Caixa limpo ✓</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ok)" }}>Caixa limpo ✓</span>
         )}
       </div>
 
@@ -418,17 +438,17 @@ export function CaixaTela({ comandas, insights, barNome }: {
         <MesaChips lista={listaAtual} filtro={filtro} onFiltro={setFiltro} />
       )}
 
-      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 0 0 0" }} />
+      <div style={{ height: 1, background: "var(--border)" }} />
       <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
         {listaAtual.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 8 }}>
-            <p style={{ fontSize: 36, margin: 0 }}>✓</p>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "white", margin: 0 }}>Nada pendente</p>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)", margin: 0 }}>Todas as comandas foram pagas.</p>
+            <p style={{ fontSize: 36, margin: 0, color: "var(--ok)" }}>✓</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Nada pendente</p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Todas as comandas foram pagas.</p>
           </div>
         ) : listaFiltrada.length === 0 ? (
           <div style={{ padding: "48px 0", textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.30)", margin: 0 }}>Nenhuma comanda para {filtro}.</p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma comanda para {filtro}.</p>
           </div>
         ) : (
           listaFiltrada.map(c => (

@@ -48,13 +48,13 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             style={{
               fontSize: "14px",
               fontWeight: isActive ? 500 : 400,
-              padding: isActive ? "5px 14px" : "5px 14px",
-              borderRadius: "99px",
+              padding: "5px 14px",
+              borderRadius: "4px",
               border: "none",
               cursor: "pointer",
               transition: "all 0.15s",
-              background: isActive ? "#260078" : "transparent",
-              color: isActive ? "white" : "rgba(255,255,255,0.38)",
+              background: isActive ? "var(--accent)" : "transparent",
+              color: isActive ? "var(--accent-fg)" : "var(--fg-subtle)",
             }}
           >
             {opcao.label}
@@ -71,8 +71,8 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             gap: "8px",
             marginLeft: "8px",
             padding: "5px 14px",
-            background: "rgba(255,255,255,0.06)",
-            borderRadius: "99px",
+            background: "var(--bg-inset)",
+            borderRadius: "4px",
           }}
         >
           <input
@@ -80,15 +80,15 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             value={inicio}
             max={fim || undefined}
             onChange={(e) => setInicio(e.target.value)}
-            style={{ fontSize: "13px", background: "transparent", border: "none", color: "white", outline: "none", colorScheme: "dark" }}
+            style={{ fontSize: "13px", background: "transparent", border: "none", color: "var(--fg)", outline: "none", colorScheme: "dark" }}
           />
-          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "13px" }}>→</span>
+          <span style={{ color: "var(--fg-subtle)", fontSize: "13px" }}>→</span>
           <input
             type="date"
             value={fim}
             min={inicio || undefined}
             onChange={(e) => setFim(e.target.value)}
-            style={{ fontSize: "13px", background: "transparent", border: "none", color: "white", outline: "none", colorScheme: "dark" }}
+            style={{ fontSize: "13px", background: "transparent", border: "none", color: "var(--fg)", outline: "none", colorScheme: "dark" }}
           />
           <button
             type="submit"
@@ -97,10 +97,10 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
               fontSize: "12px",
               fontWeight: 500,
               padding: "3px 12px",
-              borderRadius: "99px",
+              borderRadius: "4px",
               border: "none",
-              background: "#260078",
-              color: "white",
+              background: "var(--accent)",
+              color: "var(--accent-fg)",
               cursor: "pointer",
               opacity: (!inicio || !fim) ? 0.4 : 1,
             }}

@@ -14,7 +14,7 @@ function AbrirTurnoButton() {
   return (
     <div>
       {state?.error && (
-        <p style={{ fontSize: 12, color: "rgba(239,68,68,0.9)", marginBottom: 8, textAlign: "right" }}>
+        <p style={{ fontSize: 12, color: "var(--danger)", marginBottom: 8, textAlign: "right" }}>
           {state.error}
         </p>
       )}
@@ -23,9 +23,9 @@ function AbrirTurnoButton() {
           type="submit"
           disabled={pending}
           style={{
-            padding: "10px 20px", borderRadius: 10,
-            background: "#260078", color: "white",
-            border: "none", fontSize: 13, fontWeight: 700,
+            padding: "10px 20px", borderRadius: 4,
+            background: "var(--accent)", color: "var(--accent-fg)",
+            border: "none", fontSize: 13, fontWeight: 600,
             cursor: pending ? "not-allowed" : "pointer",
             opacity: pending ? 0.7 : 1,
           }}
@@ -46,7 +46,7 @@ function FecharTurnoButton({ turnoId }: { turnoId: string }) {
   return (
     <div>
       {state?.error && (
-        <p style={{ fontSize: 12, color: "rgba(239,68,68,0.9)", marginBottom: 8, textAlign: "right", maxWidth: 280 }}>
+        <p style={{ fontSize: 12, color: "var(--danger)", marginBottom: 8, textAlign: "right", maxWidth: 280 }}>
           {state.error}
         </p>
       )}
@@ -55,11 +55,11 @@ function FecharTurnoButton({ turnoId }: { turnoId: string }) {
           type="submit"
           disabled={pending}
           style={{
-            padding: "10px 20px", borderRadius: 10,
-            background: "rgba(239,68,68,0.12)",
-            border: "1px solid rgba(239,68,68,0.25)",
-            color: "rgba(239,68,68,0.9)",
-            fontSize: 13, fontWeight: 700,
+            padding: "10px 20px", borderRadius: 4,
+            background: "var(--danger-bg)",
+            border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
+            color: "var(--danger)",
+            fontSize: 13, fontWeight: 600,
             cursor: pending ? "not-allowed" : "pointer",
             opacity: pending ? 0.7 : 1,
           }}

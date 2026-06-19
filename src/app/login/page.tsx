@@ -13,125 +13,62 @@ export default function LoginPage({
 
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [btnHovered, setBtnHovered] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const inputStyle = (focused: boolean) => ({
+  const inputStyle = (focused: boolean): React.CSSProperties => ({
     width: "100%",
-    background: "rgba(255, 255, 255, 0.06)",
-    border: `1px solid ${focused ? "rgba(255,255,255,0.7)" : "rgba(255, 255, 255, 0.1)"}`,
-    borderRadius: "12px",
+    background: "var(--bg-inset)",
+    border: `1px solid ${focused ? "var(--fg)" : "var(--border)"}`,
+    borderRadius: "4px",
     padding: "14px 16px",
-    color: "white",
+    color: "var(--fg)",
     fontSize: "14px",
     outline: "none",
+    boxSizing: "border-box",
+    colorScheme: "dark",
   });
 
   return (
     <>
-      <style>{`
-        @keyframes orb1 {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(80px, -60px) scale(1.1); }
-          66% { transform: translate(-40px, 40px) scale(0.95); }
-        }
-        @keyframes orb2 {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(-70px, 50px) scale(0.9); }
-          66% { transform: translate(60px, -30px) scale(1.05); }
-        }
-        @keyframes orb3 {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          50% { transform: translate(50px, 60px) scale(1.1); }
-        }
-        @keyframes orb4 {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          40% { transform: translate(-60px, -50px) scale(0.95); }
-          80% { transform: translate(30px, 20px) scale(1.05); }
-        }
-        input::placeholder { color: rgba(255,255,255,0.35); }
-      `}</style>
+      <style>{`input::placeholder { color: var(--fg-subtle); }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      <div className="min-h-screen relative overflow-hidden flex flex-col" style={{ background: "#0d0018" }}>
-        {/* Orb 1 - purple/violet */}
-        <div style={{
-          position: "absolute", width: "900px", height: "900px",
-          borderRadius: "50%", filter: "blur(160px)", opacity: 0.55,
-          background: "#7c3aed",
-          top: "-200px", left: "-150px",
-          animation: "orb1 28s ease-in-out infinite",
-        }} />
-        {/* Orb 2 - pink/rose */}
-        <div style={{
-          position: "absolute", width: "800px", height: "800px",
-          borderRadius: "50%", filter: "blur(140px)", opacity: 0.45,
-          background: "#f43f5e",
-          bottom: "-150px", right: "-100px",
-          animation: "orb2 35s ease-in-out infinite",
-        }} />
-        {/* Orb 3 - green/emerald */}
-        <div style={{
-          position: "absolute", width: "700px", height: "700px",
-          borderRadius: "50%", filter: "blur(130px)", opacity: 0.38,
-          background: "#10b981",
-          top: "30%", right: "10%",
-          animation: "orb3 22s ease-in-out infinite",
-        }} />
-        {/* Orb 4 - amber/yellow */}
-        <div style={{
-          position: "absolute", width: "650px", height: "650px",
-          borderRadius: "50%", filter: "blur(120px)", opacity: 0.35,
-          background: "#f59e0b",
-          bottom: "10%", left: "15%",
-          animation: "orb4 30s ease-in-out infinite",
-        }} />
-        {/* Orb 5 - deep indigo, fills center */}
-        <div style={{
-          position: 'absolute', width: '800px', height: '800px',
-          borderRadius: '50%', filter: 'blur(180px)', opacity: 0.4,
-          background: '#4c1d95',
-          top: '20%', left: '50%', transform: 'translateX(-50%)',
-          animation: 'orb2 40s ease-in-out infinite',
-        }} />
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
 
-        {/* Versão — top-right */}
-        <div className="absolute top-8 right-8">
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontWeight: 500, letterSpacing: "0.04em" }}>
+        {/* Version — top-right */}
+        <div style={{ position: "absolute", top: 32, right: 32 }}>
+          <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontWeight: 500, letterSpacing: "0.04em" }}>
             Versão 1.0
           </span>
         </div>
 
         {/* Logo — top-left */}
-        <div className="absolute top-8 left-8">
-          <Image
-            src="/superbar-logo.svg"
-            width={92}
-            height={31}
-            alt="Superbar"
-            priority
-          />
+        <div style={{ position: "absolute", top: 32, left: 32 }}>
+          <Image src="/superbar-logo.svg" width={92} height={31} alt="Superbar" priority />
         </div>
 
         {/* Center content */}
-        <div style={{ position: "relative", zIndex: 10 }} className="flex flex-col items-center justify-center flex-1 px-4 pb-16">
-          <h1 className="text-3xl font-semibold text-white mb-2">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px 64px" }}>
+          <h1 style={{ fontSize: 28, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-mono)", textAlign: "center" }}>
             Seja bem-vindo ao Superbar
           </h1>
-          <p className="text-sm text-white/50 mb-8">
+          <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "0 0 32px", textAlign: "center" }}>
             The operating system for premium bars.
           </p>
 
           {/* Card */}
           <div style={{
             width: "100%", maxWidth: "420px",
-            background: "rgba(255, 255, 255, 0.06)",
-            backdropFilter: "blur(60px) saturate(180%)",
-            WebkitBackdropFilter: "blur(60px) saturate(180%)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            borderRadius: "24px",
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
             padding: "40px",
           }}>
-            <form action={signIn} className="flex flex-col gap-4" onSubmit={() => setLoading(true)}>
+            <form
+              action={signIn}
+              style={{ display: "flex", flexDirection: "column", gap: 16 }}
+              onSubmit={() => setLoading(true)}
+            >
               <input
                 type="email"
                 name="email"
@@ -142,16 +79,21 @@ export default function LoginPage({
                 onBlur={() => setEmailFocused(false)}
               />
               <input
-                  type="password"
-                  name="password"
-                  placeholder="Senha"
-                  required
-                  style={inputStyle(passwordFocused)}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
-                />
+                type="password"
+                name="password"
+                placeholder="Senha"
+                required
+                style={inputStyle(passwordFocused)}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+              />
               {error && (
-                <p className="text-sm rounded-md border border-white/20 bg-white/5 px-3 py-2 text-white">
+                <p style={{
+                  fontSize: 13, borderRadius: 4,
+                  border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
+                  background: "var(--danger-bg)",
+                  padding: "8px 12px", color: "var(--danger)", margin: 0,
+                }}>
                   {error}
                 </p>
               )}
@@ -160,11 +102,11 @@ export default function LoginPage({
                 disabled={loading}
                 style={{
                   width: "100%",
-                  background: loading ? "rgba(38,0,120,0.50)" : btnHovered ? "#3a00a8" : "#260078",
+                  background: loading ? "color-mix(in srgb, var(--accent) 50%, transparent)" : "var(--accent)",
                   border: "none",
-                  borderRadius: "12px",
+                  borderRadius: "4px",
                   padding: "14px",
-                  color: loading ? "rgba(255,255,255,0.5)" : "white",
+                  color: loading ? "color-mix(in srgb, var(--accent-fg) 50%, transparent)" : "var(--accent-fg)",
                   fontWeight: "700",
                   fontSize: "14px",
                   cursor: loading ? "default" : "pointer",
@@ -175,27 +117,25 @@ export default function LoginPage({
                   justifyContent: "center",
                   gap: "8px",
                 }}
-                onMouseEnter={() => !loading && setBtnHovered(true)}
-                onMouseLeave={() => setBtnHovered(false)}
               >
                 {loading && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
-                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                    <circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-                    <path d="M8 2a6 6 0 0 1 6 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="8" cy="8" r="6" stroke="var(--fg-subtle)" strokeWidth="2" />
+                    <path d="M8 2a6 6 0 0 1 6 6" stroke="var(--accent-fg)" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 )}
                 {loading ? "Entrando..." : "Entrar"}
               </button>
             </form>
           </div>
+
           <a href="#" style={{
-            marginTop: '16px',
-            color: 'rgba(255,255,255,0.45)',
-            fontSize: '13px',
-            textDecoration: 'underline',
-            textUnderlineOffset: '3px',
-            cursor: 'pointer',
+            marginTop: "16px",
+            color: "var(--fg-subtle)",
+            fontSize: "13px",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
+            cursor: "pointer",
           }}>Esqueceu a senha?</a>
         </div>
       </div>

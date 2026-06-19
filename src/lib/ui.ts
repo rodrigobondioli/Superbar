@@ -1,67 +1,52 @@
-/**
- * Shared design tokens for all dashboard pages.
- * Import what you need — all values are plain CSSProperties objects.
- */
 import type { CSSProperties } from "react";
 
-// ─── Colors ───────────────────────────────────────────────────────────────────
-export const ACCENT  = "#260078";
-export const BG      = "#0a0a10";
-export const C_WHITE = "#ffffff";
-export const C_MUTED = "rgba(255,255,255,0.45)";
-export const C_DIM   = "rgba(255,255,255,0.30)";
-export const C_LABEL = "rgba(255,255,255,0.38)";
-
-// ─── Card ─────────────────────────────────────────────────────────────────────
 export const CARD: CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  borderRadius: 12,
+  background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
+  borderRadius: 4,
 };
 
-// ─── Typography ───────────────────────────────────────────────────────────────
-/** 11px uppercase label — use for section titles and column headers */
 export const LABEL: CSSProperties = {
   fontSize: 11,
   fontWeight: 500,
-  color: C_LABEL,
+  color: "var(--fg-subtle)",
   textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
   margin: 0,
 };
 
-/** Page h1 */
 export const H1: CSSProperties = {
   fontSize: 22,
   fontWeight: 600,
-  color: C_WHITE,
+  color: "var(--fg)",
+  fontFamily: "var(--font-mono)",
+  letterSpacing: "-0.01em",
   margin: 0,
 };
 
-/** Subtitle under h1 */
 export const SUBTITLE: CSSProperties = {
   fontSize: 14,
-  color: C_MUTED,
+  color: "var(--fg-muted)",
   margin: "6px 0 0",
 };
 
-// ─── Buttons ──────────────────────────────────────────────────────────────────
 export const BTN_PRIMARY: CSSProperties = {
-  background: ACCENT,
-  color: "white",
+  background: "var(--accent)",
+  color: "var(--accent-fg)",
   border: "none",
-  borderRadius: 8,
+  borderRadius: 4,
   padding: "9px 18px",
   fontSize: 13,
-  fontWeight: 700,
+  fontWeight: 600,
   cursor: "pointer",
   whiteSpace: "nowrap",
 };
 
 export const BTN_SECONDARY: CSSProperties = {
-  background: "rgba(255,255,255,0.07)",
-  color: "rgba(255,255,255,0.70)",
-  border: "none",
-  borderRadius: 8,
+  background: "transparent",
+  color: "var(--fg-muted)",
+  border: "1px solid var(--border-strong)",
+  borderRadius: 4,
   padding: "9px 18px",
   fontSize: 13,
   fontWeight: 500,
@@ -77,31 +62,30 @@ export const BTN_ICON: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   padding: 6,
-  borderRadius: 6,
-  color: "rgba(255,255,255,0.35)",
+  borderRadius: 4,
+  color: "var(--fg-subtle)",
 };
 
-// ─── Form inputs ──────────────────────────────────────────────────────────────
 export const INPUT: CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
-  borderRadius: 8,
+  background: "var(--bg-inset)",
+  border: "1px solid var(--border)",
+  borderRadius: 4,
   padding: "9px 12px",
   fontSize: 13,
-  color: "white",
+  color: "var(--fg)",
   outline: "none",
   colorScheme: "dark" as CSSProperties["colorScheme"],
   boxSizing: "border-box" as CSSProperties["boxSizing"],
   width: "100%",
 };
 
-// ─── Page layout ──────────────────────────────────────────────────────────────
-/** Standard page padding for dashboard content pages */
-export const PAGE_PAD: CSSProperties = {
-  padding: "32px 40px",
-};
+export const PAGE_PAD: CSSProperties = { padding: "32px 40px" };
+export const PAGE_HEADER_MB: CSSProperties = { marginBottom: 32 };
 
-/** Standard page header block (below the pad wrapper) */
-export const PAGE_HEADER_MB: CSSProperties = {
-  marginBottom: 32,
-};
+// Legacy aliases for backward compat
+export const ACCENT = "var(--accent)";
+export const BG = "var(--bg)";
+export const C_WHITE = "var(--fg)";
+export const C_MUTED = "var(--fg-muted)";
+export const C_DIM = "var(--fg-subtle)";
+export const C_LABEL = "var(--fg-subtle)";

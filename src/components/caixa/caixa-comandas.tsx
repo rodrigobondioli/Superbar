@@ -9,9 +9,9 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 
 const METODOS: { key: PagamentoMetodo; label: string; icon: string }[] = [
   { key: "dinheiro", label: "Dinheiro", icon: "💵" },
-  { key: "debito", label: "Débito", icon: "💳" },
-  { key: "credito", label: "Crédito", icon: "💳" },
-  { key: "pix", label: "Pix", icon: "⚡" },
+  { key: "debito",   label: "Débito",   icon: "💳" },
+  { key: "credito",  label: "Crédito",  icon: "💳" },
+  { key: "pix",      label: "Pix",      icon: "⚡" },
   { key: "cortesia", label: "Cortesia", icon: "🎁" },
 ];
 
@@ -37,17 +37,18 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
 
   if (pago) {
     return (
+      /* ok token — semantic allowed in Caixa */
       <div style={{
-        background: "rgba(74,222,128,0.07)", border: "1px solid rgba(74,222,128,0.18)",
-        borderRadius: 12, padding: "20px 24px",
+        background: "var(--ok-bg)", border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
+        borderRadius: 8, padding: "20px 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         opacity: 0.7,
       }}>
         <div>
-          <p style={{ fontSize: 16, fontWeight: 600, color: "rgba(74,222,128,0.9)", margin: 0 }}>✓ {comanda.mesa}</p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", margin: "4px 0 0" }}>Pagamento registrado</p>
+          <p style={{ fontSize: 16, fontWeight: 600, color: "var(--ok)", margin: 0 }}>✓ {comanda.mesa}</p>
+          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "4px 0 0" }}>Pagamento registrado</p>
         </div>
-        <p style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0, fontFamily: "monospace" }}>
+        <p style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>
           {currency.format(comanda.total)}
         </p>
       </div>
@@ -56,38 +57,38 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 12, overflow: "hidden",
+      background: "color-mix(in srgb, var(--fg) 4%, transparent)", border: "1px solid var(--border)",
+      borderRadius: 8, overflow: "hidden",
     }}>
       {/* Header */}
       <div style={{
-        padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+        padding: "16px 20px", borderBottom: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: 0 }}>{comanda.mesa}</p>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", margin: "3px 0 0" }}>Aberta há {tempo}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{comanda.mesa}</p>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>Aberta há {tempo}</p>
           </div>
         </div>
-        <p style={{ fontSize: 24, fontWeight: 700, color: "white", margin: 0, fontFamily: "monospace" }}>
+        <p style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>
           {currency.format(comanda.total)}
         </p>
       </div>
 
       {/* Itens */}
       {comanda.itens.length > 0 && (
-        <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--border)" }}>
           {comanda.itens.map((item, i) => (
             <div key={i} style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "5px 0",
             }}>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", margin: 0 }}>
-                <span style={{ color: "rgba(255,255,255,0.40)", marginRight: 8 }}>{item.quantidade}×</span>
+              <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+                <span style={{ color: "var(--fg-subtle)", marginRight: 8 }}>{item.quantidade}×</span>
                 {item.nome}
               </p>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: 0, fontFamily: "monospace" }}>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, fontFamily: "var(--font-mono)" }}>
                 {currency.format(item.preco_total)}
               </p>
             </div>
@@ -97,12 +98,13 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
 
       {/* Métodos de pagamento */}
       <div style={{ padding: "16px 20px" }}>
+        {/* danger token — semantic allowed in Caixa */}
         {error && (
-          <p style={{ fontSize: 12, color: "rgba(239,68,68,0.9)", marginBottom: 10, margin: "0 0 10px" }}>
+          <p style={{ fontSize: 12, color: "var(--danger)", marginBottom: 10, margin: "0 0 10px" }}>
             {error}
           </p>
         )}
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.30)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>
+        <p style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>
           Forma de pagamento
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -114,13 +116,14 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "9px 16px", borderRadius: 8,
+                /* warn for cortesia, accent for rest — semantic allowed in Caixa */
                 background: m.key === "cortesia"
-                  ? "rgba(255,165,0,0.08)"
-                  : "rgba(76,29,149,0.25)",
+                  ? "color-mix(in srgb, var(--warn) 12%, transparent)"
+                  : "color-mix(in srgb, var(--accent) 25%, transparent)",
                 border: m.key === "cortesia"
-                  ? "1px solid rgba(255,165,0,0.18)"
-                  : "1px solid rgba(109,40,217,0.30)",
-                color: m.key === "cortesia" ? "rgba(255,165,0,0.85)" : "rgba(196,167,255,0.9)",
+                  ? "1px solid color-mix(in srgb, var(--warn) 25%, transparent)"
+                  : "1px solid color-mix(in srgb, var(--accent-bright) 30%, transparent)",
+                color: m.key === "cortesia" ? "var(--warn)" : "var(--accent-bright)",
                 fontSize: 13, fontWeight: 600,
                 cursor: isPending ? "not-allowed" : "pointer",
                 opacity: isPending ? 0.6 : 1,

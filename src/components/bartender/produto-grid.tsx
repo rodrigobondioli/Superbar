@@ -69,7 +69,7 @@ function VariantePicker({
         onClick={onClose}
         style={{
           position: "fixed", inset: 0, zIndex: 40,
-          background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)",
+          background: "rgba(0,0,0,0.55)",
         }}
       />
       {/* Modal */}
@@ -77,20 +77,19 @@ function VariantePicker({
         position: "fixed", left: "50%", top: "50%",
         transform: "translate(-50%, -50%)",
         zIndex: 50,
-        background: "#12121e",
-        border: "1px solid rgba(255,255,255,0.10)",
-        borderRadius: 16,
+        background: "var(--bg-elevated)",
+        border: "1px solid var(--border)",
+        borderRadius: 8,
         padding: 20,
         width: "min(360px, 90vw)",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.60)",
       }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
               Escolha a variante
             </p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "white", margin: "3px 0 0" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: "var(--fg)", margin: "3px 0 0" }}>
               {produto.nome}
             </p>
           </div>
@@ -98,8 +97,8 @@ function VariantePicker({
             type="button"
             onClick={onClose}
             style={{
-              background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8,
-              color: "rgba(255,255,255,0.50)", cursor: "pointer", padding: 6,
+              background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "none", borderRadius: 4,
+              color: "var(--fg-muted)", cursor: "pointer", padding: 6,
               display: "flex", alignItems: "center",
             }}
           >
@@ -117,9 +116,9 @@ function VariantePicker({
               onClick={() => escolher(v)}
               style={{
                 display: "flex", alignItems: "center", gap: 12,
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 12, padding: "10px 14px",
+                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+                border: "1px solid var(--border)",
+                borderRadius: 8, padding: "10px 14px",
                 cursor: pending ? "wait" : "pointer",
                 textAlign: "left",
                 transition: "background 0.12s",
@@ -128,18 +127,18 @@ function VariantePicker({
             >
               {/* Foto */}
               <div style={{
-                width: 48, height: 48, borderRadius: 8, flexShrink: 0,
+                width: 48, height: 48, borderRadius: 4, flexShrink: 0,
                 background: v.imagem_url
                   ? `url(${v.imagem_url}) center/cover`
-                  : "rgba(255,255,255,0.06)",
+                  : "var(--bg-inset)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                {!v.imagem_url && <ImageIcon style={{ width: 18, height: 18, color: "rgba(255,255,255,0.18)" }} />}
+                {!v.imagem_url && <ImageIcon style={{ width: 18, height: 18, color: "var(--fg-subtle)" }} />}
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 600, color: "white", margin: 0 }}>{v.nome}</p>
+                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{v.nome}</p>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.70)", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
                 {currency.format(v.preco)}
               </p>
             </button>
@@ -174,7 +173,7 @@ function ProdutoCard({
     }
   }
 
-  const inner = (
+  return (
     <button
       type="button"
       onMouseEnter={() => setHovered(true)}
@@ -186,9 +185,11 @@ function ProdutoCard({
         display: "flex",
         flexDirection: "column",
         gap: 8,
-        background: hovered ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.04)",
+        background: hovered
+          ? "color-mix(in srgb, var(--fg) 7%, transparent)"
+          : "color-mix(in srgb, var(--fg) 4%, transparent)",
         border: "none",
-        borderRadius: 12,
+        borderRadius: 8,
         padding: 12,
         textAlign: "left",
         cursor: "pointer",
@@ -202,8 +203,8 @@ function ProdutoCard({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: 8,
-        background: "rgba(255,255,255,0.04)",
+        borderRadius: 4,
+        background: "var(--bg-inset)",
         overflow: "hidden",
         marginBottom: 4,
       }}>
@@ -211,7 +212,7 @@ function ProdutoCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={produto.imagem_url} alt={produto.nome} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
-          <Martini style={{ width: 26, height: 26, color: "rgba(255,255,255,0.15)" }} strokeWidth={1.5} />
+          <Martini style={{ width: 26, height: 26, color: "var(--fg-subtle)" }} strokeWidth={1.5} />
         )}
       </div>
 
@@ -219,26 +220,24 @@ function ProdutoCard({
       {temVariantes && (
         <div style={{
           position: "absolute", top: 8, right: 8,
-          background: "rgba(109,40,217,0.75)",
-          borderRadius: 99, padding: "2px 6px",
-          fontSize: 9, fontWeight: 700, color: "rgba(220,200,255,0.9)",
+          background: "color-mix(in srgb, var(--accent-bright) 75%, transparent)",
+          borderRadius: 4, padding: "2px 6px",
+          fontSize: 9, fontWeight: 700, color: "var(--accent-bright)",
         }}>
           {produto.produto_variantes.length} vars
         </div>
       )}
 
       <div>
-        <p style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.85)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {produto.nome}
         </p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", margin: "3px 0 0" }}>
+        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "3px 0 0", fontFamily: "var(--font-mono)" }}>
           {temVariantes ? "→ escolher" : currency.format(produto.preco)}
         </p>
       </div>
     </button>
   );
-
-  return inner;
 }
 
 // ─── Main grid ────────────────────────────────────────────────────────────────
@@ -250,7 +249,6 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
   const [buscaAtiva, setBuscaAtiva] = useState(false);
   const [pickerProduto, setPickerProduto] = useState<ProdutoComVariantes | null>(null);
 
-  // Search across all categories when search is active
   const resultadoBusca = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     if (!termo) return [];
@@ -272,7 +270,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         gap: 8,
         padding: "0 24px",
         height: 52,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid var(--border)",
         flexShrink: 0,
       }}>
         {!buscaAtiva ? (
@@ -288,14 +286,14 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                       fontSize: 13,
                       fontWeight: active ? 500 : 400,
                       padding: "6px 14px",
-                      borderRadius: 99,
+                      borderRadius: 4,
                       border: "none",
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                       flexShrink: 0,
                       transition: "all 0.15s",
-                      background: active ? "#260078" : "transparent",
-                      color: active ? "white" : "rgba(255,255,255,0.45)",
+                      background: active ? "var(--accent)" : "transparent",
+                      color: active ? "var(--accent-fg)" : "var(--fg-muted)",
                     }}
                   >
                     {grupo.categoria.nome}
@@ -309,10 +307,10 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                 flexShrink: 0,
                 width: 34,
                 height: 34,
-                borderRadius: 99,
+                borderRadius: 4,
                 border: "none",
-                background: "rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.45)",
+                background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                color: "var(--fg-muted)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -325,7 +323,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         ) : (
           /* Inline search input */
           <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
-            <Search style={{ width: 15, height: 15, color: "rgba(255,255,255,0.40)", flexShrink: 0 }} />
+            <Search style={{ width: 15, height: 15, color: "var(--fg-subtle)", flexShrink: 0 }} />
             <input
               autoFocus
               type="text"
@@ -338,13 +336,13 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                 border: "none",
                 outline: "none",
                 fontSize: 14,
-                color: "white",
+                color: "var(--fg)",
                 colorScheme: "dark",
               } as React.CSSProperties}
             />
             <button
               onClick={() => { setBuscaAtiva(false); setBusca(""); }}
-              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.40)", cursor: "pointer", display: "flex", alignItems: "center", padding: 4 }}
+              style={{ background: "none", border: "none", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", padding: 4 }}
             >
               <X style={{ width: 15, height: 15 }} />
             </button>
@@ -355,7 +353,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
       {/* ── Product grid ── */}
       <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
         {buscaAtiva && busca && resultadoBusca.length === 0 ? (
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", textAlign: "center", paddingTop: 48 }}>
+          <p style={{ fontSize: 14, color: "var(--fg-subtle)", textAlign: "center", paddingTop: 48 }}>
             Nenhum produto para &ldquo;{busca}&rdquo;
           </p>
         ) : (
