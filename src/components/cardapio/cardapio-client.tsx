@@ -171,13 +171,13 @@ function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produ
     >
       {/* Foto */}
       <div style={{
-        width: 32, height: 32, borderRadius: 4, flexShrink: 0,
+        width: 64, height: 64, borderRadius: 4, flexShrink: 0,
         background: variante.imagem_url
           ? `url(${variante.imagem_url}) center/cover`
           : "var(--bg-inset)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        {!variante.imagem_url && <ImageIcon style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />}
+        {!variante.imagem_url && <ImageIcon style={{ width: 22, height: 22, color: "var(--fg-subtle)" }} />}
       </div>
       <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>{variante.nome}</span>
       <span style={{ fontSize: 12, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums" }}>
@@ -341,13 +341,13 @@ function ProdutoRow({
       >
         {/* Thumb */}
         <div style={{
-          width: 40, height: 40, borderRadius: 4, flexShrink: 0,
+          width: 80, height: 80, borderRadius: 4, flexShrink: 0,
           background: produto.imagem_url
             ? `url(${produto.imagem_url}) center/cover`
             : "var(--bg-inset)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          {!produto.imagem_url && <ImageIcon style={{ width: 16, height: 16, color: "var(--fg-subtle)" }} />}
+          {!produto.imagem_url && <ImageIcon style={{ width: 28, height: 28, color: "var(--fg-subtle)" }} />}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
