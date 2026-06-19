@@ -28,6 +28,7 @@ interface DashboardSidebarProps {
   role: BarRole;
   onNavigate?: () => void;
   hideHeader?: boolean;
+  touchMode?: boolean;
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -44,43 +45,52 @@ const footerItems = [
   { label: "Sugestão", type: "sugestao" as const },
 ];
 
-export function DashboardSidebar({ barNome, role, onNavigate, hideHeader }: DashboardSidebarProps) {
+export function DashboardSidebar({ barNome, role, onNavigate, hideHeader, touchMode }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerType, setDrawerType] = useState<"suporte" | "sugestao">("suporte");
+
+  const linkPad = touchMode ? "14px 16px" : "7px 10px";
+  const linkFont = touchMode ? "16px" : "13px";
+  const iconClass = touchMode ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0";
 
   return (
     <aside
       className="flex flex-col"
       style={{
-        width: "220px",
-        height: "100dvh",
+        width: touchMode ? "100%" : "220px",
+        height: touchMode ? "100%" : "100dvh",
         overflow: "hidden",
         background: "var(--bg)",
-        borderRight: "1px solid var(--border)",
+        borderRight: touchMode ? "none" : "1px solid var(--border)",
       }}
     >
       {/* Logo / bar name — oculto dentro do drawer mobile (já tem header próprio) */}
-      <div style={{ padding: "20px 24px", display: hideHeader ? "none" : "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)" }}>
-        <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
-          {barNome}
-        </span>
-        <span style={{
-          fontSize: "10px",
-          fontWeight: 500,
-          padding: "2px 6px",
-          borderRadius: "2px",
-          background: "color-mix(in srgb, var(--accent-bright) 14%, transparent)",
-          color: "var(--accent-bright)",
-          whiteSpace: "nowrap",
-          letterSpacing: "0.04em",
-        }}>
-          {ROLE_LABEL[role] ?? role}
-        </span>
-      </div>
+      {!hideHeader && (
+        <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)" }}>
+          <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
+            {barNome}
+          </span>
+          <span style={{
+            fontSize: "10px",
+            fontWeight: 500,
+            padding: "2px 6px",
+            borderRadius: "2px",
+            background: "color-mix(in srgb, var(--accent-bright) 14%, transparent)",
+            color: "var(--accent-bright)",
+            whiteSpace: "nowrap",
+            letterSpacing: "0.04em",
+          }}>
+            {ROLE_LABEL[role] ?? role}
+          </span>
+        </div>
+      )}
 
       {/* Nav */}
-      <nav className="flex flex-col gap-0.5 p-3" style={{ paddingTop: "12px" }}>
+      <nav
+        className="flex flex-col"
+        style={{ padding: touchMode ? "12px 12px" : "12px 12px 0", gap: touchMode ? "2px" : "2px" }}
+      >
         {links.map((link) => {
           const active =
             link.href === "/dashboard"
@@ -95,10 +105,10 @@ export function DashboardSidebar({ barNome, role, onNavigate, hideHeader }: Dash
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
-                padding: "7px 10px",
+                gap: touchMode ? "14px" : "10px",
+                padding: linkPad,
                 borderRadius: "4px",
-                fontSize: "13px",
+                fontSize: linkFont,
                 fontWeight: active ? 500 : 400,
                 color: active ? "var(--fg)" : "var(--fg-muted)",
                 background: active ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
@@ -108,7 +118,7 @@ export function DashboardSidebar({ barNome, role, onNavigate, hideHeader }: Dash
               className={cn(!active && "hover:bg-white/[0.04] hover:!text-[var(--fg)]")}
             >
               <link.icon
-                className="h-4 w-4 shrink-0"
+                className={iconClass}
                 strokeWidth={1.75}
                 style={{ color: active ? "var(--accent-bright)" : "var(--fg-subtle)" }}
               />
@@ -120,17 +130,19 @@ export function DashboardSidebar({ barNome, role, onNavigate, hideHeader }: Dash
 
       {/* Footer */}
       <div style={{ marginTop: "auto", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "6px 12px", borderTop: "1px solid var(--border)" }}>
+        <div style={{ padding: touchMode ? "8px 12px" : "6px 12px", borderTop: "1px solid var(--border)" }}>
           {footerItems.map((item) => (
             <button
               key={item.label}
               onClick={() => { setDrawerType(item.type); setDrawerOpen(true); }}
               style={{
                 display: "flex", alignItems: "center", gap: "10px",
-                padding: "8px 10px", borderRadius: "4px",
+                padding: touchMode ? "14px 16px" : "8px 10px",
+                borderRadius: "4px",
                 background: "none", border: "none",
                 color: "var(--fg-subtle)",
-                fontSize: "13px", cursor: "pointer",
+                fontSize: touchMode ? "15px" : "13px",
+                cursor: "pointer",
                 width: "100%", textAlign: "left",
                 transition: "color 150ms",
               }}
@@ -144,19 +156,21 @@ export function DashboardSidebar({ barNome, role, onNavigate, hideHeader }: Dash
         {/* Modo Bartender — CTA */}
         <Link
           href="/bartender"
+          onClick={onNavigate}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-            padding: "14px 0",
+            padding: touchMode ? "18px 0" : "14px 0",
             background: "var(--accent)",
             color: "var(--accent-fg)",
-            fontSize: "13px", fontWeight: 600,
+            fontSize: touchMode ? "15px" : "13px",
+            fontWeight: 600,
             textDecoration: "none",
             letterSpacing: "0.02em",
             transition: "filter 150ms",
           }}
           className="hover:brightness-110"
         >
-          <MonitorSmartphone style={{ width: "14px", height: "14px" }} />
+          <MonitorSmartphone style={{ width: touchMode ? "16px" : "14px", height: touchMode ? "16px" : "14px" }} />
           Modo Bartender
         </Link>
       </div>

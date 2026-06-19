@@ -104,12 +104,12 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
         {/* Endereço */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <label style={lbl}>Endereço</label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 90px", gap: 8 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_90px] gap-2">
             <input name="rua" defaultValue={endereco.rua ?? ""} placeholder="Rua" style={inp} />
             <input name="numero" defaultValue={endereco.numero ?? ""} placeholder="Nº" style={inp} />
           </div>
           <input name="bairro" defaultValue={endereco.bairro ?? ""} placeholder="Bairro" style={inp} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 60px 100px", gap: 8 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_60px_100px] gap-2">
             <input name="cidade" defaultValue={endereco.cidade ?? ""} placeholder="Cidade" style={inp} />
             <input name="estado" defaultValue={endereco.estado ?? ""} placeholder="UF" maxLength={2} style={inp} />
             <input name="cep" defaultValue={endereco.cep ?? ""} placeholder="CEP" style={inp} />
@@ -122,7 +122,7 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
             <Target style={{ width: 12, height: 12, color: "var(--fg-subtle)" }} />
             <span style={{ ...lbl, margin: 0 }}>Metas de faturamento</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label style={lbl}>Meta mensal (R$)</label>
               <input
@@ -297,7 +297,7 @@ export function SettingsPanel({
         aria-label="Configurações"
         style={{
           position: "fixed", top: 0, right: 0, bottom: 0,
-          width: "50vw", minWidth: "480px", maxWidth: "720px",
+          width: "min(92vw, 680px)",
           zIndex: 100,
           background: "var(--bg-elevated)",
           borderLeft: "1px solid var(--border)",
@@ -309,7 +309,7 @@ export function SettingsPanel({
         {/* Header */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "20px 28px",
+          padding: "16px 20px",
           borderBottom: "1px solid var(--border)",
           flexShrink: 0,
         }}>
@@ -323,7 +323,7 @@ export function SettingsPanel({
             onClick={onClose}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, borderRadius: 4,
+              width: 36, height: 36, borderRadius: 4,
               background: "transparent", border: "1px solid var(--border)",
               color: "var(--fg-muted)", cursor: "pointer",
               transition: "border-color 150ms, color 150ms",
@@ -331,14 +331,14 @@ export function SettingsPanel({
             className="hover:border-[var(--border-strong)] hover:!text-[var(--fg)]"
             aria-label="Fechar"
           >
-            <X style={{ width: 14, height: 14 }} />
+            <X style={{ width: 16, height: 16 }} />
           </button>
         </div>
 
         {/* Body */}
         <div style={{
           flex: 1, overflowY: "auto",
-          padding: "32px 28px",
+          padding: "28px 20px",
           display: "flex", flexDirection: "column", gap: 40,
         }}>
           <PerfilDoBar bar={bar} barId={barId} />

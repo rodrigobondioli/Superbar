@@ -48,7 +48,6 @@ export function DashboardLayoutClient({
           background: "var(--bg)",
         }}
       >
-        {/* Bar name */}
         <span style={{
           fontSize: 14, fontWeight: 600,
           color: "var(--fg)", fontFamily: "var(--font-mono)",
@@ -56,7 +55,6 @@ export function DashboardLayoutClient({
           {barNome}
         </span>
 
-        {/* Right side: controls + hamburger */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <AlertasBell alertas={alertas} />
           <SettingsButton
@@ -72,13 +70,13 @@ export function DashboardLayoutClient({
             aria-label="Abrir menu"
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32,
+              width: 36, height: 36,
               background: "none", border: "1px solid var(--border)",
               borderRadius: 4, cursor: "pointer",
               color: "var(--fg-muted)",
             }}
           >
-            <Menu style={{ width: 16, height: 16 }} strokeWidth={1.75} />
+            <Menu style={{ width: 18, height: 18 }} strokeWidth={1.75} />
           </button>
         </div>
       </header>
@@ -100,63 +98,89 @@ export function DashboardLayoutClient({
         </main>
       </div>
 
-      {/* ── Mobile drawer overlay ── */}
-      {drawerOpen && (
+      {/* ── Mobile drawer — sempre no DOM, animado via CSS ── */}
+      <div
+        className="lg:hidden"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 50,
+          pointerEvents: drawerOpen ? "auto" : "none",
+        }}
+        role="dialog"
+        aria-modal={drawerOpen ? "true" : "false"}
+        aria-hidden={!drawerOpen}
+      >
+        {/* Backdrop */}
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 50 }}
-          aria-modal="true"
-          role="dialog"
-        >
-          {/* Backdrop */}
-          <div
-            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)" }}
-            onClick={() => setDrawerOpen(false)}
-          />
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.7)",
+            opacity: drawerOpen ? 1 : 0,
+            transition: "opacity 0.28s ease",
+          }}
+          onClick={() => setDrawerOpen(false)}
+        />
 
-          {/* Drawer panel */}
-          <div style={{
-            position: "absolute", left: 0, top: 0, bottom: 0,
-            width: 260,
+        {/* Drawer panel — 90vw, slide from left */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0, top: 0, bottom: 0,
+            width: "90vw",
+            maxWidth: 400,
             background: "var(--bg)",
             borderRight: "1px solid var(--border)",
-            display: "flex", flexDirection: "column",
+            display: "flex",
+            flexDirection: "column",
+            transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+            transition: "transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)",
+            willChange: "transform",
+            overflowY: "auto",
+          }}
+        >
+          {/* Drawer header */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 20px",
+            height: 60,
+            flexShrink: 0,
+            borderBottom: "1px solid var(--border)",
           }}>
-            {/* Drawer header */}
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0 16px", height: 52, flexShrink: 0,
-              borderBottom: "1px solid var(--border)",
-            }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
-                {barNome}
-              </span>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                aria-label="Fechar menu"
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 32, height: 32,
-                  background: "none", border: "none",
-                  cursor: "pointer", color: "var(--fg-muted)",
-                }}
-              >
-                <X style={{ width: 16, height: 16 }} strokeWidth={1.75} />
-              </button>
-            </div>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
+              {barNome}
+            </span>
+            <button
+              onClick={() => setDrawerOpen(false)}
+              aria-label="Fechar menu"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 40, height: 40,
+                background: "none", border: "none",
+                cursor: "pointer", color: "var(--fg-muted)",
+                borderRadius: 4,
+              }}
+            >
+              <X style={{ width: 20, height: 20 }} strokeWidth={1.75} />
+            </button>
+          </div>
 
-            {/* Sidebar content inside drawer */}
-            <div style={{ flex: 1, overflow: "hidden" }}>
-              <DashboardSidebar
-                barNome={barNome}
-                userNome={userNome}
-                role={role}
-                onNavigate={() => setDrawerOpen(false)}
-                hideHeader
-              />
-            </div>
+          {/* Sidebar content */}
+          <div style={{ flex: 1, overflow: "auto" }}>
+            <DashboardSidebar
+              barNome={barNome}
+              userNome={userNome}
+              role={role}
+              onNavigate={() => setDrawerOpen(false)}
+              hideHeader
+              touchMode
+            />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
