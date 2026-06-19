@@ -63,5 +63,5 @@ export function calcularCmv(produtos: TopDrink[]): number | null {
   const custoTotal = comCusto.reduce((acc, p) => acc + (p.custo as number) * p.quantidadeVendida, 0);
   const faturamentoTotal = comCusto.reduce((acc, p) => acc + p.faturamento, 0);
 
-  return faturamentoTotal > 0 ? (custoTotal / faturamentoTotal) * 100 : null;
+  return faturamentoTotal > 0 ? Math.round((custoTotal / faturamentoTotal) * 10000) / 100 : null;
 }

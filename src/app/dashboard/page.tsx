@@ -335,7 +335,7 @@ export default async function DashboardPage() {
               fontVariantNumeric: "tabular-nums",
               marginBottom: "6px",
             }}>
-              {cmvMes !== null ? `${cmvMes}%` : "—"}
+              {cmvMes !== null ? `${percent.format(cmvMes)}%` : "—"}
             </p>
             <p style={{ fontSize: "13px", color: "var(--fg-muted)" }}>custo sobre receita</p>
           </div>
