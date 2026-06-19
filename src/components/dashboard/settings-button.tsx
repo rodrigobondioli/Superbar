@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { SettingsPanel } from "./settings-panel";
 import type { Bar } from "@/types/database";
 
@@ -18,6 +18,7 @@ export function SettingsButton({
   bar, barId, userId, userNome, userEmail, userAvatarUrl,
 }: SettingsButtonProps) {
   const [open, setOpen] = useState(false);
+  const inicial = userNome.split(" ")[0].charAt(0).toUpperCase();
 
   return (
     <>
@@ -26,18 +27,30 @@ export function SettingsButton({
         title="Configurações"
         onClick={() => setOpen(true)}
         style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          width: "32px", height: "32px",
-          borderRadius: "50%",
-          border: "1px solid var(--border)",
-          color: "var(--fg-muted)",
-          background: "transparent",
-          cursor: "pointer",
-          transition: "border-color 150ms, color 150ms",
+          display: "flex", alignItems: "center", gap: 4,
+          background: "none", border: "none",
+          cursor: "pointer", padding: 0,
+          borderRadius: 4,
         }}
-        className="hover:border-[var(--border-strong)] hover:!text-[var(--fg)]"
       >
-        <Settings className="h-4 w-4" strokeWidth={1.75} />
+        {userAvatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={userAvatarUrl}
+            alt={userNome}
+            style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", display: "block", flexShrink: 0 }}
+          />
+        ) : (
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%",
+            background: "var(--accent)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 13, fontWeight: 700, color: "var(--accent-fg)", flexShrink: 0,
+          }}>
+            {inicial}
+          </div>
+        )}
+        <ChevronDown style={{ width: 13, height: 13, color: "var(--fg-subtle)", flexShrink: 0 }} strokeWidth={2} />
       </button>
 
       <SettingsPanel

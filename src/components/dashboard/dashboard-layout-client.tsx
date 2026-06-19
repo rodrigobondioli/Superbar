@@ -34,7 +34,6 @@ export function DashboardLayoutClient({
   children,
 }: DashboardLayoutClientProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const primeiroNome = userNome.split(" ")[0];
 
   return (
     <div className="flex flex-col" style={{ height: "100dvh", overflow: "hidden", background: "var(--bg)" }}>
@@ -68,23 +67,6 @@ export function DashboardLayoutClient({
             userEmail={userEmail}
             userAvatarUrl={userAvatarUrl}
           />
-          {userAvatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={userAvatarUrl}
-              alt={primeiroNome}
-              style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-            />
-          ) : (
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%",
-              background: "var(--accent)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 11, fontWeight: 700, color: "var(--accent-fg)", flexShrink: 0,
-            }}>
-              {primeiroNome.charAt(0).toUpperCase()}
-            </div>
-          )}
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Abrir menu"
