@@ -24,51 +24,38 @@ const METODO_LABEL: Record<PagamentoMetodo, string> = {
 
 function InsightsBar({ insights }: { insights: CaixaInsights }) {
   return (
-    <div style={{
-      padding: "20px 24px 18px",
-      borderBottom: "1px solid rgba(255,255,255,0.06)",
-    }}>
-      {/* KPIs */}
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-end", marginBottom: 14 }}>
-        {/* Principal */}
-        <div>
-          <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(200,255,0,0.45)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 4px" }}>
-            Faturado
-          </p>
-          <p style={{ fontSize: 28, fontWeight: 900, color: "#c8ff00", margin: 0, letterSpacing: "-0.8px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
-            {currency.format(insights.totalTurno)}
-          </p>
-        </div>
+    <div style={{ padding: "20px 24px 20px" }}>
 
-        <div style={{ display: "flex", gap: 28, paddingBottom: 2 }}>
-          <div>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 3px" }}>
-              Pagas
+      {/* 3 stats — mesma escala, sem caixas */}
+      <div style={{ display: "flex", gap: 0 }}>
+        {[
+          { label: "Faturado", value: currency.format(insights.totalTurno),  color: "#c8ff00" },
+          { label: "Pagas",    value: String(insights.comandasPagas),         color: "rgba(74,222,128,0.90)" },
+          { label: "Ticket",   value: currency.format(insights.ticketMedio),  color: "rgba(255,255,255,0.55)" },
+        ].map((s, i) => (
+          <div key={s.label} style={{
+            flex: i === 0 ? 2 : 1,
+            paddingLeft: i > 0 ? 20 : 0,
+            marginLeft: i > 0 ? 20 : 0,
+            borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.08)" : "none",
+          }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.30)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 5px" }}>
+              {s.label}
             </p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: "rgba(74,222,128,0.9)", margin: 0, lineHeight: 1 }}>
-              {insights.comandasPagas}
+            <p style={{ fontSize: i === 0 ? 26 : 20, fontWeight: 800, color: s.color, margin: 0, letterSpacing: i === 0 ? "-0.6px" : "-0.3px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+              {s.value}
             </p>
           </div>
-          <div>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 3px" }}>
-              Ticket médio
-            </p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: "rgba(255,255,255,0.65)", margin: 0, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
-              {currency.format(insights.ticketMedio)}
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Por método — inline, sem caixas */}
+      {/* Métodos — linha discreta abaixo, sem caixas */}
       {insights.porMetodo.length > 0 && (
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
           {insights.porMetodo.map(m => (
-            <span key={m.metodo} style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
-              {METODO_LABEL[m.metodo]}
-              <span style={{ color: "rgba(255,255,255,0.65)", fontWeight: 600, marginLeft: 5, fontVariantNumeric: "tabular-nums" }}>
-                {currency.format(m.total)}
-              </span>
+            <span key={m.metodo} style={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}>
+              <span style={{ color: "rgba(255,255,255,0.28)" }}>{METODO_LABEL[m.metodo]}</span>
+              {" "}<span style={{ fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{currency.format(m.total)}</span>
             </span>
           ))}
         </div>
@@ -90,9 +77,8 @@ function MesaChips({
     <div
       className="hide-scrollbar"
       style={{
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
         position: "sticky", top: 56, zIndex: 9,
-        padding: "10px 20px",
+        padding: "0 20px 14px",
         display: "flex", gap: 6,
         overflowX: "auto",
         background: "#0a0a10",
@@ -410,6 +396,7 @@ export function CaixaTela({ comandas, insights, barNome }: {
         <MesaChips lista={listaAtual} filtro={filtro} onFiltro={setFiltro} />
       )}
 
+      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 0 0 0" }} />
       <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
         {listaAtual.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 8 }}>
