@@ -11,6 +11,7 @@ function semTipo<T>(q: T): any { return q; }
 export async function registrarPagamento(
   comandaId: string,
   metodo: PagamentoMetodo,
+  motivo?: string,
 ) {
   const current = await getCurrentBar();
   if (!current) return { error: "Não autenticado." };
@@ -40,6 +41,7 @@ export async function registrarPagamento(
     status: "confirmado",
     processado_por: current.userId,
     processado_em: new Date().toISOString(),
+    ...(motivo ? { observacoes: motivo } : {}),
   });
 
   // Marca comanda como paga
