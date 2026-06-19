@@ -22,21 +22,11 @@ interface LiveBarProps {
 }
 
 const overline: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: "10px",
   fontWeight: 500,
   textTransform: "uppercase",
   letterSpacing: "0.1em",
   color: "var(--fg-subtle)",
-  marginBottom: 2,
-  display: "block",
-};
-
-const value: React.CSSProperties = {
-  fontFamily: "var(--font-mono)",
-  fontVariantNumeric: "tabular-nums",
-  fontWeight: 600,
-  color: "var(--fg)",
-  whiteSpace: "nowrap",
 };
 
 export function LiveBar({
@@ -57,7 +47,6 @@ export function LiveBar({
   const fetchLiveData = useCallback(async () => {
     const supabase = createClient();
 
-    // Comandas abertas do turno → pessoas + mesas
     const { data: comandas } = await supabase
       .from("comandas")
       .select("id, mesa_id")
@@ -73,11 +62,10 @@ export function LiveBar({
     const comandaIds = (comandas ?? []).map(c => c.id);
 
     if (comandaIds.length === 0) {
-      setData({ faturamento: 0, pessoas: 0, mesas: 0, drinks: 0 });
+      setData(d => ({ ...d, pessoas: 0, mesas: 0 }));
       return;
     }
 
-    // Itens das comandas abertas do turno
     const { data: items } = await supabase
       .from("comanda_items")
       .select("quantidade, preco_total")
@@ -96,20 +84,17 @@ export function LiveBar({
 
     const comandasChannel = supabase
       .channel(`live-comandas-${turnoId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "comandas", filter: `turno_id=eq.${turnoId}` },
-        () => { fetchLiveData(); }
-      )
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "comandas",
+        filter: `turno_id=eq.${turnoId}`,
+      }, () => { fetchLiveData(); })
       .subscribe();
 
     const itemsChannel = supabase
       .channel(`live-items-${turnoId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "comanda_items" },
-        () => { fetchLiveData(); }
-      )
+      .on("postgres_changes", {
+        event: "INSERT", schema: "public", table: "comanda_items",
+      }, () => { fetchLiveData(); })
       .subscribe();
 
     return () => {
@@ -119,70 +104,72 @@ export function LiveBar({
   }, [turnoId, fetchLiveData]);
 
   const metrics = [
-    { label: "Faturamento", val: currency.format(data.faturamento) },
-    { label: "Comandas",    val: String(data.pessoas) },
-    { label: "Mesas",       val: String(data.mesas) },
-    { label: "Drinks",      val: String(data.drinks) },
+    { label: "Faturamento", value: currency.format(data.faturamento) },
+    { label: "Comandas abertas", value: String(data.pessoas) },
+    { label: "Mesas ocupadas", value: String(data.mesas) },
+    { label: "Drinks vendidos", value: String(data.drinks) },
   ];
 
-  const liveBadge = (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+  // Dot pulsante "AO VIVO" — aparece à direita no mobile (mesmo lugar do TrendText)
+  // e como sufixo do label do primeiro card no desktop
+  const liveDot = (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
       <span
         className="animate-live-pulse"
         style={{
-          width: 6, height: 6, borderRadius: "50%",
+          width: 5, height: 5, borderRadius: "50%",
           background: "var(--ok)", display: "block", flexShrink: 0,
         }}
       />
       <span style={{
-        fontSize: 10, fontWeight: 600, letterSpacing: "0.12em",
-        color: "var(--ok)", textTransform: "uppercase",
+        fontSize: 9, fontWeight: 600, letterSpacing: "0.14em",
+        color: "var(--ok)", textTransform: "uppercase" as const,
       }}>
         Ao vivo
       </span>
-    </div>
+    </span>
   );
 
   return (
-    <div style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
-
-      {/* ── Mobile: badge + 2×2 grid ── */}
-      <div className="lg:hidden px-5 py-3">
-        <div style={{ marginBottom: 10 }}>{liveBadge}</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
-          {metrics.map(m => (
-            <div key={m.label}>
-              <span style={overline}>{m.label}</span>
-              <span style={{ ...value, fontSize: 15 }}>{m.val}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Desktop: tudo em linha ── */}
+    <div className="px-5 py-4 lg:p-0">
       <div
-        className="hidden lg:flex"
-        style={{ alignItems: "center", padding: "0 40px" }}
+        className="grid grid-cols-1 lg:grid-cols-4 overflow-hidden rounded-[4px] lg:rounded-none"
+        style={{ gap: "1px", background: "var(--border)", border: "1px solid var(--border)" }}
       >
-        <div style={{ padding: "10px 0" }}>{liveBadge}</div>
-
-        <div style={{ width: 1, height: 20, background: "var(--border)", margin: "0 20px", flexShrink: 0 }} />
-
         {metrics.map((m, i) => (
           <div
             key={m.label}
-            style={{
-              display: "flex", flexDirection: "column",
-              padding: "10px 20px",
-              borderLeft: i > 0 ? "1px solid var(--border)" : "none",
-            }}
+            className="flex items-center justify-between lg:block"
+            style={{ background: "var(--bg-elevated)", padding: "16px 20px", minWidth: 0 }}
           >
-            <span style={overline}>{m.label}</span>
-            <span style={{ ...value, fontSize: 14 }}>{m.val}</span>
+            {/* Label + valor */}
+            <div className="flex flex-col lg:block">
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <p style={overline}>{m.label}</p>
+                {/* "AO VIVO" badge no label do primeiro card — só desktop */}
+                {i === 0 && <span className="hidden lg:inline-flex">{liveDot}</span>}
+              </div>
+              <p
+                className="text-[22px] lg:text-[26px]"
+                style={{
+                  fontWeight: 600,
+                  color: "var(--fg)",
+                  fontFamily: "var(--font-mono)",
+                  fontVariantNumeric: "tabular-nums",
+                  marginTop: "4px",
+                }}
+              >
+                {m.value}
+              </p>
+            </div>
+
+            {/* Direita no mobile: dot "AO VIVO" no primeiro card, vazio nos demais */}
+            <div className="flex-shrink-0 ml-4 lg:hidden">
+              {i === 0 ? liveDot : null}
+            </div>
           </div>
         ))}
       </div>
-
     </div>
   );
 }
