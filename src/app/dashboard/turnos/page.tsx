@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getCurrentBar } from "@/lib/dashboard/queries";
+import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getTurnos } from "@/lib/dashboard/turnos";
+import { TurnoControles } from "@/components/dashboard/turno-controles";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
@@ -28,20 +29,26 @@ export default async function TurnosPage() {
   const current = await getCurrentBar();
   if (!current) return null;
 
-  const turnos = await getTurnos(current.bar.id);
+  const [turnos, turnoAtual] = await Promise.all([
+    getTurnos(current.bar.id),
+    getTurnoAtual(current.bar.id),
+  ]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", padding: "32px 40px", gap: "24px" }}>
 
       {/* Header */}
-      <div>
-        <p style={label}>Histórico</p>
-        <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#ffffff", margin: "6px 0 0" }}>
-          Turnos
-        </h1>
-        <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", margin: "6px 0 0" }}>
-          Registro de todos os turnos abertos e fechados.
-        </p>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div>
+          <p style={label}>Histórico</p>
+          <h1 style={{ fontSize: "22px", fontWeight: 600, color: "#ffffff", margin: "6px 0 0" }}>
+            Turnos
+          </h1>
+          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", margin: "6px 0 0" }}>
+            Registro de todos os turnos abertos e fechados.
+          </p>
+        </div>
+        <TurnoControles turnoAtual={turnoAtual} />
       </div>
 
       {/* Table card */}
