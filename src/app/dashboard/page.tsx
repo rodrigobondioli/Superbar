@@ -17,9 +17,8 @@ import {
   getLiveStats,
 } from "@/lib/dashboard/queries";
 import { categorizarProdutos, calcularCmv } from "@/lib/dashboard/menu-engineering";
-import { getFaturamentoPorDia, getComparacaoPeriodo, getProdutosVendidosPeriodo } from "@/lib/dashboard/relatorios";
-import { resolvePeriodo, periodoMesAtual, periodoAnterior } from "@/lib/dashboard/periodo";
-import { percentChange } from "@/lib/dashboard/percent-change";
+import { getFaturamentoPorDia, getComparacaoPeriodo } from "@/lib/dashboard/relatorios";
+import { resolvePeriodo } from "@/lib/dashboard/periodo";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
 
 const TOP_DRINKS_LIMIT = 5;
@@ -50,6 +49,12 @@ const card: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: "4px",
   padding: "24px",
+};
+
+const kpiCell: React.CSSProperties = {
+  background: "var(--bg-elevated)",
+  padding: "16px 20px",
+  minWidth: 0,
 };
 
 export default async function DashboardPage() {
@@ -83,6 +88,7 @@ export default async function DashboardPage() {
     alertas.length,
     produtosVendidos
   );
+
   const produtosCategorizados = categorizarProdutos(produtosVendidos);
   const produtosTop5 = [...produtosCategorizados]
     .sort((a, b) => (b.margemPercentual ?? -Infinity) - (a.margemPercentual ?? -Infinity))
@@ -90,24 +96,15 @@ export default async function DashboardPage() {
   const cmvAtual = calcularCmv(produtosVendidos);
 
   const periodoSemana = resolvePeriodo({ preset: "7d" });
-  const periodoMes = periodoMesAtual();
-  const [pontosReceita, receitaSemana, produtosVendidosMes, produtosVendidosMesAnterior] = await Promise.all([
+  const [pontosReceita, receitaSemana] = await Promise.all([
     getFaturamentoPorDia(current.bar.id, periodoSemana, "diaSemana"),
     getComparacaoPeriodo(current.bar.id, periodoSemana),
-    getProdutosVendidosPeriodo(current.bar.id, periodoMes),
-    getProdutosVendidosPeriodo(current.bar.id, periodoAnterior(periodoMes)),
   ]);
-  const cmvMes = calcularCmv(produtosVendidosMes);
-  const cmvMesAnterior = calcularCmv(produtosVendidosMesAnterior);
-  const cmvMesTrend =
-    cmvMes !== null && cmvMesAnterior !== null ? percentChange(cmvMes, cmvMesAnterior) : null;
 
   const agora = new Date();
   const primeiroNome = current.userNome.split(" ")[0];
   const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
 
-  // Cobertura de custo: se algum produto vendido tem custo mas nem todos têm,
-  // o CMV é parcial — indicador sutil "estimado" avisa o dono.
   const produtosComCusto = produtosVendidos.filter(p => p.custo != null).length;
   const cmvParcial = cmvAtual !== null && produtosComCusto < produtosVendidos.length;
 
@@ -118,22 +115,22 @@ export default async function DashboardPage() {
     cmvParcial,
   });
 
-  const kpiCards = [
-    { value: currency.format(kpis.faturamento), label: "Faturamento do turno", subtitle: null as string | null, percent: comparacao.faturamento, invert: false, estimado: false },
-    { value: cmvAtual !== null ? `${percent.format(cmvAtual)}%` : "—", label: "CMV", subtitle: "custo sobre receita", percent: comparacao.cmv, invert: true, estimado: cmvParcial },
-    { value: String(kpis.comandasAbertas), label: "Tickets abertos", subtitle: null as string | null, percent: comparacao.comandas, invert: false, estimado: false },
-    { value: currency.format(kpis.ticketMedio), label: "Ticket médio", subtitle: null as string | null, percent: comparacao.ticketMedio, invert: false, estimado: false },
-  ];
+  // Meta do mês — calculada uma vez, usada no KPI strip
+  const metaConfigurada = current.bar.configuracoes?.meta_mensal;
+  const meta = metaConfigurada ?? metaMes.meta;
+  const metaAtual = metaMes.faturamentoAtual;
+  const metaProgresso = meta > 0 ? Math.min(Math.round((metaAtual / meta) * 100), 100) : 0;
+  const metaFalta = Math.max(meta - metaAtual, 0);
+  const metaAtingida = metaAtual >= meta && meta > 0;
 
   return (
     <div className="flex flex-col" style={{ overflowX: "hidden", width: "100%" }}>
 
-      {/* Hero — flat, plano, sem orbs */}
+      {/* Hero */}
       <div
         className="relative px-5 pt-8 pb-6 lg:px-12 lg:pt-14 lg:pb-10 lg:border-b"
         style={{ background: "var(--bg)", borderColor: "var(--border)" }}
       >
-        {/* Controls — top-right, visível só no desktop (mobile usa o header do layout) */}
         <div className="hidden lg:flex" style={{ position: "absolute", top: "16px", right: "24px", alignItems: "center", gap: "10px" }}>
           <AlertasBell alertas={alertas} />
           <SettingsButton
@@ -146,7 +143,6 @@ export default async function DashboardPage() {
           />
         </div>
 
-        {/* Greeting */}
         <h1
           className="lg:text-[24px] text-[18px]"
           style={{
@@ -168,7 +164,7 @@ export default async function DashboardPage() {
         <AiHeroInput barId={current.bar.id} />
       </div>
 
-      {/* Faixa Ao Vivo */}
+      {/* Faixa Ao Vivo — Faturamento · Comandas · Drinks */}
       <LiveBar
         turnoId={turno.id}
         barId={current.bar.id}
@@ -177,23 +173,22 @@ export default async function DashboardPage() {
         drinksInicial={liveStats.drinks}
       />
 
-      {/* KPI strip */}
+      {/* KPI strip — CMV · Ticket médio · Meta do mês · Insights (sem duplicar live strip) */}
       <div className="px-5 py-4 lg:p-0">
-      <div
-        className="grid grid-cols-1 lg:grid-cols-4 overflow-hidden rounded-[4px] lg:rounded-none"
-        style={{ gap: "1px", background: "var(--border)", border: "1px solid var(--border)" }}
-      >
-        {kpiCards.map((kpi, i) => (
+        <div
+          className="grid grid-cols-1 lg:grid-cols-4 overflow-hidden rounded-[4px] lg:rounded-none"
+          style={{ gap: "1px", background: "var(--border)", border: "1px solid var(--border)" }}
+        >
+
+          {/* CMV do turno */}
           <div
-            key={kpi.label}
             className="animate-fade-in-up flex items-center justify-between lg:block"
-            style={{ background: "var(--bg-elevated)", padding: "16px 20px", animationDelay: `${i * 60}ms`, minWidth: 0 }}
+            style={{ ...kpiCell, animationDelay: "0ms" }}
           >
-            {/* Label + valor em linha no mobile, empilhados no desktop */}
             <div className="flex flex-col lg:block">
               <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                <p style={{ ...overline, fontSize: "10px" }}>{kpi.label}</p>
-                {kpi.estimado && (
+                <p style={{ ...overline, fontSize: "10px" }}>CMV</p>
+                {cmvParcial && (
                   <span style={{
                     fontSize: "9px", fontWeight: 500,
                     padding: "2px 5px", borderRadius: "2px",
@@ -206,27 +201,116 @@ export default async function DashboardPage() {
               </div>
               <p
                 className="text-[22px] lg:text-[26px]"
-                style={{
-                  fontWeight: 600,
-                  color: "var(--fg)",
-                  fontFamily: "var(--font-mono)",
-                  fontVariantNumeric: "tabular-nums",
-                  marginTop: "4px",
-                }}
-              >{kpi.value}</p>
-              {kpi.subtitle && (
-                <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
-                  {kpi.subtitle}
-                </p>
-              )}
+                style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: "4px" }}
+              >
+                {cmvAtual !== null ? `${percent.format(cmvAtual)}%` : "—"}
+              </p>
+              <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>custo sobre receita</p>
             </div>
-            {/* Trend à direita no mobile, abaixo no desktop */}
             <div className="lg:mt-1 flex-shrink-0 ml-4 lg:ml-0">
-              <TrendText percent={kpi.percent} invert={kpi.invert} />
+              <TrendText percent={comparacao.cmv} invert={true} />
             </div>
           </div>
-        ))}
-      </div>
+
+          {/* Ticket médio */}
+          <div
+            className="animate-fade-in-up flex items-center justify-between lg:block"
+            style={{ ...kpiCell, animationDelay: "60ms" }}
+          >
+            <div className="flex flex-col lg:block">
+              <p style={{ ...overline, fontSize: "10px" }}>Ticket médio</p>
+              <p
+                className="text-[22px] lg:text-[26px]"
+                style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: "4px" }}
+              >
+                {currency.format(kpis.ticketMedio)}
+              </p>
+            </div>
+            <div className="lg:mt-1 flex-shrink-0 ml-4 lg:ml-0">
+              <TrendText percent={comparacao.ticketMedio} invert={false} />
+            </div>
+          </div>
+
+          {/* Meta do mês */}
+          <div
+            className="animate-fade-in-up flex items-start justify-between lg:block"
+            style={{ ...kpiCell, animationDelay: "120ms" }}
+          >
+            <div className="flex-1 min-w-0">
+              <p style={{ ...overline, fontSize: "10px" }}>Meta do mês</p>
+              <p
+                className="text-[22px] lg:text-[26px]"
+                style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: "4px" }}
+              >
+                {currency.format(metaAtual)}
+              </p>
+              <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px", marginBottom: "10px" }}>
+                de {currency.format(meta)} · {metaProgresso}%
+                {!metaConfigurada && (
+                  <span style={{ marginLeft: 4, fontStyle: "italic" }}>(auto)</span>
+                )}
+              </p>
+              <div style={{ background: "var(--border-strong)", borderRadius: "2px", height: "3px", overflow: "hidden" }}>
+                <div style={{
+                  background: metaAtingida ? "var(--ok)" : "var(--accent)",
+                  borderRadius: "2px",
+                  height: "3px",
+                  width: `${metaProgresso}%`,
+                  transition: "width 0.6s ease",
+                }} />
+              </div>
+              <p className="hidden lg:block" style={{ fontSize: "11px", color: metaAtingida ? "var(--ok)" : "var(--fg-subtle)", marginTop: "6px" }}>
+                {metaAtingida ? "Meta atingida!" : `falta ${currency.format(metaFalta)}`}
+              </p>
+            </div>
+            {/* Mobile: mostra % à direita */}
+            <div className="flex-shrink-0 ml-4 lg:hidden" style={{ paddingTop: "22px" }}>
+              <span style={{
+                fontSize: "14px", fontWeight: 700,
+                fontFamily: "var(--font-mono)",
+                color: metaAtingida ? "var(--ok)" : "var(--fg-muted)",
+              }}>
+                {metaProgresso}%
+              </span>
+            </div>
+          </div>
+
+          {/* Insights */}
+          <div
+            className="animate-fade-in-up"
+            style={{ ...kpiCell, animationDelay: "180ms" }}
+          >
+            <p style={{ ...overline, fontSize: "10px", marginBottom: "10px" }}>Insights</p>
+            {insights.length === 0 ? (
+              <p style={{ fontSize: "12px", color: "var(--fg-muted)", lineHeight: 1.5 }}>
+                Nenhum alerta no momento.
+              </p>
+            ) : (
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
+                {insights.map((item, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "7px" }}>
+                    <span
+                      aria-hidden
+                      style={{
+                        flexShrink: 0,
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        lineHeight: 1.45,
+                        color: item.tipo === "oportunidade" ? "var(--ok)" : item.tipo === "aviso" ? "var(--warn)" : "var(--fg-subtle)",
+                      }}
+                    >
+                      {item.tipo === "oportunidade" ? "↑" : item.tipo === "aviso" ? "·" : "–"}
+                    </span>
+                    <p style={{ fontSize: "12px", color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>
+                      {item.texto}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+        </div>
       </div>
 
       {/* Content */}
@@ -257,14 +341,12 @@ export default async function DashboardPage() {
             }}>
               {currency.format(receitaSemana.atual)}
             </p>
-            {/* Desktop: trend acima do gráfico */}
             <span className="hidden lg:inline-block">
               <TrendText percent={receitaSemana.percentual} comparativoLabel="vs semana passada" />
             </span>
             <div className="mt-3" style={{ maxHeight: "160px", overflow: "hidden" }}>
               <BarChart data={pontosReceita} height={160} />
             </div>
-            {/* Mobile: trend abaixo do gráfico */}
             <span className="lg:hidden block mt-2">
               <TrendText percent={receitaSemana.percentual} comparativoLabel="vs semana passada" />
             </span>
@@ -334,103 +416,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Bottom widgets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: "16px" }}>
-
-          {/* CMV */}
-          <div style={card}>
-            <p style={{ ...overline, marginBottom: "12px" }}>CMV do mês</p>
-            <p className="text-[24px] lg:text-[32px]" style={{
-              fontWeight: 600,
-              color: "var(--fg)",
-              fontFamily: "var(--font-mono)",
-              fontVariantNumeric: "tabular-nums",
-              marginBottom: "6px",
-            }}>
-              {cmvMes !== null ? `${percent.format(cmvMes)}%` : "—"}
-            </p>
-            <p style={{ fontSize: "13px", color: "var(--fg-muted)" }}>custo sobre receita</p>
-          </div>
-
-          {/* Meta do mês */}
-          {(() => {
-            const metaConfigurada = current.bar.configuracoes?.meta_mensal;
-            const meta = metaConfigurada ?? metaMes.meta;
-            const atual = metaMes.faturamentoAtual;
-            const progresso = meta > 0 ? Math.min(Math.round((atual / meta) * 100), 100) : 0;
-            const falta = Math.max(meta - atual, 0);
-            const atingida = atual >= meta && meta > 0;
-            return (
-              <div style={card}>
-                <p style={{ ...overline, margin: 0 }}>Meta do mês</p>
-                <p className="text-[20px] lg:text-[26px]" style={{
-                  fontWeight: 600,
-                  color: "var(--fg)",
-                  fontFamily: "var(--font-mono)",
-                  fontVariantNumeric: "tabular-nums",
-                  margin: "12px 0 2px",
-                }}>
-                  {currency.format(atual)}
-                </p>
-                <p style={{ fontSize: "12px", color: "var(--fg-subtle)", margin: "0 0 20px" }}>
-                  de {currency.format(meta)} · {progresso}%
-                  {!metaConfigurada && (
-                    <span style={{ marginLeft: 6, color: "var(--fg-subtle)", fontStyle: "italic" }}>
-                      (automática)
-                    </span>
-                  )}
-                </p>
-                <div style={{ background: "var(--border-strong)", borderRadius: "2px", height: "3px", marginBottom: "12px", overflow: "hidden" }}>
-                  <div style={{
-                    background: atingida ? "var(--ok)" : "var(--accent)",
-                    borderRadius: "2px",
-                    height: "3px",
-                    width: `${progresso}%`,
-                    transition: "width 0.6s ease",
-                  }} />
-                </div>
-                <p style={{ fontSize: "12px", color: atingida ? "var(--ok)" : "var(--fg-subtle)", margin: 0 }}>
-                  {atingida ? "Meta atingida!" : `falta ${currency.format(falta)} para bater a meta`}
-                </p>
-              </div>
-            );
-          })()}
-
-          {/* Insights */}
-          <div style={card}>
-            <p style={{ ...overline, marginBottom: "14px" }}>Insights</p>
-            {insights.length === 0 ? (
-              <p style={{ fontSize: "13px", color: "var(--fg-muted)", lineHeight: 1.6 }}>
-                Ainda não há dados suficientes neste turno para gerar insights.
-              </p>
-            ) : (
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
-                {insights.map((item, i) => (
-                  <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                    <span
-                      aria-hidden
-                      style={{
-                        flexShrink: 0,
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        lineHeight: 1.4,
-                        color: item.tipo === "oportunidade" ? "var(--ok)" : item.tipo === "aviso" ? "var(--warn)" : "var(--fg-subtle)",
-                      }}
-                    >
-                      {item.tipo === "oportunidade" ? "↑" : item.tipo === "aviso" ? "·" : "—"}
-                    </span>
-                    <p style={{ fontSize: "13px", color: "var(--fg-muted)", lineHeight: 1.55, margin: 0 }}>
-                      {item.texto}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-        </div>
-
-        {/* Aviso mobile — versão desktop tem mais detalhes */}
+        {/* Aviso mobile */}
         <p
           className="lg:hidden"
           style={{
