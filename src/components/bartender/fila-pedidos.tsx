@@ -129,7 +129,7 @@ function PedidoCard({
               <button
                 onClick={() => atualizar("cancelado")}
                 style={{
-                  flex: 1, padding: "11px", borderRadius: 8,
+                  flex: 1, padding: "11px", minHeight: 44, borderRadius: 8,
                   background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "none",
                   color: "var(--fg-muted)", fontSize: 13, fontWeight: 600,
                   cursor: "pointer",
@@ -140,7 +140,7 @@ function PedidoCard({
               <button
                 onClick={() => atualizar("em_preparo")}
                 style={{
-                  flex: 2, padding: "11px", borderRadius: 8,
+                  flex: 2, padding: "11px", minHeight: 44, borderRadius: 8,
                   background: "var(--accent)", border: "none",
                   color: "var(--accent-fg)", fontSize: 13, fontWeight: 900,
                   cursor: "pointer",
@@ -154,7 +154,7 @@ function PedidoCard({
             <button
               onClick={() => atualizar("pronto")}
               style={{
-                flex: 1, padding: "11px", borderRadius: 8,
+                flex: 1, padding: "11px", minHeight: 44, borderRadius: 8,
                 background: "var(--ok-bg)",
                 border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
                 color: "var(--ok)", fontSize: 13, fontWeight: 800,
@@ -168,7 +168,7 @@ function PedidoCard({
             <button
               onClick={() => atualizar("entregue")}
               style={{
-                flex: 1, padding: "11px", borderRadius: 8,
+                flex: 1, padding: "11px", minHeight: 44, borderRadius: 8,
                 background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "1px solid var(--border)",
                 color: "var(--fg-muted)", fontSize: 13, fontWeight: 700,
                 cursor: "pointer",

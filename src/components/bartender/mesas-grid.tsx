@@ -253,9 +253,9 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     (balcao?.status === "aguardando_pagamento" ? 1 : 0);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px" }}>
+    <div className="flex-1 overflow-y-auto p-4 md:px-7 md:py-6">
       {/* Header */}
-      <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div className="mb-4 md:mb-6 flex justify-between items-end">
         <div>
           <p style={{
             fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)",

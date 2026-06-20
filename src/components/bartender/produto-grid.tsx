@@ -292,6 +292,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                       fontSize: 13,
                       fontWeight: active ? 500 : 400,
                       padding: "6px 14px",
+                      minHeight: 44,
                       borderRadius: 4,
                       border: "none",
                       cursor: "pointer",
@@ -356,8 +357,8 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         )}
       </div>
 
-      {/* ── Product grid ── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+      {/* ── Product grid — pb-20 no mobile libera espaço do bottom sheet ── */}
+      <div className="flex-1 overflow-y-auto px-5 pt-5 pb-20 md:pb-5">
         {buscaAtiva && busca && resultadoBusca.length === 0 ? (
           <p style={{ fontSize: 14, color: "var(--fg-subtle)", textAlign: "center", paddingTop: 48 }}>
             Nenhum produto para &ldquo;{busca}&rdquo;

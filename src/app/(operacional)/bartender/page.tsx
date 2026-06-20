@@ -27,16 +27,15 @@ export default async function BartenderPage() {
   ]);
 
   return (
-    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+    /* Mobile: fila empilhada acima das mesas.  md+: lado a lado */
+    <div className="flex flex-col md:flex-row h-full overflow-hidden">
 
-      {/* ── Coluna esquerda: Fila de pedidos ── */}
-      <div style={{
-        width: 360, flexShrink: 0,
-        borderRight: "1px solid rgba(255,255,255,0.06)",
-        display: "flex", flexDirection: "column",
-        overflow: "hidden",
-      }}>
-        <div style={{ padding: "20px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+      {/* ── Fila de pedidos ── */}
+      <div
+        className="flex flex-col flex-none overflow-hidden border-b md:border-b-0 md:border-r md:w-[360px] max-h-[220px] md:max-h-none"
+        style={{ borderColor: "rgba(255,255,255,0.06)" }}
+      >
+        <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
             Fila de pedidos
           </p>
@@ -44,12 +43,12 @@ export default async function BartenderPage() {
             Tempo real
           </p>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px 16px 24px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 16px" }}>
           <FilaPedidos barId={current.bar.id} />
         </div>
       </div>
 
-      {/* ── Coluna direita: Mesas (client component com realtime) ── */}
+      {/* ── Mesas ── */}
       <MesasGrid
         barId={current.bar.id}
         initialMesas={mesas}

@@ -134,21 +134,24 @@ export function OperadorShell({
         borderBottom: "1px solid var(--border)",
         background: "var(--bg)",
       }}>
-        {/* Esquerda */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>{barNome}</span>
+        {/* Esquerda — minWidth:0 impede que nome longo empurre o lado direito */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, overflow: "hidden" }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {barNome}
+          </span>
           <span style={{
             fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 4,
             background: "color-mix(in srgb, var(--accent) 30%, transparent)",
             color: "var(--accent-bright)",
             letterSpacing: "0.04em", textTransform: "uppercase",
+            flexShrink: 0,
           }}>
             Bartender
           </span>
         </div>
 
         {/* Direita */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
           {operador ? (
             <>
               <span style={{ fontSize: 13, color: "var(--fg)", fontWeight: 600 }}>{operador.nome}</span>

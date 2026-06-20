@@ -75,7 +75,11 @@ export default async function ComandaPage({ params }: Props) {
           <ProdutoGrid cardapio={cardapio} comandaId={comanda.id} />
         </div>
 
-        <aside style={{ width: 360, flexShrink: 0, borderLeft: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
+        {/* Painel lateral — oculto no mobile; bottom sheet assume o papel */}
+        <aside
+          className="hidden md:flex md:flex-col md:flex-none"
+          style={{ width: 360, borderLeft: "1px solid var(--border)" }}
+        >
           <ComandaConteudo comanda={comanda} itens={itens} subtotal={subtotal} />
         </aside>
 
