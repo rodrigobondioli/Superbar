@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth/actions";
 
 export type MembroSimples = { id: string; nome: string; role: string };
@@ -87,6 +88,12 @@ function QuemEVoce({ membros, onSelect }: { membros: MembroSimples[]; onSelect: 
   );
 }
 
+/** Roles que não operam o bartender — devem ser redirecionados */
+function destinoPorRole(role: string): string | null {
+  if (role === "caixa") return "/caixa";
+  return null;
+}
+
 // ─── Shell principal ──────────────────────────────────────────────────────────
 export function OperadorShell({
   membros, barNome, children,
@@ -95,6 +102,7 @@ export function OperadorShell({
   barNome: string;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [operador, setOperador] = useState<MembroSimples | null>(null);
   const [carregado, setCarregado] = useState(false);
 
@@ -102,11 +110,16 @@ export function OperadorShell({
     try {
       const salvo = localStorage.getItem(STORAGE_KEY);
       if (salvo) {
-        setOperador(JSON.parse(salvo));
+        const m = JSON.parse(salvo) as MembroSimples;
+        const destino = destinoPorRole(m.role);
+        if (destino) { router.push(destino); return; } // redireciona, não mostra bartender
+        setOperador(m);
       } else if (membros.length === 1) {
         // Único membro ativo — entra direto sem pedir seleção
         const m = membros[0];
         localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+        const destino = destinoPorRole(m.role);
+        if (destino) { router.push(destino); return; }
         setOperador(m);
       }
     } catch {}
@@ -115,6 +128,8 @@ export function OperadorShell({
 
   function selecionar(m: MembroSimples) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+    const destino = destinoPorRole(m.role);
+    if (destino) { router.push(destino); return; }
     setOperador(m);
   }
 
