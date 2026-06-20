@@ -49,7 +49,7 @@ const lbl: React.CSSProperties = {
 
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)", border: "1px solid var(--border)",
-  borderRadius: 4, padding: "9px 12px", fontSize: 13,
+  borderRadius: 4, padding: "9px 12px", fontSize: 16,
   color: "var(--fg)", outline: "none", width: "100%",
   boxSizing: "border-box", colorScheme: "dark" as React.CSSProperties["colorScheme"],
 };
@@ -242,7 +242,7 @@ function MinimoForm({ item, onClose }: { item: ItemEstoque; onClose: () => void 
         value={qtd} onChange={e => setQtd(e.target.value)}
         style={{
           background: "var(--bg-inset)", border: "1px solid var(--border)",
-          borderRadius: 4, padding: "7px 10px", fontSize: 13,
+          borderRadius: 4, padding: "7px 10px", fontSize: 16,
           color: "var(--fg)", outline: "none", width: 90,
           colorScheme: "dark" as React.CSSProperties["colorScheme"],
         }}

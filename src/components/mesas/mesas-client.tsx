@@ -22,7 +22,7 @@ const inp: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: 4,
   padding: "10px 12px",
-  fontSize: 13,
+  fontSize: 16,
   color: "var(--fg)",
   outline: "none",
   colorScheme: "dark" as React.CSSProperties["colorScheme"],
