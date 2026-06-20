@@ -27,7 +27,7 @@ export interface MesaComStatus {
 const CARD_STYLE: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  height: 160,
+  height: 190,
   borderRadius: 8,
   overflow: "hidden",
   position: "relative",
@@ -109,13 +109,13 @@ function MesaCard({
 
   // ── Ocupada — semantic colors allowed in Bartender ──
   const bgColor     = querPagar
-    ? "color-mix(in srgb, var(--warn) 12%, transparent)"
+    ? "color-mix(in srgb, var(--danger) 12%, transparent)"
     : "color-mix(in srgb, var(--accent) 22%, transparent)";
   const borderColor = querPagar
-    ? "color-mix(in srgb, var(--warn) 40%, transparent)"
+    ? "color-mix(in srgb, var(--danger) 35%, transparent)"
     : "color-mix(in srgb, var(--accent-bright) 35%, transparent)";
-  const topBarColor = querPagar ? "var(--warn)" : "var(--accent-bright)";
-  const totalColor  = querPagar ? "var(--warn)" : "var(--fg)";
+  const topBarColor = querPagar ? "var(--danger)" : "var(--accent-bright)";
+  const totalColor  = querPagar ? "var(--danger)" : "var(--fg)";
 
   return (
     <Link
@@ -140,9 +140,9 @@ function MesaCard({
           {querPagar ? (
             <span style={{
               fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 4,
-              background: "color-mix(in srgb, var(--warn) 20%, transparent)",
-              color: "var(--warn)",
-              border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
+              background: "color-mix(in srgb, var(--danger) 18%, transparent)",
+              color: "var(--danger)",
+              border: "1px solid color-mix(in srgb, var(--danger) 35%, transparent)",
               textTransform: "uppercase", letterSpacing: "0.06em",
               flexShrink: 0, whiteSpace: "nowrap",
             }}>
@@ -175,9 +175,9 @@ function MesaCard({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{
             fontSize: 11, fontWeight: 600,
-            color: querPagar ? "var(--warn)" : "var(--fg-subtle)",
+            color: querPagar ? "var(--danger)" : "var(--fg-subtle)",
             background: querPagar
-              ? "color-mix(in srgb, var(--warn) 10%, transparent)"
+              ? "color-mix(in srgb, var(--danger) 10%, transparent)"
               : "color-mix(in srgb, var(--fg) 6%, transparent)",
             borderRadius: 4, padding: "2px 7px",
             opacity: querPagar ? 1 : 0.8,
@@ -272,11 +272,11 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         {querPagarCount > 0 && (
           <div style={{
             display: "flex", alignItems: "center", gap: 6,
-            background: "color-mix(in srgb, var(--warn) 12%, transparent)",
-            border: "1px solid color-mix(in srgb, var(--warn) 25%, transparent)",
+            background: "color-mix(in srgb, var(--danger) 12%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
             borderRadius: 8, padding: "6px 12px",
           }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--warn)" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--danger)" }}>
               {querPagarCount} quer{querPagarCount > 1 ? "em" : ""} pagar
             </span>
           </div>
@@ -298,7 +298,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
         gap: 14,
       }}>
         {mesas.map(({ mesa, comanda }) => {
