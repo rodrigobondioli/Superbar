@@ -1,38 +1,82 @@
-import type { TopDrink } from "@/lib/dashboard/queries";
+import type { ProdutoCategorizado } from "@/lib/dashboard/menu-engineering";
 
-interface GerarInsightParams {
-  produtosVendidos: TopDrink[];
-  faturamentoTurno: number;
-  cmvTrend: number | null;
-  alertasCount: number;
+export interface InsightItem {
+  texto: string;
+  tipo: "oportunidade" | "aviso" | "info";
 }
 
-// Insight calculado a partir dos dados reais do turno — não é gerado por um
-// modelo de linguagem, é regra de negócio determinística. Prioridade:
-// alerta operacional > variação de custo > destaque de venda > fallback.
+interface GerarInsightParams {
+  produtosCategorizado: ProdutoCategorizado[];
+  cmvTrend: number | null;
+  ticketMedioTrend: number | null;
+  cmvParcial: boolean;
+}
+
 export function gerarInsight({
-  produtosVendidos,
-  faturamentoTurno,
+  produtosCategorizado,
   cmvTrend,
-  alertasCount,
-}: GerarInsightParams): string {
-  if (alertasCount > 0) {
-    return `${alertasCount} ${alertasCount === 1 ? "produto está" : "produtos estão"} abaixo do estoque mínimo. Repor agora evita perda de venda ainda neste turno.`;
+  ticketMedioTrend,
+  cmvParcial,
+}: GerarInsightParams): InsightItem[] {
+  const insights: InsightItem[] = [];
+
+  // Margem × volume: produto com maior margem não está no top 3 de quantidade
+  const comMargemPositiva = produtosCategorizado.filter(
+    (p) => p.margemPercentual !== null && p.margemPercentual > 0
+  );
+  if (comMargemPositiva.length > 1) {
+    const [maiorMargem] = [...comMargemPositiva].sort(
+      (a, b) => (b.margemPercentual ?? 0) - (a.margemPercentual ?? 0)
+    );
+    const top3Ids = [...produtosCategorizado]
+      .sort((a, b) => b.quantidadeVendida - a.quantidadeVendida)
+      .slice(0, 3)
+      .map((p) => p.produtoId);
+    if (!top3Ids.includes(maiorMargem.produtoId)) {
+      insights.push({
+        texto: `${maiorMargem.produtoNome} tem a maior margem do turno, mas não está entre os 3 mais vendidos — vale incentivar.`,
+        tipo: "oportunidade",
+      });
+    }
   }
 
+  // CMV subiu vs turno anterior
   if (cmvTrend !== null && cmvTrend >= 5) {
-    return `O CMV subiu ${cmvTrend.toFixed(1)}% em relação ao turno anterior. Vale revisar o custo dos produtos mais vendidos.`;
+    insights.push({
+      texto: `CMV subiu ${cmvTrend.toFixed(1)}% vs turno anterior — revise o custo dos produtos mais vendidos.`,
+      tipo: "aviso",
+    });
   }
 
-  const maisVendido = [...produtosVendidos].sort((a, b) => b.faturamento - a.faturamento)[0];
-  if (maisVendido && faturamentoTurno > 0) {
-    const participacao = (maisVendido.faturamento / faturamentoTurno) * 100;
-    return `${maisVendido.produtoNome} lidera as vendas do turno: ${maisVendido.quantidadeVendida} unidades, ${participacao.toFixed(0)}% do faturamento.`;
+  // Ticket médio caiu vs turno anterior
+  if (ticketMedioTrend !== null && ticketMedioTrend <= -5) {
+    insights.push({
+      texto: `Ticket médio caiu ${Math.abs(ticketMedioTrend).toFixed(1)}% em relação ao turno anterior.`,
+      tipo: "aviso",
+    });
   }
 
-  if (cmvTrend !== null && cmvTrend <= -5) {
-    return `O CMV caiu ${Math.abs(cmvTrend).toFixed(1)}% em relação ao turno anterior — boa margem mantida.`;
+  // Drinks com margem negativa (categoria "problema")
+  const problemas = produtosCategorizado.filter((p) => p.categoria === "problema");
+  if (problemas.length === 1) {
+    insights.push({
+      texto: `${problemas[0].produtoNome} está sendo vendido com margem negativa — verifique o preço ou custo.`,
+      tipo: "aviso",
+    });
+  } else if (problemas.length > 1) {
+    insights.push({
+      texto: `${problemas.length} produtos com margem negativa: ${problemas.map((p) => p.produtoNome).join(", ")}.`,
+      tipo: "aviso",
+    });
   }
 
-  return "Ainda não há dados suficientes neste turno para gerar um insight.";
+  // Sem custo cadastrado em todos os produtos vendidos
+  if (cmvParcial) {
+    insights.push({
+      texto: "Alguns produtos não têm custo cadastrado. Cadastre a ficha técnica para ter o CMV preciso.",
+      tipo: "info",
+    });
+  }
+
+  return insights;
 }

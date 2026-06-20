@@ -8,7 +8,6 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 interface LiveData {
   faturamento: number;
   pessoas: number;
-  mesas: number;
   drinks: number;
 }
 
@@ -17,7 +16,6 @@ interface LiveBarProps {
   barId: string;
   faturamentoInicial: number;
   pessoasInicial: number;
-  mesasInicial: number;
   drinksInicial: number;
 }
 
@@ -34,13 +32,11 @@ export function LiveBar({
   barId,
   faturamentoInicial,
   pessoasInicial,
-  mesasInicial,
   drinksInicial,
 }: LiveBarProps) {
   const [data, setData] = useState<LiveData>({
     faturamento: faturamentoInicial,
     pessoas: pessoasInicial,
-    mesas: mesasInicial,
     drinks: drinksInicial,
   });
 
@@ -49,20 +45,16 @@ export function LiveBar({
 
     const { data: comandas } = await supabase
       .from("comandas")
-      .select("id, mesa_id")
+      .select("id")
       .eq("turno_id", turnoId)
       .eq("status", "aberta")
-      .returns<{ id: string; mesa_id: string | null }[]>();
+      .returns<{ id: string }[]>();
 
     const pessoas = (comandas ?? []).length;
-    const mesas = new Set(
-      (comandas ?? []).map(c => c.mesa_id).filter(Boolean)
-    ).size;
-
     const comandaIds = (comandas ?? []).map(c => c.id);
 
     if (comandaIds.length === 0) {
-      setData(d => ({ ...d, pessoas: 0, mesas: 0 }));
+      setData(d => ({ ...d, pessoas: 0 }));
       return;
     }
 
@@ -76,7 +68,7 @@ export function LiveBar({
     const faturamento = (items ?? []).reduce((s, i) => s + Number(i.preco_total), 0);
     const drinks = (items ?? []).reduce((s, i) => s + Number(i.quantidade), 0);
 
-    setData({ faturamento, pessoas, mesas, drinks });
+    setData({ faturamento, pessoas, drinks });
   }, [turnoId, barId]);
 
   useEffect(() => {
@@ -106,7 +98,6 @@ export function LiveBar({
   const metrics = [
     { label: "Faturamento", value: currency.format(data.faturamento) },
     { label: "Comandas abertas", value: String(data.pessoas) },
-    { label: "Mesas ocupadas", value: String(data.mesas) },
     { label: "Drinks vendidos", value: String(data.drinks) },
   ];
 
@@ -133,7 +124,7 @@ export function LiveBar({
   return (
     <div className="px-5 py-4 lg:p-0">
       <div
-        className="grid grid-cols-1 lg:grid-cols-4 overflow-hidden rounded-[4px] lg:rounded-none"
+        className="grid grid-cols-1 lg:grid-cols-3 overflow-hidden rounded-[4px] lg:rounded-none"
         style={{ gap: "1px", background: "var(--border)", border: "1px solid var(--border)" }}
       >
         {metrics.map((m, i) => (

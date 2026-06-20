@@ -20,7 +20,7 @@ import { categorizarProdutos, calcularCmv } from "@/lib/dashboard/menu-engineeri
 import { getFaturamentoPorDia, getComparacaoPeriodo, getProdutosVendidosPeriodo } from "@/lib/dashboard/relatorios";
 import { resolvePeriodo, periodoMesAtual, periodoAnterior } from "@/lib/dashboard/periodo";
 import { percentChange } from "@/lib/dashboard/percent-change";
-import { gerarInsight } from "@/lib/dashboard/insights";
+import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
 
 const TOP_DRINKS_LIMIT = 5;
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -102,13 +102,6 @@ export default async function DashboardPage() {
   const cmvMesTrend =
     cmvMes !== null && cmvMesAnterior !== null ? percentChange(cmvMes, cmvMesAnterior) : null;
 
-  const insight = gerarInsight({
-    produtosVendidos,
-    faturamentoTurno: kpis.faturamento,
-    cmvTrend: comparacao.cmv,
-    alertasCount: alertas.length,
-  });
-
   const agora = new Date();
   const primeiroNome = current.userNome.split(" ")[0];
   const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
@@ -117,6 +110,13 @@ export default async function DashboardPage() {
   // o CMV é parcial — indicador sutil "estimado" avisa o dono.
   const produtosComCusto = produtosVendidos.filter(p => p.custo != null).length;
   const cmvParcial = cmvAtual !== null && produtosComCusto < produtosVendidos.length;
+
+  const insights: InsightItem[] = gerarInsight({
+    produtosCategorizado: produtosCategorizados,
+    cmvTrend: comparacao.cmv,
+    ticketMedioTrend: comparacao.ticketMedio,
+    cmvParcial,
+  });
 
   const kpiCards = [
     { value: currency.format(kpis.faturamento), label: "Faturamento do turno", subtitle: null as string | null, percent: comparacao.faturamento, invert: false, estimado: false },
@@ -130,8 +130,8 @@ export default async function DashboardPage() {
 
       {/* Hero — flat, plano, sem orbs */}
       <div
-        className="relative px-5 pt-8 pb-6 lg:px-12 lg:pt-14 lg:pb-10"
-        style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}
+        className="relative px-5 pt-8 pb-6 lg:px-12 lg:pt-14 lg:pb-10 lg:border-b"
+        style={{ background: "var(--bg)", borderColor: "var(--border)" }}
       >
         {/* Controls — top-right, visível só no desktop (mobile usa o header do layout) */}
         <div className="hidden lg:flex" style={{ position: "absolute", top: "16px", right: "24px", alignItems: "center", gap: "10px" }}>
@@ -156,11 +156,12 @@ export default async function DashboardPage() {
             letterSpacing: "-0.01em",
             lineHeight: 1.15,
             marginBottom: "6px",
+            textAlign: "center",
           }}
         >
           {saudacao(agora.getHours())}, {primeiroNome}
         </h1>
-        <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginBottom: "24px" }}>
+        <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginBottom: "24px", textAlign: "center" }}>
           {dataFormatada}{turno ? " · turno aberto" : " · nenhum turno aberto"}
         </p>
 
@@ -173,7 +174,6 @@ export default async function DashboardPage() {
         barId={current.bar.id}
         faturamentoInicial={kpis.faturamento}
         pessoasInicial={kpis.comandasAbertas}
-        mesasInicial={liveStats.mesas}
         drinksInicial={liveStats.drinks}
       />
 
@@ -396,12 +396,36 @@ export default async function DashboardPage() {
             );
           })()}
 
-          {/* Santé AI insight */}
+          {/* Insights */}
           <div style={card}>
-            <p style={{ ...overline, marginBottom: "12px" }}>Santé AI</p>
-            <p style={{ fontSize: "14px", color: "var(--fg-muted)", lineHeight: 1.6 }}>
-              {insight ?? "Nenhum insight disponível no momento."}
-            </p>
+            <p style={{ ...overline, marginBottom: "14px" }}>Insights</p>
+            {insights.length === 0 ? (
+              <p style={{ fontSize: "13px", color: "var(--fg-muted)", lineHeight: 1.6 }}>
+                Ainda não há dados suficientes neste turno para gerar insights.
+              </p>
+            ) : (
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                {insights.map((item, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <span
+                      aria-hidden
+                      style={{
+                        flexShrink: 0,
+                        fontSize: "14px",
+                        fontWeight: 700,
+                        lineHeight: 1.4,
+                        color: item.tipo === "oportunidade" ? "var(--ok)" : item.tipo === "aviso" ? "var(--warn)" : "var(--fg-subtle)",
+                      }}
+                    >
+                      {item.tipo === "oportunidade" ? "↑" : item.tipo === "aviso" ? "·" : "—"}
+                    </span>
+                    <p style={{ fontSize: "13px", color: "var(--fg-muted)", lineHeight: 1.55, margin: 0 }}>
+                      {item.texto}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
         </div>

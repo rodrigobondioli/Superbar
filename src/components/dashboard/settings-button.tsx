@@ -38,11 +38,11 @@ export function SettingsButton({
           <img
             src={userAvatarUrl}
             alt={userNome}
-            style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", display: "block", flexShrink: 0 }}
+            style={{ width: 41, height: 41, borderRadius: "50%", objectFit: "cover", display: "block", flexShrink: 0 }}
           />
         ) : (
           <div style={{
-            width: 36, height: 36, borderRadius: "50%",
+            width: 41, height: 41, borderRadius: "50%",
             background: "var(--accent)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 13, fontWeight: 700, color: "var(--accent-fg)", flexShrink: 0,
