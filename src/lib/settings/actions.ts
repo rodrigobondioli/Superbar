@@ -53,6 +53,22 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
   return { ok: true };
 }
 
+export async function atualizarLogo(barId: string, logoUrl: string | null): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("bars").update({ logo_url: logoUrl }).eq("id", barId);
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function atualizarAvatar(userId: string, avatarUrl: string | null): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", userId);
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
 export async function atualizarConta(userId: string, formData: FormData): Promise<ActionResult> {
   const nome      = String(formData.get("nome") ?? "").trim();
   const avatarUrl = String(formData.get("avatar_url") ?? "").trim() || null;

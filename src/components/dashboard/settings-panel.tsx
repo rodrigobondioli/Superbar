@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Building2, User, Target } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
-import { atualizarPerfil, atualizarConta, type ActionResult } from "@/lib/settings/actions";
+import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, type ActionResult } from "@/lib/settings/actions";
 import type { Bar } from "@/types/database";
 
 // ─── Shared inline styles ────────────────────────────────────────────────────
@@ -59,6 +59,46 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
 
   const endereco = bar.endereco ?? {};
 
+  // Endereço — controlado para CEP preencher automaticamente
+  const [cep, setCep]       = useState(endereco.cep    ?? "");
+  const [rua, setRua]       = useState(endereco.rua    ?? "");
+  const [bairro, setBairro] = useState(endereco.bairro ?? "");
+  const [cidade, setCidade] = useState(endereco.cidade ?? "");
+  const [estado, setEstado] = useState(endereco.estado ?? "");
+  const [cepLoading, setCepLoading] = useState(false);
+
+  function formatCep(v: string) {
+    const d = v.replace(/\D/g, "").slice(0, 8);
+    return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+  }
+
+  async function handleCepChange(raw: string) {
+    const formatted = formatCep(raw);
+    setCep(formatted);
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length !== 8) return;
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json();
+      if (!data.erro) {
+        setRua(data.logradouro ?? "");
+        setBairro(data.bairro ?? "");
+        setCidade(data.localidade ?? "");
+        setEstado(data.uf ?? "");
+      }
+    } catch { /* ignora falha de rede */ }
+    finally { setCepLoading(false); }
+  }
+
+  // Auto-salva a URL da logo imediatamente após o upload — o usuário
+  // não precisa clicar "Salvar" para persistir a foto.
+  async function handleLogoUpload(url: string | null) {
+    setLogoUrl(url);
+    await atualizarLogo(barId, url);
+    router.refresh();
+  }
+
   async function handleSubmit(fd: FormData) {
     setPending(true);
     setResult(null);
@@ -79,13 +119,13 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
       </div>
 
       <form action={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {/* Logo */}
+        {/* Logo — auto-salva ao fazer upload */}
         <div>
           <label style={lbl}>Logo</label>
           <ImageUpload
-            currentUrl={bar.logo_url}
+            currentUrl={logoUrl}
             bucket="bar-logos"
-            onUpload={setLogoUrl}
+            onUpload={handleLogoUpload}
           />
         </div>
 
@@ -104,15 +144,35 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
         {/* Endereço */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <label style={lbl}>Endereço</label>
+
+          {/* CEP primeiro — preenche os demais campos automaticamente */}
+          <div style={{ position: "relative" }}>
+            <input
+              name="cep"
+              value={cep}
+              onChange={e => handleCepChange(e.target.value)}
+              placeholder="CEP"
+              style={inp}
+            />
+            {cepLoading && (
+              <span style={{
+                position: "absolute", right: 12, top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: 11, color: "var(--fg-subtle)", pointerEvents: "none",
+              }}>
+                buscando…
+              </span>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_90px] gap-2">
-            <input name="rua" defaultValue={endereco.rua ?? ""} placeholder="Rua" style={inp} />
+            <input name="rua" value={rua} onChange={e => setRua(e.target.value)} placeholder="Rua" style={inp} />
             <input name="numero" defaultValue={endereco.numero ?? ""} placeholder="Nº" style={inp} />
           </div>
-          <input name="bairro" defaultValue={endereco.bairro ?? ""} placeholder="Bairro" style={inp} />
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_60px_100px] gap-2">
-            <input name="cidade" defaultValue={endereco.cidade ?? ""} placeholder="Cidade" style={inp} />
-            <input name="estado" defaultValue={endereco.estado ?? ""} placeholder="UF" maxLength={2} style={inp} />
-            <input name="cep" defaultValue={endereco.cep ?? ""} placeholder="CEP" style={inp} />
+          <input name="bairro" value={bairro} onChange={e => setBairro(e.target.value)} placeholder="Bairro" style={inp} />
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_60px] gap-2">
+            <input name="cidade" value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade" style={inp} />
+            <input name="estado" value={estado} onChange={e => setEstado(e.target.value)} placeholder="UF" maxLength={2} style={inp} />
           </div>
         </div>
 
@@ -182,6 +242,13 @@ function MinhaConta({
   const [result, setResult] = useState<ActionResult>(null);
   const [pending, setPending] = useState(false);
 
+  // Auto-salva a URL do avatar imediatamente após o upload.
+  async function handleAvatarUpload(url: string | null) {
+    setAvatarUrl(url);
+    await atualizarAvatar(userId, url);
+    router.refresh();
+  }
+
   async function handleSubmit(fd: FormData) {
     setPending(true);
     setResult(null);
@@ -202,13 +269,13 @@ function MinhaConta({
       </div>
 
       <form action={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {/* Avatar */}
+        {/* Avatar — auto-salva ao fazer upload */}
         <div>
           <label style={lbl}>Foto de perfil</label>
           <ImageUpload
-            currentUrl={userAvatarUrl}
+            currentUrl={avatarUrl}
             bucket="avatars"
-            onUpload={setAvatarUrl}
+            onUpload={handleAvatarUpload}
           />
         </div>
 
