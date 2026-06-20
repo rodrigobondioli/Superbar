@@ -22,8 +22,9 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
           </p>
         </div>
         {comanda && (
-          /* ok token — semantic allowed in Bartender */
-          <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 2, background: "var(--ok-bg)", color: "var(--ok)" }}>Aberta</span>
+          comanda.status === "aguardando_pagamento"
+            ? <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 2, background: "var(--danger-bg)", color: "var(--danger)" }}>Quer pagar</span>
+            : <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 2, background: "var(--ok-bg)", color: "var(--ok)" }}>Aberta</span>
         )}
       </div>
 
@@ -70,7 +71,17 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
           <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Subtotal</span>
           <span style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>{currency.format(subtotal)}</span>
         </div>
-        {itens.length === 0 ? (
+        {comanda?.status === "aguardando_pagamento" ? (
+          <div style={{
+            width: "100%", padding: "14px",
+            background: "color-mix(in srgb, var(--danger) 10%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
+            borderRadius: 8, textAlign: "center",
+            color: "var(--danger)", fontSize: 14, fontWeight: 700,
+          }}>
+            Aguardando pagamento no caixa
+          </div>
+        ) : itens.length === 0 ? (
           <form action={comanda ? cancelarComanda.bind(null, comanda.id) : undefined}>
             <button
               type="submit"
