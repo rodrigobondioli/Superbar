@@ -517,7 +517,7 @@ export function CaixaTela({ comandas, insights, barNome, barId, turnoId }: {
       )}
 
       <div style={{ height: 1, background: "var(--border)" }} />
-      <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3" style={{ flex: 1, padding: "16px 20px", alignItems: "start" }}>
         {listaAtual.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 8 }}>
             <p style={{ fontSize: 36, margin: 0, color: "var(--ok)" }}>✓</p>
