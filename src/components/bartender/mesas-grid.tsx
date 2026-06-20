@@ -247,15 +247,56 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     return () => { supabase.removeChannel(channel); };
   }, [barId]);
 
-  const totalOcupadas = mesas.filter(m => m.comanda !== null).length + (balcao ? 1 : 0);
-  const querPagarCount =
-    mesas.filter(m => m.comanda?.status === "aguardando_pagamento").length +
-    (balcao?.status === "aguardando_pagamento" ? 1 : 0);
+  // ── Agrupar por urgência ──────────────────────────────────────────────────────
+  type MesaEntry = { key: string; label: string; comanda: Comanda | null; capacidade?: number | null; href?: string; onAbrir?: () => void };
+
+  const todasEntradas: MesaEntry[] = [
+    ...mesas.map(({ mesa, comanda }) => ({
+      key: mesa.id,
+      label: mesa.nome ?? `Mesa ${mesa.numero}`,
+      comanda,
+      capacidade: mesa.capacidade,
+      href: comanda ? `/bartender/${comanda.id}` : undefined,
+      onAbrir: comanda ? undefined : (abrirComanda.bind(null, mesa.id) as () => void),
+    })),
+    {
+      key: "balcao",
+      label: "Balcão",
+      comanda: balcao,
+      href: balcao ? `/bartender/${balcao.id}` : undefined,
+      onAbrir: balcao ? undefined : (abrirComanda.bind(null, null) as () => void),
+    },
+  ];
+
+  const querPagar = todasEntradas.filter(e => e.comanda?.status === "aguardando_pagamento");
+  const abertas   = todasEntradas.filter(e => e.comanda?.status === "aberta");
+  const livres    = todasEntradas.filter(e => !e.comanda);
+
+  const totalOcupadas = querPagar.length + abertas.length;
+  const querPagarCount = querPagar.length;
+
+  const GRID: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: 14,
+  };
+
+  function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
+    return (
+      <p style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: "0.12em",
+        textTransform: "uppercase", margin: "0 0 10px",
+        color: color ?? "var(--fg-subtle)",
+      }}>
+        {children}
+      </p>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:px-7 md:py-6">
       {/* Header */}
-      <div className="mb-4 md:mb-6 flex justify-between items-end">
+      <div className="mb-5 md:mb-7 flex justify-between items-end">
         <div>
           <p style={{
             fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)",
@@ -271,7 +312,6 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         </div>
         {querPagarCount > 0 && (
           <div style={{
-            display: "flex", alignItems: "center", gap: 6,
             background: "color-mix(in srgb, var(--danger) 12%, transparent)",
             border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
             borderRadius: 8, padding: "6px 12px",
@@ -296,32 +336,44 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         </div>
       )}
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-        gap: 14,
-      }}>
-        {mesas.map(({ mesa, comanda }) => {
-          const label = mesa.nome ?? `Mesa ${mesa.numero}`;
-          return (
-            <MesaCard
-              key={mesa.id}
-              label={label}
-              comanda={comanda}
-              capacidade={mesa.capacidade}
-              href={comanda ? `/bartender/${comanda.id}` : undefined}
-              onAbrir={comanda ? undefined : abrirComanda.bind(null, mesa.id)}
-            />
-          );
-        })}
+      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+        {/* Querem pagar — prioridade máxima */}
+        {querPagar.length > 0 && (
+          <section>
+            <SectionLabel color="var(--danger)">
+              Querem pagar · {querPagar.length}
+            </SectionLabel>
+            <div style={GRID}>
+              {querPagar.map(e => (
+                <MesaCard key={e.key} label={e.label} comanda={e.comanda} capacidade={e.capacidade} href={e.href} onAbrir={e.onAbrir} />
+              ))}
+            </div>
+          </section>
+        )}
 
-        {/* Balcão */}
-        <MesaCard
-          label="Balcão"
-          comanda={balcao}
-          href={balcao ? `/bartender/${balcao.id}` : undefined}
-          onAbrir={balcao ? undefined : abrirComanda.bind(null, null)}
-        />
+        {/* Abertas */}
+        {abertas.length > 0 && (
+          <section>
+            <SectionLabel>Abertas · {abertas.length}</SectionLabel>
+            <div style={GRID}>
+              {abertas.map(e => (
+                <MesaCard key={e.key} label={e.label} comanda={e.comanda} capacidade={e.capacidade} href={e.href} onAbrir={e.onAbrir} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Livres */}
+        {livres.length > 0 && (
+          <section>
+            <SectionLabel>Livres · {livres.length}</SectionLabel>
+            <div style={GRID}>
+              {livres.map(e => (
+                <MesaCard key={e.key} label={e.label} comanda={e.comanda} capacidade={e.capacidade} href={e.href} onAbrir={e.onAbrir} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
