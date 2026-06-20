@@ -342,7 +342,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                 background: "transparent",
                 border: "none",
                 outline: "none",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--fg)",
                 colorScheme: "dark",
               } as React.CSSProperties}

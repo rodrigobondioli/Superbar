@@ -80,7 +80,7 @@ export function NovaComandaButton() {
                   background: "var(--bg-inset)",
                   border: "1px solid var(--border)",
                   borderRadius: 4, padding: "12px 14px",
-                  fontSize: 15, color: "var(--fg)", outline: "none",
+                  fontSize: 16, color: "var(--fg)", outline: "none",
                   colorScheme: "dark", marginBottom: 20,
                 } as React.CSSProperties}
               />
@@ -90,7 +90,7 @@ export function NovaComandaButton() {
                   type="button"
                   onClick={() => setOpen(false)}
                   style={{
-                    flex: 1, padding: "12px",
+                    flex: 1, padding: "12px", minHeight: 44,
                     background: "color-mix(in srgb, var(--fg) 7%, transparent)", border: "none", borderRadius: 8,
                     color: "var(--fg-muted)", fontSize: 14, fontWeight: 500, cursor: "pointer",
                   }}
@@ -100,7 +100,7 @@ export function NovaComandaButton() {
                 <button
                   type="submit"
                   style={{
-                    flex: 2, padding: "12px",
+                    flex: 2, padding: "12px", minHeight: 44,
                     background: "var(--accent)", border: "none", borderRadius: 8,
                     color: "var(--accent-fg)", fontSize: 14, fontWeight: 700, cursor: "pointer",
                   }}

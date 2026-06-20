@@ -27,9 +27,10 @@ export function ComandaBottomSheet({ itemCount, subtotal, children }: ComandaBot
 
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[80vh] flex-col rounded-t-2xl border-t border-white/10 bg-surface-card shadow-indigo-md transition-transform duration-300 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]",
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[80vh] flex-col rounded-t-2xl border-t border-white/10 transition-transform duration-300 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]",
           open ? "translate-y-0" : "translate-y-[calc(100%-4.5rem)]"
         )}
+        style={{ background: "var(--bg-elevated)" }}
       >
         <button
           type="button"
