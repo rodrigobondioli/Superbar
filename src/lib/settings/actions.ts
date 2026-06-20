@@ -3,9 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 export type ActionResult = { ok: true } | { error: string } | null;
 
 export async function atualizarPerfil(barId: string, formData: FormData): Promise<ActionResult> {
@@ -31,7 +28,7 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
   const supabase = await createClient();
 
   // Lê configuracoes atual para fazer merge (não sobrescrever outros campos)
-  const { data: barAtual } = await semTipo(supabase.from("bars"))
+  const { data: barAtual } = await supabase.from("bars")
     .select("configuracoes")
     .eq("id", barId)
     .maybeSingle() as { data: { configuracoes: Record<string, unknown> } | null };
@@ -42,7 +39,7 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
     ...(metaAnual  !== undefined ? { meta_anual:  metaAnual  } : {}),
   };
 
-  const { error } = await semTipo(supabase.from("bars")).update({
+  const { error } = await supabase.from("bars").update({
     nome,
     telefone,
     logo_url: logoUrl,
@@ -63,7 +60,7 @@ export async function atualizarConta(userId: string, formData: FormData): Promis
   if (!nome) return { error: "Nome é obrigatório." };
 
   const supabase = await createClient();
-  const { error } = await semTipo(supabase.from("profiles")).update({
+  const { error } = await supabase.from("profiles").update({
     nome,
     avatar_url: avatarUrl,
   }).eq("id", userId);

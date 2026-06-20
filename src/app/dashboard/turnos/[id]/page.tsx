@@ -49,7 +49,7 @@ export default async function TurnoDetalhePage({
   const isAberto = turno.status === "aberto";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", padding: "32px", gap: "24px" }}>
+    <div className="px-5 py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
 
       {/* Header */}
       <div>

@@ -29,5 +29,13 @@ export default async function CaixaPage() {
     getCaixaInsights(current.bar.id, turno.id),
   ]);
 
-  return <CaixaTela comandas={comandas} insights={insights} barNome={current.bar.nome} />;
+  return (
+    <CaixaTela
+      comandas={comandas}
+      insights={insights}
+      barNome={current.bar.nome}
+      barId={current.bar.id}
+      turnoId={turno.id}
+    />
+  );
 }

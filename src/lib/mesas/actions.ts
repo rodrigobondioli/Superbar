@@ -4,9 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(query: T): any { return query; }
-
 export async function criarMesa(formData: FormData) {
   const current = await getCurrentBar();
   if (!current) return;
@@ -19,7 +16,7 @@ export async function criarMesa(formData: FormData) {
   if (isNaN(numero)) return;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("mesas")).insert({
+  await supabase.from("mesas").insert({
     bar_id: current.bar.id,
     numero,
     nome,
@@ -36,12 +33,12 @@ export async function editarMesa(id: string, formData: FormData) {
   const capacidade = capStr ? parseInt(capStr, 10) : null;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("mesas")).update({ nome, capacidade }).eq("id", id);
+  await supabase.from("mesas").update({ nome, capacidade }).eq("id", id);
   revalidatePath("/dashboard/mesas");
 }
 
 export async function removerMesa(id: string) {
   const supabase = await createClient();
-  await semTipo(supabase.from("mesas")).update({ ativo: false }).eq("id", id);
+  await supabase.from("mesas").update({ ativo: false }).eq("id", id);
   revalidatePath("/dashboard/mesas");
 }

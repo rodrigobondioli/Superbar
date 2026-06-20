@@ -264,7 +264,7 @@ export interface Pagamento {
 export interface EstoqueMovimento {
   id: string;
   bar_id: string;
-  produto_id: string;
+  produto_id: string | null;
   tipo: MovimentoTipo;
   quantidade: number;
   quantidade_anterior: number;
@@ -295,10 +295,10 @@ export interface PedidoCliente {
 }
 
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: [];
+  Row: Row & Record<string, unknown>;
+  Insert: Insert & Record<string, unknown>;
+  Update: Update & Record<string, unknown>;
+  Relationships: never[];
 };
 
 export interface Database {
@@ -323,7 +323,7 @@ export interface Database {
       pagamentos: TableDef<Pagamento>;
       estoque_movimentos: TableDef<EstoqueMovimento>;
       pedidos_cliente: {
-        Row: PedidoCliente;
+        Row: PedidoCliente & Record<string, unknown>;
         Insert: {
           id?: string;
           bar_id: string;
@@ -333,12 +333,17 @@ export interface Database {
           total?: number;
           status?: string;
           created_at?: string;
-        };
-        Update: Partial<PedidoCliente>;
-        Relationships: [];
+        } & Record<string, unknown>;
+        Update: Partial<PedidoCliente> & Record<string, unknown>;
+        Relationships: never[];
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      incrementar_total_turno: {
+        Args: { p_turno_id: string; p_valor: number };
+        Returns: undefined;
+      };
+    };
   };
 }

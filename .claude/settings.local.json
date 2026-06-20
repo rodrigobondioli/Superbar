@@ -35,7 +35,18 @@
       "Bash(curl *)",
       "Bash(lsof -ti:3000)",
       "Bash(echo \"started pid $!\")",
-      "Bash(grep -rn \"borderRadius.*: 9[0-9]\\\\|borderRadius.*\\\\\"9[0-9]\\\\|backdropFilter.*blur\\\\|\\\\\"#[0-9a-fA-F]\\\\{6\\\\}\\\\\"\\\\|boxShadow.*rgba\\\\|bg-gradient\\\\|radial-gradient.*rgba\\\\|linear-gradient.*rgba[0-9a-f,. ]*0\\\\.[0-9]\\\\\\)\" src/ --include=\"*.tsx\" --include=\"*.ts\")"
+      "Bash(grep -rn \"borderRadius.*: 9[0-9]\\\\|borderRadius.*\\\\\"9[0-9]\\\\|backdropFilter.*blur\\\\|\\\\\"#[0-9a-fA-F]\\\\{6\\\\}\\\\\"\\\\|boxShadow.*rgba\\\\|bg-gradient\\\\|radial-gradient.*rgba\\\\|linear-gradient.*rgba[0-9a-f,. ]*0\\\\.[0-9]\\\\\\)\" src/ --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(npx supabase *)",
+      "Read(//Users/rodrigobondioli/.supabase/**)",
+      "Read(//Users/rodrigobondioli/.config/supabase/**)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(vercel --version)",
+      "Bash(vercel *)",
+      "Bash(claude mcp *)",
+      "Bash(claude skills *)",
+      "Bash(sort -t: -k2 -rn)"
     ]
   }
 }

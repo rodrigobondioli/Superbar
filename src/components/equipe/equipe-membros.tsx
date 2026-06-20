@@ -8,7 +8,7 @@ import type { BarRole } from "@/types/database";
 
 export type MembroRow = {
   id: string;
-  userId: string;
+  userId: string | null; // null = convite pendente
   nome: string;
   email: string;
   role: BarRole;
@@ -47,8 +47,9 @@ function MembroRow({
   const [editing, setEditing] = useState(false);
   const [role, setRole] = useState<BarRole>(m.role);
   const [saving, setSaving] = useState(false);
+  const isPending = m.userId === null;
   const isOwn = m.userId === currentUserId;
-  const canEdit = isDono && !isOwn;
+  const canEdit = isDono && !isOwn && !isPending;
 
   async function saveRole() {
     setSaving(true);
@@ -58,15 +59,12 @@ function MembroRow({
   }
 
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 160px 80px 88px",
-      gap: 12, alignItems: "center",
-      padding: "13px 18px",
-      opacity: m.ativo ? 1 : 0.5,
-    }}>
+    <div
+      className="flex flex-row items-center gap-3 px-4 py-3.5 lg:grid lg:grid-cols-[1fr_160px_80px_88px] lg:gap-3 lg:px-[18px] lg:py-[13px]"
+      style={{ opacity: m.ativo ? 1 : 0.5 }}
+    >
       {/* Info */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+      <div className="flex-1 min-w-0" style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{
           width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
           background: "color-mix(in srgb, var(--fg) 10%, transparent)",
@@ -85,8 +83,16 @@ function MembroRow({
         </div>
       </div>
 
-      {/* Role — editável inline */}
-      {editing ? (
+      {/* Role — badge de pendente ou editável inline */}
+      {isPending ? (
+        <span style={{
+          fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 4,
+          background: "color-mix(in srgb, var(--warn) 15%, transparent)",
+          color: "var(--warn)", display: "inline-block",
+        }}>
+          Convite enviado
+        </span>
+      ) : editing ? (
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <select
             value={role}
@@ -120,8 +126,8 @@ function MembroRow({
         </span>
       )}
 
-      {/* Vendas */}
-      <span style={{ fontSize: 12, color: "var(--fg-muted)", textAlign: "right", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
+      {/* Vendas — desktop only */}
+      <span className="hidden lg:block" style={{ fontSize: 12, color: "var(--fg-muted)", textAlign: "right", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
         {m.totalComandas > 0 ? fmt(m.totalVendas) : "—"}
       </span>
 
@@ -162,7 +168,7 @@ function MembroRow({
             </button>
           </form>
         </div>
-      ) : <span />}
+      ) : <span className="hidden lg:block" />}
     </div>
   );
 }
@@ -176,6 +182,9 @@ export function EquipeMembros({
   isDono: boolean;
   currentUserId: string;
 }) {
+  const pendentes   = inativos.filter(m => m.userId === null);
+  const desativados = inativos.filter(m => m.userId !== null);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
@@ -183,12 +192,11 @@ export function EquipeMembros({
       <div>
         <p style={{ ...LABEL, marginBottom: 12 }}>Membros ativos</p>
         <div style={{ ...CARD, overflow: "hidden" }}>
-          {/* Col header */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 160px 80px 88px",
-            gap: 12, padding: "10px 18px",
-            borderBottom: "1px solid var(--border)",
-          }}>
+          {/* Col header — desktop only */}
+          <div
+            className="hidden lg:grid lg:grid-cols-[1fr_160px_80px_88px] gap-3 px-[18px] py-[10px] border-b"
+            style={{ borderColor: "var(--border)" }}
+          >
             <span style={lbl}>Nome</span>
             <span style={lbl}>Função</span>
             <span style={{ ...lbl, textAlign: "right" }}>Vendas</span>
@@ -209,12 +217,26 @@ export function EquipeMembros({
         </div>
       </div>
 
-      {/* Inativos */}
-      {inativos.length > 0 && (
+      {/* Convites pendentes */}
+      {pendentes.length > 0 && (
+        <div>
+          <p style={{ ...LABEL, marginBottom: 12, color: "var(--warn)" }}>Convites pendentes</p>
+          <div style={{ ...CARD, overflow: "hidden" }}>
+            {pendentes.map((m, i) => (
+              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+                <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Desativados */}
+      {desativados.length > 0 && (
         <div>
           <p style={{ ...LABEL, marginBottom: 12, color: "var(--fg-subtle)" }}>Sem acesso</p>
           <div style={{ ...CARD, overflow: "hidden" }}>
-            {inativos.map((m, i) => (
+            {desativados.map((m, i) => (
               <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
                 <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
               </div>

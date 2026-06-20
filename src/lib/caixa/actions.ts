@@ -5,9 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 export async function registrarPagamento(
   comandaId: string,
   metodo: PagamentoMetodo,
@@ -22,7 +19,7 @@ export async function registrarPagamento(
   const supabase = await createClient();
 
   // Busca a comanda
-  const { data: comanda } = await semTipo(supabase.from("comandas"))
+  const { data: comanda } = await supabase.from("comandas")
     .select("id, total, status")
     .eq("id", comandaId)
     .eq("bar_id", current.bar.id)
@@ -32,7 +29,7 @@ export async function registrarPagamento(
   if (comanda.status !== "aguardando_pagamento") return { error: "Comanda não está aguardando pagamento." };
 
   // Insere pagamento
-  await semTipo(supabase.from("pagamentos")).insert({
+  await supabase.from("pagamentos").insert({
     comanda_id: comandaId,
     bar_id: current.bar.id,
     turno_id: turno.id,
@@ -45,17 +42,15 @@ export async function registrarPagamento(
   });
 
   // Marca comanda como paga
-  await semTipo(supabase.from("comandas"))
+  await supabase.from("comandas")
     .update({ status: "paga" })
     .eq("id", comandaId);
 
-  // Atualiza totais do turno
-  await semTipo(supabase.from("turnos"))
-    .update({
-      total_vendas: turno.total_vendas + comanda.total,
-      total_comandas: turno.total_comandas + 1,
-    })
-    .eq("id", turno.id);
+  // Atualiza totais do turno via RPC atômica (sem race condition)
+  await supabase.rpc("incrementar_total_turno", {
+    p_turno_id: turno.id,
+    p_valor: comanda.total,
+  });
 
   revalidatePath("/caixa");
   revalidatePath("/dashboard/caixa");

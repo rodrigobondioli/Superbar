@@ -7,11 +7,6 @@ import { getImagemAutomatica } from "./drink-images";
 import { normalizarNome } from "./import-types";
 import type { ProdutoPreview, ProdutoSalvo } from "./import-types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any {
-  return q;
-}
-
 // ─── Salvar produtos importados ───────────────────────────────────────────────
 
 export async function salvarProdutosImportados(
@@ -52,7 +47,7 @@ export async function salvarProdutosImportados(
 
   for (const nome of nomesCat) {
     if (!catMap[nome]) {
-      const { data: novaCat } = await semTipo(supabase.from("categorias"))
+      const { data: novaCat } = await supabase.from("categorias")
         .insert({ bar_id: barId, nome, ordem, ativo: true })
         .select("id")
         .single();
@@ -76,7 +71,7 @@ export async function salvarProdutosImportados(
     controla_estoque: false,
   }));
 
-  const { data: inserted, error } = await semTipo(supabase.from("produtos"))
+  const { data: inserted, error } = await supabase.from("produtos")
     .insert(toInsert)
     .select("id, nome, custo");
 
@@ -107,7 +102,7 @@ export async function salvarCustosProdutos(
 
   await Promise.all(
     custos.map(({ id, custo }) =>
-      semTipo(supabase.from("produtos")).update({ custo }).eq("id", id)
+      supabase.from("produtos").update({ custo }).eq("id", id)
     )
   );
 
@@ -169,7 +164,7 @@ export async function mergeImportacao(
     if (produto.preco_venda !== null) campos.preco = produto.preco_venda;
     if (produto.custo !== null) campos.custo = produto.custo;
     if (Object.keys(campos).length > 0) {
-      await semTipo(supabase.from("produtos")).update(campos).eq("id", id);
+      await supabase.from("produtos").update(campos).eq("id", id);
       atualizados++;
     }
   }

@@ -14,12 +14,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Superbar",
-  description: "OS unificado para bares premium",
+  description: "O cérebro do seu bar",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Superbar",
+  },
+  icons: {
+    apple: "/icon-192.png",
   },
 };
 

@@ -3,7 +3,7 @@ import type { BarRole } from "@/types/database";
 
 export interface MembroEquipe {
   id: string; // bar_members.id
-  userId: string;
+  userId: string | null; // null = convite pendente (ainda não aceitou)
   nome: string;
   email: string;
   role: BarRole;
@@ -60,10 +60,10 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
   }
 
   return membros.map((m) => {
-    const stat = statsMap.get(m.user_id) ?? { count: 0, total: 0 };
+    const stat = m.user_id ? (statsMap.get(m.user_id) ?? { count: 0, total: 0 }) : { count: 0, total: 0 };
     return {
       id: m.id,
-      userId: m.user_id,
+      userId: m.user_id ?? null,
       nome: m.nome || m.profiles?.nome || "—",
       email: m.profiles?.email ?? "—",
       role: m.role,

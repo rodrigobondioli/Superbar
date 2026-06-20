@@ -36,10 +36,10 @@ export default async function TurnosPage() {
   ]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", padding: "32px 40px", gap: "24px" }}>
+    <div className="px-5 py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
             Turnos
@@ -52,8 +52,8 @@ export default async function TurnosPage() {
       </div>
 
       {/* Table card */}
-      <div style={card}>
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+      <div className="overflow-x-auto" style={card}>
+        <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr>
               {["Status", "Abertura", "Fechamento", "Aberto por", "Comandas", "Faturamento", ""].map((h, i) => (

@@ -1,54 +1,65 @@
-import { ClipboardList, Boxes, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ClipboardList, Boxes, Wallet, Check, Activity, Calculator, Package, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/marketing/section-heading";
-import { Stat } from "@/components/ui/stat";
-import { cn } from "@/lib/utils";
+
+// Estilos de link que imitam os variantes do Button (mesmas classes Tailwind)
+const linkPrimary =
+  "inline-flex items-center justify-center transition duration-150 active:scale-[0.97] rounded-md bg-accent px-[18px] py-[10px] font-medium text-accent-fg hover:brightness-110 no-underline";
+const linkSecondary =
+  "inline-flex items-center justify-center transition duration-150 active:scale-[0.97] rounded-md border border-border-strong bg-transparent px-[18px] py-[10px] text-fg hover:border-fg-muted no-underline";
 
 const features = [
   {
     icon: ClipboardList,
     title: "Comandas em tempo real",
     description:
-      "Cada comanda é por pessoa, com itens sincronizados ao vivo entre bartenders e caixa.",
+      "Cada comanda é por mesa, com itens sincronizados ao vivo entre bartender e caixa. Sem grito, sem papel.",
   },
   {
     icon: Boxes,
-    title: "Estoque automático",
+    title: "Controle de estoque",
     description:
-      "Toda venda baixa o estoque na hora. Alertas de reposição antes de faltar.",
+      "Acompanhe o nível de cada insumo e receba alertas antes de acabar no meio do turno. Movimentações e histórico completo.",
   },
   {
     icon: Wallet,
     title: "Caixa sem rasura",
     description:
-      "Pagamentos, turnos e fechamento de caixa auditados — sem planilha, sem divergência.",
+      "Pagamentos, turnos e fechamento de caixa auditados — sem planilha, sem divergência no final da noite.",
   },
 ];
 
-const plans = [
+const diferenciais = [
   {
-    slug: "starter",
-    name: "Starter",
-    price: "199",
-    features: ["3 usuários", "10 mesas", "Suporte por e-mail"],
-    highlighted: false,
+    icon: Activity,
+    label: "Faturamento em tempo real",
+    desc: "Veja o número do dia no celular, de qualquer lugar, enquanto o bar está cheio.",
   },
   {
-    slug: "pro",
-    name: "Pro",
-    price: "399",
-    features: ["10 usuários", "50 mesas", "Relatórios", "Estoque avançado"],
-    highlighted: true,
+    icon: Calculator,
+    label: "CMV de cada drink",
+    desc: "Cadastre o custo de produção e descubra exatamente qual drink dá mais lucro.",
   },
   {
-    slug: "premium",
-    name: "Premium",
-    price: "699",
-    features: ["Usuários ilimitados", "Mesas ilimitadas", "Relatórios", "IA"],
-    highlighted: false,
+    icon: Package,
+    label: "Um plano, tudo incluído",
+    desc: "Sem módulo extra, sem surpresa na fatura. Operação e inteligência no mesmo preço.",
   },
+  {
+    icon: Shield,
+    label: "Sem multa para cancelar",
+    desc: "Nenhum contrato amarrado. A gente prende pelo valor que o sistema entrega, não pelo papel.",
+  },
+];
+
+const planFeatures = [
+  "Operação completa (bartender, caixa, mesas)",
+  "Faturamento e CMV em tempo real",
+  "Relatórios por turno e por período",
+  "Importação de cardápio via planilha",
+  "Suporte e atualizações incluídos",
+  "Implantação acompanhada neste período",
+  "Sem multa para cancelar",
 ];
 
 export default function Home() {
@@ -58,7 +69,7 @@ export default function Home() {
       <section className="mx-4 mt-4 overflow-hidden rounded-lg border border-border bg-bg-elevated px-8 py-24 sm:px-16 sm:py-32">
         <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
           <p className="text-caption font-medium uppercase tracking-[0.15em] text-fg-subtle">
-            OS unificado para bares premium
+            Sistema operacional para bares premium
           </p>
           <h1 className="text-display-lg sm:text-display-2xl font-bold text-fg">
             Seu bar, sob <span className="text-accent-bright">controle total.</span>
@@ -68,20 +79,25 @@ export default function Home() {
             sem surpresa no fechamento.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-            <Button variant="primary">Começar agora</Button>
-            <Button variant="secondary">Ver demonstração</Button>
+            <a href="/cadastro" className={linkPrimary}>
+              Criar minha conta
+            </a>
+            <a href="mailto:rodrigobondioli@gmail.com" className={linkSecondary}>
+              Falar com a equipe
+            </a>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="px-8 py-24 sm:px-16">
+      <section id="como-funciona" className="px-8 py-24 sm:px-16">
         <SectionHeading
           align="center"
-          overline="Plataforma completa"
+          overline="O que o SUPERBAR faz"
           title={
             <>
-              Tudo que seu bar precisa <span className="text-accent-bright">em um lugar.</span>
+              Tudo que seu bar precisa{" "}
+              <span className="text-accent-bright">em um lugar.</span>
             </>
           }
           className="mx-auto max-w-2xl"
@@ -97,23 +113,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Diferenciais */}
       <section className="mx-4 overflow-hidden rounded-lg border border-border bg-bg-elevated px-8 py-20 sm:px-16">
         <SectionHeading
           align="center"
-          overline="Operação em números"
+          overline="Por que o SUPERBAR"
           title={
             <>
-              Bares que rodam <span className="text-accent-bright">com o Superbar.</span>
+              Feito pra bar,{" "}
+              <span className="text-accent-bright">não adaptado de restaurante.</span>
             </>
           }
           className="mx-auto max-w-2xl"
         />
-        <div className="mt-16 grid grid-cols-2 gap-10 sm:grid-cols-4">
-          <Stat value="120+" label="Bares ativos" />
-          <Stat value="98%" label="Uptime" />
-          <Stat value="R$2M+" label="Processado/mês" />
-          <Stat value="<3s" label="Por comanda" />
+        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {diferenciais.map((d) => (
+            <div key={d.label} className="flex flex-col gap-3">
+              <d.icon className="h-5 w-5 text-accent-bright" strokeWidth={1.5} />
+              <p className="text-body-base font-semibold text-fg">{d.label}</p>
+              <p className="text-body-sm text-fg-muted">{d.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -121,61 +141,69 @@ export default function Home() {
       <section className="px-8 py-24 sm:px-16">
         <SectionHeading
           align="center"
-          overline="Planos"
+          overline="Plano único"
           title={
             <>
-              Escolha o plano <span className="text-accent-bright">do seu bar.</span>
+              Um preço,{" "}
+              <span className="text-accent-bright">tudo dentro.</span>
             </>
           }
           className="mx-auto max-w-2xl"
         />
-        <div className="mt-16 grid gap-6 sm:grid-cols-3">
-          {plans.map((plan) => (
-            <Card
-              key={plan.slug}
-              className={cn(
-                "flex flex-col gap-4",
-                plan.highlighted && "border-accent-bright"
-              )}
-            >
-              {plan.highlighted && (
-                <Badge variant="indigo" className="self-start">
-                  Mais popular
-                </Badge>
-              )}
-              <h3 className="text-h3 font-semibold text-fg">{plan.name}</h3>
-              <p className="text-data-lg font-mono font-bold text-fg">
-                R$ {plan.price}
-                <span className="text-body-sm font-sans font-normal text-fg-subtle">
-                  /mês
-                </span>
+
+        <div className="mx-auto mt-16 max-w-md">
+          <Card className="flex flex-col gap-6 border-accent-bright">
+            <div>
+              <p className="text-caption font-semibold uppercase tracking-[0.12em] text-accent-bright">
+                Plano Fundador
               </p>
-              <ul className="text-body-sm flex flex-col gap-2 text-fg-muted">
-                {plan.features.map((feat) => (
-                  <li key={feat}>{feat}</li>
-                ))}
-              </ul>
-              <Button
-                variant={plan.highlighted ? "primary" : "secondary"}
-                className="mt-auto"
-              >
-                Assinar
-              </Button>
-            </Card>
-          ))}
+              <p className="text-body-sm mt-1 text-fg-muted">
+                Para os 10 primeiros bares. Vagas limitadas.
+              </p>
+            </div>
+
+            <div className="flex items-baseline gap-1">
+              <span className="font-mono text-[2.5rem] font-bold leading-none text-fg">
+                R$ 697
+              </span>
+              <span className="text-body-sm text-fg-subtle">/mês</span>
+            </div>
+
+            <ul className="flex flex-col gap-3">
+              {planFeatures.map((feat) => (
+                <li key={feat} className="flex items-start gap-2">
+                  <Check
+                    className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent-bright"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-body-sm text-fg-muted">{feat}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a href="mailto:rodrigobondioli@gmail.com" className={linkPrimary}>
+              Quero ser fundador →
+            </a>
+
+            <p className="text-caption text-center text-fg-subtle">
+              A partir do 11º bar: R$&nbsp;997/mês. Sem módulo extra em ambos.
+            </p>
+          </Card>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA final */}
       <section className="mx-4 mb-4 overflow-hidden rounded-lg border border-border bg-bg-elevated px-8 py-20 text-center sm:px-16">
         <h2 className="text-display-lg font-bold text-fg">
           Pronto para <span className="text-accent-bright">profissionalizar</span> seu bar?
         </h2>
         <p className="text-body-lg mx-auto mt-4 max-w-xl text-fg-muted">
-          14 dias de trial grátis. Sem cartão de crédito.
+          Fale com a gente. Implantação acompanhada, sem burocracia.
         </p>
         <div className="mt-8 flex justify-center">
-          <Button variant="primary">Começar trial gratuito</Button>
+          <a href="mailto:rodrigobondioli@gmail.com" className={linkPrimary}>
+            Entrar em contato
+          </a>
         </div>
       </section>
 

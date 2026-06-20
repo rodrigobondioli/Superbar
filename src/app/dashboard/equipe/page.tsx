@@ -22,7 +22,7 @@ export default async function EquipePage() {
   const isDono = current.role === "dono";
 
   return (
-    <div style={{ padding: "32px 40px" }}>
+    <div className="px-5 py-6 lg:px-10 lg:py-8">
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 32 }}>
@@ -33,7 +33,7 @@ export default async function EquipePage() {
       </div>
 
       {/* ── 2-column layout ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24, alignItems: "start" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
 
         {/* ── Coluna esquerda ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -51,7 +51,7 @@ export default async function EquipePage() {
         </div>
 
         {/* ── Coluna direita: ranking ── */}
-        <div style={{ position: "sticky", top: 0 }}>
+        <div className="lg:sticky lg:top-0">
           {ranking.length > 0 ? (
             <div style={{ ...CARD, padding: "20px 20px" }}>
               <p style={{ ...LABEL, marginBottom: 16 }}>Ranking · 30 dias</p>

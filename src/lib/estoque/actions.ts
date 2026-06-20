@@ -5,9 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import type { MovimentoTipo } from "@/types/database";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 export type EstoqueResult = { ok: true } | { error: string } | null;
 
 export async function registrarMovimento(
@@ -45,14 +42,14 @@ export async function registrarMovimento(
     anterior + quantidade; // compra, devolucao
 
   // Atualiza quantidade
-  const { error: updateError } = await semTipo(supabase.from("estoque"))
+  const { error: updateError } = await supabase.from("estoque")
     .update({ quantidade_atual: posterior })
     .eq("id", estoqueId);
 
   if (updateError) return { error: updateError.message };
 
   // Registra movimento (log imutável)
-  await semTipo(supabase.from("estoque_movimentos")).insert({
+  await supabase.from("estoque_movimentos").insert({
     bar_id: current.bar.id,
     produto_id: null, // preenchido via join no estoque
     tipo,
@@ -83,7 +80,7 @@ export async function atualizarMinimo(
   if (isNaN(minimo) || minimo < 0) return { error: "Valor inválido." };
 
   const supabase = await createClient();
-  const { error } = await semTipo(supabase.from("estoque"))
+  const { error } = await supabase.from("estoque")
     .update({ quantidade_minima: minimo })
     .eq("id", estoqueId)
     .eq("bar_id", current.bar.id);

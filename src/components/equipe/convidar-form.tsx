@@ -34,7 +34,9 @@ export function ConvidarForm() {
           borderRadius: 4, padding: "10px 14px", marginBottom: 14,
         }}>
           <p style={{ fontSize: 13, color: "var(--ok)", margin: 0 }}>
-            Membro adicionado com sucesso!
+            {state.tipo === "convite"
+              ? "Convite enviado! O membro receberá um email para definir a senha."
+              : "Membro adicionado com sucesso!"}
           </p>
         </div>
       )}
@@ -53,7 +55,7 @@ export function ConvidarForm() {
         </div>
 
         {/* Linha 2: E-mail + Função + Botão */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 160px auto", gap: 10, alignItems: "flex-end" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_160px_auto] gap-2.5 items-end">
           <div>
             <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>E-mail <span style={{ color: "var(--fg-subtle)", fontWeight: 400 }}>(opcional)</span></label>
             <input name="email" type="email" placeholder="nome@email.com" style={INPUT} />

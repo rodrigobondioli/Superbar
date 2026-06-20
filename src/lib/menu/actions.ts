@@ -3,9 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { ItemPedidoCliente } from "@/types/database";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 interface SubmeterPedidoInput {
   barId: string;
   mesaId: string;
@@ -23,7 +20,7 @@ export async function submeterPedido({
 
   const total = itens.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
 
-  const { data, error } = await semTipo(supabase.from("pedidos_cliente"))
+  const { data, error } = await supabase.from("pedidos_cliente")
     .insert({
       bar_id: barId,
       mesa_id: mesaId,
@@ -46,7 +43,7 @@ export async function pedirConta(
   const supabase = await createClient();
 
   // Busca comanda aberta desta mesa
-  const { data: comanda } = await semTipo(supabase.from("comandas"))
+  const { data: comanda } = await supabase.from("comandas")
     .select("id, total")
     .eq("bar_id", barId)
     .eq("mesa_id", mesaId)
@@ -54,7 +51,7 @@ export async function pedirConta(
     .maybeSingle() as { data: { id: string; total: number } | null };
 
   if (comanda) {
-    await semTipo(supabase.from("comandas"))
+    await supabase.from("comandas")
       .update({ status: "aguardando_pagamento" })
       .eq("id", comanda.id);
     return { ok: true, total: comanda.total };
@@ -70,7 +67,7 @@ export async function atualizarStatusPedido(
   status: "em_preparo" | "pronto" | "entregue" | "cancelado"
 ): Promise<void> {
   const supabase = await createClient();
-  const { error } = await semTipo(supabase.from("pedidos_cliente"))
+  const { error } = await supabase.from("pedidos_cliente")
     .update({ status })
     .eq("id", pedidoId);
   if (error) throw new Error(error.message);

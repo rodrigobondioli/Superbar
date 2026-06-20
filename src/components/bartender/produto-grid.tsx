@@ -1,47 +1,12 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { Martini, Search, X, ImageIcon } from "lucide-react";
+import { Martini, PackageOpen, Search, X, ImageIcon } from "lucide-react";
 import { adicionarItem } from "@/lib/bartender/actions";
 import type { CategoriaComProdutos } from "@/lib/bartender/queries";
-import type { Categoria, ProdutoComVariantes, ProdutoVariante } from "@/types/database";
+import type { ProdutoComVariantes, ProdutoVariante } from "@/types/database";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-
-// ─── Demo data injected when real cardapio is empty ───────────────────────────
-const C = (id: string, nome: string, ordem: number): Categoria =>
-  ({ id, bar_id: "demo", nome, ordem, ativo: true, created_at: "" });
-
-const P = (id: string, cat: string, nome: string, preco: number): ProdutoComVariantes =>
-  ({ id, bar_id: "demo", categoria_id: cat, nome, preco, descricao: null, custo: null, imagem_url: null, ativo: true, controla_estoque: false, created_at: "", updated_at: "", produto_variantes: [] });
-
-const DEMO_CARDAPIO: CategoriaComProdutos[] = [
-  { categoria: C("c1", "Drinques", 1), produtos: [
-    P("p1","c1","Caipirinha",28), P("p2","c1","Gin Tônica",32), P("p3","c1","Negroni",38),
-    P("p4","c1","Aperol Spritz",35), P("p5","c1","Mojito",30), P("p6","c1","Dry Martini",42),
-    P("p7","c1","Whisky Sour",40), P("p8","c1","Cosmopolitan",36),
-  ]},
-  { categoria: C("c2", "Cervejas", 2), produtos: [
-    P("p9","c2","Chopp 500ml",18), P("p10","c2","Heineken LN",14), P("p11","c2","Corona Extra",16),
-    P("p12","c2","Stella Artois",15), P("p13","c2","Budweiser",13), P("p14","c2","Amstel",13),
-  ]},
-  { categoria: C("c3", "Vinhos", 3), produtos: [
-    P("p15","c3","Tinto Taça",28), P("p16","c3","Branco Taça",26),
-    P("p17","c3","Rosé Taça",27), P("p18","c3","Espumante Taça",32),
-  ]},
-  { categoria: C("c4", "Destilados", 4), produtos: [
-    P("p19","c4","Whisky Dose",35), P("p20","c4","Rum Dose",28), P("p21","c4","Vodka Dose",25),
-    P("p22","c4","Tequila Dose",30), P("p23","c4","Cachaça Dose",18),
-  ]},
-  { categoria: C("c5", "Petiscos", 5), produtos: [
-    P("p24","c5","Batata Frita",35), P("p25","c5","Onion Rings",32), P("p26","c5","Tábua Frios",68),
-    P("p27","c5","Croquete x4",28), P("p28","c5","Bruschetta",30),
-  ]},
-  { categoria: C("c6", "Sem Álcool", 6), produtos: [
-    P("p29","c6","Limonada",16), P("p30","c6","Água s/ gás",8), P("p31","c6","Água c/ gás",9),
-    P("p32","c6","Refrigerante",10), P("p33","c6","Suco Natural",18),
-  ]},
-];
 
 // ─── Variant picker overlay ────────────────────────────────────────────────────
 function VariantePicker({
@@ -242,9 +207,7 @@ function ProdutoCard({
 
 // ─── Main grid ────────────────────────────────────────────────────────────────
 export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComProdutos[]; comandaId: string }) {
-  const data = cardapio.length > 0 ? cardapio : DEMO_CARDAPIO;
-
-  const [categoriaAtiva, setCategoriaAtiva] = useState(data[0]?.categoria.id ?? "");
+  const [categoriaAtiva, setCategoriaAtiva] = useState(cardapio[0]?.categoria.id ?? "");
   const [busca, setBusca] = useState("");
   const [buscaAtiva, setBuscaAtiva] = useState(false);
   const [pickerProduto, setPickerProduto] = useState<ProdutoComVariantes | null>(null);
@@ -252,12 +215,55 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
   const resultadoBusca = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     if (!termo) return [];
-    return data.flatMap(g => g.produtos).filter(p => p.nome.toLowerCase().includes(termo));
-  }, [busca, data]);
+    return cardapio.flatMap(g => g.produtos).filter(p => p.nome.toLowerCase().includes(termo));
+  }, [busca, cardapio]);
 
   const produtosAtivos = buscaAtiva
     ? resultadoBusca
-    : (data.find(g => g.categoria.id === categoriaAtiva)?.produtos ?? []);
+    : (cardapio.find(g => g.categoria.id === categoriaAtiva)?.produtos ?? []);
+
+  // ── Empty state ──────────────────────────────────────────────────────────────
+  if (cardapio.length === 0) {
+    return (
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        padding: "40px 24px",
+        textAlign: "center",
+        gap: 12,
+      }}>
+        <PackageOpen style={{ width: 40, height: 40, color: "var(--fg-subtle)" }} strokeWidth={1.5} />
+        <div>
+          <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: "0 0 4px" }}>
+            Nenhum produto cadastrado
+          </p>
+          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>
+            Adicione produtos no cardápio para começar
+          </p>
+        </div>
+        <a
+          href="/dashboard/cardapio"
+          style={{
+            marginTop: 8,
+            display: "inline-block",
+            padding: "8px 16px",
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border)",
+            borderRadius: 4,
+            fontSize: 13,
+            fontWeight: 500,
+            color: "var(--fg-muted)",
+            textDecoration: "none",
+          }}
+        >
+          Ir para Cardápio →
+        </a>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -276,7 +282,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         {!buscaAtiva ? (
           <>
             <div style={{ display: "flex", gap: 2, flex: 1, overflowX: "auto", scrollbarWidth: "none" }}>
-              {data.map(grupo => {
+              {cardapio.map(grupo => {
                 const active = categoriaAtiva === grupo.categoria.id;
                 return (
                   <button

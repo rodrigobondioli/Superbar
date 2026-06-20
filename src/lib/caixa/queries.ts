@@ -16,13 +16,10 @@ export interface CaixaInsights {
   porMetodo: { metodo: PagamentoMetodo; total: number; quantidade: number }[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 export async function getComandasPendentes(barId: string, turnoId: string): Promise<ComandaPendente[]> {
   const supabase = await createClient();
 
-  const { data: comandas } = await semTipo(supabase.from("comandas"))
+  const { data: comandas } = await supabase.from("comandas")
     .select("id, total, aberta_em, mesa_id, mesas(numero, nome)")
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
@@ -41,7 +38,7 @@ export async function getComandasPendentes(barId: string, turnoId: string): Prom
 
   // Busca itens de todas as comandas de uma vez
   const ids = comandas.map(c => c.id);
-  const { data: itensRaw } = await semTipo(supabase.from("comanda_items"))
+  const { data: itensRaw } = await supabase.from("comanda_items")
     .select("comanda_id, quantidade, preco_total, variante_nome, produtos(nome)")
     .in("comanda_id", ids)
     .eq("status", "ativo") as {
@@ -76,7 +73,7 @@ export async function getComandasPendentes(barId: string, turnoId: string): Prom
 export async function getCaixaInsights(barId: string, turnoId: string): Promise<CaixaInsights> {
   const supabase = await createClient();
 
-  const { data: pagamentos } = await semTipo(supabase.from("pagamentos"))
+  const { data: pagamentos } = await supabase.from("pagamentos")
     .select("valor, metodo")
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)

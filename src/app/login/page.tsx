@@ -129,14 +129,14 @@ export default function LoginPage({
             </form>
           </div>
 
-          <a href="#" style={{
-            marginTop: "16px",
-            color: "var(--fg-subtle)",
-            fontSize: "13px",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-            cursor: "pointer",
-          }}>Esqueceu a senha?</a>
+          <div style={{ marginTop: "16px", display: "flex", gap: 24 }}>
+            <a href="/recuperar-senha" style={{ color: "var(--fg-subtle)", fontSize: "13px", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+              Esqueceu a senha?
+            </a>
+            <a href="/cadastro" style={{ color: "var(--fg-subtle)", fontSize: "13px", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+              Criar conta
+            </a>
+          </div>
         </div>
       </div>
     </>

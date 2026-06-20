@@ -4,9 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 export async function abrirTurno() {
   const current = await getCurrentBar();
   if (!current) return { error: "Não autenticado." };
@@ -15,7 +12,7 @@ export async function abrirTurno() {
   if (turnoExistente) return { error: "Já existe um turno aberto." };
 
   const supabase = await createClient();
-  const { error } = await semTipo(supabase.from("turnos")).insert({
+  const { error } = await supabase.from("turnos").insert({
     bar_id: current.bar.id,
     abertura_por: current.userId,
     status: "aberto",
@@ -34,7 +31,7 @@ export async function fecharTurno(turnoId: string) {
   const supabase = await createClient();
 
   // Verifica se há comandas ainda abertas
-  const { count } = await semTipo(supabase.from("comandas"))
+  const { count } = await supabase.from("comandas")
     .select("id", { count: "exact", head: true })
     .eq("turno_id", turnoId)
     .in("status", ["aberta", "aguardando_pagamento"]);
@@ -43,7 +40,7 @@ export async function fecharTurno(turnoId: string) {
     return { error: `Há ${count} comanda${count > 1 ? "s" : ""} ainda aberta${count > 1 ? "s" : ""}. Feche todas antes de encerrar o turno.` };
   }
 
-  await semTipo(supabase.from("turnos"))
+  await supabase.from("turnos")
     .update({
       status: "fechado",
       fechado_em: new Date().toISOString(),

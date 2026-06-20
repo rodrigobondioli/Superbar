@@ -5,9 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getImagemAutomatica } from "./drink-images";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function semTipo<T>(q: T): any { return q; }
-
 // ─── Categorias ───────────────────────────────────────────────────────────────
 
 export async function criarCategoria(formData: FormData) {
@@ -28,7 +25,7 @@ export async function criarCategoria(formData: FormData) {
     .limit(1)
     .maybeSingle<{ ordem: number }>();
 
-  await semTipo(supabase.from("categorias")).insert({
+  await supabase.from("categorias").insert({
     bar_id: current.bar.id,
     nome,
     ordem: (ultima?.ordem ?? 0) + 1,
@@ -43,13 +40,13 @@ export async function editarCategoria(id: string, formData: FormData) {
   if (!nome) return;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("categorias")).update({ nome }).eq("id", id);
+  await supabase.from("categorias").update({ nome }).eq("id", id);
   revalidatePath("/dashboard/cardapio");
 }
 
 export async function desativarCategoria(id: string) {
   const supabase = await createClient();
-  await semTipo(supabase.from("categorias")).update({ ativo: false }).eq("id", id);
+  await supabase.from("categorias").update({ ativo: false }).eq("id", id);
   revalidatePath("/dashboard/cardapio");
 }
 
@@ -74,7 +71,7 @@ export async function criarProduto(formData: FormData) {
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("produtos")).insert({
+  await supabase.from("produtos").insert({
     bar_id:       current.bar.id,
     categoria_id: categoriaId,
     nome,
@@ -104,7 +101,7 @@ export async function editarProduto(id: string, formData: FormData) {
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("produtos")).update({
+  await supabase.from("produtos").update({
     nome,
     preco:        parseFloat(precoStr),
     custo,
@@ -139,7 +136,7 @@ export async function criarVariante(produtoId: string, formData: FormData) {
     .limit(1)
     .maybeSingle<{ ordem: number }>();
 
-  await semTipo(supabase.from("produto_variantes")).insert({
+  await supabase.from("produto_variantes").insert({
     produto_id:  produtoId,
     nome,
     preco:       parseFloat(precoStr),
@@ -163,7 +160,7 @@ export async function editarVariante(varianteId: string, formData: FormData) {
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
 
   const supabase = await createClient();
-  await semTipo(supabase.from("produto_variantes")).update({
+  await supabase.from("produto_variantes").update({
     nome,
     preco:      parseFloat(precoStr),
     custo,
@@ -175,7 +172,7 @@ export async function editarVariante(varianteId: string, formData: FormData) {
 
 export async function deletarVariante(varianteId: string) {
   const supabase = await createClient();
-  await semTipo(supabase.from("produto_variantes"))
+  await supabase.from("produto_variantes")
     .update({ ativo: false })
     .eq("id", varianteId);
 
@@ -184,16 +181,16 @@ export async function deletarVariante(varianteId: string) {
 
 export async function toggleProduto(id: string, ativo: boolean) {
   const supabase = await createClient();
-  await semTipo(supabase.from("produtos")).update({ ativo: !ativo }).eq("id", id);
+  await supabase.from("produtos").update({ ativo: !ativo }).eq("id", id);
   revalidatePath("/dashboard/cardapio");
 }
 
 export async function deletarProduto(id: string) {
   const supabase = await createClient();
-  const { error } = await semTipo(supabase.from("produtos")).delete().eq("id", id);
+  const { error } = await supabase.from("produtos").delete().eq("id", id);
   // Se tiver FK em itens_comanda, desativa em vez de deletar
   if (error) {
-    await semTipo(supabase.from("produtos")).update({ ativo: false }).eq("id", id);
+    await supabase.from("produtos").update({ ativo: false }).eq("id", id);
   }
   revalidatePath("/dashboard/cardapio");
 }

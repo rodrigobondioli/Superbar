@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import { registrarPagamento } from "@/lib/caixa/actions";
+import { createClient } from "@/lib/supabase/client";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
@@ -375,10 +376,12 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
 
 // ─── Shell principal ──────────────────────────────────────────────────────────
 
-export function CaixaTela({ comandas, insights, barNome }: {
+export function CaixaTela({ comandas, insights, barNome, barId, turnoId }: {
   comandas: ComandaPendente[];
   insights: CaixaInsights;
   barNome: string;
+  barId: string;
+  turnoId: string;
 }) {
   const [listaAtual, setListaAtual] = useState(comandas);
   const [insightsAtual, setInsightsAtual] = useState(insights);
@@ -386,7 +389,83 @@ export function CaixaTela({ comandas, insights, barNome }: {
 
   const listaFiltrada = filtro ? listaAtual.filter(c => c.mesa === filtro) : listaAtual;
 
+  // Re-busca comandas pendentes usando o browser client (chamado pelo Realtime)
+  const fetchComandas = useCallback(async () => {
+    const supabase = createClient();
+
+    const { data: raw } = await supabase
+      .from("comandas")
+      .select("id, total, aberta_em, mesa_id, mesas(numero, nome)")
+      .eq("bar_id", barId)
+      .eq("turno_id", turnoId)
+      .eq("status", "aguardando_pagamento")
+      .order("aberta_em", { ascending: true })
+      .returns<{
+        id: string;
+        total: number;
+        aberta_em: string;
+        mesa_id: string | null;
+        mesas: { numero: number; nome: string | null } | null;
+      }[]>();
+
+    if (!raw?.length) {
+      setListaAtual([]);
+      return;
+    }
+
+    const ids = raw.map(c => c.id);
+    const { data: itensRaw } = await supabase
+      .from("comanda_items")
+      .select("comanda_id, quantidade, preco_total, variante_nome, produtos(nome)")
+      .in("comanda_id", ids)
+      .eq("status", "ativo")
+      .returns<{
+        comanda_id: string;
+        quantidade: number;
+        preco_total: number;
+        variante_nome: string | null;
+        produtos: { nome: string } | null;
+      }[]>();
+
+    const itensPorComanda = new Map<string, ComandaPendente["itens"]>();
+    for (const item of itensRaw ?? []) {
+      if (!item.produtos) continue;
+      const nomeBase = item.produtos.nome;
+      const nome = item.variante_nome ? `${nomeBase} — ${item.variante_nome}` : nomeBase;
+      const lista = itensPorComanda.get(item.comanda_id) ?? [];
+      lista.push({ nome, quantidade: item.quantidade, preco_total: item.preco_total });
+      itensPorComanda.set(item.comanda_id, lista);
+    }
+
+    setListaAtual(raw.map(c => ({
+      id: c.id,
+      total: c.total,
+      aberta_em: c.aberta_em,
+      mesa: c.mesas ? (c.mesas.nome ?? `Mesa ${c.mesas.numero}`) : "Balcão",
+      itens: itensPorComanda.get(c.id) ?? [],
+    })));
+  }, [barId, turnoId]);
+
+  // Realtime: qualquer INSERT/UPDATE/DELETE em comandas deste bar atualiza a lista
+  useEffect(() => {
+    const supabase = createClient();
+    const canal = supabase
+      .channel("caixa-live")
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "comandas",
+        filter: `bar_id=eq.${barId}`,
+      }, () => {
+        fetchComandas();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(canal); };
+  }, [barId, fetchComandas]);
+
   const onPago = (comanda: ComandaPendente, metodo: PagamentoMetodo) => {
+    // Atualiza insights otimisticamente
     setInsightsAtual(prev => {
       const novoTotal = prev.totalTurno + comanda.total;
       const novaQtd = prev.comandasPagas + 1;
@@ -400,15 +479,14 @@ export function CaixaTela({ comandas, insights, barNome }: {
       return { totalTurno: novoTotal, comandasPagas: novaQtd, ticketMedio: novoTotal / novaQtd, porMetodo: metodosAtuais };
     });
 
-    setTimeout(() => {
-      setListaAtual(prev => {
-        const nova = prev.filter(c => c.id !== comanda.id);
-        if (filtro === comanda.mesa && nova.filter(c => c.mesa === comanda.mesa).length === 0) {
-          setFiltro(null);
-        }
-        return nova;
-      });
-    }, 1500);
+    // Remove o card imediatamente — só chega aqui se o server action teve sucesso
+    setListaAtual(prev => {
+      const nova = prev.filter(c => c.id !== comanda.id);
+      if (filtro === comanda.mesa && nova.filter(c => c.mesa === comanda.mesa).length === 0) {
+        setFiltro(null);
+      }
+      return nova;
+    });
   };
 
   return (
