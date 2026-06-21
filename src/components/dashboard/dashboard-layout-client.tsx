@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { Menu, X, MonitorSmartphone } from "lucide-react";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { AlertasBell } from "./alertas-bell";
 import { SettingsButton } from "./settings-button";
@@ -95,6 +96,27 @@ export function DashboardLayoutClient({
         {/* Main */}
         <main className="px-6 lg:px-0" style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
           {children}
+          {/* Modo Bartender — mobile only, sticky bottom */}
+          <div className="lg:hidden" style={{ padding: "16px 0 24px" }}>
+            <Link
+              href="/bartender"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "16px 0",
+                background: "var(--accent)",
+                color: "var(--accent-fg)",
+                fontSize: 15, fontWeight: 600,
+                textDecoration: "none",
+                borderRadius: 8,
+                letterSpacing: "0.02em",
+                transition: "filter 150ms",
+              }}
+              className="hover:brightness-110"
+            >
+              <MonitorSmartphone style={{ width: 16, height: 16 }} />
+              Modo Bartender
+            </Link>
+          </div>
         </main>
       </div>
 
