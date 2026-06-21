@@ -70,6 +70,7 @@ export interface Bar {
     moeda?: string;
     meta_mensal?: number;
     meta_anual?: number;
+    auto_pedido?: boolean;
   };
   ativo: boolean;
   created_at: string;
@@ -287,6 +288,32 @@ export interface ItemPedidoCliente {
   quantidade: number;
 }
 
+// ─── Fila de produção (bartender-created orders) ────────────────────────────
+
+export type PedidoStatus = "recebido" | "preparando" | "entregue";
+
+export interface Pedido {
+  id: string;
+  bar_id: string;
+  turno_id: string;
+  comanda_id: string;
+  status: PedidoStatus;
+  criado_em: string;
+  iniciado_em: string | null;
+  entregue_em: string | null;
+}
+
+/** Item de carrinho — passado ao criarPedido */
+export interface CartItem {
+  produto_id: string;
+  variante_id: string | null;
+  variante_nome: string | null;
+  preco: number;
+  quantidade: number;
+}
+
+// ─── Pedidos de cliente (auto_pedido via menu) ───────────────────────────────
+
 export interface PedidoCliente {
   id: string;
   bar_id: string;
@@ -326,6 +353,7 @@ export interface Database {
       comanda_items: TableDef<ComandaItem>;
       pagamentos: TableDef<Pagamento>;
       estoque_movimentos: TableDef<EstoqueMovimento>;
+      pedidos: TableDef<Pedido>;
       pedidos_cliente: {
         Row: PedidoCliente & Record<string, unknown>;
         Insert: {

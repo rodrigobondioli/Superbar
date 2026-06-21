@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Building2, User, Target } from "lucide-react";
+import { X, Building2, User, Target, Smartphone } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
-import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, type ActionResult } from "@/lib/settings/actions";
+import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, type ActionResult } from "@/lib/settings/actions";
 import { signOut } from "@/lib/auth/actions";
 import type { Bar } from "@/types/database";
 
@@ -322,6 +322,83 @@ function MinhaConta({
   );
 }
 
+// ─── Operação Section ────────────────────────────────────────────────────────
+
+function OperacaoSection({ barId, autoPedido }: { barId: string; autoPedido: boolean }) {
+  const [enabled, setEnabled] = useState(autoPedido);
+  const [saving, setSaving]   = useState(false);
+
+  async function handleToggle() {
+    const next = !enabled;
+    setEnabled(next); // optimistic
+    setSaving(true);
+    await atualizarAutoPedido(barId, next);
+    setSaving(false);
+  }
+
+  return (
+    <section>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+        <Smartphone style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: 0 }}>
+          Operação
+        </h3>
+      </div>
+
+      {/* Toggle auto_pedido */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "14px 16px",
+        background: "var(--bg-inset)",
+        border: "1px solid var(--border)",
+        borderRadius: 6,
+        gap: 16,
+      }}>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: "0 0 3px" }}>
+            Pedido pelo celular (auto-pedido)
+          </p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
+            {enabled
+              ? "Cliente pode pedir direto pelo QR code, sem chamar o garçom."
+              : "Cliente vê o cardápio mas precisa chamar o garçom para pedir."}
+          </p>
+        </div>
+
+        {/* Toggle switch */}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          onClick={handleToggle}
+          disabled={saving}
+          style={{
+            flexShrink: 0,
+            width: 44, height: 24,
+            borderRadius: 12,
+            border: "none",
+            cursor: saving ? "default" : "pointer",
+            background: enabled ? "var(--accent)" : "rgba(255,255,255,0.15)",
+            position: "relative",
+            transition: "background 200ms",
+            opacity: saving ? 0.7 : 1,
+          }}
+        >
+          <span style={{
+            position: "absolute",
+            top: 3, left: enabled ? 23 : 3,
+            width: 18, height: 18,
+            borderRadius: "50%",
+            background: "#ffffff",
+            transition: "left 200ms",
+            display: "block",
+          }} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
 // ─── Panel ────────────────────────────────────────────────────────────────────
 
 interface SettingsPanelProps {
@@ -333,10 +410,11 @@ interface SettingsPanelProps {
   userNome: string;
   userEmail: string;
   userAvatarUrl: string | null;
+  autoPedido?: boolean;
 }
 
 export function SettingsPanel({
-  open, onClose, bar, barId, userId, userNome, userEmail, userAvatarUrl,
+  open, onClose, bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false,
 }: SettingsPanelProps) {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -420,6 +498,11 @@ export function SettingsPanel({
             userEmail={userEmail}
             userAvatarUrl={userAvatarUrl}
           />
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "var(--border)" }} />
+
+          <OperacaoSection barId={barId} autoPedido={autoPedido} />
 
           {/* Divider */}
           <div style={{ height: 1, background: "var(--border)" }} />

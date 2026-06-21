@@ -28,6 +28,7 @@ export default async function DashboardLayout({
       userEmail={current.userEmail}
       userAvatarUrl={current.userAvatarUrl}
       alertas={alertas}
+      autoPedido={current.bar.configuracoes?.auto_pedido ?? false}
     >
       {children}
     </DashboardLayoutClient>

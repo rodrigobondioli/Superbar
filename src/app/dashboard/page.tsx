@@ -20,6 +20,15 @@ import { categorizarProdutos, calcularCmv } from "@/lib/dashboard/menu-engineeri
 import { getFaturamentoPorDia, getComparacaoPeriodo } from "@/lib/dashboard/relatorios";
 import { resolvePeriodo } from "@/lib/dashboard/periodo";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
+import {
+  getHorarioPico,
+  getRankingMesas,
+  getMixPagamento,
+  getTempoMedioPreparo,
+  calcularPico,
+  gerarInsightsOperacionais,
+  labelMetodo,
+} from "@/lib/dashboard/operacao";
 
 const TOP_DRINKS_LIMIT = 5;
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -77,12 +86,16 @@ export default async function DashboardPage() {
     );
   }
 
-  const [kpis, alertas, produtosVendidos, metaMes, liveStats] = await Promise.all([
+  const [kpis, alertas, produtosVendidos, metaMes, liveStats, pontosHora, rankingMesas, mixPgto, tempos] = await Promise.all([
     getKpisTurno(turno),
     getAlertasEstoque(current.bar.id),
     getProdutosVendidosTurno(current.bar.id, turno.id),
     getMetaMes(current.bar.id),
     getLiveStats(current.bar.id, turno.id),
+    getHorarioPico(current.bar.id, turno.id),
+    getRankingMesas(current.bar.id, turno.id),
+    getMixPagamento(current.bar.id, turno.id),
+    getTempoMedioPreparo(current.bar.id, turno.id),
   ]);
 
   const comparacao = await getKpisComparacao(
@@ -118,6 +131,17 @@ export default async function DashboardPage() {
     ticketMedioTrend: comparacao.ticketMedio,
     cmvParcial,
   });
+
+  // P3 — insights declarativos operacionais
+  const pico = calcularPico(pontosHora);
+  const insightsOp = gerarInsightsOperacionais({
+    pico,
+    mesas: rankingMesas,
+    mix: mixPgto,
+    tempos,
+    faturamentoTurno: kpis.faturamento,
+  });
+  const todosInsights = [...insightsOp, ...insights];
 
   const metaConfigurada = current.bar.configuracoes?.meta_mensal;
   const meta = metaConfigurada ?? metaMes.meta;
@@ -289,13 +313,13 @@ export default async function DashboardPage() {
               style={{ ...card, animationDelay: "180ms" }}
             >
               <p style={{ ...overline, marginBottom: "10px" }}>Insights</p>
-              {insights.length === 0 ? (
+              {todosInsights.length === 0 ? (
                 <p style={{ fontSize: "12px", color: "var(--fg-muted)", lineHeight: 1.5 }}>
                   Nenhum alerta no momento.
                 </p>
               ) : (
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {insights.map((item, i) => (
+                  {todosInsights.map((item, i) => (
                     <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "7px" }}>
                       <span
                         aria-hidden
@@ -321,7 +345,102 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Bloco 3 — VISÃO GERAL */}
+        {/* Bloco 3 — OPERAÇÃO */}
+        <section>
+          <span style={sectionLabel}>Operação</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: "12px" }}>
+
+            {/* Horário de pico */}
+            <div className="animate-fade-in-up" style={{ ...card, animationDelay: "200ms" }}>
+              <p style={overline}>Pico de vendas</p>
+              {pico ? (
+                <>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                    {pico.hora}h–{pico.hora + 1}h
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
+                    {pico.drinks} drinks nessa hora
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "8px" }}>Aguardando dados…</p>
+              )}
+            </div>
+
+            {/* Mesa top */}
+            <div className="animate-fade-in-up" style={{ ...card, animationDelay: "240ms" }}>
+              <p style={overline}>Mesa top</p>
+              {rankingMesas.length > 0 ? (
+                <>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                    {rankingMesas[0].mesaLabel}
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
+                    {currency.format(rankingMesas[0].faturamento)} · {rankingMesas[0].comandas} {rankingMesas[0].comandas === 1 ? "comanda" : "comandas"}
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "8px" }}>Sem mesas ativas</p>
+              )}
+            </div>
+
+            {/* Mix de pagamento */}
+            <div className="animate-fade-in-up" style={{ ...card, animationDelay: "280ms" }}>
+              <p style={overline}>Pagamento</p>
+              {mixPgto.length > 0 ? (
+                <>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                    {labelMetodo(mixPgto[0].metodo)}
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
+                    {mixPgto[0].percentual}% dos pagamentos
+                  </p>
+                  {mixPgto.length > 1 && (
+                    <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {mixPgto.slice(1).map(f => (
+                        <div key={f.metodo} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <div style={{ flex: 1, height: 3, borderRadius: 2, background: "var(--border-strong)", overflow: "hidden" }}>
+                            <div style={{ width: `${f.percentual}%`, height: "100%", background: "color-mix(in srgb, var(--accent) 50%, transparent)", borderRadius: 2 }} />
+                          </div>
+                          <span style={{ fontSize: 10, color: "var(--fg-subtle)", minWidth: 32, textAlign: "right", fontFamily: "var(--font-mono)" }}>{f.percentual}%</span>
+                          <span style={{ fontSize: 10, color: "var(--fg-subtle)", minWidth: 50 }}>{labelMetodo(f.metodo)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "8px" }}>Sem pagamentos</p>
+              )}
+            </div>
+
+            {/* Tempo médio de preparo */}
+            <div className="animate-fade-in-up" style={{ ...card, animationDelay: "320ms" }}>
+              <p style={overline}>Preparo médio</p>
+              {tempos.mediaMinutos !== null ? (
+                <>
+                  <p className="text-[22px] lg:text-[26px]" style={{
+                    fontWeight: 600,
+                    color: tempos.mediaMinutos >= 8 ? "var(--warn)" : tempos.mediaMinutos <= 3 ? "var(--ok)" : "var(--fg)",
+                    fontFamily: "var(--font-mono)", marginTop: "4px",
+                  }}>
+                    {tempos.mediaMinutos}min
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
+                    {tempos.totalEntregues} de {tempos.totalRecebidos} {tempos.totalRecebidos === 1 ? "pedido" : "pedidos"} entregues
+                  </p>
+                </>
+              ) : tempos.totalRecebidos > 0 ? (
+                <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "8px" }}>Em andamento…</p>
+              ) : (
+                <p style={{ fontSize: "13px", color: "var(--fg-subtle)", marginTop: "8px" }}>Nenhum pedido ainda</p>
+              )}
+            </div>
+
+          </div>
+        </section>
+
+        {/* Bloco 4 — VISÃO GERAL */}
         <section>
           <span style={sectionLabel}>Visão geral</span>
           <div className="grid lg:grid-cols-5" style={{ gap: "12px" }}>

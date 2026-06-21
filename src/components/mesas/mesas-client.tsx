@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, QrCode, Printer } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { criarMesa, editarMesa, removerMesa } from "@/lib/mesas/actions";
 import type { Mesa } from "@/types/database";
 
@@ -216,15 +217,144 @@ function MesaPanel({ mode, mesa, nextNumero, open, onClose }: MesaPanelProps) {
   );
 }
 
+// ─── QR Modal ─────────────────────────────────────────────────────────────────
+
+function QRModal({ mesa, onClose }: { mesa: Mesa; onClose: () => void }) {
+  const label = mesa.nome ?? `Mesa ${mesa.numero}`;
+  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/mesa/${mesa.id}`;
+
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handle);
+    return () => document.removeEventListener("keydown", handle);
+  }, [onClose]);
+
+  function handlePrint() {
+    const win = window.open("", "_blank", "width=400,height=500");
+    if (!win) return;
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>QR — ${label}</title>
+          <style>
+            body { margin: 0; display: flex; flex-direction: column; align-items: center;
+                   justify-content: center; min-height: 100vh; font-family: sans-serif;
+                   background: #fff; color: #000; }
+            h2 { font-size: 22px; margin: 16px 0 4px; }
+            p  { font-size: 13px; color: #555; margin: 0 0 16px; word-break: break-all; text-align: center; max-width: 280px; }
+            svg { display: block; }
+          </style>
+        </head>
+        <body>
+          ${document.getElementById(`qr-svg-${mesa.id}`)?.outerHTML ?? ""}
+          <h2>${label}</h2>
+          <p>${url}</p>
+          <script>window.onload = () => { window.print(); window.close(); }<\/script>
+        </body>
+      </html>
+    `);
+    win.document.close();
+  }
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        onClick={onClose}
+        style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }}
+      />
+
+      {/* Modal */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 201,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 20, pointerEvents: "none",
+      }}>
+        <div style={{
+          background: "var(--bg-elevated)",
+          border: "1px solid var(--border)",
+          borderRadius: 10,
+          padding: "28px 32px",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+          pointerEvents: "all",
+          maxWidth: 340, width: "100%",
+          position: "relative",
+        }}>
+          {/* Fechar */}
+          <button
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 12, right: 12,
+              background: "transparent", border: "none", cursor: "pointer",
+              color: "var(--fg-subtle)", display: "flex", padding: 6, borderRadius: 4,
+            }}
+          >
+            <X style={{ width: 16, height: 16 }} />
+          </button>
+
+          {/* Nome */}
+          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
+            QR Code
+          </p>
+          <p style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>
+            {label}
+          </p>
+
+          {/* QR */}
+          <div style={{
+            background: "#ffffff", padding: 16, borderRadius: 8,
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}>
+            <QRCodeSVG
+              id={`qr-svg-${mesa.id}`}
+              value={url}
+              size={180}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="M"
+            />
+          </div>
+
+          {/* URL */}
+          <p style={{
+            fontSize: 11, color: "var(--fg-subtle)", wordBreak: "break-all",
+            textAlign: "center", margin: 0, maxWidth: 260, lineHeight: 1.5,
+          }}>
+            {url}
+          </p>
+
+          {/* Botão imprimir */}
+          <button
+            onClick={handlePrint}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              background: "var(--accent)", color: "var(--accent-fg)",
+              border: "none", borderRadius: 6,
+              padding: "10px 20px", fontSize: 13, fontWeight: 600,
+              cursor: "pointer", width: "100%", justifyContent: "center",
+            }}
+            className="hover:brightness-110"
+          >
+            <Printer style={{ width: 14, height: 14 }} />
+            Imprimir QR Code
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── Mesa row ─────────────────────────────────────────────────────────────────
 
 function MesaRow({
-  mesa, isLast, ocupada, onEdit,
+  mesa, isLast, ocupada, onEdit, onQR,
 }: {
   mesa: Mesa;
   isLast: boolean;
   ocupada: boolean;
   onEdit: (m: Mesa) => void;
+  onQR: (m: Mesa) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const label = mesa.nome ?? `Mesa ${mesa.numero}`;
@@ -276,6 +406,14 @@ function MesaRow({
         style={{ flexShrink: 0 }}
       >
         <button
+          onClick={() => onQR(mesa)}
+          style={iconBtn}
+          className="hover:!text-[var(--fg)]"
+          title="QR Code"
+        >
+          <QrCode style={{ width: 13, height: 13 }} />
+        </button>
+        <button
           onClick={() => onEdit(mesa)}
           style={iconBtn}
           className="hover:!text-[var(--fg)]"
@@ -312,6 +450,7 @@ export function MesasClient({ mesas, barId, mesasOcupadas, nextNumero }: MesasCl
   void barId;
   const [panelMode, setPanelMode] = useState<"create" | "edit" | null>(null);
   const [editingMesa, setEditingMesa] = useState<Mesa | null>(null);
+  const [qrMesa, setQrMesa] = useState<Mesa | null>(null);
 
   const ocupadasSet = new Set(mesasOcupadas);
 
@@ -391,6 +530,7 @@ export function MesasClient({ mesas, barId, mesasOcupadas, nextNumero }: MesasCl
             isLast={i === mesas.length - 1}
             ocupada={ocupadasSet.has(mesa.id)}
             onEdit={openEdit}
+            onQR={setQrMesa}
           />
         ))}
 
@@ -414,6 +554,9 @@ export function MesasClient({ mesas, barId, mesasOcupadas, nextNumero }: MesasCl
           </div>
         )}
       </div>
+
+      {/* QR Modal */}
+      {qrMesa && <QRModal mesa={qrMesa} onClose={() => setQrMesa(null)} />}
 
       {/* Painel lateral */}
       <MesaPanel

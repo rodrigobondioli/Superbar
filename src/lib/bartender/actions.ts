@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
-import type { Comanda } from "@/types/database";
+import type { CartItem, Comanda } from "@/types/database";
 
 /** Abre comanda para uma mesa específica (ou balcão se mesaId for null). */
 export async function abrirComanda(
@@ -151,4 +151,90 @@ export async function cancelarComanda(comandaId: string) {
 // kept for backwards compat
 export async function criarComanda(formData: FormData) {
   return abrirComanda(null);
+}
+
+export async function atenderChamada(chamadaId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("chamadas")
+    .update({ status: "atendida", atendida_em: new Date().toISOString() })
+    .eq("id", chamadaId)
+    .eq("status", "pendente");
+}
+
+// ─── Fila de produção ─────────────────────────────────────────────────────────
+
+/**
+ * Cria um pedido agrupando todos os itens do carrinho em uma única operação.
+ * Cada tap no produto-grid adiciona ao carrinho local; este action persiste tudo.
+ */
+export async function criarPedido(
+  comandaId: string,
+  itens: CartItem[],
+): Promise<{ ok: true; pedidoId: string } | { error: string }> {
+  if (!itens.length) return { error: "Carrinho vazio." };
+
+  const current = await getCurrentBar();
+  if (!current) return { error: "Não autorizado." };
+
+  const turno = await getTurnoAtual(current.bar.id);
+  if (!turno) return { error: "Sem turno aberto." };
+
+  const supabase = await createClient();
+
+  // 1. Cria o pedido
+  const { data: pedido, error: pedidoErr } = await supabase
+    .from("pedidos")
+    .insert({
+      bar_id:     current.bar.id,
+      turno_id:   turno.id,
+      comanda_id: comandaId,
+      status:     "recebido",
+    })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (pedidoErr || !pedido) return { error: "Erro ao criar pedido." };
+
+  // 2. Insere comanda_items — uma linha por unidade (compatível com removerItem)
+  const rows = itens.flatMap(item =>
+    Array.from({ length: item.quantidade }, () => ({
+      comanda_id:     comandaId,
+      bar_id:         current.bar.id,
+      pedido_id:      pedido.id,
+      produto_id:     item.produto_id,
+      variante_id:    item.variante_id ?? null,
+      variante_nome:  item.variante_nome ?? null,
+      quantidade:     1,
+      preco_unitario: item.preco,
+      preco_total:    item.preco,
+      adicionado_por: current.userId,
+    }))
+  );
+
+  const { error: itemsErr } = await supabase.from("comanda_items").insert(rows);
+  if (itemsErr) return { error: "Erro ao inserir itens." };
+
+  revalidatePath(`/bartender/${comandaId}`);
+  return { ok: true, pedidoId: pedido.id };
+}
+
+/** Bartender inicia o preparo do pedido. */
+export async function iniciarPedido(pedidoId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("pedidos")
+    .update({ status: "preparando", iniciado_em: new Date().toISOString() })
+    .eq("id", pedidoId)
+    .eq("status", "recebido");
+}
+
+/** Bartender entrega o pedido — estado final. */
+export async function entregarPedido(pedidoId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("pedidos")
+    .update({ status: "entregue", entregue_em: new Date().toISOString() })
+    .eq("id", pedidoId)
+    .eq("status", "preparando");
 }

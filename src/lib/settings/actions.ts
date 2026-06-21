@@ -87,3 +87,20 @@ export async function atualizarConta(userId: string, formData: FormData): Promis
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+export async function atualizarAutoPedido(barId: string, value: boolean): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const { data: barAtual } = await supabase.from("bars")
+    .select("configuracoes")
+    .eq("id", barId)
+    .maybeSingle() as { data: { configuracoes: Record<string, unknown> } | null };
+
+  const configuracoes = { ...(barAtual?.configuracoes ?? {}), auto_pedido: value };
+
+  const { error } = await supabase.from("bars").update({ configuracoes }).eq("id", barId);
+  if (error) return { error: traduzirErro(error.message) };
+
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

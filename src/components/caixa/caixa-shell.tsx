@@ -132,6 +132,40 @@ function ComandaPagamentoSheet({
     });
   };
 
+  const [copiado, setCopiado] = useState(false);
+
+  const compartilhar = async () => {
+    const nomeMesa = `${mesaLabel}${nomePessoa ? ` — ${nomePessoa}` : ""}`;
+    const linhasItens = itens
+      .map(it => `${it.qtd}× ${it.nome}  ${currency.format(it.total)}`)
+      .join("\n");
+    const comServico = incluirServico && metodoPago !== "cortesia";
+    const texto = [
+      `🍹 *${barNome}*`,
+      `📋 ${nomeMesa}`,
+      ``,
+      linhasItens,
+      ``,
+      comServico ? `Subtotal: ${currency.format(comanda.total)}` : null,
+      comServico ? `Serviço (10%): ${currency.format(servicoValor)}` : null,
+      `*Total: ${currency.format(totalFinal)}*`,
+    ].filter(l => l !== null).join("\n");
+
+    if ("share" in navigator) {
+      try {
+        await navigator.share({ text: texto });
+        return;
+      } catch {
+        // usuário cancelou — não faz nada
+        return;
+      }
+    }
+    // fallback: copia para clipboard
+    await navigator.clipboard.writeText(texto);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2500);
+  };
+
   const METODOS: { id: PagamentoMetodo; label: string }[] = [
     { id: "pix",      label: "Pix" },
     { id: "dinheiro", label: "Dinheiro" },
@@ -167,6 +201,16 @@ function ComandaPagamentoSheet({
               </p>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <button onClick={compartilhar} style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "8px 12px", borderRadius: 8,
+                background: copiado ? "color-mix(in srgb, var(--ok) 15%, transparent)" : "rgba(255,255,255,0.06)",
+                border: copiado ? "1px solid color-mix(in srgb, var(--ok) 35%, transparent)" : "1px solid rgba(255,255,255,0.1)",
+                color: copiado ? "var(--ok)" : "var(--fg-subtle)", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                transition: "all 200ms",
+              }}>
+                {copiado ? "✓ Copiado" : "↗ Compartilhar"}
+              </button>
               <button onClick={imprimir} style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "8px 12px", borderRadius: 8,
@@ -307,133 +351,18 @@ function ComandaPagamentoSheet({
   );
 }
 
-// ─── Sheet: Lista de pessoas de uma mesa ─────────────────────────────────────
-
-function MesaDetalheSheet({
-  mesaStatus, barNome, onClose,
-}: {
-  mesaStatus: MesaComStatus;
-  barNome: string;
-  onClose: () => void;
-}) {
-  const [comandaSelecionada, setComandaSelecionada] = useState<Comanda | null>(null);
-  const router = useRouter();
-  const { mesa, comandas } = mesaStatus;
-  const mesaLabel = mesa.nome ?? `Mesa ${mesa.numero}`;
-
-  return (
-    <>
-      {/* Backdrop (fecha tudo) */}
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", zIndex: 50 }} />
-
-      {/* Sheet de pessoas */}
-      {!comandaSelecionada && (
-        <div style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 51,
-          background: "var(--bg-elevated)", borderTop: "1px solid var(--border)",
-          borderRadius: "12px 12px 0 0",
-          maxHeight: "80dvh", display: "flex", flexDirection: "column",
-        }}>
-          <div style={{ padding: "16px 20px 20px", flexShrink: 0 }}>
-            <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 16px" }} />
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 2px" }}>
-                  Selecione a pessoa
-                </p>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", margin: 0 }}>
-                  {mesaLabel} · {comandas.length} pessoa{comandas.length > 1 ? "s" : ""}
-                </h2>
-              </div>
-              <button onClick={onClose} style={{
-                width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "50%", cursor: "pointer", color: "var(--fg-subtle)",
-              }}>
-                <IconX />
-              </button>
-            </div>
-          </div>
-
-          <div style={{ overflowY: "auto", padding: "0 20px 36px", flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-            {comandas.map((c, i) => {
-              const label = c.nome_cliente ?? c.identificador ?? `Comanda ${i + 1}`;
-              const querPagar = c.status === "aguardando_pagamento";
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setComandaSelecionada(c)}
-                  style={{
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                    padding: "16px", borderRadius: 10, border: "none", cursor: "pointer",
-                    background: querPagar
-                      ? "color-mix(in srgb, #9333EA 18%, transparent)"
-                      : "rgba(255,255,255,0.06)",
-                    borderWidth: querPagar ? "1.5px" : "1px",
-                    borderStyle: "solid",
-                    borderColor: querPagar
-                      ? "color-mix(in srgb, #9333EA 45%, transparent)"
-                      : "rgba(255,255,255,0.10)",
-                    WebkitTapHighlightColor: "transparent",
-                    textAlign: "left",
-                  }}
-                >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)" }}>{label}</span>
-                      {querPagar && (
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
-                          background: "color-mix(in srgb, #9333EA 25%, transparent)",
-                          color: "#C084FC", textTransform: "uppercase", letterSpacing: "0.06em",
-                        }}>
-                          Pagar
-                        </span>
-                      )}
-                    </div>
-                    <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
-                      <IconClock />{tempoAbertaCaixa(c.aberta_em)}
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.4px" }}>
-                      {currency.format(c.total)}
-                    </span>
-                    <span style={{ color: "var(--fg-subtle)" }}><IconChevron /></span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Sheet de pagamento (empilhada) */}
-      {comandaSelecionada && (
-        <ComandaPagamentoSheet
-          comanda={comandaSelecionada}
-          mesaLabel={mesaLabel}
-          barNome={barNome}
-          onClose={() => setComandaSelecionada(null)}
-          onPago={() => {
-            setComandaSelecionada(null);
-            onClose();
-            router.refresh();
-          }}
-        />
-      )}
-    </>
-  );
-}
-
 // ─── Tab: Mesas ───────────────────────────────────────────────────────────────
 
 function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string }) {
-  const [mesaSelecionada, setMesaSelecionada] = useState<MesaComStatus | null>(null);
+  const router = useRouter();
+  const [pagamentoAberto, setPagamentoAberto] = useState<{ comanda: Comanda; mesaLabel: string } | null>(null);
 
   const livreCount      = mesas.filter(m => m.comandas.length === 0).length;
   const aguardandoCount = mesas.filter(m => m.comandas.some(c => c.status === "aguardando_pagamento")).length;
   const totalOcupadas   = mesas.filter(m => m.comandas.length > 0).length;
+
+  const ocupadas = mesas.filter(m => m.comandas.length > 0);
+  const livres   = mesas.filter(m => m.comandas.length === 0);
 
   return (
     <div style={{ padding: "20px 20px 32px", overflowY: "auto", height: "100%" }}>
@@ -469,62 +398,115 @@ function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string 
         </div>
       </div>
 
-      {/* Grid de mesas — agora clicável */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 10 }}>
-        {mesas.map((mesaStatus) => {
+      {/* Mesas ocupadas — cards expandidos com lista de pessoas */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: livres.length > 0 ? 24 : 0 }}>
+        {ocupadas.map((mesaStatus) => {
           const { mesa, comandas } = mesaStatus;
-          const livre         = comandas.length === 0;
+          const mesaLabel     = mesa.nome ?? `Mesa ${mesa.numero}`;
           const hasAguardando = comandas.some(c => c.status === "aguardando_pagamento");
           const totalValor    = comandas.reduce((sum, c) => sum + c.total, 0);
+          const maisAntiga    = comandas.reduce((a, b) => a.aberta_em < b.aberta_em ? a : b);
 
-          const bg =
-            hasAguardando ? "color-mix(in srgb, #9333EA 20%, transparent)" :
-            !livre        ? "color-mix(in srgb, #8B5CF6 13%, transparent)" :
-                            "rgba(255,255,255,0.04)";
-          const border =
-            hasAguardando ? "1.5px solid color-mix(in srgb, #9333EA 50%, transparent)" :
-            !livre        ? "1px solid color-mix(in srgb, #8B5CF6 25%, transparent)" :
-                            "1px solid rgba(255,255,255,0.08)";
-          const labelColor =
-            hasAguardando ? "#C084FC" :
-            !livre        ? "rgba(255,255,255,0.85)" :
-                            "rgba(255,255,255,0.3)";
+          const bg = hasAguardando
+            ? "color-mix(in srgb, #9333EA 12%, transparent)"
+            : "color-mix(in srgb, #8B5CF6 8%, transparent)";
+          const border = hasAguardando
+            ? "1.5px solid color-mix(in srgb, #9333EA 35%, transparent)"
+            : "1px solid color-mix(in srgb, #8B5CF6 18%, transparent)";
 
           return (
-            <button
-              key={mesa.id}
-              onClick={() => !livre && setMesaSelecionada(mesaStatus)}
-              disabled={livre}
-              style={{
-                background: bg, borderRadius: 10, border, padding: "12px 10px",
-                textAlign: "center", cursor: livre ? "default" : "pointer",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
-              <p style={{ fontSize: 14, fontWeight: 700, color: labelColor, margin: 0, lineHeight: 1.2 }}>
-                {mesa.nome ?? mesa.numero}
-              </p>
-              {!livre && (
-                <>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", margin: "5px 0 0", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
-                    {currency.format(totalValor)}
-                  </p>
-                  <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", margin: "2px 0 0" }}>
-                    {comandas.length} pessoa{comandas.length > 1 ? "s" : ""}
-                  </p>
-                </>
-              )}
-            </button>
+            <div key={mesa.id} style={{ background: bg, border, borderRadius: 10, overflow: "hidden" }}>
+              {/* Cabeçalho da mesa */}
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)" }}>{mesaLabel}</span>
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", gap: 3 }}>
+                    <IconClock />{tempoAbertaCaixa(maisAntiga.aberta_em)}
+                  </span>
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 900, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.4px" }}>
+                  {currency.format(totalValor)}
+                </span>
+              </div>
+
+              {/* Linha por pessoa */}
+              {comandas.map((c, i) => {
+                const label     = c.nome_cliente ?? c.identificador ?? `Comanda ${i + 1}`;
+                const querPagar = c.status === "aguardando_pagamento";
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setPagamentoAberto({ comanda: c, mesaLabel })}
+                    style={{
+                      width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
+                      padding: "12px 16px", border: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      background: "transparent", cursor: "pointer", textAlign: "left",
+                      WebkitTapHighlightColor: "transparent",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>{label}</span>
+                      {querPagar && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
+                          background: "color-mix(in srgb, #9333EA 25%, transparent)",
+                          color: "#C084FC", textTransform: "uppercase" as const, letterSpacing: "0.06em",
+                        }}>
+                          Pagar
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                        {currency.format(c.total)}
+                      </span>
+                      <span style={{ color: "var(--fg-subtle)" }}><IconChevron /></span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           );
         })}
       </div>
 
-      {/* Sheet de detalhe da mesa */}
-      {mesaSelecionada && (
-        <MesaDetalheSheet
-          mesaStatus={mesaSelecionada}
+      {/* Mesas livres — compactas */}
+      {livres.length > 0 && (
+        <div>
+          <p style={{ fontSize: 10, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
+            Livres · {livres.length}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 8 }}>
+            {livres.map(({ mesa }) => (
+              <div key={mesa.id} style={{
+                padding: "10px 12px", borderRadius: 8,
+                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+                textAlign: "center",
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.25)" }}>
+                  {mesa.nome ?? mesa.numero}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sheet de pagamento */}
+      {pagamentoAberto && (
+        <ComandaPagamentoSheet
+          comanda={pagamentoAberto.comanda}
+          mesaLabel={pagamentoAberto.mesaLabel}
           barNome={barNome}
-          onClose={() => setMesaSelecionada(null)}
+          onClose={() => setPagamentoAberto(null)}
+          onPago={() => {
+            setPagamentoAberto(null);
+            router.refresh();
+          }}
         />
       )}
     </div>

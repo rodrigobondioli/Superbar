@@ -12,10 +12,11 @@ interface SettingsButtonProps {
   userNome: string;
   userEmail: string;
   userAvatarUrl: string | null;
+  autoPedido?: boolean;
 }
 
 export function SettingsButton({
-  bar, barId, userId, userNome, userEmail, userAvatarUrl,
+  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false,
 }: SettingsButtonProps) {
   const [open, setOpen] = useState(false);
   const inicial = userNome.split(" ")[0].charAt(0).toUpperCase();
@@ -62,6 +63,7 @@ export function SettingsButton({
         userNome={userNome}
         userEmail={userEmail}
         userAvatarUrl={userAvatarUrl}
+        autoPedido={autoPedido}
       />
     </>
   );

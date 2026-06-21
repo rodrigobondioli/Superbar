@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
-import { abrirComanda } from "@/lib/bartender/actions";
+import { abrirComanda, atenderChamada } from "@/lib/bartender/actions";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -140,209 +140,167 @@ function SeletorPessoas({
   );
 }
 
-// ─── Sheet: lista de comandas abertas de uma mesa ────────────────────────────
-
-function MesaComandaSheet({
-  label,
-  comandas,
-  onNovaComanda,
-  onClose,
-}: {
-  label: string;
-  comandas: Comanda[];
-  onNovaComanda: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", zIndex: 50 }} />
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0,
-        background: "var(--bg-elevated)", borderTop: "1px solid var(--border)",
-        borderRadius: "10px 10px 0 0", padding: "24px 24px 40px", zIndex: 51,
-        maxHeight: "80vh", overflowY: "auto",
-      }}>
-        <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 20px" }} />
-        <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 4px" }}>
-          {label}
-        </p>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 16px" }}>
-          {comandas.length} comanda{comandas.length > 1 ? "s" : ""} aberta{comandas.length > 1 ? "s" : ""}
-        </h2>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-          {comandas.map((c, i) => {
-            const querPagar = c.status === "aguardando_pagamento";
-            const label = c.nome_cliente ?? c.identificador ?? `Comanda ${i + 1}`;
-            return (
-              <Link
-                key={c.id}
-                href={`/bartender/${c.id}`}
-                style={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                  padding: "14px 16px", borderRadius: 10, textDecoration: "none",
-                  background: querPagar
-                    ? "color-mix(in srgb, #9333EA 18%, transparent)"
-                    : "color-mix(in srgb, var(--fg) 6%, transparent)",
-                  border: querPagar
-                    ? "1.5px solid color-mix(in srgb, #9333EA 40%, transparent)"
-                    : "1px solid var(--border)",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)" }}>
-                      {label}
-                    </span>
-                    {querPagar && (
-                      <span style={{
-                        fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
-                        background: "color-mix(in srgb, #9333EA 25%, transparent)",
-                        color: "#C084FC", textTransform: "uppercase", letterSpacing: "0.06em",
-                      }}>
-                        Quer pagar
-                      </span>
-                    )}
-                  </div>
-                  <span style={{ fontSize: 11, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 4 }}>
-                    <IconClock />{tempoAberta(c.aberta_em)}
-                    {c.total_pessoas && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 2, marginLeft: 6 }}>
-                        <IconPessoas />{c.total_pessoas}
-                      </span>
-                    )}
-                  </span>
-                </div>
-                <span style={{
-                  fontSize: 20, fontWeight: 800, color: "var(--fg)",
-                  fontFamily: "var(--font-mono)", letterSpacing: "-0.4px",
-                }}>
-                  {currency.format(c.total)}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-
-        <button onClick={onNovaComanda} style={{
-          width: "100%", padding: "16px",
-          background: "color-mix(in srgb, var(--accent) 22%, transparent)",
-          border: "1px solid color-mix(in srgb, var(--accent-bright) 30%, transparent)",
-          borderRadius: 10, color: "var(--accent-bright)",
-          fontSize: 15, fontWeight: 700, cursor: "pointer",
-          WebkitTapHighlightColor: "transparent",
-        }}>
-          + Nova comanda nesta mesa
-        </button>
-      </div>
-    </>
-  );
-}
-
 // ─── Card individual de mesa ──────────────────────────────────────────────────
 
-const CARD_H = 220;
-
-function MesaCard({ label, comandas, capacidade, onAbrir, onSelect }: {
+function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComanda, onAtender }: {
   label: string;
   comandas: Comanda[];
   capacidade?: number | null;
-  onAbrir?: () => void;   // mesa livre → abre nova comanda direto
-  onSelect?: () => void;  // mesa ocupada → abre sheet de seleção
+  chamadaId?: string;
+  onAbrir?: () => void;
+  onNovaComanda?: () => void;
+  onAtender?: () => void;
 }) {
-  const livre        = comandas.length === 0;
+  const livre         = comandas.length === 0;
   const hasAguardando = comandas.some(c => c.status === "aguardando_pagamento");
-  const totalValor   = comandas.reduce((sum, c) => sum + c.total, 0);
-  const maisAntiga   = comandas.length > 0
+  const totalValor    = comandas.reduce((sum, c) => sum + c.total, 0);
+  const maisAntiga    = comandas.length > 0
     ? comandas.reduce((a, b) => a.aberta_em < b.aberta_em ? a : b)
     : null;
-
-  const base: React.CSSProperties = {
-    display: "flex", flexDirection: "column", height: CARD_H,
-    borderRadius: 10, position: "relative",
-    padding: "16px 18px 16px", boxSizing: "border-box",
-    transition: "opacity 0.15s",
-  };
 
   // ── Livre ──
   if (livre) {
     return (
       <button type="button" onClick={onAbrir} style={{
-        ...base,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        borderRadius: 10, padding: "14px 16px",
         background: "rgba(255,255,255,0.05)",
         border: "1px solid rgba(255,255,255,0.12)",
-        justifyContent: "space-between",
         cursor: "pointer", width: "100%", textAlign: "left",
         WebkitTapHighlightColor: "transparent",
       }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "-0.2px" }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
           {label}
         </span>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>
-            + Abrir comanda
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {capacidade && (
             <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", gap: 3 }}>
               <IconPessoas />{capacidade}
             </span>
           )}
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontWeight: 500 }}>
+            + Abrir comanda
+          </span>
         </div>
       </button>
     );
   }
 
-  // ── Ocupada (1 ou mais comandas) ──
-  const bg = hasAguardando
-    ? "color-mix(in srgb, #9333EA 22%, transparent)"
-    : "color-mix(in srgb, #8B5CF6 13%, transparent)";
-  const border = hasAguardando
-    ? "1.5px solid color-mix(in srgb, #9333EA 55%, transparent)"
-    : "1px solid color-mix(in srgb, #8B5CF6 25%, transparent)";
+  // ── Ocupada ──
+  const hasChamada = !!chamadaId;
+  const bg = hasChamada
+    ? "color-mix(in srgb, #EF4444 14%, transparent)"
+    : hasAguardando
+      ? "color-mix(in srgb, #9333EA 14%, transparent)"
+      : "color-mix(in srgb, #8B5CF6 9%, transparent)";
+  const border = hasChamada
+    ? "1.5px solid color-mix(in srgb, #EF4444 55%, transparent)"
+    : hasAguardando
+      ? "1.5px solid color-mix(in srgb, #9333EA 45%, transparent)"
+      : "1px solid color-mix(in srgb, #8B5CF6 22%, transparent)";
 
   return (
-    <button type="button" onClick={onSelect} style={{
-      ...base, background: bg, border,
-      justifyContent: "space-between",
-      cursor: "pointer", width: "100%", textAlign: "left",
-      WebkitTapHighlightColor: "transparent",
-    }}>
-      {/* Topo: nome */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", lineHeight: 1.1 }}>
-          {label}
-        </span>
-        {comandas.length > 1 && (
-          <span style={{
-            fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
-            background: "rgba(255,255,255,0.10)",
-            color: "rgba(255,255,255,0.55)",
-          }}>
-            {comandas.length} comandas
-          </span>
-        )}
-      </div>
-
-      {/* Centro: total em destaque */}
-      <p style={{
-        fontSize: 28, fontWeight: 900, color: "var(--fg)",
-        margin: 0, letterSpacing: "-0.6px",
-        fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)", lineHeight: 1,
-      }}>
-        {currency.format(totalValor)}
-      </p>
-
-      {/* Rodapé: tempo da mesa + pessoas */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{
-          fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)",
-          background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "3px 8px",
-          display: "flex", alignItems: "center", gap: 4,
+    <div
+      className={hasChamada ? "mesa-chamada" : undefined}
+      style={{ background: bg, border, borderRadius: 10, overflow: "hidden" }}
+    >
+      {/* Banner de chamada */}
+      {hasChamada && (
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "8px 14px",
+          background: "color-mix(in srgb, #EF4444 20%, transparent)",
+          borderBottom: "1px solid color-mix(in srgb, #EF4444 30%, transparent)",
         }}>
-          <IconClock />{maisAntiga ? tempoAberta(maisAntiga.aberta_em) : ""}
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#FCA5A5", display: "flex", alignItems: "center", gap: 6 }}>
+            🔔 Chamando atendimento
+          </span>
+          <button
+            onClick={e => { e.stopPropagation(); onAtender?.(); }}
+            style={{
+              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6,
+              background: "#EF4444", border: "none", color: "white",
+              cursor: "pointer", WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            Atendi ✓
+          </button>
+        </div>
+      )}
+
+      {/* Header da mesa */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>
+            {label}
+          </span>
+          {maisAntiga && (
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", gap: 3 }}>
+              <IconClock />{tempoAberta(maisAntiga.aberta_em)}
+            </span>
+          )}
+        </div>
+        <span style={{ fontSize: 16, fontWeight: 900, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.4px" }}>
+          {currency.format(totalValor)}
         </span>
       </div>
-    </button>
+
+      {/* Linha por pessoa */}
+      {comandas.map((c, i) => {
+        const nome = c.nome_cliente ?? c.identificador ?? `Comanda ${i + 1}`;
+        const querPagar = c.status === "aguardando_pagamento";
+        return (
+          <Link
+            key={c.id}
+            href={`/bartender/${c.id}`}
+            style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "11px 16px", textDecoration: "none",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{nome}</span>
+              {querPagar && (
+                <span style={{
+                  fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
+                  background: "color-mix(in srgb, #9333EA 25%, transparent)",
+                  color: "#C084FC", textTransform: "uppercase" as const, letterSpacing: "0.06em",
+                }}>
+                  Pagar
+                </span>
+              )}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                {currency.format(c.total)}
+              </span>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>›</span>
+            </div>
+          </Link>
+        );
+      })}
+
+      {/* Rodapé: + nova comanda */}
+      <div style={{ padding: "10px 12px" }}>
+        <button
+          onClick={onNovaComanda}
+          style={{
+            width: "100%", padding: "8px 12px",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            borderRadius: 7, cursor: "pointer",
+            fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          + Nova comanda
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -357,14 +315,14 @@ interface MesasGridProps {
 export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps) {
   const [mesas, setMesas]   = useState<MesaComStatus[]>(initialMesas);
   const [balcao, setBalcao] = useState<Comanda | null>(initialBalcao);
+  // mesaId → chamadaId (para mesas com chamada pendente)
+  const [chamadas, setChamadas] = useState<Map<string, string>>(new Map());
 
-  // Sheet de seleção de comanda para mesa ocupada
-  const [selectedMesa, setSelectedMesa] = useState<{ mesaId: string | null; label: string; comandas: Comanda[] } | null>(null);
   // Modal de quantas pessoas (nova comanda)
   const [pendingAbrir, setPendingAbrir] = useState<{ mesaId: string | null; label: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // ── Realtime ──────────────────────────────────────────────────────────────
+  // ── Realtime — comandas ───────────────────────────────────────────────────
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -394,20 +352,6 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           novas[idx] = atualizada;
           return { ...m, comandas: novas };
         }));
-
-        // Atualiza sheet aberto se for a mesma mesa
-        setSelectedMesa(prev => {
-          if (!prev) return prev;
-          const idx = prev.comandas.findIndex(c => c.id === atualizada.id);
-          if (idx === -1) return prev;
-          if (atualizada.status === "paga" || atualizada.status === "cancelada") {
-            const novas = prev.comandas.filter(c => c.id !== atualizada.id);
-            return novas.length === 0 ? null : { ...prev, comandas: novas };
-          }
-          const novas = [...prev.comandas];
-          novas[idx] = atualizada;
-          return { ...prev, comandas: novas };
-        });
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "comandas", filter: `bar_id=eq.${barId}` }, (payload) => {
         const nova = payload.new as Comanda;
@@ -422,11 +366,57 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     return () => { supabase.removeChannel(channel); };
   }, [barId]);
 
+  // ── Realtime — chamadas ───────────────────────────────────────────────────
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Carrega chamadas pendentes do turno atual
+    supabase
+      .from("chamadas")
+      .select("id, mesa_id")
+      .eq("bar_id", barId)
+      .eq("status", "pendente")
+      .then(({ data }) => {
+        if (!data) return;
+        setChamadas(new Map(data.map((c: { id: string; mesa_id: string }) => [c.mesa_id, c.id])));
+      });
+
+    const channel = supabase
+      .channel(`bartender_chamadas_${barId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chamadas", filter: `bar_id=eq.${barId}` }, (payload) => {
+        const nova = payload.new as { id: string; mesa_id: string; status: string };
+        if (nova.status === "pendente") {
+          setChamadas(prev => new Map(prev).set(nova.mesa_id, nova.id));
+        }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chamadas", filter: `bar_id=eq.${barId}` }, (payload) => {
+        const updated = payload.new as { id: string; mesa_id: string; status: string };
+        if (updated.status === "atendida") {
+          setChamadas(prev => {
+            const next = new Map(prev);
+            if (next.get(updated.mesa_id) === updated.id) next.delete(updated.mesa_id);
+            return next;
+          });
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [barId]);
+
+  const handleAtenderChamada = (chamadaId: string, mesaId: string) => {
+    setChamadas(prev => {
+      const next = new Map(prev);
+      next.delete(mesaId);
+      return next;
+    });
+    startTransition(async () => { await atenderChamada(chamadaId); });
+  };
+
   const handleConfirmarPessoas = (n: number, nome?: string) => {
     if (!pendingAbrir) return;
     const { mesaId } = pendingAbrir;
     setPendingAbrir(null);
-    setSelectedMesa(null);
     startTransition(async () => {
       await abrirComanda(mesaId, n > 0 ? n : undefined, undefined, nome);
     });
@@ -435,35 +425,45 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   // ── Construir entradas ────────────────────────────────────────────────────
   type MesaEntry = {
     key: string;
+    mesaId: string | null;
     label: string;
     comandas: Comanda[];
     capacidade?: number | null;
+    chamadaId?: string;
     onAbrir?: () => void;
-    onSelect?: () => void;
+    onNovaComanda?: () => void;
+    onAtender?: () => void;
   };
 
   const todasEntradas: MesaEntry[] = [
     ...mesas.map(({ mesa, comandas }) => {
       const label = mesa.nome ?? `Mesa ${mesa.numero}`;
+      const chamadaId = chamadas.get(mesa.id);
       return {
         key: mesa.id,
+        mesaId: mesa.id,
         label,
         comandas,
         capacidade: mesa.capacidade,
+        chamadaId,
         onAbrir: comandas.length === 0
           ? () => setPendingAbrir({ mesaId: mesa.id, label })
           : undefined,
-        onSelect: comandas.length > 0
-          ? () => setSelectedMesa({ mesaId: mesa.id, label, comandas })
+        onNovaComanda: comandas.length > 0
+          ? () => setPendingAbrir({ mesaId: mesa.id, label })
+          : undefined,
+        onAtender: chamadaId
+          ? () => handleAtenderChamada(chamadaId, mesa.id)
           : undefined,
       };
     }),
     {
       key: "balcao",
+      mesaId: null,
       label: "Balcão",
       comandas: balcao ? [balcao] : [],
       onAbrir: !balcao ? () => setPendingAbrir({ mesaId: null, label: "Balcão" }) : undefined,
-      onSelect: balcao ? () => setSelectedMesa({ mesaId: null, label: "Balcão", comandas: [balcao] }) : undefined,
+      onNovaComanda: balcao ? () => setPendingAbrir({ mesaId: null, label: "Balcão" }) : undefined,
     },
   ];
 
@@ -472,10 +472,16 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   const livres        = todasEntradas.filter(e => e.comandas.length === 0);
   const totalOcupadas = aguardando.length + abertas.length;
 
-  const GRID: React.CSSProperties = {
+  const GRID_OCUPADAS: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: 12,
+    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+    gap: 10,
+  };
+
+  const GRID_LIVRES: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+    gap: 8,
   };
 
   const SecLabel = ({ label, count }: { label: string; count: number }) => (
@@ -541,42 +547,41 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         </div>
       )}
 
+      {/* Keyframe de pulso para chamadas */}
+      <style>{`
+        @keyframes pulse-chamada {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          50%       { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.25); }
+        }
+        .mesa-chamada { animation: pulse-chamada 1.4s ease-in-out infinite; }
+      `}</style>
+
       <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
         {aguardando.length > 0 && (
           <section>
             <SecLabel label="Aguardando pagamento" count={aguardando.length} />
-            <div style={GRID}>
-              {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} onSelect={e.onSelect} />)}
+            <div style={GRID_OCUPADAS}>
+              {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onNovaComanda={e.onNovaComanda} onAtender={e.onAtender} />)}
             </div>
           </section>
         )}
         {abertas.length > 0 && (
           <section>
             <SecLabel label="Abertas" count={abertas.length} />
-            <div style={GRID}>
-              {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} onSelect={e.onSelect} />)}
+            <div style={GRID_OCUPADAS}>
+              {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onNovaComanda={e.onNovaComanda} onAtender={e.onAtender} />)}
             </div>
           </section>
         )}
         {livres.length > 0 && (
           <section>
             <SecLabel label="Livres" count={livres.length} />
-            <div style={GRID}>
-              {livres.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} onSelect={e.onSelect} />)}
+            <div style={GRID_LIVRES}>
+              {livres.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} onNovaComanda={e.onNovaComanda} />)}
             </div>
           </section>
         )}
       </div>
-
-      {/* Sheet: seleção de comanda numa mesa ocupada */}
-      {selectedMesa && (
-        <MesaComandaSheet
-          label={selectedMesa.label}
-          comandas={selectedMesa.comandas}
-          onNovaComanda={() => setPendingAbrir({ mesaId: selectedMesa.mesaId, label: selectedMesa.label })}
-          onClose={() => setSelectedMesa(null)}
-        />
-      )}
 
       {/* Modal: quantas pessoas (nova comanda) */}
       {pendingAbrir && (

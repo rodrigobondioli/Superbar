@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getMesasComStatus, getComandaBalcao } from "@/lib/bartender/queries";
-import { FilaPedidos } from "@/components/bartender/fila-pedidos";
-import { MesasGrid } from "@/components/bartender/mesas-grid";
+import { BartenderTabs } from "@/components/bartender/bartender-tabs";
 
 export default async function BartenderPage() {
   const current = await getCurrentBar();
@@ -27,33 +26,11 @@ export default async function BartenderPage() {
   ]);
 
   return (
-    /* Mobile: fila empilhada acima das mesas.  md+: lado a lado */
-    <div className="flex flex-col md:flex-row h-full overflow-hidden">
-
-      {/* ── Fila de pedidos ── */}
-      <div
-        className="flex flex-col flex-none overflow-hidden border-b md:border-b-0 md:border-r md:w-[360px] max-h-[220px] md:max-h-none"
-        style={{ borderColor: "rgba(255,255,255,0.06)" }}
-      >
-        <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
-            Fila de pedidos
-          </p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: "4px 0 0" }}>
-            Tempo real
-          </p>
-        </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 16px" }}>
-          <FilaPedidos barId={current.bar.id} />
-        </div>
-      </div>
-
-      {/* ── Mesas ── */}
-      <MesasGrid
-        barId={current.bar.id}
-        initialMesas={mesas}
-        initialBalcao={comandaBalcao}
-      />
-    </div>
+    <BartenderTabs
+      barId={current.bar.id}
+      turnoId={turno.id}
+      initialMesas={mesas}
+      initialBalcao={comandaBalcao}
+    />
   );
 }
