@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import type { CartItem, Comanda } from "@/types/database";
@@ -33,8 +32,8 @@ export async function abrirComanda(
     .select("id")
     .single();
 
-  if (!novaComanda?.id) return;
-  redirect(`/bartender/${novaComanda.id}`);
+  if (!novaComanda?.id) return null;
+  return { id: novaComanda.id };
 }
 
 /**

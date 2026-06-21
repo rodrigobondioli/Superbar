@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
@@ -328,6 +329,7 @@ interface MesasGridProps {
 }
 
 export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps) {
+  const router = useRouter();
   const [mesas, setMesas]   = useState<MesaComStatus[]>(initialMesas);
   const [balcao, setBalcao] = useState<Comanda | null>(initialBalcao);
   // mesaId → chamadaId (para mesas com chamada pendente)
@@ -439,7 +441,8 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     const { mesaId } = pendingAbrir;
     setPendingAbrir(null);
     startTransition(async () => {
-      await abrirComanda(mesaId, n > 0 ? n : undefined, undefined, nome);
+      const result = await abrirComanda(mesaId, n > 0 ? n : undefined, undefined, nome);
+      if (result?.id) router.push(`/bartender/${result.id}`);
     });
   };
 
