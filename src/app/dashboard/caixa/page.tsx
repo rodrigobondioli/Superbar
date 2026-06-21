@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getComandasPendentes } from "@/lib/caixa/queries";
 import { CaixaComandas } from "@/components/caixa/caixa-comandas";
@@ -15,11 +16,25 @@ export default async function CaixaPage() {
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>Caixa</h1>
         <div style={{
           marginTop: 32, background: "var(--bg-elevated)", borderRadius: 8, border: "1px solid var(--border)",
-          padding: "48px 32px", textAlign: "center",
+          padding: "56px 32px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center",
         }}>
-          <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>
-            Nenhum turno aberto. Abra um turno em <strong style={{ color: "var(--fg)" }}>Turnos</strong> para começar.
+          <p style={{ fontSize: 28, margin: "0 0 14px" }}>🔒</p>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
+            Nenhum turno aberto
           </p>
+          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
+            A caixa fica disponível durante o turno. Pagamentos e comandas aparecem aqui em tempo real.
+          </p>
+          <Link
+            href="/dashboard/turnos"
+            style={{
+              display: "inline-block", padding: "10px 20px",
+              background: "var(--accent)", color: "var(--accent-fg)",
+              borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: "none",
+            }}
+          >
+            Abrir turno →
+          </Link>
         </div>
       </div>
     );

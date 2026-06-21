@@ -112,8 +112,19 @@ export default async function TurnosPage() {
             ))}
             {turnos.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: "32px 20px", textAlign: "center", fontSize: "14px", color: "var(--fg-subtle)" }}>
-                  Nenhum turno registrado ainda.
+                <td colSpan={7}>
+                  <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                    <p style={{ fontSize: 28, margin: "0 0 14px" }}>🕐</p>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
+                      Nenhum turno ainda
+                    </p>
+                    <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
+                      Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui.
+                    </p>
+                    {!turnoAtual && (
+                      <TurnoControles barId={current.bar.id} turnoAtual={null} />
+                    )}
+                  </div>
                 </td>
               </tr>
             )}

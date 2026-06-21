@@ -722,9 +722,37 @@ export function CardapioClient({
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 overflow-y-auto">
           {!selectedGrupo ? (
-            <p style={{ fontSize: 14, color: "var(--fg-subtle)", paddingTop: 20 }}>
-              Selecione uma categoria.
-            </p>
+            /* Zero categorias — primeiro acesso */
+            <div style={{ paddingTop: 40, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 0 }}>
+              <p style={{ fontSize: 32, margin: "0 0 16px" }}>🍹</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
+                Seu cardápio está vazio
+              </p>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 24px", lineHeight: 1.6, maxWidth: 300 }}>
+                Crie categorias (ex: Drinks, Cervejas, Petiscos) e depois adicione os produtos com preços e custos.
+              </p>
+              <button
+                onClick={() => setAddingCategoria(true)}
+                style={{
+                  ...btnPrimary,
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "10px 20px", fontSize: 13,
+                }}
+              >
+                <Plus style={{ width: 13, height: 13 }} />
+                Criar primeira categoria
+              </button>
+              <button
+                onClick={() => setImportPanelOpen(true)}
+                style={{
+                  marginTop: 10, background: "none", border: "none",
+                  fontSize: 12, color: "var(--fg-subtle)", cursor: "pointer",
+                  textDecoration: "underline", textUnderlineOffset: 3,
+                }}
+              >
+                ou importe de uma planilha
+              </button>
+            </div>
           ) : (
             <>
               <div style={{ marginBottom: 16 }}>
@@ -741,9 +769,24 @@ export function CardapioClient({
               )}
 
               {selectedGrupo.produtos.length === 0 && !addingProduto ? (
-                <p style={{ fontSize: 13, color: "var(--fg-subtle)", paddingTop: 8 }}>
-                  Nenhum produto nesta categoria ainda.
-                </p>
+                <div style={{ paddingTop: 8, display: "flex", flexDirection: "column", gap: 10 }}>
+                  <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>
+                    Nenhum produto nesta categoria.
+                  </p>
+                  <button
+                    onClick={() => setAddingProduto(true)}
+                    style={{
+                      alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 6,
+                      padding: "7px 14px", fontSize: 12, fontWeight: 600,
+                      background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+                      border: "1px solid var(--border)", borderRadius: 4,
+                      color: "var(--fg-muted)", cursor: "pointer",
+                    }}
+                  >
+                    <Plus style={{ width: 12, height: 12 }} />
+                    Adicionar produto
+                  </button>
+                </div>
               ) : (
                 selectedGrupo.produtos.map(p => (
                   <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} />

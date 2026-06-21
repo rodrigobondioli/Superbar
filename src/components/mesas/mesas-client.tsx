@@ -569,9 +569,27 @@ export function MesasClient({ mesas, barId, mesasOcupadas, nextNumero }: MesasCl
         </div>
 
         {localMesas.length === 0 && (
-          <p style={{ fontSize: 14, color: "var(--fg-subtle)", padding: "28px 20px", margin: 0 }}>
-            Nenhuma mesa cadastrada ainda. Clique em <strong>Nova mesa</strong> para começar.
-          </p>
+          <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+            <p style={{ fontSize: 28, margin: "0 0 14px" }}>🪑</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
+              Nenhuma mesa cadastrada
+            </p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
+              Cada mesa é um ponto de atendimento. O bartender vê exatamente essas opções ao abrir uma comanda.
+            </p>
+            <button
+              onClick={openCreate}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+                borderRadius: 4, padding: "10px 20px",
+                fontSize: 13, fontWeight: 600, cursor: "pointer",
+              }}
+            >
+              <Plus style={{ width: 13, height: 13 }} />
+              Adicionar primeira mesa
+            </button>
+          </div>
         )}
 
         {localMesas.map((mesa, i) => (
