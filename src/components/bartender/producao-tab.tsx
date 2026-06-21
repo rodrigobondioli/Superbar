@@ -74,7 +74,7 @@ async function fetchPedidos(barId: string, turnoId: string): Promise<PedidoCard[
     lista.push({
       quantidade:   item.quantidade as number,
       variante_nome: item.variante_nome as string | null,
-      produto_nome: (item.produtos as { nome: string } | null)?.nome ?? "Produto",
+      produto_nome: (item.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
     });
     itensPorPedido.set(pid, lista);
   }
@@ -151,7 +151,7 @@ async function fetchPedidoById(pedidoId: string): Promise<PedidoCard | null> {
   const itensRaw: ItemDoPedido[] = (itemsRaw ?? []).map(i => ({
     quantidade:   i.quantidade as number,
     variante_nome: i.variante_nome as string | null,
-    produto_nome: (i.produtos as { nome: string } | null)?.nome ?? "Produto",
+    produto_nome: (i.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
   }));
 
   const map = new Map<string, ItemDoPedido>();

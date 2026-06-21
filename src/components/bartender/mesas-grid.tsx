@@ -163,22 +163,22 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
     return (
       <button type="button" onClick={onAbrir} style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        borderRadius: 10, padding: "14px 16px",
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.12)",
+        borderRadius: 8, padding: "14px 16px",
+        background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+        border: "1px solid var(--border-strong)",
         cursor: "pointer", width: "100%", textAlign: "left",
         WebkitTapHighlightColor: "transparent",
       }}>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>
           {label}
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {capacidade && (
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
               <IconPessoas />{capacidade}
             </span>
           )}
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontWeight: 500 }}>
+          <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontWeight: 500 }}>
             + Abrir comanda
           </span>
         </div>
@@ -189,37 +189,37 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
   // ── Ocupada ──
   const hasChamada = !!chamadaId;
   const bg = hasChamada
-    ? "color-mix(in srgb, #EF4444 14%, transparent)"
+    ? "var(--danger-bg)"
     : hasAguardando
-      ? "color-mix(in srgb, #9333EA 14%, transparent)"
-      : "color-mix(in srgb, #8B5CF6 9%, transparent)";
+      ? "var(--warn-bg)"
+      : "color-mix(in srgb, var(--accent-bright) 9%, transparent)";
   const border = hasChamada
-    ? "1.5px solid color-mix(in srgb, #EF4444 55%, transparent)"
+    ? "1.5px solid color-mix(in srgb, var(--danger) 55%, transparent)"
     : hasAguardando
-      ? "1.5px solid color-mix(in srgb, #9333EA 45%, transparent)"
-      : "1px solid color-mix(in srgb, #8B5CF6 22%, transparent)";
+      ? "1.5px solid color-mix(in srgb, var(--warn) 45%, transparent)"
+      : "1px solid color-mix(in srgb, var(--accent-bright) 22%, transparent)";
 
   return (
     <div
       className={hasChamada ? "mesa-chamada" : undefined}
-      style={{ background: bg, border, borderRadius: 10, overflow: "hidden" }}
+      style={{ background: bg, border, borderRadius: 8, overflow: "hidden" }}
     >
       {/* Banner de chamada */}
       {hasChamada && (
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "8px 14px",
-          background: "color-mix(in srgb, #EF4444 20%, transparent)",
-          borderBottom: "1px solid color-mix(in srgb, #EF4444 30%, transparent)",
+          background: "var(--danger-bg)",
+          borderBottom: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
         }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#FCA5A5", display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--danger)", display: "flex", alignItems: "center", gap: 6 }}>
             🔔 Chamando atendimento
           </span>
           <button
             onClick={e => { e.stopPropagation(); onAtender?.(); }}
             style={{
-              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 6,
-              background: "#EF4444", border: "none", color: "white",
+              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 4,
+              background: "var(--danger)", border: "none", color: "white",
               cursor: "pointer", WebkitTapHighlightColor: "transparent",
             }}
           >
@@ -231,14 +231,14 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
       {/* Header da mesa */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)",
+        padding: "12px 16px", borderBottom: "1px solid var(--border)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>
             {label}
           </span>
           {maisAntiga && (
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 10, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
               <IconClock />{tempoAberta(maisAntiga.aberta_em)}
             </span>
           )}
@@ -259,7 +259,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
             style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "11px 16px", textDecoration: "none",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              borderBottom: "1px solid var(--border)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -267,8 +267,8 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
               {querPagar && (
                 <span style={{
                   fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
-                  background: "color-mix(in srgb, #9333EA 25%, transparent)",
-                  color: "#C084FC", textTransform: "uppercase" as const, letterSpacing: "0.06em",
+                  background: "var(--warn-bg)",
+                  color: "var(--warn)", textTransform: "uppercase" as const, letterSpacing: "0.06em",
                 }}>
                   Pagar
                 </span>
@@ -278,7 +278,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
               <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
                 {currency.format(c.total)}
               </span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>›</span>
+              <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>›</span>
             </div>
           </Link>
         );
@@ -290,10 +290,10 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
           onClick={onNovaComanda}
           style={{
             width: "100%", padding: "8px 12px",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            borderRadius: 7, cursor: "pointer",
-            fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)",
+            background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+            border: "1px solid var(--border)",
+            borderRadius: 4, cursor: "pointer",
+            fontSize: 11, fontWeight: 600, color: "var(--fg-subtle)",
             WebkitTapHighlightColor: "transparent",
           }}
         >
@@ -513,19 +513,20 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {aguardando.length > 0 && (
               <span style={{
-                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-                background: "color-mix(in srgb, #9333EA 18%, transparent)",
-                border: "1px solid color-mix(in srgb, #9333EA 35%, transparent)",
-                color: "color-mix(in srgb, #C084FC 90%, white)",
+                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 4,
+                background: "var(--warn-bg)",
+                border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
+                color: "var(--warn)",
               }}>
                 {aguardando.length} aguardando pagamento
               </span>
             )}
             {livres.length > 0 && (
               <span style={{
-                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.35)",
+                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 4,
+                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+                border: "1px solid var(--border)",
+                color: "var(--fg-subtle)",
               }}>
                 {livres.length} livre{livres.length > 1 ? "s" : ""}
               </span>
@@ -537,7 +538,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       {mesas.length === 0 && (
         <div style={{
           background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-          borderRadius: 10, border: "1px solid var(--border)",
+          borderRadius: 8, border: "1px solid var(--border)",
           padding: "28px 20px", textAlign: "center", marginBottom: 16,
         }}>
           <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
