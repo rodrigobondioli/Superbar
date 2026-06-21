@@ -325,6 +325,16 @@ export interface PedidoCliente {
   created_at: string;
 }
 
+export interface Chamada {
+  id: string;
+  bar_id: string;
+  mesa_id: string;
+  turno_id: string;
+  status: "pendente" | "atendida";
+  criada_em: string;
+  atendida_em: string | null;
+}
+
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row & Record<string, unknown>;
   Insert: Insert & Record<string, unknown>;
@@ -353,6 +363,7 @@ export interface Database {
       comanda_items: TableDef<ComandaItem>;
       pagamentos: TableDef<Pagamento>;
       estoque_movimentos: TableDef<EstoqueMovimento>;
+      chamadas: TableDef<Chamada>;
       pedidos: TableDef<Pedido>;
       pedidos_cliente: {
         Row: PedidoCliente & Record<string, unknown>;
