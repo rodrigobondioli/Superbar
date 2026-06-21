@@ -22,7 +22,7 @@ export default async function EquipePage() {
   const isDono = current.role === "dono";
 
   return (
-    <div className="px-5 py-6 lg:px-10 lg:py-8">
+    <div className="py-6 lg:px-10 lg:py-8">
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 32 }}>

@@ -130,7 +130,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col" style={{ overflowX: "hidden", width: "100%" }}>
 
       {/* Hero */}
-      <div className="relative px-5 pt-8 pb-6 lg:px-8 lg:pt-14 lg:pb-10"
+      <div className="relative pt-8 pb-6 lg:px-8 lg:pt-14 lg:pb-10"
         style={{ background: "var(--bg)" }}>
         <div className="hidden lg:flex"
           style={{ position: "absolute", top: "16px", right: "32px", alignItems: "center", gap: "10px" }}>
@@ -168,7 +168,7 @@ export default async function DashboardPage() {
 
       {/* Blocos principais */}
       <div
-        className="px-5 lg:px-8"
+        className="lg:px-8"
         style={{ paddingTop: "32px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}
       >
 

@@ -46,7 +46,15 @@
       "Bash(vercel *)",
       "Bash(claude mcp *)",
       "Bash(claude skills *)",
-      "Bash(sort -t: -k2 -rn)"
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(npx vercel *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(rm -f /Users/rodrigobondioli/Developer/Superbar/.git/HEAD.lock)",
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar add \"src/app/\\(marketing\\)/page.tsx\")",
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar commit -m \"fix: redireciona app.superbar.com.br/ para /login\")",
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar push)",
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar status --short)",
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar log origin/main..HEAD --oneline)"
     ]
   }
 }

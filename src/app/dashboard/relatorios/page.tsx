@@ -47,7 +47,7 @@ export default async function RelatoriosPage({
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {/* Page header */}
-      <div className="px-4 pt-6 pb-0 lg:px-10 lg:pt-8">
+      <div className="pt-6 pb-0 lg:px-10 lg:pt-8">
         <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
           Relatórios
         </h1>
@@ -57,12 +57,12 @@ export default async function RelatoriosPage({
       </div>
 
       {/* Period selector */}
-      <div className="px-4 py-4 lg:px-10 flex justify-end">
+      <div className="py-4 lg:px-10 flex justify-end">
         <PeriodoSeletor current={params} />
       </div>
 
       {/* Content area */}
-      <div className="px-4 pb-6 lg:px-10 lg:pb-10 flex flex-col gap-4">
+      <div className="pb-6 lg:px-10 lg:pb-10 flex flex-col gap-4">
 
         {/* Summary card */}
         <div style={card}>

@@ -93,7 +93,7 @@ export function DashboardLayoutClient({
         </aside>
 
         {/* Main */}
-        <main style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
+        <main className="px-6 lg:px-0" style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
           {children}
         </main>
       </div>

@@ -10,7 +10,7 @@ export default async function CaixaPage() {
 
   if (!turno) {
     return (
-      <div className="px-5 py-6 lg:px-10 lg:py-8">
+      <div className="py-6 lg:px-10 lg:py-8">
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>Caixa</h1>
         <div style={{
           marginTop: 32, background: "var(--bg-elevated)", borderRadius: 8, border: "1px solid var(--border)",
@@ -27,7 +27,7 @@ export default async function CaixaPage() {
   const comandas = await getComandasPendentes(current.bar.id, turno.id);
 
   return (
-    <div className="px-5 py-6 lg:px-10 lg:py-8">
+    <div className="py-6 lg:px-10 lg:py-8">
       {/* Header */}
       <div style={{ marginBottom: 32, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>

@@ -11,7 +11,7 @@ export default async function EstoquePage() {
   const alertas = itens.filter(i => i.abaixoDoMinimo).length;
 
   return (
-    <div className="px-5 py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
+    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
