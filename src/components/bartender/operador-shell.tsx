@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth/actions";
+import { AppHeader } from "@/components/ui/app-header";
 
 export type MembroSimples = { id: string; nome: string; role: string };
 
@@ -142,32 +143,11 @@ export function OperadorShell({
 
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-      {/* Header */}
-      <header style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 20px", height: 52, flexShrink: 0,
-        borderBottom: "1px solid var(--border)",
-        background: "var(--bg)",
-      }}>
-        {/* Esquerda — minWidth:0 impede que nome longo empurre o lado direito */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, overflow: "hidden" }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {barNome}
-          </span>
-          <span style={{
-            fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 4,
-            background: "color-mix(in srgb, var(--accent) 30%, transparent)",
-            color: "var(--accent-bright)",
-            letterSpacing: "0.04em", textTransform: "uppercase",
-            flexShrink: 0,
-          }}>
-            Bartender
-          </span>
-        </div>
-
-        {/* Direita */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
-          {operador ? (
+      <AppHeader
+        barNome={barNome}
+        roleLabel="Bartender"
+        right={
+          operador ? (
             <>
               <span style={{ fontSize: 13, color: "var(--fg)", fontWeight: 600 }}>{operador.nome}</span>
               <button
@@ -186,16 +166,13 @@ export function OperadorShell({
             </>
           ) : (
             <form action={signOut}>
-              <button type="submit" style={{
-                fontSize: 12, color: "var(--fg-subtle)",
-                background: "none", border: "none", cursor: "pointer",
-              }}>
+              <button type="submit" style={{ fontSize: 12, color: "var(--fg-subtle)", background: "none", border: "none", cursor: "pointer" }}>
                 Sair
               </button>
             </form>
-          )}
-        </div>
-      </header>
+          )
+        }
+      />
 
       {/* Conteúdo */}
       <main style={{ flex: 1, overflow: "hidden" }}>

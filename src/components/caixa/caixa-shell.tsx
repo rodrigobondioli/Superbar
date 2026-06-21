@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Receipt, LayoutGrid, Clock, Package } from "lucide-react";
 import { CaixaTela } from "./caixa-tela";
+import { AppHeader } from "@/components/ui/app-header";
 import { abrirTurno, fecharTurno } from "@/lib/dashboard/turno-actions";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { MesaComStatus } from "@/lib/bartender/queries";
@@ -323,25 +324,8 @@ export function CaixaShell({
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header mobile */}
-        <div
-          className="lg:hidden"
-          style={{
-            height: 52, flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "0 20px",
-            borderBottom: "1px solid var(--border)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>{barNome}</span>
-            <span style={{
-              fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 4,
-              background: "color-mix(in srgb, var(--accent) 30%, transparent)",
-              color: "var(--accent-bright)", textTransform: "uppercase", letterSpacing: "0.04em",
-            }}>
-              Caixa
-            </span>
-          </div>
+        <div className="lg:hidden flex-shrink-0">
+          <AppHeader barNome={barNome} roleLabel="Caixa" />
         </div>
 
         {/* Tab content */}

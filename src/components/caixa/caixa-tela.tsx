@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, useCallback } from "react";
 import { registrarPagamento } from "@/lib/caixa/actions";
 import { createClient } from "@/lib/supabase/client";
+import { AppHeader } from "@/components/ui/app-header";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
@@ -527,32 +528,15 @@ export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedde
     <div style={{ display: "flex", flexDirection: "column", ...(embedded ? { height: "100%", overflowY: "auto" } : { minHeight: "100dvh" }) }}>
       {/* Header — oculto quando embedded (o shell externo fornece contexto) */}
       {!embedded && (
-        <div style={{
-          padding: "0 20px",
-          borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          position: "sticky", top: 0, zIndex: 10,
-          background: "var(--bg)",
-          height: 52, boxSizing: "border-box", flexShrink: 0,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, overflow: "hidden" }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {barNome}
-            </span>
-            <span style={{
-              fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 4,
-              background: "color-mix(in srgb, var(--accent) 30%, transparent)",
-              color: "var(--accent-bright)",
-              letterSpacing: "0.04em", textTransform: "uppercase",
-              flexShrink: 0,
-            }}>
-              Caixa
-            </span>
-          </div>
-          {/* ok token — semantic allowed in Caixa */}
-          {listaAtual.length === 0 && (
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ok)" }}>✓ Limpo</span>
-          )}
+        <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+          <AppHeader
+            barNome={barNome}
+            roleLabel="Caixa"
+            right={listaAtual.length === 0
+              ? <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ok)" }}>✓ Limpo</span>
+              : undefined
+            }
+          />
         </div>
       )}
 

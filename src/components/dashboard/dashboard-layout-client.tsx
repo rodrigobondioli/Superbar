@@ -6,6 +6,7 @@ import { Menu, X, MonitorSmartphone } from "lucide-react";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { AlertasBell } from "./alertas-bell";
 import { SettingsButton } from "./settings-button";
+import { AppHeader } from "@/components/ui/app-header";
 import type { BarRole, Bar } from "@/types/database";
 import type { AlertaEstoque } from "@/lib/dashboard/queries";
 
@@ -49,55 +50,38 @@ export function DashboardLayoutClient({
     <div className="flex flex-col" style={{ height: "100dvh", overflow: "hidden", background: "var(--bg)" }}>
 
       {/* ── Mobile header (lg:hidden) ── */}
-      <header
-        className="lg:hidden flex-shrink-0 flex items-center justify-between"
-        style={{
-          height: 52,
-          padding: "0 16px",
-          borderBottom: "1px solid var(--border)",
-          background: "var(--bg)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, overflow: "hidden" }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {barNome}
-          </span>
-          <span style={{
-            fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 4,
-            background: "color-mix(in srgb, var(--accent) 30%, transparent)",
-            color: "var(--accent-bright)",
-            letterSpacing: "0.04em", textTransform: "uppercase",
-            flexShrink: 0,
-          }}>
-            {ROLE_LABEL[role] ?? role}
-          </span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <AlertasBell alertas={alertas} />
-          <SettingsButton
-            bar={bar}
-            barId={barId}
-            userId={userId}
-            userNome={userNome}
-            userEmail={userEmail}
-            userAvatarUrl={userAvatarUrl}
-          />
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Abrir menu"
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 36, height: 36,
-              background: "none", border: "1px solid var(--border)",
-              borderRadius: 4, cursor: "pointer",
-              color: "var(--fg-muted)",
-            }}
-          >
-            <Menu style={{ width: 18, height: 18 }} strokeWidth={1.75} />
-          </button>
-        </div>
-      </header>
+      <div className="lg:hidden flex-shrink-0">
+        <AppHeader
+          barNome={barNome}
+          roleLabel={ROLE_LABEL[role] ?? role}
+          right={
+            <>
+              <AlertasBell alertas={alertas} />
+              <SettingsButton
+                bar={bar}
+                barId={barId}
+                userId={userId}
+                userNome={userNome}
+                userEmail={userEmail}
+                userAvatarUrl={userAvatarUrl}
+              />
+              <button
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Abrir menu"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 36, height: 36,
+                  background: "none", border: "1px solid var(--border)",
+                  borderRadius: 4, cursor: "pointer",
+                  color: "var(--fg-muted)",
+                }}
+              >
+                <Menu style={{ width: 18, height: 18 }} strokeWidth={1.75} />
+              </button>
+            </>
+          }
+        />
+      </div>
 
       {/* ── Body ── */}
       <div className="flex flex-1 overflow-hidden">
