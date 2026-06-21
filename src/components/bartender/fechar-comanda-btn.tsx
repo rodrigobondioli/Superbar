@@ -20,7 +20,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
         return;
       }
       setEstado("enviado");
-      setTimeout(() => router.push("/bartender"), 1500);
+      setTimeout(() => router.push("/garcom"), 1500);
     });
   };
 
@@ -69,7 +69,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
         transition: "opacity 150ms, background 150ms",
       }}
     >
-      {estado === "enviando" ? "Enviando..." : "Fechar e enviar →"}
+      {estado === "enviando" ? "Enviando..." : "Enviar conta → Caixa"}
     </button>
   );
 }

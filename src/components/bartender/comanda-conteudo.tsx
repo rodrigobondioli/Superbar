@@ -40,7 +40,7 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
         toast(result.error, "error");
         setCancelando(false);
       } else {
-        window.location.href = "/bartender";
+        window.location.href = "/garcom";
       }
     } catch {
       toast("Erro ao cancelar comanda.", "error");
@@ -71,28 +71,34 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
           <p style={{ fontSize: 13, color: "var(--fg-subtle)", textAlign: "center", paddingTop: 40, paddingBottom: 40 }}>
             Toque em um produto para adicionar à comanda.
           </p>
-        ) : (
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-            {itens.map((item) => {
-              const isRemoving = removingIds.has(item.ultimoItemId);
-              return (
-                <li
-                  key={item.produtoId}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    gap: 8, padding: "12px 0", borderBottom: "1px solid var(--border)",
-                    opacity: isRemoving ? 0.4 : 1, transition: "opacity 150ms",
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-                    <p style={{ fontSize: 14, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.produtoNome}
-                    </p>
-                    <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
-                      {currency.format(item.precoUnitario)} cada
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", flexShrink: 0, alignItems: "center", gap: 8 }}>
+        ) : (() => {
+          const emPreparo = itens.filter(i => i.pedidoStatus === "em_preparo");
+          const entregues = itens.filter(i => i.pedidoStatus === "entregue");
+          const semPedido = itens.filter(i => i.pedidoStatus === null);
+
+          const ItemLinha = ({ item }: { item: typeof itens[0] }) => {
+            const isRemoving = removingIds.has(item.ultimoItemId);
+            // Só permite remover itens ainda não enviados para produção
+            const podeSelecionarRemover = item.pedidoStatus === null;
+            return (
+              <li
+                key={`${item.produtoId}-${item.pedidoStatus}`}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  gap: 8, padding: "10px 0", borderBottom: "1px solid var(--border)",
+                  opacity: isRemoving ? 0.4 : 1, transition: "opacity 150ms",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+                  <p style={{ fontSize: 14, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {item.produtoNome}
+                  </p>
+                  <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
+                    {currency.format(item.precoUnitario)} cada
+                  </p>
+                </div>
+                <div style={{ display: "flex", flexShrink: 0, alignItems: "center", gap: 8 }}>
+                  {podeSelecionarRemover && (
                     <button
                       type="button"
                       aria-label={`Remover um ${item.produtoNome}`}
@@ -110,18 +116,37 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
                         ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" />
                         : <Minus style={{ width: 14, height: 14 }} strokeWidth={2} />}
                     </button>
-                    <span style={{ fontSize: 14, color: "var(--fg)", width: 20, textAlign: "center", fontFamily: "var(--font-mono)" }}>
-                      {item.quantidade}
-                    </span>
-                    <span style={{ fontSize: 14, color: "var(--fg)", fontFamily: "var(--font-mono)", width: 70, textAlign: "right" }}>
-                      {currency.format(item.precoTotal)}
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  )}
+                  {!podeSelecionarRemover && <div style={{ width: 32 }} />}
+                  <span style={{ fontSize: 14, color: "var(--fg)", width: 20, textAlign: "center", fontFamily: "var(--font-mono)" }}>
+                    {item.quantidade}
+                  </span>
+                  <span style={{ fontSize: 14, color: "var(--fg)", fontFamily: "var(--font-mono)", width: 70, textAlign: "right" }}>
+                    {currency.format(item.precoTotal)}
+                  </span>
+                </div>
+              </li>
+            );
+          };
+
+          const SecaoLabel = ({ label, cor }: { label: string; cor: string }) => (
+            <p style={{
+              fontSize: 10, fontWeight: 700, textTransform: "uppercase",
+              letterSpacing: "0.1em", color: cor, margin: "16px 0 4px",
+            }}>{label}</p>
+          );
+
+          return (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {emPreparo.length > 0 && <SecaoLabel label={`Em preparo · ${emPreparo.reduce((s,i)=>s+i.quantidade,0)}`} cor="var(--accent-bright)" />}
+              {emPreparo.map(item => <ItemLinha key={`${item.produtoId}-em_preparo`} item={item} />)}
+              {entregues.length > 0 && <SecaoLabel label={`Entregues · ${entregues.reduce((s,i)=>s+i.quantidade,0)}`} cor="var(--ok)" />}
+              {entregues.map(item => <ItemLinha key={`${item.produtoId}-entregue`} item={item} />)}
+              {semPedido.length > 0 && (emPreparo.length > 0 || entregues.length > 0) && <SecaoLabel label="No carrinho" cor="var(--fg-subtle)" />}
+              {semPedido.map(item => <ItemLinha key={`${item.produtoId}-null`} item={item} />)}
+            </ul>
+          );
+        })()}
       </div>
 
       {/* Footer */}

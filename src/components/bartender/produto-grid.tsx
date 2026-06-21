@@ -303,7 +303,7 @@ function CartBar({
               opacity: pending ? 0.7 : 1, transition: "background 0.2s", flexShrink: 0,
             }}
           >
-            {pending ? "Enviando..." : resultado ?? "Adicionar à comanda →"}
+            {pending ? "Enviando..." : resultado ?? "Enviar pedido →"}
           </button>
         </div>
       </div>

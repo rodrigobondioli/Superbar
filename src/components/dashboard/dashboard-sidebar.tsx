@@ -153,9 +153,9 @@ export function DashboardSidebar({ barNome, role, onNavigate, hideHeader, touchM
           ))}
         </div>
 
-        {/* Modo Bartender — CTA */}
+        {/* Modo Garçom — CTA */}
         <Link
-          href="/bartender"
+          href="/garcom"
           onClick={onNavigate}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",

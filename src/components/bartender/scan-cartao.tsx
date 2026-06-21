@@ -63,7 +63,7 @@ export function ScanCartao() {
     startTransition(async () => {
       const id = await buscarComandaPorCartao(v);
       if (id) {
-        router.push(`/bartender/${id}`);
+        router.push(`/garcom/${id}`);
       } else {
         setCardId(v);
         setResultado("nao_encontrado");

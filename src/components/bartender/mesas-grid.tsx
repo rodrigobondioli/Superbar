@@ -269,7 +269,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
         return (
           <Link
             key={c.id}
-            href={`/bartender/${c.id}`}
+            href={`/garcom/${c.id}`}
             style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "14px 16px", textDecoration: "none",
@@ -415,7 +415,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     try {
       const result = await abrirComanda(mesaId, n > 0 ? n : undefined, undefined, nome);
       if (result && "id" in result) {
-        window.location.href = `/bartender/${result.id}`;
+        window.location.href = `/garcom/${result.id}`;
       } else {
         const msg = (result && "error" in result) ? result.error : "Não foi possível abrir a comanda.";
         setOpenError(msg);

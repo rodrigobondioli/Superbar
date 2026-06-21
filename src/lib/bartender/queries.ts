@@ -137,13 +137,15 @@ export interface ItemComanda {
   quantidade: number;
   precoUnitario: number;
   precoTotal: number;
+  /** null = item adicionado sem pedido ainda (adicionarItem legado) */
+  pedidoStatus: "em_preparo" | "entregue" | null;
 }
 
 export async function getItensComanda(comandaId: string): Promise<ItemComanda[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("comanda_items")
-    .select("id, produto_id, preco_unitario, preco_total, variante_nome, produtos(nome)")
+    .select("id, produto_id, preco_unitario, preco_total, variante_nome, pedido_id, produtos(nome), pedidos(status)")
     .eq("comanda_id", comandaId)
     .eq("status", "ativo")
     .order("adicionado_em", { ascending: true })
@@ -153,11 +155,19 @@ export async function getItensComanda(comandaId: string): Promise<ItemComanda[]>
       preco_unitario: number;
       preco_total: number;
       variante_nome: string | null;
+      pedido_id: string | null;
       produtos: { nome: string } | null;
+      pedidos: { status: string } | null;
     }[]>();
 
   return (data ?? []).map((item) => {
     const nomeBase = item.produtos?.nome ?? "Produto";
+    const pedidoStatus: ItemComanda["pedidoStatus"] =
+      item.pedidos?.status === "entregue"
+        ? "entregue"
+        : item.pedido_id
+          ? "em_preparo"
+          : null;
     return {
       id: item.id,
       produtoId: item.produto_id,
@@ -165,6 +175,7 @@ export async function getItensComanda(comandaId: string): Promise<ItemComanda[]>
       quantidade: 1,
       precoUnitario: item.preco_unitario,
       precoTotal: item.preco_total,
+      pedidoStatus,
     };
   });
 }
@@ -176,23 +187,27 @@ export interface ItemAgrupado {
   precoUnitario: number;
   precoTotal: number;
   ultimoItemId: string;
+  pedidoStatus: "em_preparo" | "entregue" | null;
 }
 
+/** Agrupa itens por (produtoId, pedidoStatus) — mesmo produto em estados diferentes fica separado. */
 export function agruparItens(itens: ItemComanda[]): ItemAgrupado[] {
   const porProduto = new Map<string, ItemAgrupado>();
   for (const item of itens) {
-    const atual = porProduto.get(item.produtoId) ?? ({
+    const key = `${item.produtoId}::${item.pedidoStatus ?? "null"}`;
+    const atual = porProduto.get(key) ?? ({
       produtoId: item.produtoId,
       produtoNome: item.produtoNome,
       quantidade: 0,
       precoUnitario: item.precoUnitario,
       precoTotal: 0,
       ultimoItemId: item.id,
+      pedidoStatus: item.pedidoStatus,
     } satisfies ItemAgrupado);
     atual.quantidade += 1;
     atual.precoTotal += item.precoTotal;
     atual.ultimoItemId = item.id;
-    porProduto.set(item.produtoId, atual);
+    porProduto.set(key, atual);
   }
   return [...porProduto.values()];
 }

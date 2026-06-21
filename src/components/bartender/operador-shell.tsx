@@ -97,10 +97,11 @@ function destinoPorRole(role: string): string | null {
 
 // ─── Shell principal ──────────────────────────────────────────────────────────
 export function OperadorShell({
-  membros, barNome, children,
+  membros, barNome, roleLabel = "Operador", children,
 }: {
   membros: MembroSimples[];
   barNome: string;
+  roleLabel?: string;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -145,7 +146,7 @@ export function OperadorShell({
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <AppHeader
         barNome={barNome}
-        roleLabel="Bartender"
+        roleLabel={roleLabel}
         right={
           operador ? (
             <>

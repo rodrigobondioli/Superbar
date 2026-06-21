@@ -83,7 +83,7 @@ export default function AceitarConvitePage() {
 
     // Redireciona pelo cargo
     const role = result.role;
-    if (role === "bartender" || role === "garcom") router.push("/bartender");
+    if (role === "bartender" || role === "garcom") router.push("/garcom");
     else if (role === "caixa") router.push("/caixa");
     else router.push("/dashboard");
   }

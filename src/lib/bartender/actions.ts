@@ -103,7 +103,7 @@ export async function adicionarItem(
     adicionado_por: current.userId,
   });
 
-  revalidatePath(`/bartender/${comandaId}`);
+  revalidatePath(`/garcom/${comandaId}`);
 }
 
 export async function removerItem(itemId: string, comandaId: string) {
@@ -120,7 +120,7 @@ export async function removerItem(itemId: string, comandaId: string) {
     .eq("id", itemId)
     .eq("status", "ativo");
 
-  revalidatePath(`/bartender/${comandaId}`);
+  revalidatePath(`/garcom/${comandaId}`);
 }
 
 export async function fecharComanda(comandaId: string) {
@@ -136,8 +136,9 @@ export async function fecharComanda(comandaId: string) {
 
   if (error) return { error: "Erro ao fechar comanda." };
 
+  revalidatePath("/caixa");
   revalidatePath("/dashboard/caixa");
-  revalidatePath("/bartender");
+  revalidatePath("/garcom");
   return { ok: true };
 }
 
@@ -156,7 +157,7 @@ export async function cancelarComanda(
 
   if (error) return { error: "Erro ao cancelar comanda." };
 
-  revalidatePath("/bartender");
+  revalidatePath("/garcom");
   return { ok: true };
 }
 
@@ -231,7 +232,7 @@ export async function criarPedido(
   const { error: itemsErr } = await supabase.from("comanda_items").insert(rows);
   if (itemsErr) return { error: "Erro ao inserir itens." };
 
-  revalidatePath(`/bartender/${comandaId}`);
+  revalidatePath(`/garcom/${comandaId}`);
   return { ok: true, pedidoId: pedido.id };
 }
 

@@ -47,7 +47,7 @@ export default async function BartenderLayout({
   }
 
   return (
-    <OperadorShell membros={membros} barNome={current.bar.nome}>
+    <OperadorShell membros={membros} barNome={current.bar.nome} roleLabel="Garçom">
       {children}
     </OperadorShell>
   );

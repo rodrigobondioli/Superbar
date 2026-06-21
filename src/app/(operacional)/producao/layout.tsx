@@ -4,15 +4,17 @@ import { getCurrentBar } from "@/lib/dashboard/queries";
 import { OperadorShell } from "@/components/bartender/operador-shell";
 import type { MembroSimples } from "@/components/bartender/operador-shell";
 
-export default async function CaixaLayout({
+export default async function ProducaoLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login");
 
   const current = await getCurrentBar();
-  if (!current) redirect("/login");
+  if (!current) redirect("/onboarding");
 
   const { data: rows } = await supabase
     .from("bar_members")
@@ -41,7 +43,7 @@ export default async function CaixaLayout({
   }
 
   return (
-    <OperadorShell membros={membros} barNome={current.bar.nome} roleLabel="Caixa">
+    <OperadorShell membros={membros} barNome={current.bar.nome} roleLabel="Produção">
       {children}
     </OperadorShell>
   );
