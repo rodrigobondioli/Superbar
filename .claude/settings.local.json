@@ -54,7 +54,8 @@
       "Bash(git -C /Users/rodrigobondioli/Developer/Superbar commit -m \"fix: redireciona app.superbar.com.br/ para /login\")",
       "Bash(git -C /Users/rodrigobondioli/Developer/Superbar push)",
       "Bash(git -C /Users/rodrigobondioli/Developer/Superbar status --short)",
-      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar log origin/main..HEAD --oneline)"
+      "Bash(git -C /Users/rodrigobondioli/Developer/Superbar log origin/main..HEAD --oneline)",
+      "Bash(npm uninstall *)"
     ]
   }
 }
