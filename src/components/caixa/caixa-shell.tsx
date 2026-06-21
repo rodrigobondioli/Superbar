@@ -24,53 +24,75 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 // ─── Tab: Mesas ───────────────────────────────────────────────────────────────
 
 function TabMesas({ mesas }: { mesas: MesaComStatus[] }) {
-  const livre           = mesas.filter(m => !m.comanda).length;
-  const aberta          = mesas.filter(m => m.comanda?.status === "aberta").length;
-  const aguardando      = mesas.filter(m => m.comanda?.status === "aguardando_pagamento").length;
+  const livreCount      = mesas.filter(m => !m.comanda).length;
+  const abertaCount     = mesas.filter(m => m.comanda?.status === "aberta").length;
+  const aguardandoCount = mesas.filter(m => m.comanda?.status === "aguardando_pagamento").length;
+  const totalOcupadas   = abertaCount + aguardandoCount;
 
   return (
     <div style={{ padding: "20px 20px 32px", overflowY: "auto", height: "100%" }}>
-      {/* Resumo */}
-      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-        {[
-          { label: "Livres",     count: livre,       color: "var(--fg-subtle)" },
-          { label: "Abertas",    count: aberta,      color: "var(--ok)" },
-          { label: "Quer pagar", count: aguardando,  color: "var(--danger)" },
-        ].map(s => (
-          <div key={s.label} style={{
-            flex: 1, textAlign: "center", padding: "12px 8px",
-            background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-            borderRadius: 8, border: "1px solid var(--border)",
-          }}>
-            <p style={{ fontSize: 22, fontWeight: 800, color: s.color, margin: 0, fontFamily: "var(--font-mono)" }}>{s.count}</p>
-            <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "3px 0 0", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</p>
-          </div>
-        ))}
+
+      {/* Header */}
+      <div style={{ marginBottom: 20 }}>
+        <p style={{ fontSize: 10, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 5px" }}>
+          Mesas
+        </p>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <p style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)", letterSpacing: "-0.3px" }}>
+            {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
+          </p>
+          {aguardandoCount > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600,
+              padding: "2px 9px", borderRadius: 20,
+              background: "color-mix(in srgb, #9333EA 18%, transparent)",
+              border: "1px solid color-mix(in srgb, #9333EA 35%, transparent)",
+              color: "color-mix(in srgb, #C084FC 90%, white)",
+            }}>
+              {aguardandoCount} aguardando
+            </span>
+          )}
+          {livreCount > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600,
+              padding: "2px 9px", borderRadius: 20,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.35)",
+            }}>
+              {livreCount} livre{livreCount > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Grid de mesas */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 8 }}>
+      {/* Grid compacto de mesas */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: 8 }}>
         {mesas.map(({ mesa, comanda }) => {
           const status = !comanda ? "livre" : comanda.status;
+          const isAguardando = status === "aguardando_pagamento";
+          const isAberta     = status === "aberta";
+
           const bg =
-            status === "aguardando_pagamento" ? "color-mix(in srgb, var(--danger) 15%, transparent)" :
-            status === "aberta"               ? "color-mix(in srgb, var(--ok) 12%, transparent)" :
-                                               "color-mix(in srgb, var(--fg) 5%, transparent)";
-          const cor =
-            status === "aguardando_pagamento" ? "var(--danger)" :
-            status === "aberta"               ? "var(--ok)" :
-                                               "var(--fg-subtle)";
+            isAguardando ? "color-mix(in srgb, #9333EA 20%, transparent)" :
+            isAberta     ? "color-mix(in srgb, #8B5CF6 13%, transparent)" :
+                           "rgba(255,255,255,0.05)";
+          const border =
+            isAguardando ? "1.5px solid color-mix(in srgb, #9333EA 50%, transparent)" :
+            isAberta     ? "1px solid color-mix(in srgb, #8B5CF6 25%, transparent)" :
+                           "1px solid rgba(255,255,255,0.10)";
+          const labelColor =
+            isAguardando ? "#C084FC" :
+            isAberta     ? "rgba(255,255,255,0.8)" :
+                           "rgba(255,255,255,0.3)";
+
           return (
-            <div key={mesa.id} style={{
-              background: bg, borderRadius: 8,
-              border: `1px solid ${status === "livre" ? "var(--border)" : cor}`,
-              padding: "10px 6px", textAlign: "center",
-            }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: cor, margin: 0, fontFamily: "var(--font-mono)" }}>
+            <div key={mesa.id} style={{ background: bg, borderRadius: 8, border, padding: "10px 8px", textAlign: "center" }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: labelColor, margin: 0, lineHeight: 1.2 }}>
                 {mesa.nome ?? mesa.numero}
               </p>
               {comanda && (
-                <p style={{ fontSize: 10, color: cor, margin: "3px 0 0", fontFamily: "var(--font-mono)" }}>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", margin: "5px 0 0", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {currency.format(comanda.total)}
                 </p>
               )}
