@@ -2,6 +2,7 @@ import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { getComandasPendentes } from "@/lib/caixa/queries";
 import { CaixaComandas } from "@/components/caixa/caixa-comandas";
+import { TurnoControles } from "@/components/dashboard/turno-controles";
 
 export default async function CaixaPage() {
   const current = await getCurrentBar();
@@ -16,9 +17,9 @@ export default async function CaixaPage() {
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>Caixa</h1>
         <EmptyState
           icon="🔒"
-          title="Nenhum turno aberto"
-          description="A caixa fica disponível durante o turno. Pagamentos e comandas aparecem aqui em tempo real."
-          action={<EmptyStateButton href="/dashboard/turnos">Abrir turno →</EmptyStateButton>}
+          title="Turno não iniciado"
+          description="Abra o turno para liberar a caixa e o bartender. Feche ao fim do atendimento para salvar os dados da noite."
+          action={<TurnoControles turnoAtual={null} />}
         />
       </div>
     );
@@ -39,13 +40,17 @@ export default async function CaixaPage() {
             Comandas aguardando pagamento
           </p>
         </div>
-        {/* ok token — semantic color in this page (caixa context) */}
-        <div style={{
-          background: "var(--ok-bg)", border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
-          borderRadius: 8, padding: "10px 16px", textAlign: "right",
-        }}>
-          <p style={{ fontSize: 11, color: "var(--ok)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>Pendentes</p>
-          <p style={{ fontSize: 28, fontWeight: 700, color: "var(--fg)", margin: "4px 0 0", fontFamily: "var(--font-mono)" }}>{comandas.length}</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Fechar turno */}
+          <TurnoControles turnoAtual={turno} />
+          {/* Contador de pendentes */}
+          <div style={{
+            background: "var(--ok-bg)", border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
+            borderRadius: 8, padding: "10px 16px", textAlign: "right",
+          }}>
+            <p style={{ fontSize: 11, color: "var(--ok)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>Pendentes</p>
+            <p style={{ fontSize: 28, fontWeight: 700, color: "var(--fg)", margin: "4px 0 0", fontFamily: "var(--font-mono)" }}>{comandas.length}</p>
+          </div>
         </div>
       </div>
 

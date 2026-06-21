@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getTurnos } from "@/lib/dashboard/turnos";
-import { TurnoControles } from "@/components/dashboard/turno-controles";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -49,7 +48,6 @@ export default async function TurnosPage() {
             Registro de todos os turnos abertos e fechados.
           </p>
         </div>
-        <TurnoControles turnoAtual={turnoAtual} />
       </div>
 
       {/* Table card — 4 colunas no mobile, 7 no sm+ */}
@@ -118,7 +116,11 @@ export default async function TurnosPage() {
                     icon="🕐"
                     title="Nenhum turno ainda"
                     description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
-                    action={!turnoAtual ? <TurnoControles turnoAtual={null} /> : undefined}
+                    action={
+                      <a href="/dashboard/caixa" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none" }}>
+                        O caixa abre o turno pela página de Caixa →
+                      </a>
+                    }
                   />
                 </td>
               </tr>

@@ -98,12 +98,12 @@ export default async function DashboardPage() {
 
           {/* Título contextual */}
           <h2 style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
-            {passos.nTurnos === 0 ? "Vamos configurar seu bar" : "Nenhum turno aberto"}
+            {passos.nTurnos === 0 ? "Vamos configurar seu bar" : "Aguardando início do turno"}
           </h2>
           <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 28px", textAlign: "center", lineHeight: 1.6 }}>
             {passos.nTurnos === 0
-              ? "Complete os passos abaixo antes de abrir o primeiro turno."
-              : "Abra um turno para começar a operação e ver os dados ao vivo."}
+              ? "Complete os passos abaixo. Quando tudo estiver pronto, peça ao caixa para abrir o primeiro turno."
+              : "O caixa abre o turno pelo painel de Caixa antes de iniciar o atendimento."}
           </p>
 
           {/* Checklist — só aparece no primeiro acesso */}
@@ -130,57 +130,53 @@ export default async function DashboardPage() {
                   </div>
 
                   {/* Label */}
-                  <span style={{
-                    flex: 1, fontSize: 13,
-                    color: step.done ? "var(--fg-muted)" : "var(--fg)",
-                    textDecoration: step.done ? "none" : "none",
-                  }}>
+                  <span style={{ flex: 1, fontSize: 13, color: step.done ? "var(--fg-muted)" : "var(--fg)" }}>
                     {step.label}
                   </span>
 
                   {/* CTA */}
                   {step.href && !step.done && (
-                    <a
-                      href={step.href}
-                      style={{
-                        fontSize: 12, fontWeight: 600,
-                        color: "var(--accent-bright)",
-                        textDecoration: "none",
-                        whiteSpace: "nowrap",
-                        flexShrink: 0,
-                      }}
-                    >
+                    <a href={step.href} style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
                       Configurar →
                     </a>
                   )}
                 </div>
               ))}
+
+              {/* Último passo: abrir turno — informativo, link para Caixa */}
+              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px" }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                  background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+                  border: "1.5px solid var(--border)",
+                }} />
+                <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>
+                  Peça ao caixa para abrir o primeiro turno
+                </span>
+                <a href="/dashboard/caixa" style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
+                  Ver Caixa →
+                </a>
+              </div>
             </div>
           )}
 
-          {/* CTA principal */}
-          <a
-            href="/dashboard/turnos"
-            style={{
-              display: "block", textAlign: "center",
-              padding: "14px 24px",
-              background: tudo_pronto || passos.nTurnos > 0 ? "var(--accent)" : "color-mix(in srgb, var(--accent) 40%, var(--bg-elevated))",
-              color: "var(--accent-fg)",
-              borderRadius: "6px",
-              fontSize: "14px", fontWeight: 700,
-              textDecoration: "none",
-              letterSpacing: "0.01em",
-              border: tudo_pronto || passos.nTurnos > 0 ? "none" : "1px solid var(--border)",
-              cursor: "pointer",
-            }}
-          >
-            {passos.nTurnos === 0 ? "Abrir primeiro turno →" : "Abrir turno →"}
-          </a>
-
-          {passos.nTurnos === 0 && !tudo_pronto && (
-            <p style={{ fontSize: 11, color: "var(--fg-subtle)", textAlign: "center", marginTop: 10, lineHeight: 1.5 }}>
-              Você pode abrir o turno agora, mas complete o cardápio e as mesas antes da primeira noite.
-            </p>
+          {/* Retorno: link informativo para Caixa */}
+          {passos.nTurnos > 0 && (
+            <a
+              href="/dashboard/caixa"
+              style={{
+                display: "block", textAlign: "center",
+                padding: "14px 24px",
+                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+                color: "var(--fg-muted)",
+                borderRadius: "6px",
+                fontSize: "13px", fontWeight: 600,
+                textDecoration: "none",
+                border: "1px solid var(--border)",
+              }}
+            >
+              Ir para Caixa →
+            </a>
           )}
         </div>
       </div>
