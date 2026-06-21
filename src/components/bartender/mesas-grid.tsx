@@ -193,8 +193,8 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onNovaComan
           borderTop: "1px solid var(--border)",
           padding: "9px 14px",
           fontSize: 12, fontWeight: 600,
-          color: "var(--accent)",
-          background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+          color: "var(--fg-muted)",
+          background: "color-mix(in srgb, var(--fg) 4%, transparent)",
         }}>
           + Abrir comanda
         </div>
@@ -343,7 +343,8 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
   // Modal de quantas pessoas (nova comanda)
   const [pendingAbrir, setPendingAbrir] = useState<{ mesaId: string | null; label: string } | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isOpening, setIsOpening] = useState(false);
+  const [, startTransition] = useTransition();
 
   // ── Realtime — comandas ───────────────────────────────────────────────────
   useEffect(() => {
@@ -436,14 +437,17 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     startTransition(async () => { await atenderChamada(chamadaId); });
   };
 
-  const handleConfirmarPessoas = (n: number, nome?: string) => {
+  const handleConfirmarPessoas = async (n: number, nome?: string) => {
     if (!pendingAbrir) return;
     const { mesaId } = pendingAbrir;
     setPendingAbrir(null);
-    startTransition(async () => {
+    setIsOpening(true);
+    try {
       const result = await abrirComanda(mesaId, n > 0 ? n : undefined, undefined, nome);
       if (result?.id) router.push(`/bartender/${result.id}`);
-    });
+    } finally {
+      setIsOpening(false);
+    }
   };
 
   // ── Construir entradas ────────────────────────────────────────────────────
@@ -614,7 +618,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           label={pendingAbrir.label}
           onConfirm={handleConfirmarPessoas}
           onClose={() => setPendingAbrir(null)}
-          isPending={isPending}
+          isPending={isOpening}
         />
       )}
     </div>
