@@ -122,7 +122,7 @@ export default async function TurnosPage() {
                       Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui.
                     </p>
                     {!turnoAtual && (
-                      <TurnoControles barId={current.bar.id} turnoAtual={null} />
+                      <TurnoControles turnoAtual={null} />
                     )}
                   </div>
                 </td>
