@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, X, QrCode, Printer, GripVertical } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { criarMesa, editarMesa, removerMesa, reordenarMesas } from "@/lib/mesas/actions";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import type { Mesa } from "@/types/database";
 
 // ─── Shared styles ─────────────────────────────────────────────────────────────
@@ -569,27 +570,17 @@ export function MesasClient({ mesas, barId, mesasOcupadas, nextNumero }: MesasCl
         </div>
 
         {localMesas.length === 0 && (
-          <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-            <p style={{ fontSize: 28, margin: "0 0 14px" }}>🪑</p>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
-              Nenhuma mesa cadastrada
-            </p>
-            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
-              Cada mesa é um ponto de atendimento. O bartender vê exatamente essas opções ao abrir uma comanda.
-            </p>
-            <button
-              onClick={openCreate}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                background: "var(--accent)", color: "var(--accent-fg)", border: "none",
-                borderRadius: 4, padding: "10px 20px",
-                fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              <Plus style={{ width: 13, height: 13 }} />
-              Adicionar primeira mesa
-            </button>
-          </div>
+          <EmptyState
+            icon="🪑"
+            title="Nenhuma mesa cadastrada"
+            description="Cada mesa é um ponto de atendimento. O bartender vê exatamente essas opções ao abrir uma comanda."
+            action={
+              <EmptyStateButton onClick={openCreate}>
+                <Plus style={{ width: 13, height: 13 }} />
+                Adicionar primeira mesa
+              </EmptyStateButton>
+            }
+          />
         )}
 
         {localMesas.map((mesa, i) => (

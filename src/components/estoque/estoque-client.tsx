@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { registrarMovimento, atualizarMinimo, type EstoqueResult } from "@/lib/estoque/actions";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import type { ItemEstoque } from "@/lib/estoque/queries";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -397,30 +398,12 @@ export function EstoqueClient({ itens }: { itens: ItemEstoque[] }) {
 
   if (itens.length === 0) {
     return (
-      <div style={{
-        background: "var(--bg-elevated)", border: "1px solid var(--border)",
-        borderRadius: 4, padding: "56px 24px", textAlign: "center",
-        display: "flex", flexDirection: "column", alignItems: "center",
-      }}>
-        <p style={{ fontSize: 28, margin: "0 0 14px" }}>📦</p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
-          Nenhum produto com estoque ativo
-        </p>
-        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 300 }}>
-          Ative o controle de estoque em cada produto no Cardápio para monitorar quantidade e receber alertas de mínimo.
-        </p>
-        <a
-          href="/dashboard/cardapio"
-          style={{
-            display: "inline-block", padding: "10px 20px",
-            background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-            border: "1px solid var(--border)", borderRadius: 4,
-            fontSize: 13, fontWeight: 600, color: "var(--fg-muted)", textDecoration: "none",
-          }}
-        >
-          Ir para o Cardápio →
-        </a>
-      </div>
+      <EmptyState
+        icon="📦"
+        title="Nenhum produto com estoque ativo"
+        description="Ative o controle de estoque em cada produto no Cardápio para monitorar quantidade e receber alertas de mínimo."
+        action={<EmptyStateButton variant="secondary" href="/dashboard/cardapio">Ir para o Cardápio →</EmptyStateButton>}
+      />
     );
   }
 

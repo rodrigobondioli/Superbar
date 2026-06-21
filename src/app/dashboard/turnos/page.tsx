@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getTurnos } from "@/lib/dashboard/turnos";
 import { TurnoControles } from "@/components/dashboard/turno-controles";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
@@ -113,18 +114,12 @@ export default async function TurnosPage() {
             {turnos.length === 0 && (
               <tr>
                 <td colSpan={7}>
-                  <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                    <p style={{ fontSize: 28, margin: "0 0 14px" }}>🕐</p>
-                    <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
-                      Nenhum turno ainda
-                    </p>
-                    <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
-                      Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui.
-                    </p>
-                    {!turnoAtual && (
-                      <TurnoControles turnoAtual={null} />
-                    )}
-                  </div>
+                  <EmptyState
+                    icon="🕐"
+                    title="Nenhum turno ainda"
+                    description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
+                    action={!turnoAtual ? <TurnoControles turnoAtual={null} /> : undefined}
+                  />
                 </td>
               </tr>
             )}

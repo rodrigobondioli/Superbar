@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { getComandasPendentes } from "@/lib/caixa/queries";
 import { CaixaComandas } from "@/components/caixa/caixa-comandas";
 
@@ -14,28 +14,12 @@ export default async function CaixaPage() {
     return (
       <div className="py-6 lg:px-10 lg:py-8">
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>Caixa</h1>
-        <div style={{
-          marginTop: 32, background: "var(--bg-elevated)", borderRadius: 8, border: "1px solid var(--border)",
-          padding: "56px 32px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center",
-        }}>
-          <p style={{ fontSize: 28, margin: "0 0 14px" }}>🔒</p>
-          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
-            Nenhum turno aberto
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.6, maxWidth: 280 }}>
-            A caixa fica disponível durante o turno. Pagamentos e comandas aparecem aqui em tempo real.
-          </p>
-          <Link
-            href="/dashboard/turnos"
-            style={{
-              display: "inline-block", padding: "10px 20px",
-              background: "var(--accent)", color: "var(--accent-fg)",
-              borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: "none",
-            }}
-          >
-            Abrir turno →
-          </Link>
-        </div>
+        <EmptyState
+          icon="🔒"
+          title="Nenhum turno aberto"
+          description="A caixa fica disponível durante o turno. Pagamentos e comandas aparecem aqui em tempo real."
+          action={<EmptyStateButton href="/dashboard/turnos">Abrir turno →</EmptyStateButton>}
+        />
       </div>
     );
   }
