@@ -251,7 +251,9 @@ export interface Pagamento {
   comanda_id: string;
   bar_id: string;
   turno_id: string;
-  valor: number;
+  valor: number;               // total BASE da comanda (sem taxa de serviço)
+  taxa_servico_pct: number | null;   // ex: 10 (= 10%) — null se não cobrado
+  taxa_servico_valor: number | null; // valor em R$ da taxa — null se não cobrado
   metodo: PagamentoMetodo;
   status: PagamentoStatus;
   referencia: string | null;

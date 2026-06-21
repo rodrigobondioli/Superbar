@@ -19,11 +19,18 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
   const [isPending, startTransition] = useTransition();
   const [pago, setPago] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [incluirServico, setIncluirServico] = useState(true);
+
+  const servicoPct   = 10;
+  const servicoValor = Math.round(comanda.total * (servicoPct / 100) * 100) / 100;
+  const totalFinal   = incluirServico ? comanda.total + servicoValor : comanda.total;
 
   const pagar = (metodo: PagamentoMetodo) => {
     setError(null);
+    // Cortesia nunca aplica serviço
+    const servico = metodo === "cortesia" ? false : incluirServico;
     startTransition(async () => {
-      const result = await registrarPagamento(comanda.id, metodo);
+      const result = await registrarPagamento(comanda.id, metodo, servico);
       if (result && "error" in result) {
         setError(result.error as string);
       } else {
@@ -37,7 +44,6 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
 
   if (pago) {
     return (
-      /* ok token — semantic allowed in Caixa */
       <div style={{
         background: "var(--ok-bg)", border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
         borderRadius: 8, padding: "20px 24px",
@@ -49,7 +55,7 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
           <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "4px 0 0" }}>Pagamento registrado</p>
         </div>
         <p style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>
-          {currency.format(comanda.total)}
+          {currency.format(totalFinal)}
         </p>
       </div>
     );
@@ -60,30 +66,19 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
       background: "color-mix(in srgb, var(--fg) 4%, transparent)", border: "1px solid var(--border)",
       borderRadius: 8, overflow: "hidden",
     }}>
-      {/* Header */}
-      <div style={{
-        padding: "16px 20px", borderBottom: "1px solid var(--border)",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{comanda.mesa}</p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>Aberta há {tempo}</p>
-          </div>
+      {/* Header: mesa + tempo */}
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{comanda.mesa}</p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>Aberta há {tempo}</p>
         </div>
-        <p style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: 0, fontFamily: "var(--font-mono)" }}>
-          {currency.format(comanda.total)}
-        </p>
       </div>
 
       {/* Itens */}
       {comanda.itens.length > 0 && (
         <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--border)" }}>
           {comanda.itens.map((item, i) => (
-            <div key={i} style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "5px 0",
-            }}>
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0" }}>
               <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
                 <span style={{ color: "var(--fg-subtle)", marginRight: 8 }}>{item.quantidade}×</span>
                 {item.nome}
@@ -96,11 +91,64 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
         </div>
       )}
 
+      {/* Breakdown de valores */}
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+        {/* Subtotal */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Subtotal</span>
+          <span style={{ fontSize: 13, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
+            {currency.format(comanda.total)}
+          </span>
+        </div>
+
+        {/* Taxa de serviço com toggle */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setIncluirServico(v => !v)}
+              aria-pressed={incluirServico}
+              style={{
+                width: 36, height: 20, borderRadius: 10, border: "none",
+                background: incluirServico
+                  ? "color-mix(in srgb, var(--accent) 80%, transparent)"
+                  : "rgba(255,255,255,0.12)",
+                position: "relative", cursor: "pointer", transition: "background 200ms",
+                padding: 0, flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: "absolute", top: 3, left: incluirServico ? 18 : 3,
+                width: 14, height: 14, borderRadius: "50%",
+                background: "#fff", transition: "left 200ms",
+              }} />
+            </button>
+            <span style={{ fontSize: 13, color: incluirServico ? "var(--fg)" : "var(--fg-subtle)" }}>
+              Serviço {servicoPct}%
+            </span>
+          </div>
+          <span style={{
+            fontSize: 13, fontFamily: "var(--font-mono)",
+            color: incluirServico ? "var(--fg-subtle)" : "rgba(255,255,255,0.2)",
+            transition: "color 200ms",
+          }}>
+            {currency.format(servicoValor)}
+          </span>
+        </div>
+
+        {/* Divisor + Total */}
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Total</span>
+          <span style={{ fontSize: 24, fontWeight: 800, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.4px" }}>
+            {currency.format(totalFinal)}
+          </span>
+        </div>
+      </div>
+
       {/* Métodos de pagamento */}
       <div style={{ padding: "16px 20px" }}>
-        {/* danger token — semantic allowed in Caixa */}
         {error && (
-          <p style={{ fontSize: 12, color: "var(--danger)", marginBottom: 10, margin: "0 0 10px" }}>
+          <p style={{ fontSize: 12, color: "var(--danger)", margin: "0 0 10px" }}>
             {error}
           </p>
         )}
@@ -116,7 +164,6 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "9px 16px", borderRadius: 8,
-                /* warn for cortesia, accent for rest — semantic allowed in Caixa */
                 background: m.key === "cortesia"
                   ? "color-mix(in srgb, var(--warn) 12%, transparent)"
                   : "color-mix(in srgb, var(--accent) 25%, transparent)",

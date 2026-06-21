@@ -8,6 +8,7 @@ import type { PagamentoMetodo } from "@/types/database";
 export async function registrarPagamento(
   comandaId: string,
   metodo: PagamentoMetodo,
+  incluirServico: boolean,
   motivo?: string,
 ) {
   const current = await getCurrentBar();
@@ -28,12 +29,21 @@ export async function registrarPagamento(
   if (!comanda) return { error: "Comanda não encontrada." };
   if (comanda.status !== "aguardando_pagamento") return { error: "Comanda não está aguardando pagamento." };
 
+  // Taxa de serviço (opcional — cortesia nunca aplica)
+  const aplicarServico = incluirServico && metodo !== "cortesia";
+  const servicoValor   = aplicarServico
+    ? Math.round(comanda.total * 0.10 * 100) / 100
+    : null;
+  const totalPago = comanda.total + (servicoValor ?? 0);
+
   // Insere pagamento
   await supabase.from("pagamentos").insert({
     comanda_id: comandaId,
     bar_id: current.bar.id,
     turno_id: turno.id,
     valor: comanda.total,
+    taxa_servico_pct:   aplicarServico ? 10 : null,
+    taxa_servico_valor: servicoValor,
     metodo,
     status: "confirmado",
     processado_por: current.userId,
@@ -46,10 +56,10 @@ export async function registrarPagamento(
     .update({ status: "paga" })
     .eq("id", comandaId);
 
-  // Atualiza totais do turno via RPC atômica (sem race condition)
+  // Atualiza totais do turno (inclui taxa de serviço no faturado)
   await supabase.rpc("incrementar_total_turno", {
     p_turno_id: turno.id,
-    p_valor: comanda.total,
+    p_valor: totalPago,
   });
 
   revalidatePath("/caixa");
