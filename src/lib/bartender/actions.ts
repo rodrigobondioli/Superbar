@@ -125,10 +125,14 @@ export async function removerItem(itemId: string, comandaId: string) {
 }
 
 export async function fecharComanda(comandaId: string) {
+  const current = await getCurrentBar();
+  if (!current) return { error: "Não autenticado." };
+
   const supabase = await createClient();
   const { error } = await supabase.from("comandas")
     .update({ status: "aguardando_pagamento", fechada_em: new Date().toISOString() })
     .eq("id", comandaId)
+    .eq("bar_id", current.bar.id)
     .eq("status", "aberta");
 
   if (error) return { error: "Erro ao fechar comanda." };
@@ -139,26 +143,34 @@ export async function fecharComanda(comandaId: string) {
 }
 
 export async function cancelarComanda(comandaId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
   const supabase = await createClient();
   await supabase.from("comandas")
     .update({ status: "cancelada", fechada_em: new Date().toISOString() })
     .eq("id", comandaId)
+    .eq("bar_id", current.bar.id)
     .eq("status", "aberta");
 
   redirect("/bartender");
 }
 
-// kept for backwards compat
+// Usado por NovaComandaButton via form action — abre comanda de balcão (sem mesa)
 export async function criarComanda(formData: FormData) {
   return abrirComanda(null);
 }
 
 export async function atenderChamada(chamadaId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
   const supabase = await createClient();
   await supabase
     .from("chamadas")
     .update({ status: "atendida", atendida_em: new Date().toISOString() })
     .eq("id", chamadaId)
+    .eq("bar_id", current.bar.id)
     .eq("status", "pendente");
 }
 
@@ -221,20 +233,28 @@ export async function criarPedido(
 
 /** Bartender inicia o preparo do pedido. */
 export async function iniciarPedido(pedidoId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
   const supabase = await createClient();
   await supabase
     .from("pedidos")
     .update({ status: "preparando", iniciado_em: new Date().toISOString() })
     .eq("id", pedidoId)
+    .eq("bar_id", current.bar.id)
     .eq("status", "recebido");
 }
 
 /** Bartender entrega o pedido — estado final. */
 export async function entregarPedido(pedidoId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
   const supabase = await createClient();
   await supabase
     .from("pedidos")
     .update({ status: "entregue", entregue_em: new Date().toISOString() })
     .eq("id", pedidoId)
+    .eq("bar_id", current.bar.id)
     .eq("status", "preparando");
 }

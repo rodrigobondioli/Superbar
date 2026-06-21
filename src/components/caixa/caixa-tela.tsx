@@ -8,20 +8,9 @@ import { AppHeader } from "@/components/ui/app-header";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
+import { METODOS, METODO_LABEL } from "@/lib/caixa/constants";
+
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-
-const METODOS: { key: PagamentoMetodo; label: string; icon: string }[] = [
-  { key: "pix",      label: "Pix",      icon: "⚡" },
-  { key: "debito",   label: "Débito",   icon: "💳" },
-  { key: "credito",  label: "Crédito",  icon: "💳" },
-  { key: "dinheiro", label: "Dinheiro", icon: "💵" },
-  { key: "cortesia", label: "Cortesia", icon: "🎁" },
-];
-
-const METODO_LABEL: Record<PagamentoMetodo, string> = {
-  pix: "Pix", debito: "Débito", credito: "Crédito",
-  dinheiro: "Dinheiro", cortesia: "Cortesia",
-};
 
 // ─── Insights bar ────────────────────────────────────────────────────────────
 
@@ -229,11 +218,12 @@ function CortesiaModal({
 // ─── Card de comanda ──────────────────────────────────────────────────────────
 
 function ComandaCard({
-  comanda, barNome, onPago,
+  comanda, barNome, onPago, taxaServicoPct = 10,
 }: {
   comanda: ComandaPendente;
   barNome: string;
   onPago: (metodo: PagamentoMetodo) => void;
+  taxaServicoPct?: number;
 }) {
   const [isPending, startTransition] = useTransition();
   const [pago, setPago] = useState(false);
@@ -241,9 +231,9 @@ function ComandaCard({
   const [error, setError] = useState<string | null>(null);
   const [showCortesia, setShowCortesia] = useState(false);
   const [cartaoAberto, setCartaoAberto] = useState(false);
-  const [incluirServico, setIncluirServico] = useState(true);
+  const [incluirServico, setIncluirServico] = useState(taxaServicoPct > 0);
 
-  const SERVICO_PCT  = 10;
+  const SERVICO_PCT  = taxaServicoPct;
   const servicoValor = Math.round(comanda.total * (SERVICO_PCT / 100) * 100) / 100;
   const totalFinal   = incluirServico ? comanda.total + servicoValor : comanda.total;
 
@@ -514,7 +504,7 @@ function notificarNovaMesa() {
 
 // ─── Shell principal ──────────────────────────────────────────────────────────
 
-export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedded = false }: {
+export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedded = false, taxaServicoPct = 10 }: {
   comandas: ComandaPendente[];
   insights: CaixaInsights;
   barNome: string;
@@ -522,6 +512,7 @@ export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedde
   turnoId: string;
   /** Quando true, renderiza dentro de um shell externo (sem minHeight, sem header próprio) */
   embedded?: boolean;
+  taxaServicoPct?: number;
 }) {
   const [listaAtual, setListaAtual] = useState(comandas);
   const [insightsAtual, setInsightsAtual] = useState(insights);
@@ -674,7 +665,7 @@ export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedde
           </div>
         ) : (
           listaFiltrada.map(c => (
-            <ComandaCard key={c.id} comanda={c} barNome={barNome} onPago={metodo => onPago(c, metodo)} />
+            <ComandaCard key={c.id} comanda={c} barNome={barNome} onPago={metodo => onPago(c, metodo)} taxaServicoPct={taxaServicoPct} />
           ))
         )}
       </div>

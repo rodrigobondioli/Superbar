@@ -19,30 +19,35 @@ export async function registrarPagamento(
 
   const supabase = await createClient();
 
-  // Busca a comanda
-  const { data: comanda } = await supabase.from("comandas")
-    .select("id, total, status")
-    .eq("id", comandaId)
-    .eq("bar_id", current.bar.id)
-    .maybeSingle() as { data: { id: string; total: number; status: string } | null };
+  // Atualiza status de forma atômica — elimina race condition de pagamento duplo.
+  // Se dois requests chegarem ao mesmo tempo, apenas o primeiro encontra
+  // status = "aguardando_pagamento"; o segundo recebe ok: false.
+  const { data: rpc } = await supabase
+    .rpc("marcar_comanda_paga", {
+      p_comanda_id: comandaId,
+      p_bar_id:     current.bar.id,
+    })
+    .single() as { data: { ok: boolean; total?: number } | null };
 
-  if (!comanda) return { error: "Comanda não encontrada." };
-  if (comanda.status !== "aguardando_pagamento") return { error: "Comanda não está aguardando pagamento." };
+  if (!rpc?.ok) return { error: "Comanda não encontrada ou já foi paga." };
 
-  // Taxa de serviço (opcional — cortesia nunca aplica)
+  const totalComanda = rpc.total ?? 0;
+
+  // Taxa de serviço — lê do bar, nunca hardcode
+  const taxaPct        = current.bar.configuracoes?.taxa_servico_pct ?? 10;
   const aplicarServico = incluirServico && metodo !== "cortesia";
   const servicoValor   = aplicarServico
-    ? Math.round(comanda.total * 0.10 * 100) / 100
+    ? Math.round(totalComanda * (taxaPct / 100) * 100) / 100
     : null;
-  const totalPago = comanda.total + (servicoValor ?? 0);
+  const totalPago = totalComanda + (servicoValor ?? 0);
 
   // Insere pagamento
   await supabase.from("pagamentos").insert({
     comanda_id: comandaId,
     bar_id: current.bar.id,
     turno_id: turno.id,
-    valor: comanda.total,
-    taxa_servico_pct:   aplicarServico ? 10 : null,
+    valor: totalComanda,
+    taxa_servico_pct:   aplicarServico ? taxaPct : null,
     taxa_servico_valor: servicoValor,
     metodo,
     status: "confirmado",
@@ -50,11 +55,6 @@ export async function registrarPagamento(
     processado_em: new Date().toISOString(),
     referencia: motivo ?? null,
   });
-
-  // Marca comanda como paga
-  await supabase.from("comandas")
-    .update({ status: "paga" })
-    .eq("id", comandaId);
 
   // Atualiza totais do turno (inclui taxa de serviço no faturado)
   await supabase.rpc("incrementar_total_turno", {

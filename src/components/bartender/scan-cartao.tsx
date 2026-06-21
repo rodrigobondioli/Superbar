@@ -149,7 +149,7 @@ export function ScanCartao() {
           flex: 1, display: "flex", alignItems: "center", gap: 10,
           background: "rgba(255,255,255,0.06)",
           border: "1px solid rgba(255,255,255,0.11)",
-          borderRadius: 10, padding: "0 14px", height: 48,
+          borderRadius: 8, padding: "0 14px", height: 48,
         }}>
           <span style={{ color: "rgba(255,255,255,0.28)", flexShrink: 0, display: "flex" }}>
             <IconSearch />
@@ -189,7 +189,7 @@ export function ScanCartao() {
               display: "flex", alignItems: "center", justifyContent: "center",
               background: "rgba(255,255,255,0.06)",
               border: "1px solid rgba(255,255,255,0.11)",
-              borderRadius: 10, cursor: "pointer",
+              borderRadius: 8, cursor: "pointer",
               color: "rgba(255,255,255,0.55)",
               WebkitTapHighlightColor: "transparent",
             }}
@@ -206,7 +206,7 @@ export function ScanCartao() {
             height: 48, padding: "0 20px", flexShrink: 0,
             background: input.trim() ? "var(--accent)" : "rgba(255,255,255,0.04)",
             border: "1px solid " + (input.trim() ? "transparent" : "rgba(255,255,255,0.08)"),
-            borderRadius: 10,
+            borderRadius: 8,
             cursor: input.trim() && !isPending ? "pointer" : "not-allowed",
             color: input.trim() ? "var(--accent-fg)" : "rgba(255,255,255,0.2)",
             fontSize: 14, fontWeight: 700,
@@ -224,7 +224,7 @@ export function ScanCartao() {
           padding: "14px 16px", marginBottom: 16,
           background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(255,255,255,0.10)",
-          borderRadius: 10, display: "flex", flexDirection: "column", gap: 12,
+          borderRadius: 8, display: "flex", flexDirection: "column", gap: 12,
         }}>
           <div>
             <p style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
@@ -289,7 +289,7 @@ export function ScanCartao() {
             <div style={{
               width: 220, height: 220, margin: "0 auto",
               border: "2.5px solid rgba(255,255,255,0.9)",
-              borderRadius: 16,
+              borderRadius: 8,
               boxShadow: "0 0 0 9999px rgba(0,0,0,0.50)",
             }} />
             <p style={{

@@ -274,7 +274,7 @@ function QRModal({ mesa, onClose }: { mesa: Mesa; onClose: () => void }) {
         <div style={{
           background: "var(--bg-elevated)",
           border: "1px solid var(--border)",
-          borderRadius: 10,
+          borderRadius: 8,
           padding: "28px 32px",
           display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
           pointerEvents: "all",

@@ -11,8 +11,8 @@ export default async function BartenderPage() {
   if (!turno) {
     return (
       <div style={{ display: "flex", height: "100%", alignItems: "center", justifyContent: "center", padding: 24 }}>
-        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 32, maxWidth: 400, textAlign: "center" }}>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", margin: 0 }}>
+        <div style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", borderRadius: 8, padding: 32, border: "1px solid var(--border)", maxWidth: 400, textAlign: "center" }}>
+          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: 0 }}>
             Nenhum turno aberto. Peça para o gerente abrir o turno.
           </p>
         </div>

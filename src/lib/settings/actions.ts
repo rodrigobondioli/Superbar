@@ -88,17 +88,27 @@ export async function atualizarConta(userId: string, formData: FormData): Promis
   return { ok: true };
 }
 
+export async function atualizarTaxaServico(barId: string, pct: number): Promise<ActionResult> {
+  const supabase = await createClient();
+  // merge_bar_config usa UPDATE ... SET configuracoes = configuracoes || patch
+  // — atômico, sem race condition com outros campos sendo salvos simultaneamente
+  const { error } = await supabase.rpc("merge_bar_config", {
+    p_bar_id: barId,
+    p_patch:  JSON.stringify({ taxa_servico_pct: pct }),
+  });
+  if (error) return { error: traduzirErro(error.message) };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/caixa");
+  return { ok: true };
+}
+
 export async function atualizarAutoPedido(barId: string, value: boolean): Promise<ActionResult> {
   const supabase = await createClient();
-
-  const { data: barAtual } = await supabase.from("bars")
-    .select("configuracoes")
-    .eq("id", barId)
-    .maybeSingle() as { data: { configuracoes: Record<string, unknown> } | null };
-
-  const configuracoes = { ...(barAtual?.configuracoes ?? {}), auto_pedido: value };
-
-  const { error } = await supabase.from("bars").update({ configuracoes }).eq("id", barId);
+  const { error } = await supabase.rpc("merge_bar_config", {
+    p_bar_id: barId,
+    p_patch:  JSON.stringify({ auto_pedido: value }),
+  });
   if (error) return { error: traduzirErro(error.message) };
 
   revalidatePath("/dashboard");

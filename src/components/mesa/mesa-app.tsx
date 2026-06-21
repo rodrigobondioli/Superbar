@@ -49,7 +49,7 @@ const IconReceipt = () => (
 const inpStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.07)",
   border: "1.5px solid rgba(255,255,255,0.14)",
-  borderRadius: 12, padding: "16px 18px",
+  borderRadius: 8, padding: "16px 18px",
   color: "var(--fg)", fontSize: 18, outline: "none",
   boxSizing: "border-box", width: "100%",
   transition: "border-color 150ms",
@@ -133,7 +133,7 @@ function TelaIdentificacao({
           onClick={abrir}
           disabled={!nome.trim() || isPending}
           style={{
-            padding: "18px", borderRadius: 12, border: "none",
+            padding: "18px", borderRadius: 8, border: "none",
             background: nome.trim() && !isPending ? "var(--accent)" : "rgba(255,255,255,0.08)",
             color: nome.trim() && !isPending ? "var(--accent-fg)" : "rgba(255,255,255,0.25)",
             fontSize: 16, fontWeight: 800,
@@ -220,7 +220,7 @@ function TelaRecuperacao({
           onClick={buscar}
           disabled={!telefone.trim() || isPending}
           style={{
-            padding: "18px", borderRadius: 12, border: "none",
+            padding: "18px", borderRadius: 8, border: "none",
             background: telefone.trim() && !isPending ? "var(--accent)" : "rgba(255,255,255,0.08)",
             color: telefone.trim() && !isPending ? "var(--accent-fg)" : "rgba(255,255,255,0.25)",
             fontSize: 16, fontWeight: 800,
@@ -369,7 +369,7 @@ function TelaAberta({
             <>
               {!mesa.bar.autoPedido && (
                 <div style={{
-                  padding: "14px 16px", borderRadius: 10, marginBottom: 20,
+                  padding: "14px 16px", borderRadius: 8, marginBottom: 20,
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   fontSize: 13, color: "var(--fg-subtle)", textAlign: "center",
@@ -391,7 +391,7 @@ function TelaAberta({
                       <div
                         key={p.id}
                         style={{
-                          padding: "14px 16px", borderRadius: 10,
+                          padding: "14px 16px", borderRadius: 8,
                           background: "rgba(255,255,255,0.04)",
                           border: "1px solid rgba(255,255,255,0.08)",
                           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
@@ -513,7 +513,7 @@ function TelaAberta({
           }}
           style={{
             display: "flex", alignItems: "center", gap: 10,
-            padding: "14px 28px", borderRadius: 50,
+            padding: "14px 28px", borderRadius: 8,
             background: chamando ? "var(--fg-subtle)" : "var(--fg)",
             color: chamando ? "var(--bg)" : "var(--bg)",
             border: "none", fontSize: 15, fontWeight: 800,

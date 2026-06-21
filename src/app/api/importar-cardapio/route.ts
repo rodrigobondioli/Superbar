@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { createClient } from "@/lib/supabase/server";
 import type { ProdutoPreview, ImportarResponse } from "@/lib/cardapio/import-types";
 
@@ -68,21 +68,71 @@ export async function POST(req: NextRequest) {
   const file = formData.get("arquivo") as File | null;
   if (!file) return NextResponse.json({ error: "Arquivo não enviado" }, { status: 400 });
 
+  const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json({ error: "Arquivo muito grande. Limite: 5 MB." }, { status: 413 });
+  }
+
   const ext = file.name.split(".").pop()?.toLowerCase();
-  if (!["xlsx", "xls", "csv"].includes(ext ?? "")) {
+  if (!["xlsx", "csv"].includes(ext ?? "")) {
     return NextResponse.json(
-      { error: "Formato não suportado. Use .xlsx, .xls ou .csv" },
+      { error: "Formato não suportado. Use .xlsx ou .csv" },
       { status: 400 }
     );
   }
 
-  // Parse
+  // Parse — exceljs para xlsx, parser manual para csv
   let rows: Record<string, unknown>[];
   try {
     const bytes = await file.arrayBuffer();
-    const workbook = XLSX.read(new Uint8Array(bytes), { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+
+    if (ext === "csv") {
+      const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) throw new Error("Sem dados");
+
+      // Parser simples que respeita campos entre aspas
+      const parseLine = (line: string): string[] => {
+        const result: string[] = [];
+        let inQuote = false;
+        let current = "";
+        for (const char of line) {
+          if (char === '"') { inQuote = !inQuote; continue; }
+          if (char === "," && !inQuote) { result.push(current.trim()); current = ""; continue; }
+          current += char;
+        }
+        result.push(current.trim());
+        return result;
+      };
+
+      const headers = parseLine(lines[0]);
+      rows = lines.slice(1)
+        .map(l => parseLine(l))
+        .filter(r => r.some(v => v.length > 0))
+        .map(r => {
+          const obj: Record<string, unknown> = {};
+          headers.forEach((h, i) => { if (h) obj[h] = r[i] ?? ""; });
+          return obj;
+        });
+    } else {
+      // xlsx — ExcelJS (sem CVEs conhecidos)
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(bytes);
+      const sheet = workbook.worksheets[0];
+
+      let headers: string[] = [];
+      rows = [];
+      sheet.eachRow((row, rowNumber) => {
+        const values = (row.values as (ExcelJS.CellValue | undefined)[]).slice(1);
+        if (rowNumber === 1) {
+          headers = values.map(v => (v != null ? String(v) : "").trim());
+        } else {
+          const obj: Record<string, unknown> = {};
+          headers.forEach((h, i) => { if (h) obj[h] = values[i] ?? null; });
+          if (Object.values(obj).some(v => v != null)) rows.push(obj);
+        }
+      });
+    }
   } catch {
     return NextResponse.json(
       { error: "Erro ao ler o arquivo. Verifique se não está corrompido." },

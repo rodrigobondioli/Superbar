@@ -30,6 +30,7 @@ interface DashboardLayoutClientProps {
   userAvatarUrl: string | null;
   alertas: AlertaEstoque[];
   autoPedido?: boolean;
+  taxaServicoPct?: number;
   children: React.ReactNode;
 }
 
@@ -44,6 +45,7 @@ export function DashboardLayoutClient({
   userAvatarUrl,
   alertas,
   autoPedido = false,
+  taxaServicoPct = 10,
   children,
 }: DashboardLayoutClientProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -67,6 +69,7 @@ export function DashboardLayoutClient({
                 userEmail={userEmail}
                 userAvatarUrl={userAvatarUrl}
                 autoPedido={autoPedido}
+                taxaServicoPct={taxaServicoPct}
               />
               <button
                 onClick={() => setDrawerOpen(true)}

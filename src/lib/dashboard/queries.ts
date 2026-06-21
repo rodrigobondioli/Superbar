@@ -84,20 +84,16 @@ export async function getAlertasEstoque(barId: string): Promise<AlertaEstoque[]>
     .from("estoque")
     .select("quantidade_atual, quantidade_minima, produtos(nome)")
     .eq("bar_id", barId)
+    .eq("abaixo_minimo", true)  // filtrado no banco via coluna gerada + índice parcial
     .returns<{ quantidade_atual: number; quantidade_minima: number; produtos: { nome: string } | null }[]>();
 
   if (!data) return [];
 
-  // quantidade_atual < quantidade_minima compara duas colunas — não dá pra
-  // expressar isso num filtro do PostgREST, então filtramos no app.
-  // Volume de estoque por bar é pequeno, então isso não é um problema de escala.
-  return data
-    .filter((row) => row.quantidade_atual < row.quantidade_minima)
-    .map((row) => ({
-      produtoNome: row.produtos?.nome ?? "Produto",
-      quantidadeAtual: row.quantidade_atual,
-      quantidadeMinima: row.quantidade_minima,
-    }));
+  return data.map((row) => ({
+    produtoNome: row.produtos?.nome ?? "Produto",
+    quantidadeAtual: row.quantidade_atual,
+    quantidadeMinima: row.quantidade_minima,
+  }));
 }
 
 export interface TopDrink {
@@ -278,7 +274,7 @@ export async function getLiveStats(barId: string, turnoId: string): Promise<Live
   return { mesas, drinks };
 }
 
-export async function getMetaMes(barId: string) {
+export async function getMetaMes(barId: string, metaMensalConfigurada?: number) {
   const supabase = await createClient()
   const agora = new Date()
 
@@ -310,8 +306,9 @@ export async function getMetaMes(barId: string) {
   const faturamentoAtual = (mesAtualResult.data ?? []).reduce((sum, t) => sum + (t.total_vendas ?? 0), 0)
   const faturamentoAnterior = (mesAnteriorResult.data ?? []).reduce((sum, t) => sum + (t.total_vendas ?? 0), 0)
 
-  // Goal = last month + 10% (or last month if no previous data)
-  const meta = faturamentoAnterior > 0 ? faturamentoAnterior * 1.1 : 5000
+  // Meta: usa valor configurado pelo dono; fallback = mês anterior + 10%
+  const meta = metaMensalConfigurada
+    ?? (faturamentoAnterior > 0 ? faturamentoAnterior * 1.1 : 5000)
   const progresso = meta > 0 ? Math.min((faturamentoAtual / meta) * 100, 100) : 0
   const falta = Math.max(meta - faturamentoAtual, 0)
 

@@ -13,10 +13,11 @@ interface SettingsButtonProps {
   userEmail: string;
   userAvatarUrl: string | null;
   autoPedido?: boolean;
+  taxaServicoPct?: number;
 }
 
 export function SettingsButton({
-  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false,
+  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10,
 }: SettingsButtonProps) {
   const [open, setOpen] = useState(false);
   const inicial = userNome.split(" ")[0].charAt(0).toUpperCase();
@@ -64,6 +65,7 @@ export function SettingsButton({
         userEmail={userEmail}
         userAvatarUrl={userAvatarUrl}
         autoPedido={autoPedido}
+        taxaServicoPct={taxaServicoPct}
       />
     </>
   );

@@ -6,6 +6,7 @@ export default async function CaixaPage() {
   const current = await getCurrentBar();
   if (!current) return null;
 
+  const taxaServicoPct = current.bar.configuracoes?.taxa_servico_pct ?? 10;
   const turno = await getTurnoAtual(current.bar.id);
 
   if (!turno) {
@@ -61,7 +62,7 @@ export default async function CaixaPage() {
           </p>
         </div>
       ) : (
-        <CaixaComandas comandas={comandas} />
+        <CaixaComandas comandas={comandas} taxaServicoPct={taxaServicoPct} />
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Building2, User, Target, Smartphone } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
-import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, type ActionResult } from "@/lib/settings/actions";
+import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, atualizarTaxaServico, type ActionResult } from "@/lib/settings/actions";
 import { signOut } from "@/lib/auth/actions";
 import type { Bar } from "@/types/database";
 
@@ -324,9 +324,12 @@ function MinhaConta({
 
 // ─── Operação Section ────────────────────────────────────────────────────────
 
-function OperacaoSection({ barId, autoPedido }: { barId: string; autoPedido: boolean }) {
-  const [enabled, setEnabled] = useState(autoPedido);
-  const [saving, setSaving]   = useState(false);
+function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string; autoPedido: boolean; taxaServicoPct: number }) {
+  const [enabled, setEnabled]       = useState(autoPedido);
+  const [saving, setSaving]         = useState(false);
+  const [taxa, setTaxa]             = useState(String(taxaServicoPct));
+  const [taxaSaving, setTaxaSaving] = useState(false);
+  const [taxaFeedback, setTaxaFeedback] = useState<ActionResult>(null);
 
   async function handleToggle() {
     const next = !enabled;
@@ -334,6 +337,19 @@ function OperacaoSection({ barId, autoPedido }: { barId: string; autoPedido: boo
     setSaving(true);
     await atualizarAutoPedido(barId, next);
     setSaving(false);
+  }
+
+  async function handleTaxaSave() {
+    const pct = parseFloat(taxa.replace(",", "."));
+    if (isNaN(pct) || pct < 0 || pct > 100) {
+      setTaxaFeedback({ error: "Informe um valor entre 0 e 100." });
+      return;
+    }
+    setTaxaSaving(true);
+    const result = await atualizarTaxaServico(barId, pct);
+    setTaxaFeedback(result);
+    setTaxaSaving(false);
+    setTimeout(() => setTaxaFeedback(null), 3000);
   }
 
   return (
@@ -395,6 +411,56 @@ function OperacaoSection({ barId, autoPedido }: { barId: string; autoPedido: boo
           }} />
         </button>
       </div>
+
+      {/* Taxa de serviço */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "14px 16px", marginTop: 10,
+        background: "var(--bg-inset)",
+        border: "1px solid var(--border)",
+        borderRadius: 6,
+        gap: 16,
+      }}>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: "0 0 3px" }}>
+            Taxa de serviço (%)
+          </p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
+            Aplicada opcionalmente no fechamento da comanda. Use 0 para desativar.
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={0.5}
+            value={taxa}
+            onChange={e => setTaxa(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleTaxaSave()}
+            style={{
+              ...inp,
+              width: 72, textAlign: "right",
+              padding: "8px 10px",
+            }}
+          />
+          <button
+            type="button"
+            onClick={handleTaxaSave}
+            disabled={taxaSaving}
+            style={{
+              padding: "8px 14px", borderRadius: 4, border: "none",
+              background: "var(--accent)", color: "var(--accent-fg)",
+              fontSize: 12, fontWeight: 700, cursor: taxaSaving ? "default" : "pointer",
+              opacity: taxaSaving ? 0.6 : 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {taxaSaving ? "..." : "Salvar"}
+          </button>
+        </div>
+      </div>
+      {taxaFeedback && <Feedback result={taxaFeedback} />}
     </section>
   );
 }
@@ -411,10 +477,11 @@ interface SettingsPanelProps {
   userEmail: string;
   userAvatarUrl: string | null;
   autoPedido?: boolean;
+  taxaServicoPct?: number;
 }
 
 export function SettingsPanel({
-  open, onClose, bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false,
+  open, onClose, bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10,
 }: SettingsPanelProps) {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -502,7 +569,7 @@ export function SettingsPanel({
           {/* Divider */}
           <div style={{ height: 1, background: "var(--border)" }} />
 
-          <OperacaoSection barId={barId} autoPedido={autoPedido} />
+          <OperacaoSection barId={barId} autoPedido={autoPedido} taxaServicoPct={taxaServicoPct} />
 
           {/* Divider */}
           <div style={{ height: 1, background: "var(--border)" }} />

@@ -60,7 +60,7 @@ function SeletorPessoas({
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         background: "var(--bg-elevated)", borderTop: "1px solid var(--border)",
-        borderRadius: "10px 10px 0 0", padding: "24px 24px 40px", zIndex: 51,
+        borderRadius: "8px 8px 0 0", padding: "24px 24px 40px", zIndex: 51,
       }}>
         <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 20px" }} />
         <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 4px" }}>
@@ -78,7 +78,7 @@ function SeletorPessoas({
                   height: 64, display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 22, fontWeight: 800, fontFamily: "var(--font-mono)",
                   background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-                  border: "1px solid var(--border)", borderRadius: 10,
+                  border: "1px solid var(--border)", borderRadius: 8,
                   cursor: isPending ? "not-allowed" : "pointer", color: "var(--fg)",
                   transition: "background 120ms", WebkitTapHighlightColor: "transparent",
                   opacity: isPending ? 0.5 : 1,
@@ -119,7 +119,7 @@ function SeletorPessoas({
               disabled={isPending}
               style={{
                 width: "100%", padding: "16px",
-                background: "var(--accent)", border: "none", borderRadius: 10,
+                background: "var(--accent)", border: "none", borderRadius: 8,
                 color: "var(--accent-fg)", fontSize: 15, fontWeight: 700,
                 cursor: isPending ? "not-allowed" : "pointer",
                 WebkitTapHighlightColor: "transparent",
@@ -317,6 +317,12 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   const [balcao, setBalcao] = useState<Comanda | null>(initialBalcao);
   // mesaId → chamadaId (para mesas com chamada pendente)
   const [chamadas, setChamadas] = useState<Map<string, string>>(new Map());
+  // Tick a cada 60s para atualizar os tempos "há X min"
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   // Modal de quantas pessoas (nova comanda)
   const [pendingAbrir, setPendingAbrir] = useState<{ mesaId: string | null; label: string } | null>(null);

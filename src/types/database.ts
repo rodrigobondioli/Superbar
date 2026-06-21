@@ -71,6 +71,7 @@ export interface Bar {
     meta_mensal?: number;
     meta_anual?: number;
     auto_pedido?: boolean;
+    taxa_servico_pct?: number;   // ex: 10 (= 10%) — 0 ou undefined = taxa desativada
   };
   ativo: boolean;
   created_at: string;

@@ -130,26 +130,6 @@ export async function getComandaById(comandaId: string): Promise<Comanda | null>
   return data ?? null;
 }
 
-// kept for backwards compat
-export async function getComandaAtual(
-  barId: string,
-  bartenderId: string,
-  turnoId: string
-): Promise<Comanda | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("comandas")
-    .select("*")
-    .eq("bar_id", barId)
-    .eq("bartender_id", bartenderId)
-    .eq("turno_id", turnoId)
-    .eq("status", "aberta")
-    .order("aberta_em", { ascending: false })
-    .limit(1)
-    .maybeSingle<Comanda>();
-  return data ?? null;
-}
-
 export interface ItemComanda {
   id: string;
   produtoId: string;

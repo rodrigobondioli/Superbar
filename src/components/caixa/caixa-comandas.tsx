@@ -5,23 +5,17 @@ import { registrarPagamento } from "@/lib/caixa/actions";
 import type { ComandaPendente } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
+import { METODOS } from "@/lib/caixa/constants";
+
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-const METODOS: { key: PagamentoMetodo; label: string; icon: string }[] = [
-  { key: "dinheiro", label: "Dinheiro", icon: "💵" },
-  { key: "debito",   label: "Débito",   icon: "💳" },
-  { key: "credito",  label: "Crédito",  icon: "💳" },
-  { key: "pix",      label: "Pix",      icon: "⚡" },
-  { key: "cortesia", label: "Cortesia", icon: "🎁" },
-];
-
-function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
+function ComandaCard({ comanda, taxaServicoPct = 10 }: { comanda: ComandaPendente; taxaServicoPct?: number }) {
   const [isPending, startTransition] = useTransition();
   const [pago, setPago] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [incluirServico, setIncluirServico] = useState(true);
+  const [incluirServico, setIncluirServico] = useState(taxaServicoPct > 0);
 
-  const servicoPct   = 10;
+  const servicoPct   = taxaServicoPct;
   const servicoValor = Math.round(comanda.total * (servicoPct / 100) * 100) / 100;
   const totalFinal   = incluirServico ? comanda.total + servicoValor : comanda.total;
 
@@ -187,11 +181,11 @@ function ComandaCard({ comanda }: { comanda: ComandaPendente }) {
   );
 }
 
-export function CaixaComandas({ comandas }: { comandas: ComandaPendente[] }) {
+export function CaixaComandas({ comandas, taxaServicoPct = 10 }: { comandas: ComandaPendente[]; taxaServicoPct?: number }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {comandas.map(c => (
-        <ComandaCard key={c.id} comanda={c} />
+        <ComandaCard key={c.id} comanda={c} taxaServicoPct={taxaServicoPct} />
       ))}
     </div>
   );

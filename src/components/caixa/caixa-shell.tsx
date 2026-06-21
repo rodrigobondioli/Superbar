@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Receipt, LayoutGrid, Clock, Package } from "lucide-react";
+import { Receipt, LayoutGrid, Clock } from "lucide-react";
 import { CaixaTela } from "./caixa-tela";
 import { AppHeader } from "@/components/ui/app-header";
 import { abrirTurno, fecharTurno } from "@/lib/dashboard/turno-actions";
@@ -11,16 +11,14 @@ import { imprimirConta } from "@/lib/caixa/print-conta";
 import { createClient } from "@/lib/supabase/client";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { MesaComStatus } from "@/lib/bartender/queries";
-import type { AlertaEstoque } from "@/lib/dashboard/queries";
 import type { Comanda, PagamentoMetodo, Turno } from "@/types/database";
 
-type Tab = "comandas" | "mesas" | "turno" | "estoque";
+type Tab = "comandas" | "mesas" | "turno";
 
 const TABS: { id: Tab; label: string; Icon: React.FC<{ style?: React.CSSProperties }> }[] = [
   { id: "comandas", label: "Comandas", Icon: ({ style }) => <Receipt style={style} strokeWidth={1.75} /> },
   { id: "mesas",    label: "Mesas",    Icon: ({ style }) => <LayoutGrid style={style} strokeWidth={1.75} /> },
   { id: "turno",    label: "Turno",    Icon: ({ style }) => <Clock style={style} strokeWidth={1.75} /> },
-  { id: "estoque",  label: "Estoque",  Icon: ({ style }) => <Package style={style} strokeWidth={1.75} /> },
 ];
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -62,22 +60,24 @@ function tempoAbertaCaixa(abertaEm: string) {
 type ItemAgrupado = { key: string; nome: string; qtd: number; total: number };
 
 function ComandaPagamentoSheet({
-  comanda, mesaLabel, barNome, onClose, onPago,
+  comanda, mesaLabel, barNome, taxaServicoPct, onClose, onPago,
 }: {
   comanda: Comanda;
   mesaLabel: string;
   barNome: string;
+  taxaServicoPct: number;
   onClose: () => void;
   onPago: () => void;
 }) {
   const [itens, setItens]             = useState<ItemAgrupado[]>([]);
   const [carregando, setCarregando]   = useState(true);
-  const [incluirServico, setIncluirServico] = useState(true);
+  const [incluirServico, setIncluirServico] = useState(taxaServicoPct > 0);
   const [isPending, startTransition]  = useTransition();
   const [pago, setPago]               = useState(false);
   const [metodoPago, setMetodoPago]   = useState<PagamentoMetodo | null>(null);
 
-  const servicoValor = Math.round(comanda.total * 0.10 * 100) / 100;
+  const taxaDecimal  = taxaServicoPct / 100;
+  const servicoValor = Math.round(comanda.total * taxaDecimal * 100) / 100;
   const totalFinal   = comanda.total + (incluirServico ? servicoValor : 0);
 
   // Carrega itens via Supabase client
@@ -126,7 +126,7 @@ function ComandaPagamentoSheet({
       itens: itens.map(it => ({ nome: it.nome, quantidade: it.qtd, preco_total: it.total })),
       subtotal: comanda.total,
       incluirServico: incluirServico && metodoPago !== "cortesia",
-      servicoPct: 10,
+      servicoPct: taxaServicoPct,
       servicoValor,
       totalFinal: pago ? totalFinal : totalFinal,
     });
@@ -147,7 +147,7 @@ function ComandaPagamentoSheet({
       linhasItens,
       ``,
       comServico ? `Subtotal: ${currency.format(comanda.total)}` : null,
-      comServico ? `Serviço (10%): ${currency.format(servicoValor)}` : null,
+      comServico ? `Serviço (${taxaServicoPct}%): ${currency.format(servicoValor)}` : null,
       `*Total: ${currency.format(totalFinal)}*`,
     ].filter(l => l !== null).join("\n");
 
@@ -265,7 +265,7 @@ function ComandaPagamentoSheet({
           {/* Serviço toggle */}
           {!pago && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, padding: "8px 0" }}>
-              <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Serviço 10%</span>
+              <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Serviço {taxaServicoPct}%</span>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 13, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
                   {currency.format(servicoValor)}
@@ -305,7 +305,7 @@ function ComandaPagamentoSheet({
           {pago ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{
-                padding: "14px 16px", borderRadius: 10, textAlign: "center",
+                padding: "14px 16px", borderRadius: 8, textAlign: "center",
                 background: "color-mix(in srgb, var(--ok) 12%, transparent)",
                 border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
                 color: "var(--ok)", fontSize: 15, fontWeight: 700,
@@ -314,7 +314,7 @@ function ComandaPagamentoSheet({
                   metodoPago === "credito" ? "Crédito" : metodoPago === "debito" ? "Débito" : "Cortesia"}
               </div>
               <button onClick={onPago} style={{
-                padding: "14px", borderRadius: 10, border: "none",
+                padding: "14px", borderRadius: 8, border: "none",
                 background: "var(--accent)", color: "var(--accent-fg)",
                 fontSize: 15, fontWeight: 700, cursor: "pointer",
               }}>
@@ -329,7 +329,7 @@ function ComandaPagamentoSheet({
                   onClick={() => !isPending && pagar(m.id)}
                   disabled={isPending}
                   style={{
-                    padding: "14px 8px", borderRadius: 10, border: "none",
+                    padding: "14px 8px", borderRadius: 8, border: "none",
                     background: m.id === "cortesia"
                       ? "rgba(255,255,255,0.05)"
                       : "var(--accent)",
@@ -378,19 +378,20 @@ function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string 
           </p>
           {aguardandoCount > 0 && (
             <span style={{
-              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 20,
-              background: "color-mix(in srgb, #9333EA 18%, transparent)",
-              border: "1px solid color-mix(in srgb, #9333EA 35%, transparent)",
-              color: "color-mix(in srgb, #C084FC 90%, white)",
+              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 4,
+              background: "var(--warn-bg)",
+              border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
+              color: "var(--warn)",
             }}>
               {aguardandoCount} aguardando
             </span>
           )}
           {livreCount > 0 && (
             <span style={{
-              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 20,
-              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.35)",
+              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 4,
+              background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+              border: "1px solid var(--border)",
+              color: "var(--fg-subtle)",
             }}>
               {livreCount} livre{livreCount > 1 ? "s" : ""}
             </span>
@@ -408,14 +409,14 @@ function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string 
           const maisAntiga    = comandas.reduce((a, b) => a.aberta_em < b.aberta_em ? a : b);
 
           const bg = hasAguardando
-            ? "color-mix(in srgb, #9333EA 12%, transparent)"
-            : "color-mix(in srgb, #8B5CF6 8%, transparent)";
+            ? "var(--warn-bg)"
+            : "color-mix(in srgb, var(--accent-bright) 9%, transparent)";
           const border = hasAguardando
-            ? "1.5px solid color-mix(in srgb, #9333EA 35%, transparent)"
-            : "1px solid color-mix(in srgb, #8B5CF6 18%, transparent)";
+            ? "1.5px solid color-mix(in srgb, var(--warn) 45%, transparent)"
+            : "1px solid color-mix(in srgb, var(--accent-bright) 22%, transparent)";
 
           return (
-            <div key={mesa.id} style={{ background: bg, border, borderRadius: 10, overflow: "hidden" }}>
+            <div key={mesa.id} style={{ background: bg, border, borderRadius: 8, overflow: "hidden" }}>
               {/* Cabeçalho da mesa */}
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -453,8 +454,8 @@ function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string 
                       {querPagar && (
                         <span style={{
                           fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
-                          background: "color-mix(in srgb, #9333EA 25%, transparent)",
-                          color: "#C084FC", textTransform: "uppercase" as const, letterSpacing: "0.06em",
+                          background: "var(--warn-bg)",
+                          color: "var(--warn)", textTransform: "uppercase" as const, letterSpacing: "0.06em",
                         }}>
                           Pagar
                         </span>
@@ -502,6 +503,7 @@ function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string 
           comanda={pagamentoAberto.comanda}
           mesaLabel={pagamentoAberto.mesaLabel}
           barNome={barNome}
+          taxaServicoPct={taxaServicoPct}
           onClose={() => setPagamentoAberto(null)}
           onPago={() => {
             setPagamentoAberto(null);
@@ -547,7 +549,7 @@ function TabTurno({ turno, barNome }: { turno: Turno | null; barNome: string }) 
     <div style={{ padding: "20px 20px 32px", overflowY: "auto", height: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Status */}
       <div style={{
-        padding: "20px", borderRadius: 10,
+        padding: "20px", borderRadius: 8,
         background: turno ? "color-mix(in srgb, var(--ok) 10%, transparent)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
         border: `1px solid ${turno ? "color-mix(in srgb, var(--ok) 25%, transparent)" : "var(--border)"}`,
       }}>
@@ -627,65 +629,24 @@ function TabTurno({ turno, barNome }: { turno: Turno | null; barNome: string }) 
   );
 }
 
-// ─── Tab: Estoque ────────────────────────────────────────────────────────────
-
-function TabEstoque({ alertas }: { alertas: AlertaEstoque[] }) {
-  if (alertas.length === 0) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
-        <p style={{ fontSize: 32, margin: 0 }}>✓</p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Estoque ok</p>
-        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Nenhum insumo abaixo do mínimo.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ padding: "20px 20px 32px", overflowY: "auto", height: "100%" }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 14px" }}>
-        {alertas.length} insumo{alertas.length > 1 ? "s" : ""} abaixo do mínimo
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {alertas.map(a => (
-          <div key={a.produtoNome} style={{
-            padding: "14px 16px", borderRadius: 8,
-            background: "var(--danger-bg)",
-            border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)",
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-          }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{a.produtoNome}</p>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 16, fontWeight: 800, color: "var(--danger)", margin: 0, fontFamily: "var(--font-mono)" }}>
-                {a.quantidadeAtual}
-              </p>
-              <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "2px 0 0" }}>mín. {a.quantidadeMinima}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Shell principal ──────────────────────────────────────────────────────────
 
 export function CaixaShell({
-  comandas, insights, mesas, turno, alertas, barNome, barId, turnoId,
+  comandas, insights, mesas, turno, barNome, barId, turnoId, taxaServicoPct = 10,
 }: {
   comandas: ComandaPendente[];
   insights: CaixaInsights;
   mesas: MesaComStatus[];
   turno: Turno | null;
-  alertas: AlertaEstoque[];
   barNome: string;
   barId: string;
   turnoId: string | null;
+  taxaServicoPct?: number;
 }) {
   const [tab, setTab] = useState<Tab>("comandas");
 
   const badges: Partial<Record<Tab, number>> = {
     comandas: comandas.length || undefined,
-    estoque:  alertas.length  || undefined,
   };
 
   return (
@@ -722,7 +683,7 @@ export function CaixaShell({
                 display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center",
                 gap: 6, padding: "14px 8px",
-                margin: "0 8px", borderRadius: 10, border: "none",
+                margin: "0 8px", borderRadius: 8, border: "none",
                 background: ativo ? "var(--accent)" : "transparent",
                 color: ativo ? "var(--accent-fg)" : "var(--fg-subtle)",
                 cursor: "pointer", position: "relative",
@@ -769,6 +730,7 @@ export function CaixaShell({
               barId={barId}
               turnoId={turnoId}
               embedded
+              taxaServicoPct={taxaServicoPct}
             />
           ) : tab === "comandas" ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
@@ -780,10 +742,8 @@ export function CaixaShell({
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
               <p style={{ fontSize: 14, color: "var(--fg-subtle)" }}>Abra um turno para ver as mesas.</p>
             </div>
-          ) : tab === "turno" ? (
-            <TabTurno turno={turno} barNome={barNome} />
           ) : (
-            <TabEstoque alertas={alertas} />
+            <TabTurno turno={turno} barNome={barNome} />
           )}
         </div>
 

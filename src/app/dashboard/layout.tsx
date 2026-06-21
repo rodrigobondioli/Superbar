@@ -29,6 +29,7 @@ export default async function DashboardLayout({
       userAvatarUrl={current.userAvatarUrl}
       alertas={alertas}
       autoPedido={current.bar.configuracoes?.auto_pedido ?? false}
+      taxaServicoPct={current.bar.configuracoes?.taxa_servico_pct ?? 10}
     >
       {children}
     </DashboardLayoutClient>

@@ -4,6 +4,34 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { iniciarPedido, entregarPedido } from "@/lib/bartender/actions";
 
+// ─── Alerta sonoro / háptico ──────────────────────────────────────────────────
+
+function playAlertSound() {
+  try {
+    const ctx = new AudioContext();
+    const play = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.35, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration);
+    };
+    play(880, 0,    0.08);
+    play(660, 0.12, 0.10);
+    setTimeout(() => ctx.close(), 500);
+  } catch {
+    // AudioContext não disponível (sem interação prévia no iOS) — silently skip
+  }
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate([80, 40, 120]);
+  }
+}
+
 // ─── Tipos locais ─────────────────────────────────────────────────────────────
 
 interface ItemDoPedido {
@@ -183,7 +211,7 @@ function PedidoCardView({
   isNew: boolean;
   onAtualizar: (id: string, status: "preparando" | "entregue") => void;
 }) {
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [localStatus, setLocalStatus] = useState(pedido.status);
 
   // Keep in sync if parent pushes update
@@ -212,7 +240,7 @@ function PedidoCardView({
         ? "color-mix(in srgb, var(--ok) 6%, transparent)"
         : "color-mix(in srgb, var(--fg) 4%, transparent)",
       border: `1px solid ${isNew ? "color-mix(in srgb, var(--ok) 22%, transparent)" : "var(--border)"}`,
-      borderRadius: 10, padding: "16px 18px",
+      borderRadius: 8, padding: "16px 18px",
       transition: "background 0.5s, border-color 0.5s",
     }}>
       {/* Header */}
@@ -259,15 +287,19 @@ function PedidoCardView({
       <button
         type="button"
         onClick={avancar}
+        disabled={isPending}
         style={{
           width: "100%", padding: "12px", minHeight: 48, borderRadius: 8, border: "none",
           background: recebido ? "var(--accent)" : "color-mix(in srgb, var(--ok) 80%, transparent)",
           color: recebido ? "var(--accent-fg)" : "#fff",
-          fontSize: 14, fontWeight: 900, cursor: "pointer", letterSpacing: "-0.2px",
-          transition: "background 0.15s",
+          fontSize: 14, fontWeight: 900,
+          cursor: isPending ? "not-allowed" : "pointer",
+          letterSpacing: "-0.2px",
+          opacity: isPending ? 0.6 : 1,
+          transition: "background 0.15s, opacity 0.15s",
         }}
       >
-        {recebido ? "Iniciar →" : "✓ Entregue"}
+        {isPending ? "..." : recebido ? "Iniciar →" : "✓ Entregue"}
       </button>
     </div>
   );
@@ -308,6 +340,7 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
         if (!card) return;
         setPedidos(prev => [...prev, card]);
         setNewIds(prev => new Set([...prev, card.id]));
+        playAlertSound();
         setTimeout(() => {
           setNewIds(prev => { const n = new Set(prev); n.delete(card.id); return n; });
         }, 6000);

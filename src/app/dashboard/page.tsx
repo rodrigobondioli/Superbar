@@ -78,9 +78,31 @@ export default async function DashboardPage() {
 
   if (!turno) {
     return (
-      <div style={{ padding: "32px" }}>
-        <div style={{ ...card, maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontSize: "14px", color: "var(--fg-muted)" }}>Nenhum turno aberto neste momento.</p>
+      <div style={{ padding: "32px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+        <div style={{ ...card, maxWidth: "400px", textAlign: "center", padding: "40px 32px" }}>
+          <p style={{ fontSize: "28px", margin: "0 0 16px" }}>🕐</p>
+          <p style={{ fontSize: "16px", fontWeight: 700, color: "var(--fg)", margin: "0 0 8px" }}>
+            Nenhum turno aberto
+          </p>
+          <p style={{ fontSize: "13px", color: "var(--fg-muted)", margin: "0 0 24px", lineHeight: 1.5 }}>
+            Os dados do dashboard ficam disponíveis assim que um turno for aberto.
+          </p>
+          <a
+            href="/dashboard/turnos"
+            style={{
+              display: "inline-block",
+              padding: "12px 24px",
+              background: "var(--accent)",
+              color: "var(--accent-fg)",
+              borderRadius: "6px",
+              fontSize: "13px",
+              fontWeight: 700,
+              textDecoration: "none",
+              letterSpacing: "0.01em",
+            }}
+          >
+            Abrir turno →
+          </a>
         </div>
       </div>
     );
@@ -90,7 +112,7 @@ export default async function DashboardPage() {
     getKpisTurno(turno),
     getAlertasEstoque(current.bar.id),
     getProdutosVendidosTurno(current.bar.id, turno.id),
-    getMetaMes(current.bar.id),
+    getMetaMes(current.bar.id, current.bar.configuracoes?.meta_mensal ?? undefined),
     getLiveStats(current.bar.id, turno.id),
     getHorarioPico(current.bar.id, turno.id),
     getRankingMesas(current.bar.id, turno.id),

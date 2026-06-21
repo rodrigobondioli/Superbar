@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentBar } from '@/lib/dashboard/queries'
 
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const pct      = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
+
+// Rate limit: máximo 10 requests por barId por janela de 60s
+// (por instância — suficiente para bloquear abuso casual sem KV externo)
+const rateLimitMap = new Map<string, number[]>()
+const RATE_LIMIT = 10
+const RATE_WINDOW_MS = 60_000
+
+function checkRateLimit(barId: string): boolean {
+  const now = Date.now()
+  const timestamps = (rateLimitMap.get(barId) ?? []).filter(t => now - t < RATE_WINDOW_MS)
+  if (timestamps.length >= RATE_LIMIT) return false
+  timestamps.push(now)
+  rateLimitMap.set(barId, timestamps)
+  return true
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +27,22 @@ export async function POST(req: NextRequest) {
 
     if (!question?.trim() || !barId) {
       return NextResponse.json({ response: 'Pergunta inválida.' }, { status: 400 })
+    }
+
+    // Valida autenticação e que o barId pertence ao usuário
+    const current = await getCurrentBar()
+    if (!current) {
+      return NextResponse.json({ response: 'Não autenticado.' }, { status: 401 })
+    }
+    if (current.bar.id !== barId) {
+      return NextResponse.json({ response: 'Não autorizado.' }, { status: 403 })
+    }
+
+    if (!checkRateLimit(barId)) {
+      return NextResponse.json(
+        { response: 'Muitas perguntas seguidas. Aguarde um momento.' },
+        { status: 429 },
+      )
     }
 
     const supabase = await createClient()
@@ -111,13 +143,12 @@ export async function POST(req: NextRequest) {
     // ── 4. Alertas de estoque ─────────────────────────────────────
     const { data: estoqueData } = await supabase
       .from('estoque')
-      .select('quantidade_atual, quantidade_minima, produtos(nome)')
+      .select('produtos(nome)')
       .eq('bar_id', barId)
-      .returns<Array<{ quantidade_atual: number; quantidade_minima: number; produtos: { nome: string } | null }>>()
+      .eq('abaixo_minimo', true)  // coluna gerada no banco — sem filtro em app
+      .returns<Array<{ produtos: { nome: string } | null }>>()
 
-    const alertas = (estoqueData ?? [])
-      .filter(r => r.quantidade_atual < r.quantidade_minima)
-      .map(r => r.produtos?.nome ?? 'produto')
+    const alertas = (estoqueData ?? []).map(r => r.produtos?.nome ?? 'produto')
 
     // ── 5. System prompt ──────────────────────────────────────────
     const nomeBar    = bar?.nome ?? 'o bar'
