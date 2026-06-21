@@ -340,7 +340,7 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
               { key: "pix",      label: "Pix",      icon: "⚡", primary: true,  action: () => pagar("pix") },
               { key: "dinheiro", label: "Dinheiro", icon: "💵", primary: true,  action: () => pagar("dinheiro") },
               { key: "cartao",   label: "Cartão",   icon: "💳", primary: false, action: () => setCartaoAberto(true) },
-              { key: "cortesia", label: "Cortesia", icon: "🎁", primary: false, action: () => setShowCortesia(true), warn: true },
+              { key: "cortesia", label: "Cortesia", icon: "🎁", primary: false, action: () => setShowCortesia(true) },
             ]).map(b => (
               <button key={b.key}
                 onClick={b.action}
@@ -348,18 +348,16 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
                 style={{
                   height: 44,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: b.warn
-                    ? "color-mix(in srgb, var(--warn) 12%, transparent)"
-                    : b.primary
-                      ? "color-mix(in srgb, var(--fg) 9%, transparent)"
-                      : "color-mix(in srgb, var(--fg) 5%, transparent)",
+                  background: b.primary
+                    ? "color-mix(in srgb, var(--fg) 9%, transparent)"
+                    : "color-mix(in srgb, var(--fg) 5%, transparent)",
                   borderRadius: 6, border: "none",
                   cursor: isPending ? "not-allowed" : "pointer",
                   opacity: isPending ? 0.5 : 1,
                 }}
               >
                 <span style={{ fontSize: 16 }}>{b.icon}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: b.warn ? "var(--warn)" : b.primary ? "var(--fg)" : "var(--fg-muted)" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: b.primary ? "var(--fg)" : "var(--fg-muted)" }}>
                   {b.label}
                 </span>
               </button>
