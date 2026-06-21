@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Upload, CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { criarBarOnboarding } from "@/lib/onboarding/actions";
 import {
@@ -78,6 +79,14 @@ export default function OnboardingPage() {
   // Step 1 — criar bar
   const [nomeBar, setNomeBar] = useState("");
   const [nomeUsuario, setNomeUsuario] = useState("");
+
+  // Pré-preenche nome do bar a partir do cadastro (user_metadata)
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata ?? {};
+      if (meta.nome_bar) setNomeBar(meta.nome_bar as string);
+    });
+  }, []);
   const [criarLoading, setCriarLoading] = useState(false);
   const [criarError, setCriarError] = useState<string | null>(null);
   const [barId, setBarId] = useState<string | null>(null);
