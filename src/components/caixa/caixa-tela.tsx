@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from "react";
 import { registrarPagamento } from "@/lib/caixa/actions";
+import { imprimirConta } from "@/lib/caixa/print-conta";
 import { createClient } from "@/lib/supabase/client";
 import { AppHeader } from "@/components/ui/app-header";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
@@ -227,18 +228,30 @@ function CortesiaModal({
 
 // ─── Card de comanda ──────────────────────────────────────────────────────────
 
-function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (metodo: PagamentoMetodo) => void }) {
+function ComandaCard({
+  comanda, barNome, onPago,
+}: {
+  comanda: ComandaPendente;
+  barNome: string;
+  onPago: (metodo: PagamentoMetodo) => void;
+}) {
   const [isPending, startTransition] = useTransition();
   const [pago, setPago] = useState(false);
   const [metodoPago, setMetodoPago] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showCortesia, setShowCortesia] = useState(false);
   const [cartaoAberto, setCartaoAberto] = useState(false);
+  const [incluirServico, setIncluirServico] = useState(true);
+
+  const SERVICO_PCT  = 10;
+  const servicoValor = Math.round(comanda.total * (SERVICO_PCT / 100) * 100) / 100;
+  const totalFinal   = incluirServico ? comanda.total + servicoValor : comanda.total;
 
   const pagar = (metodo: PagamentoMetodo, motivo?: string) => {
     setError(null);
+    const servico = metodo === "cortesia" ? false : incluirServico;
     startTransition(async () => {
-      const result = await registrarPagamento(comanda.id, metodo, motivo);
+      const result = await registrarPagamento(comanda.id, metodo, servico, motivo);
       if (result && "error" in result) {
         setError(result.error as string);
       } else {
@@ -249,13 +262,30 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
     });
   };
 
+  const handleImprimir = () => {
+    imprimirConta({
+      barNome,
+      mesa: comanda.mesa,
+      abertaEm: comanda.aberta_em,
+      itens: comanda.itens.map(it => ({
+        nome: it.nome,
+        quantidade: it.quantidade,
+        preco_total: it.preco_total,
+      })),
+      subtotal: comanda.total,
+      incluirServico,
+      servicoPct: SERVICO_PCT,
+      servicoValor,
+      totalFinal,
+    });
+  };
+
   const base = comanda.fechada_em ?? comanda.aberta_em;
   const minutos = Math.floor((Date.now() - new Date(base).getTime()) / 60000);
   const tempo = minutos < 1 ? "agora" : minutos < 60 ? `${minutos}min` : `${Math.floor(minutos / 60)}h${minutos % 60 > 0 ? ` ${minutos % 60}min` : ""}`;
 
   if (pago) {
     return (
-      /* ok token — semantic allowed in Caixa */
       <div style={{
         background: "var(--ok-bg)",
         border: "1px solid color-mix(in srgb, var(--ok) 20%, transparent)",
@@ -266,24 +296,50 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
           <p style={{ fontSize: 15, fontWeight: 700, color: "var(--ok)", margin: 0 }}>✓ {comanda.mesa}</p>
           <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>Pago via {metodoPago}</p>
         </div>
-        <p style={{ fontSize: 18, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
-          {currency.format(comanda.total)}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
+            {currency.format(totalFinal)}
+          </p>
+          {/* Imprimir após pagamento */}
+          <button
+            onClick={handleImprimir}
+            title="Imprimir cupom"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 34, height: 34, borderRadius: 6,
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+              cursor: "pointer", color: "var(--fg-subtle)", fontSize: 14, flexShrink: 0,
+            }}
+          >
+            🖨
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{ background: "color-mix(in srgb, var(--fg) 4%, transparent)", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+
       {/* Header do card */}
       <div style={{ padding: "12px 16px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <p style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.2px" }}>{comanda.mesa}</p>
           <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0" }}>esperando há {tempo}</p>
         </div>
-        <p style={{ fontSize: 20, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.4px", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
-          {currency.format(comanda.total)}
-        </p>
+        {/* Botão imprimir — pré-pagamento */}
+        <button
+          onClick={handleImprimir}
+          title="Imprimir cupom"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 34, height: 34, borderRadius: 6,
+            background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)",
+            cursor: "pointer", color: "var(--fg-subtle)", fontSize: 14, flexShrink: 0,
+          }}
+        >
+          🖨
+        </button>
       </div>
 
       {/* Itens */}
@@ -302,6 +358,64 @@ function ComandaCard({ comanda, onPago }: { comanda: ComandaPendente; onPago: (m
           ))}
         </div>
       )}
+
+      {/* Breakdown de valores + toggle de serviço */}
+      <div style={{ padding: "10px 16px 12px", borderTop: "1px solid var(--border)" }}>
+        {/* Subtotal */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Subtotal</span>
+          <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
+            {currency.format(comanda.total)}
+          </span>
+        </div>
+
+        {/* Taxa de serviço — toggle */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setIncluirServico(v => !v)}
+              style={{
+                width: 34, height: 18, borderRadius: 9, border: "none",
+                background: incluirServico
+                  ? "color-mix(in srgb, var(--accent) 80%, transparent)"
+                  : "rgba(255,255,255,0.10)",
+                position: "relative", cursor: "pointer", transition: "background 180ms", padding: 0, flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: "absolute", top: 2, left: incluirServico ? 17 : 2,
+                width: 14, height: 14, borderRadius: "50%",
+                background: "#fff", transition: "left 180ms",
+              }} />
+            </button>
+            <span style={{ fontSize: 12, color: incluirServico ? "var(--fg-muted)" : "var(--fg-subtle)" }}>
+              Serviço {SERVICO_PCT}%
+            </span>
+          </div>
+          <span style={{
+            fontSize: 12, fontFamily: "var(--font-mono)",
+            color: incluirServico ? "var(--fg-subtle)" : "rgba(255,255,255,0.15)",
+            transition: "color 180ms",
+          }}>
+            {currency.format(servicoValor)}
+          </span>
+        </div>
+
+        {/* Total */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "baseline",
+          borderTop: "1px solid var(--border)", paddingTop: 8,
+        }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--fg)" }}>Total</span>
+          <span style={{
+            fontSize: 22, fontWeight: 900, color: "var(--fg)",
+            fontFamily: "var(--font-mono)", letterSpacing: "-0.4px",
+          }}>
+            {currency.format(totalFinal)}
+          </span>
+        </div>
+      </div>
 
       {/* Pagamento */}
       <div style={{ padding: "10px 16px 14px", borderTop: "1px solid var(--border)" }}>
@@ -560,7 +674,7 @@ export function CaixaTela({ comandas, insights, barNome, barId, turnoId, embedde
           </div>
         ) : (
           listaFiltrada.map(c => (
-            <ComandaCard key={c.id} comanda={c} onPago={metodo => onPago(c, metodo)} />
+            <ComandaCard key={c.id} comanda={c} barNome={barNome} onPago={metodo => onPago(c, metodo)} />
           ))
         )}
       </div>
