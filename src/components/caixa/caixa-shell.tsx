@@ -353,7 +353,7 @@ function ComandaPagamentoSheet({
 
 // ─── Tab: Mesas ───────────────────────────────────────────────────────────────
 
-function TabMesas({ mesas, barNome }: { mesas: MesaComStatus[]; barNome: string }) {
+function TabMesas({ mesas, barNome, taxaServicoPct = 10 }: { mesas: MesaComStatus[]; barNome: string; taxaServicoPct?: number }) {
   const router = useRouter();
   const [pagamentoAberto, setPagamentoAberto] = useState<{ comanda: Comanda; mesaLabel: string } | null>(null);
 
@@ -737,7 +737,7 @@ export function CaixaShell({
               <p style={{ fontSize: 14, color: "var(--fg-subtle)" }}>Abra um turno para ver as comandas.</p>
             </div>
           ) : tab === "mesas" && turnoId ? (
-            <TabMesas mesas={mesas} barNome={barNome} />
+            <TabMesas mesas={mesas} barNome={barNome} taxaServicoPct={taxaServicoPct} />
           ) : tab === "mesas" ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
               <p style={{ fontSize: 14, color: "var(--fg-subtle)" }}>Abra um turno para ver as mesas.</p>
