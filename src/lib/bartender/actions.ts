@@ -7,7 +7,11 @@ import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import type { Comanda } from "@/types/database";
 
 /** Abre comanda para uma mesa específica (ou balcão se mesaId for null). */
-export async function abrirComanda(mesaId: string | null, totalPessoas?: number) {
+export async function abrirComanda(
+  mesaId: string | null,
+  totalPessoas?: number,
+  identificador?: string,
+) {
   const current = await getCurrentBar();
   if (!current) return;
 
@@ -22,12 +26,37 @@ export async function abrirComanda(mesaId: string | null, totalPessoas?: number)
       bartender_id: current.userId,
       mesa_id: mesaId,
       total_pessoas: totalPessoas ?? null,
+      identificador: identificador ?? null,
     })
     .select("id")
     .single();
 
   if (!novaComanda?.id) return;
   redirect(`/bartender/${novaComanda.id}`);
+}
+
+/**
+ * Busca comanda aberta pelo identificador do cartão no turno atual.
+ * Retorna o ID da comanda se encontrada, null caso contrário.
+ */
+export async function buscarComandaPorCartao(identificador: string): Promise<string | null> {
+  const current = await getCurrentBar();
+  if (!current) return null;
+
+  const turno = await getTurnoAtual(current.bar.id);
+  if (!turno) return null;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("comandas")
+    .select("id")
+    .eq("bar_id", current.bar.id)
+    .eq("turno_id", turno.id)
+    .eq("identificador", identificador)
+    .in("status", ["aberta", "aguardando_pagamento"])
+    .maybeSingle<{ id: string }>();
+
+  return data?.id ?? null;
 }
 
 export async function adicionarItem(

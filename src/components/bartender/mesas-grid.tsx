@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
 import { abrirComanda } from "@/lib/bartender/actions";
+import { ScanCartao } from "@/components/bartender/scan-cartao";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -431,6 +432,11 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:px-7 md:py-6">
+
+      {/* Busca por cartão */}
+      <div style={{ marginBottom: 24 }}>
+        <ScanCartao />
+      </div>
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
