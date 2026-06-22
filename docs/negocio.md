@@ -56,6 +56,41 @@ Esta é a parte que transforma o documento em cérebro de decisão — inclusive
 
 ---
 
+## Missão e filosofia do produto
+
+### A missão
+
+O SUPERBAR não existe para registrar comandas. Não existe para controlar estoque. Não existe para gerar relatórios. Essas são funções necessárias para coletar dados.
+
+**A missão do SUPERBAR é simples: fazer o dono do bar saber o que precisa fazer hoje.**
+
+Quando um dono abre o SUPERBAR pela manhã, ele não deveria precisar procurar problemas, abrir relatórios ou interpretar gráficos. O sistema deve identificar automaticamente problemas que exigem ação, oportunidades de aumento de lucro e destaques relevantes da operação — e apresentar essas informações de forma clara, objetiva e acionável.
+
+### Princípio central
+
+> O dono não deve procurar a informação. A informação deve encontrar o dono.
+
+### Hierarquia do produto
+
+Toda decisão de UX e de roadmap obedece esta ordem de prioridade:
+
+1. **Atenção** — o que precisa ser resolvido; o que representa risco; o que exige ação.
+2. **Negócio** — como foi o último turno; como está o mês; receita, margem, CMV e ticket.
+3. **Operação** — estoque, equipe, produção e caixa.
+4. **Exploração** — relatórios, consultas e Superbar AI.
+
+O que está no topo da hierarquia é o que o dono vê primeiro. O que está no rodapé é destino — não ponto de partida.
+
+### Regra de ouro
+
+> Nenhum insight vale a pena se não gerar uma decisão. Toda funcionalidade nova deve responder: "Isso ajuda o dono a saber o que fazer hoje?" Se a resposta for não, a funcionalidade não é prioridade.
+
+### Fechamento
+
+> O objetivo do SUPERBAR não é mostrar dados. É transformar dados em decisões.
+
+---
+
 ## 2. O problema (a dor real do bar)
 
 A dor não é teórica. A pesquisa em Reclame Aqui, BevSpot, Scannabar e relatos de bartenders veteranos mostrou um padrão consistente e severo:
@@ -181,6 +216,63 @@ Em vez de "fases de construção", o roadmap é de **profundidade da inteligênc
 - **Estágio 3 — Decidir contra o mercado.** Rede: benchmark entre bares ("seu ticket está 12% abaixo de bares parecidos"), multi-unidade e a inteligência agregada que só quem tem muitos bares na plataforma consegue oferecer.
 
 **Regra de ouro:** dado limpo desde o dia 1 — combustível de tudo acima.
+
+### Evolução da inteligência
+
+A inteligência do SUPERBAR não é um estado binário (tem ou não tem). É uma capacidade que evolui em quatro estágios, cada um exigindo mais dado e mais sofisticação que o anterior.
+
+**Pré-requisito de qualidade:** toda a inteligência depende de dados confiáveis. A qualidade dos alertas, previsões e recomendações é diretamente proporcional à qualidade dos dados registrados no sistema. Sem custos cadastrados, CMV é estimativa. Sem histórico suficiente, tendências são ruído. O SUPERBAR deve sempre preferir silêncio a um alerta incorreto.
+
+> **Falsos positivos são piores que ausência de alertas.** Um alerta errado que o dono abre e descarta como ruído destrói a credibilidade de todos os alertas seguintes. Um sistema que grita muito ensina o dono a ignorar. Um sistema que fala pouco, mas sempre certo, é o que o dono consulta primeiro.
+
+---
+
+**Estágio 1 — Regras**
+
+Alertas determinísticos e confiáveis. A regra é verdade ou é silêncio — sem zona cinzenta.
+
+Exemplos:
+- Estoque crítico (abaixo do mínimo configurado)
+- CMV acima da meta do turno
+- Meta mensal em risco (projeção abaixo do target)
+- Lista de compra calculada automaticamente (quantidade sugerida = 2× mínimo − atual)
+
+---
+
+**Estágio 2 — Anomalias**
+
+Detecção automática de comportamentos incomuns em relação ao padrão histórico do próprio bar. Exige histórico mínimo (≥ 30 turnos) para estabelecer linha de base.
+
+Exemplos:
+- Produto caiu 40% em relação à média dos últimos 14 dias
+- Ticket médio abaixo da tendência semanal
+- Categoria em desaceleração por 3 semanas consecutivas
+
+**Regra de validação:** toda anomalia deve eliminar causas conhecidas antes de gerar alerta — mudança de preço, ruptura de estoque, padrão de dia da semana. Anomalia sem validação é ruído.
+
+---
+
+**Estágio 3 — Causalidade**
+
+O sistema não apenas detecta. O sistema explica. A causa provável é apresentada junto com o alerta.
+
+Exemplos:
+- "Vendas de Gin Tônica caíram 43% desde sexta. Não identificamos mudança de preço ou estoque."
+- "Margem caiu 8 pontos em relação ao mês passado. Custo do limão aumentou 22% no último registro de compra."
+- "Ticket médio caiu. Drinks premium representam apenas 9% das vendas neste turno, contra 18% no padrão."
+
+---
+
+**Estágio 4 — Recomendações**
+
+O sistema sugere ações. A recomendação exige inferência — cruzamento de múltiplos sinais — e deve ser acionável de imediato.
+
+Exemplos:
+- "Negroni tem margem de 68% e crescimento de vendas de 22% nas últimas 3 semanas. Considere destacá-lo no cardápio esta semana."
+- "Drinks premium representam 12% das suas vendas. Carlos tem a maior taxa de conversão da equipe para essa categoria. Considere replicar a abordagem dele no treinamento."
+- "Sexta-feira entre 22h e 23h é seu pico de faturamento. Nos últimos dois turnos, o preparo médio ficou acima de 8 minutos nesse horário. Revise a escala ou a fila de produção para esse período."
+
+---
 
 A operação (bartender, caixa, dono) e a administração (cardápio, mesas, equipe) são o **corpo que alimenta esse cérebro**. Importam muito — mas como meio. O PRD detalha cada tela; aqui o que fica registrado é a hierarquia: **a inteligência manda, a operação serve.**
 
