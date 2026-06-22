@@ -11,16 +11,20 @@ export default async function InteligenciaPage() {
   const insights = await getInsightsPendentes(current.bar.id);
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "32px 24px 48px" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 
-      {/* ── Header ── */}
-      <div style={{ marginBottom: 32 }}>
+      {/* ── Header — mesmo padrão das outras páginas ── */}
+      <div className="py-6 lg:px-10 lg:py-8">
         <h1 style={H1}>Inteligência</h1>
         <p style={SUBTITLE}>O que precisa da sua atenção</p>
       </div>
 
-      {/* ── Cards ── */}
-      <InsightCards insights={insights} />
+      {/* ── Cards — centralizados vertical e horizontalmente ── */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px 48px" }}>
+        <div style={{ width: "100%", maxWidth: 600 }}>
+          <InsightCards insights={insights} />
+        </div>
+      </div>
 
     </div>
   );
