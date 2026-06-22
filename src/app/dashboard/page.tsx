@@ -183,60 +183,93 @@ export default async function DashboardPage() {
 
         <div className="lg:px-8" style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}>
 
-          {/* 0. SCORE DE SAÚDE */}
-          <div style={{ ...card }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
-              <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
-              <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
-            </div>
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
-                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
-              </div>
-              <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
-                <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
-              </div>
-              <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
-                {Math.max(0, 30 - comandasScore) > 0
-                  ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
-                  : "Calculando score inicial…"}
-              </p>
-            </div>
-          </div>
+          {/* 0. SUPERBAR AI — acesso rápido no topo */}
+          <section>
+            <span style={sectionLabel}>Superbar AI</span>
+            <AiHeroInput barId={current.bar.id} />
+          </section>
 
-          {/* 1. ATENÇÃO */}
-          {inteligencia.stage === 1 ? null : (
-            <section>
-              <span style={sectionLabel}>Atenção</span>
-              <a href="/dashboard/inteligencia" style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", cursor: "pointer" }} className="hover:!border-[var(--border-strong)]">
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 16 }}>🧠</span>
-                  <div>
-                    {inteligencia.insightsNaoLidos > 0 ? (
-                      <>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{inteligencia.insightsNaoLidos === 1 ? "1 item precisa da sua atenção" : `${inteligencia.insightsNaoLidos} itens precisam da sua atenção`}</p>
-                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Ver análise completa →</p>
-                      </>
-                    ) : (
-                      <>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Tudo sob controle</p>
-                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Nenhum alerta · Ver Inteligência →</p>
-                      </>
-                    )}
-                  </div>
+          {/* 1. SAÚDE + ATENÇÃO — 2 colunas quando stage 2 */}
+          {inteligencia.stage === 2 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: "12px" }}>
+              {/* Saúde do Bar */}
+              <div style={{ ...card }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
                 </div>
-                {inteligencia.insightsNaoLidos > 0 && (
-                  <span style={{ background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: "50%", minWidth: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px", flexShrink: 0 }}>
-                    {inteligencia.insightsNaoLidos > 9 ? "9+" : inteligencia.insightsNaoLidos}
-                  </span>
-                )}
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+                  <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+                  <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+                    <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
+                  </div>
+                  <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                    <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                  </div>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+                    {Math.max(0, 30 - comandasScore) > 0
+                      ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
+                      : "Calculando score inicial…"}
+                  </p>
+                </div>
+              </div>
+              {/* Atenção */}
+              <a href="/dashboard/inteligencia" style={{ ...card, display: "flex", flexDirection: "column", justifyContent: "space-between", textDecoration: "none", cursor: "pointer" }} className="hover:!border-[var(--border-strong)]">
+                <p style={{ ...overline, marginBottom: 12 }}>Atenção</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 16 }}>🧠</span>
+                    <div>
+                      {inteligencia.insightsNaoLidos > 0 ? (
+                        <>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{inteligencia.insightsNaoLidos === 1 ? "1 item precisa da sua atenção" : `${inteligencia.insightsNaoLidos} itens precisam da sua atenção`}</p>
+                          <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Ver análise completa →</p>
+                        </>
+                      ) : (
+                        <>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Tudo sob controle</p>
+                          <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Nenhum alerta · Ver Inteligência →</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {inteligencia.insightsNaoLidos > 0 && (
+                    <span style={{ background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: "50%", minWidth: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px", flexShrink: 0 }}>
+                      {inteligencia.insightsNaoLidos > 9 ? "9+" : inteligencia.insightsNaoLidos}
+                    </span>
+                  )}
+                </div>
               </a>
-            </section>
+            </div>
+          ) : (
+            <div style={{ ...card }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+                <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+                <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+                <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+              </div>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+                  <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
+                </div>
+                <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                  <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                </div>
+                <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+                  {Math.max(0, 30 - comandasScore) > 0
+                    ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
+                    : "Calculando score inicial…"}
+                </p>
+              </div>
+            </div>
           )}
 
           {/* 2. NEGÓCIO — último turno + meta do mês */}
@@ -377,12 +410,6 @@ export default async function DashboardPage() {
             </div>
           </section>
 
-          {/* 4. SUPERBAR AI */}
-          <section>
-            <span style={sectionLabel}>Superbar AI</span>
-            <AiHeroInput barId={current.bar.id} />
-          </section>
-
           {/* Footer: turno fechado */}
           <p style={{ fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>
             Bar fechado ·{" "}
@@ -505,95 +532,99 @@ export default async function DashboardPage() {
         style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}
       >
 
-        {/* 0. SCORE DE SAÚDE */}
-        <div style={{ ...card }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
-            <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
-            <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
-            <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
-          </div>
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
-              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
-            </div>
-            <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
-              <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
-            </div>
-            <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
-              {Math.max(0, 30 - comandasScore) > 0
-                ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
-                : "Calculando score inicial…"}
-            </p>
-          </div>
-        </div>
+        {/* 0. SUPERBAR AI — acesso rápido no topo */}
+        <section>
+          <span style={sectionLabel}>Superbar AI</span>
+          <AiHeroInput barId={current.bar.id} />
+        </section>
 
-        {/* 1. ATENÇÃO */}
-        {inteligencia.stage === 2 && (
-          <section>
-            <span style={sectionLabel}>Atenção</span>
-            <a
-              href="/dashboard/inteligencia"
-              style={{
-                ...card,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                textDecoration: "none",
-                transition: "border-color 150ms",
-                cursor: "pointer",
-              }}
-              className="hover:!border-[var(--border-strong)]"
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 16 }}>🧠</span>
-                <div>
-                  {inteligencia.insightsNaoLidos > 0 ? (
-                    <>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
-                        {inteligencia.insightsNaoLidos === 1
-                          ? "1 item precisa da sua atenção"
-                          : `${inteligencia.insightsNaoLidos} itens precisam da sua atenção`}
-                      </p>
-                      <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>
-                        Ver análise completa →
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
-                        Tudo sob controle
-                      </p>
-                      <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>
-                        Nenhum alerta · Ver Inteligência →
-                      </p>
-                    </>
-                  )}
-                </div>
+        {/* 1. SAÚDE + ATENÇÃO — 2 colunas quando stage 2 */}
+        {inteligencia.stage === 2 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: "12px" }}>
+            {/* Saúde do Bar */}
+            <div style={{ ...card }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+                <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
               </div>
-              {inteligencia.insightsNaoLidos > 0 && (
-                <span style={{
-                  background: "#ef4444",
-                  color: "#fff",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  borderRadius: "50%",
-                  minWidth: 22,
-                  height: 22,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "0 4px",
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+                <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+                <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+              </div>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+                  <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
+                </div>
+                <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                  <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                </div>
+                <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+                  {Math.max(0, 30 - comandasScore) > 0
+                    ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
+                    : "Calculando score inicial…"}
+                </p>
+              </div>
+            </div>
+            {/* Atenção */}
+            <a href="/dashboard/inteligencia" style={{ ...card, display: "flex", flexDirection: "column", justifyContent: "space-between", textDecoration: "none", cursor: "pointer", transition: "border-color 150ms" }} className="hover:!border-[var(--border-strong)]">
+              <p style={{ ...overline, marginBottom: 12 }}>Atenção</p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 16 }}>🧠</span>
+                  <div>
+                    {inteligencia.insightsNaoLidos > 0 ? (
+                      <>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
+                          {inteligencia.insightsNaoLidos === 1
+                            ? "1 item precisa da sua atenção"
+                            : `${inteligencia.insightsNaoLidos} itens precisam da sua atenção`}
+                        </p>
+                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Ver análise completa →</p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Tudo sob controle</p>
+                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Nenhum alerta · Ver Inteligência →</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {inteligencia.insightsNaoLidos > 0 && (
+                  <span style={{ background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: "50%", minWidth: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px",
                   flexShrink: 0,
                 }}>
                   {inteligencia.insightsNaoLidos > 9 ? "9+" : inteligencia.insightsNaoLidos}
                 </span>
               )}
+              </div>
             </a>
-          </section>
+          </div>
+        ) : (
+          <div style={{ ...card }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+              <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+              <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+              <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+            </div>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{comandasScore} / 30</span>
+              </div>
+              <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((comandasScore / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+              </div>
+              <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+                {Math.max(0, 30 - comandasScore) > 0
+                  ? `Disponível após mais ${30 - comandasScore} ${30 - comandasScore === 1 ? "comanda registrada" : "comandas registradas"}.`
+                  : "Calculando score inicial…"}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* 2. AO VIVO — só existe quando turno está aberto */}
@@ -958,11 +989,7 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* 5. SUPERBAR AI */}
-        <section>
-          <span style={sectionLabel}>Superbar AI</span>
-          <AiHeroInput barId={current.bar.id} />
-        </section>
+
 
       </div>
     </div>
