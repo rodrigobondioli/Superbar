@@ -49,6 +49,49 @@ export async function getEstoque(barId: string): Promise<ItemEstoque[]> {
   }));
 }
 
+export interface MovimentoRecente {
+  id: string;
+  tipo: string;
+  quantidade: number;
+  motivo: string | null;
+  produtoNome: string;
+  criadoEm: string;
+}
+
+export async function getMovimentosRecentes(barId: string): Promise<MovimentoRecente[]> {
+  const supabase = await createClient();
+
+  // Mapa estoqueId → nome do produto
+  const { data: estoqueItems } = await supabase
+    .from("estoque")
+    .select("id, produtos(nome)")
+    .eq("bar_id", barId)
+    .returns<Array<{ id: string; produtos: { nome: string } | null }>>();
+
+  const nomeMap = new Map(
+    (estoqueItems ?? []).map(e => [e.id, e.produtos?.nome ?? "Produto"])
+  );
+  const estoqueIds = [...nomeMap.keys()];
+  if (estoqueIds.length === 0) return [];
+
+  const { data } = await supabase
+    .from("estoque_movimentos")
+    .select("id, tipo, quantidade, motivo, criado_em, referencia_id")
+    .in("referencia_id", estoqueIds)
+    .order("criado_em", { ascending: false })
+    .limit(50)
+    .returns<Array<{ id: string; tipo: string; quantidade: number; motivo: string | null; criado_em: string; referencia_id: string }>>();
+
+  return (data ?? []).map(row => ({
+    id: row.id,
+    tipo: row.tipo,
+    quantidade: Number(row.quantidade),
+    motivo: row.motivo,
+    produtoNome: nomeMap.get(row.referencia_id) ?? "Produto",
+    criadoEm: row.criado_em,
+  }));
+}
+
 export async function getMovimentosEstoque(estoqueId: string): Promise<MovimentoEstoque[]> {
   const supabase = await createClient();
 

@@ -321,6 +321,82 @@ export async function getMetaMes(barId: string, metaMensalConfigurada?: number) 
   return { faturamentoAtual, meta, progresso, falta, faturamentoAnterior }
 }
 
+export interface UltimoTurnoResumo {
+  id: string;
+  abertoEm: string;
+  fechadoEm: string;
+  faturamento: number;
+  ticketMedio: number;
+  cmv: number | null;
+  topDrink: string | null;
+  totalComandas: number;
+}
+
+export async function getUltimoTurnoFechado(barId: string): Promise<UltimoTurnoResumo | null> {
+  const supabase = await createClient();
+
+  const { data: turno } = await supabase
+    .from("turnos")
+    .select("id, aberto_em, fechado_em, total_vendas, total_comandas")
+    .eq("bar_id", barId)
+    .eq("status", "fechado")
+    .order("fechado_em", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ id: string; aberto_em: string; fechado_em: string; total_vendas: number; total_comandas: number }>();
+
+  if (!turno) return null;
+
+  const { data: items } = await supabase
+    .from("comanda_items")
+    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo), comandas!inner(turno_id)")
+    .eq("bar_id", barId)
+    .eq("status", "ativo")
+    .eq("comandas.turno_id", turno.id)
+    .returns<Array<{
+      quantidade: number;
+      preco_total: number;
+      produto_id: string;
+      produtos: { nome: string; preco: number; custo: number | null } | null;
+      comandas: { turno_id: string } | null;
+    }>>();
+
+  // Agrega por produto
+  const porProduto = new Map<string, { nome: string; qtd: number; faturamento: number; preco: number; custo: number | null }>();
+  for (const item of items ?? []) {
+    if (!item.produtos) continue;
+    const atual = porProduto.get(item.produto_id) ?? {
+      nome: item.produtos.nome, qtd: 0, faturamento: 0,
+      preco: item.produtos.preco, custo: item.produtos.custo,
+    };
+    atual.qtd += Number(item.quantidade);
+    atual.faturamento += Number(item.preco_total);
+    porProduto.set(item.produto_id, atual);
+  }
+
+  const lista = [...porProduto.values()];
+  const topDrink = lista.sort((a, b) => b.qtd - a.qtd)[0]?.nome ?? null;
+
+  // CMV: só produtos com custo cadastrado
+  const comCusto = lista.filter(p => p.custo !== null);
+  let cmv: number | null = null;
+  if (comCusto.length > 0) {
+    const totalCusto = comCusto.reduce((s, p) => s + (p.custo! * p.qtd), 0);
+    const receitaComCusto = comCusto.reduce((s, p) => s + p.faturamento, 0);
+    if (receitaComCusto > 0) cmv = Math.round((totalCusto / receitaComCusto) * 100);
+  }
+
+  return {
+    id: turno.id,
+    abertoEm: turno.aberto_em,
+    fechadoEm: turno.fechado_em,
+    faturamento: Number(turno.total_vendas),
+    ticketMedio: turno.total_comandas > 0 ? Number(turno.total_vendas) / turno.total_comandas : 0,
+    cmv,
+    topDrink,
+    totalComandas: turno.total_comandas,
+  };
+}
+
 export interface PrimeirosPassosData {
   nProdutos: number;
   nMesas: number;

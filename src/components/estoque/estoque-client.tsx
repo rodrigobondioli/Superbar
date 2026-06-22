@@ -1,20 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { registrarMovimento, atualizarMinimo, type EstoqueResult } from "@/lib/estoque/actions";
+import { useState } from "react";
+import { registrarMovimento, type EstoqueResult } from "@/lib/estoque/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
-import type { ItemEstoque } from "@/lib/estoque/queries";
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
-interface HistoricoItem {
-  id: string;
-  tipo: string;
-  quantidade: number;
-  motivo: string | null;
-  criado_em: string;
-}
+import type { ItemEstoque, MovimentoRecente } from "@/lib/estoque/queries";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -24,11 +13,11 @@ const TIPO_BOTOES = [
   { label: "Ajuste",  value: "ajuste" },
 ] as const;
 
-const TIPO_HISTORICO: Record<string, { label: string; cor: string }> = {
-  compra:    { label: "Entrada",  cor: "var(--ok)" },
-  devolucao: { label: "Entrada",  cor: "var(--ok)" },
-  perda:     { label: "Saída",    cor: "var(--danger)" },
-  ajuste:    { label: "Ajuste",   cor: "var(--fg-subtle)" },
+const TIPO_META: Record<string, { label: string; cor: string; sinal: string }> = {
+  compra:    { label: "Entrada",  cor: "var(--ok)",       sinal: "+" },
+  devolucao: { label: "Entrada",  cor: "var(--ok)",       sinal: "+" },
+  perda:     { label: "Saída",    cor: "var(--danger)",   sinal: "−" },
+  ajuste:    { label: "Ajuste",   cor: "var(--fg-subtle)", sinal: "→" },
 };
 
 function dataRelativa(iso: string): string {
@@ -38,10 +27,10 @@ function dataRelativa(iso: string): string {
   if (min < 60) return `há ${min}min`;
   const h = Math.floor(min / 60);
   if (h < 24) return `há ${h}h`;
-  return `há ${Math.floor(h / 24)}d`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return "ontem";
+  return `há ${d}d`;
 }
-
-// ─── Shared styles ─────────────────────────────────────────────────────────────
 
 const lbl: React.CSSProperties = {
   fontSize: 11, color: "var(--fg-subtle)", display: "block",
@@ -50,32 +39,20 @@ const lbl: React.CSSProperties = {
 
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)", border: "1px solid var(--border)",
-  borderRadius: 4, padding: "9px 12px", fontSize: 16,
+  borderRadius: 4, padding: "9px 12px", fontSize: 15,
   color: "var(--fg)", outline: "none", width: "100%",
   boxSizing: "border-box", colorScheme: "dark" as React.CSSProperties["colorScheme"],
 };
 
-// ─── MovimentoForm ─────────────────────────────────────────────────────────────
+// ─── Modal de registro ─────────────────────────────────────────────────────────
 
-function MovimentoForm({ item, onClose }: { item: ItemEstoque; onClose: () => void }) {
+function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => void }) {
   const [tipo, setTipo]       = useState<string>("compra");
   const [qtd, setQtd]         = useState("");
+  const [custo, setCusto]     = useState("");
   const [motivo, setMotivo]   = useState("");
   const [pending, setPending] = useState(false);
   const [result, setResult]   = useState<EstoqueResult>(null);
-  const [historico, setHistorico] = useState<HistoricoItem[] | null>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("estoque_movimentos")
-      .select("id, tipo, quantidade, motivo, criado_em")
-      .eq("referencia_id", item.id)
-      .order("criado_em", { ascending: false })
-      .limit(5)
-      .returns<HistoricoItem[]>()
-      .then(({ data }) => setHistorico(data ?? []));
-  }, [item.id]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,317 +61,178 @@ function MovimentoForm({ item, onClose }: { item: ItemEstoque; onClose: () => vo
     fd.set("quantidade", qtd);
     fd.set("tipo", tipo);
     fd.set("motivo", motivo);
+    if (custo) fd.set("custo_unitario", custo);
     const r = await registrarMovimento(item.id, fd);
     setResult(r);
     setPending(false);
-    if (r && "ok" in r) setTimeout(onClose, 800);
+    if (r && "ok" in r) setTimeout(onClose, 700);
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 12 }}>
-
-      {/* Tipo — botões segmentados */}
-      <div>
-        <label style={lbl}>Tipo</label>
-        <div style={{ display: "flex", gap: 4 }}>
-          {TIPO_BOTOES.map(({ label, value }) => {
-            const selected = tipo === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setTipo(value)}
-                style={{
-                  flex: 1,
-                  padding: "8px 10px",
-                  fontSize: 13,
-                  fontWeight: selected ? 500 : 400,
-                  background: selected ? "var(--bg)" : "transparent",
-                  color: selected ? "var(--fg)" : "var(--fg-muted)",
-                  border: selected ? "1px solid var(--border-strong)" : "1px solid var(--border)",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  transition: "background 100ms, color 100ms, border-color 100ms",
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Quantidade */}
-      <div>
-        <label style={lbl}>Quantidade ({item.unidade})</label>
-        <input
-          type="number" min="0" step="0.01"
-          value={qtd} onChange={e => setQtd(e.target.value)}
-          placeholder={tipo === "ajuste" ? "Novo total" : "Qtd"}
-          required style={inp} autoFocus
-        />
-      </div>
-
-      {/* Motivo */}
-      <div>
-        <label style={lbl}>Motivo (opcional)</label>
-        <input
-          value={motivo} onChange={e => setMotivo(e.target.value)}
-          placeholder="Ex: Entrega Ambev, quebra de garrafa…"
-          style={inp}
-        />
-      </div>
-
-      {/* Feedback */}
-      {result && (
-        <p style={{
-          fontSize: 12, padding: "8px 12px", borderRadius: 4,
-          background: "ok" in result ? "color-mix(in srgb, var(--ok) 10%, transparent)" : "color-mix(in srgb, var(--danger) 10%, transparent)",
-          color: "ok" in result ? "var(--ok)" : "var(--danger)",
-          border: `1px solid ${"ok" in result ? "color-mix(in srgb, var(--ok) 20%, transparent)" : "color-mix(in srgb, var(--danger) 20%, transparent)"}`,
-        }}>
-          {"ok" in result ? "Registrado!" : ("error" in result ? result.error : "")}
-        </p>
-      )}
-
-      {/* Ações */}
-      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-        <button type="button" onClick={onClose} style={{
-          background: "none", border: "1px solid var(--border)", borderRadius: 4,
-          padding: "8px 16px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
-        }}>
-          Cancelar
-        </button>
-        <button type="submit" disabled={pending || !qtd} style={{
-          background: "var(--accent)", color: "var(--accent-fg)",
-          border: "none", borderRadius: 4,
-          padding: "8px 16px", fontSize: 13, fontWeight: 600,
-          cursor: pending || !qtd ? "not-allowed" : "pointer",
-          opacity: pending || !qtd ? 0.6 : 1,
-        }}>
-          {pending ? "Salvando…" : "Registrar"}
-        </button>
-      </div>
-
-      {/* Histórico */}
-      <div style={{ height: 1, background: "var(--border)", margin: "6px 0 4px" }} />
-      <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
-        Histórico
-      </p>
-      {historico === null ? (
-        <p style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Carregando…</p>
-      ) : historico.length === 0 ? (
-        <p style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Nenhum registro ainda.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {historico.map(h => {
-            const t = TIPO_HISTORICO[h.tipo] ?? { label: h.tipo, cor: "var(--fg-subtle)" };
-            const sinal = h.tipo === "ajuste" ? "→" : h.tipo === "perda" ? "−" : "+";
-            return (
-              <div key={h.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-                <span style={{ color: t.cor, fontWeight: 500, minWidth: 46, flexShrink: 0 }}>
-                  {t.label}
-                </span>
-                <span style={{ color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
-                  {sinal}{h.quantidade}
-                </span>
-                {h.motivo && (
-                  <span style={{
-                    color: "var(--fg-muted)", flex: 1,
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>
-                    {h.motivo}
-                  </span>
-                )}
-                <span style={{ color: "var(--fg-subtle)", marginLeft: "auto", flexShrink: 0 }}>
-                  {dataRelativa(h.criado_em)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </form>
-  );
-}
-
-// ─── MinimoForm ────────────────────────────────────────────────────────────────
-
-function MinimoForm({ item, onClose }: { item: ItemEstoque; onClose: () => void }) {
-  const [qtd, setQtd]       = useState(String(item.quantidadeMinima));
-  const [pending, setPending] = useState(false);
-  const [result, setResult]   = useState<EstoqueResult>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setPending(true);
-    const fd = new FormData();
-    fd.set("quantidade_minima", qtd);
-    const r = await atualizarMinimo(item.id, fd);
-    setResult(r);
-    setPending(false);
-    if (r && "ok" in r) setTimeout(onClose, 600);
-  }
-
-  return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, paddingTop: 8, alignItems: "flex-end" }}>
-      <input
-        type="number" min="0" step="0.01"
-        value={qtd} onChange={e => setQtd(e.target.value)}
+    // Backdrop
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        background: "rgba(0,0,0,0.7)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "24px 16px",
+      }}
+      onClick={onClose}
+    >
+      {/* Painel */}
+      <div
         style={{
-          background: "var(--bg-inset)", border: "1px solid var(--border)",
-          borderRadius: 4, padding: "7px 10px", fontSize: 16,
-          color: "var(--fg)", outline: "none", width: 90,
-          colorScheme: "dark" as React.CSSProperties["colorScheme"],
+          background: "var(--bg-elevated)",
+          border: "1px solid var(--border)",
+          borderRadius: 6,
+          padding: 24,
+          width: "100%",
+          maxWidth: 440,
         }}
-        autoFocus
-      />
-      <button type="submit" disabled={pending} style={{
-        background: "var(--accent)", color: "var(--accent-fg)",
-        border: "none", borderRadius: 4, padding: "7px 14px",
-        fontSize: 13, fontWeight: 600, cursor: "pointer",
-      }}>
-        {result && "ok" in result ? "✓" : pending ? "…" : "Ok"}
-      </button>
-      <button type="button" onClick={onClose} style={{
-        background: "none", border: "1px solid var(--border)", borderRadius: 4,
-        padding: "7px 12px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
-      }}>
-        ✕
-      </button>
-    </form>
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Cabeçalho */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div>
+            <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
+              {item.produtoNome}
+            </p>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
+              Estoque atual: {item.quantidadeAtual} {item.unidade}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 18, padding: 4 }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+          {/* Tipo */}
+          <div>
+            <label style={lbl}>Tipo</label>
+            <div style={{ display: "flex", gap: 6 }}>
+              {TIPO_BOTOES.map(({ label, value }) => {
+                const sel = tipo === value;
+                return (
+                  <button
+                    key={value} type="button" onClick={() => setTipo(value)}
+                    style={{
+                      flex: 1, padding: "8px 10px", fontSize: 13,
+                      fontWeight: sel ? 500 : 400,
+                      background: sel ? "var(--bg)" : "transparent",
+                      color: sel ? "var(--fg)" : "var(--fg-muted)",
+                      border: sel ? "1px solid var(--border-strong)" : "1px solid var(--border)",
+                      borderRadius: 4, cursor: "pointer",
+                      transition: "background 100ms, color 100ms",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quantidade */}
+          <div>
+            <label style={lbl}>Quantidade ({item.unidade})</label>
+            <input
+              type="number" min="0" step="0.01"
+              value={qtd} onChange={e => setQtd(e.target.value)}
+              placeholder={tipo === "ajuste" ? "Novo total" : "Qtd"}
+              required style={inp} autoFocus
+            />
+          </div>
+
+          {/* Custo unitário — só em compras, treina o dono a pensar CMV */}
+          {tipo === "compra" && (
+            <div>
+              <label style={lbl}>Custo unitário (R$, opcional)</label>
+              <input
+                type="number" min="0" step="0.01"
+                value={custo} onChange={e => setCusto(e.target.value)}
+                placeholder="Ex: 4.50"
+                style={inp}
+              />
+            </div>
+          )}
+
+          {/* Motivo */}
+          <div>
+            <label style={lbl}>Motivo (opcional)</label>
+            <input
+              value={motivo} onChange={e => setMotivo(e.target.value)}
+              placeholder="Ex: Entrega Ambev, quebra de garrafa…"
+              style={inp}
+            />
+          </div>
+
+          {/* Feedback */}
+          {result && (
+            <p style={{
+              fontSize: 12, padding: "8px 12px", borderRadius: 4,
+              background: "ok" in result
+                ? "color-mix(in srgb, var(--ok) 10%, transparent)"
+                : "color-mix(in srgb, var(--danger) 10%, transparent)",
+              color: "ok" in result ? "var(--ok)" : "var(--danger)",
+              border: `1px solid ${"ok" in result
+                ? "color-mix(in srgb, var(--ok) 20%, transparent)"
+                : "color-mix(in srgb, var(--danger) 20%, transparent)"}`,
+            }}>
+              {"ok" in result ? "Registrado com sucesso!" : ("error" in result ? result.error : "")}
+            </p>
+          )}
+
+          {/* Ações */}
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <button type="button" onClick={onClose} style={{
+              background: "none", border: "1px solid var(--border)", borderRadius: 4,
+              padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
+            }}>
+              Cancelar
+            </button>
+            <button type="submit" disabled={pending || !qtd} style={{
+              background: "var(--accent)", color: "var(--accent-fg)",
+              border: "none", borderRadius: 4,
+              padding: "9px 18px", fontSize: 13, fontWeight: 600,
+              cursor: pending || !qtd ? "not-allowed" : "pointer",
+              opacity: pending || !qtd ? 0.6 : 1,
+            }}>
+              {pending ? "Salvando…" : "Registrar"}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
   );
 }
 
 // ─── EstoqueClient ─────────────────────────────────────────────────────────────
 
-export function EstoqueClient({ itens }: { itens: ItemEstoque[] }) {
-  const [expandido, setExpandido]     = useState<string | null>(null);
-  const [editandoMinimo, setEditandoMinimo] = useState<string | null>(null);
+interface EstoqueClientProps {
+  itens: ItemEstoque[];
+  movimentos: MovimentoRecente[];
+}
 
-  // Alertas ordenados do mais crítico ao menos crítico
+export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
+  const [tab, setTab]           = useState<"atencao" | "movimentacoes">("atencao");
+  const [modalItem, setModalItem] = useState<ItemEstoque | null>(null);
+
   const alertas = itens
     .filter(i => i.abaixoDoMinimo)
     .sort((a, b) => {
-      const gravA = a.quantidadeMinima > 0
-        ? Math.round(((a.quantidadeMinima - a.quantidadeAtual) / a.quantidadeMinima) * 100) : 0;
-      const gravB = b.quantidadeMinima > 0
-        ? Math.round(((b.quantidadeMinima - b.quantidadeAtual) / b.quantidadeMinima) * 100) : 0;
-      return gravB - gravA;
+      const gA = a.quantidadeMinima > 0
+        ? ((a.quantidadeMinima - a.quantidadeAtual) / a.quantidadeMinima) : 0;
+      const gB = b.quantidadeMinima > 0
+        ? ((b.quantidadeMinima - b.quantidadeAtual) / b.quantidadeMinima) : 0;
+      return gB - gA;
     });
   const ok = itens.filter(i => !i.abaixoDoMinimo);
-
-  function renderRow(item: ItemEstoque) {
-    const emAlerta  = item.abaixoDoMinimo;
-    const aberto    = expandido === item.id;
-    const editMin   = editandoMinimo === item.id;
-    const porcentagem = item.quantidadeMinima > 0
-      ? Math.min(Math.round((item.quantidadeAtual / item.quantidadeMinima) * 100), 200)
-      : 100;
-    const gravidade = emAlerta && item.quantidadeMinima > 0
-      ? Math.round(((item.quantidadeMinima - item.quantidadeAtual) / item.quantidadeMinima) * 100)
-      : 0;
-    const gravidadeCor = gravidade >= 25 ? "var(--danger)" : "var(--fg-subtle)";
-
-    return (
-      <div key={item.id} style={{
-        background: "var(--bg-elevated)",
-        border: `1px solid ${emAlerta ? "color-mix(in srgb, var(--danger) 30%, var(--border))" : "var(--border)"}`,
-        borderRadius: 4,
-        overflow: "hidden",
-      }}>
-        {/* Linha principal */}
-        <div
-          className="flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto] sm:items-center"
-          style={{ gap: 12, padding: "14px 20px" }}
-        >
-          {/* Nome + barra */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              {emAlerta && (
-                <span style={{
-                  fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 2,
-                  background: "color-mix(in srgb, var(--danger) 12%, transparent)",
-                  color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.06em",
-                }}>
-                  Alerta
-                </span>
-              )}
-              <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)" }}>
-                {item.produtoNome}
-              </span>
-            </div>
-            <div style={{ height: 3, background: "var(--border-strong)", borderRadius: 2, overflow: "hidden", maxWidth: 200 }}>
-              <div style={{
-                height: 3, borderRadius: 2,
-                width: `${Math.min(porcentagem, 100)}%`,
-                background: emAlerta ? "var(--danger)" : "var(--ok)",
-                transition: "width 0.4s ease",
-              }} />
-            </div>
-          </div>
-
-          {/* Controles */}
-          <div className="flex items-center justify-between sm:contents gap-3">
-            {/* Quantidade atual */}
-            <div style={{ textAlign: "right" }}>
-              <span style={{
-                fontSize: 20, fontWeight: 600, fontFamily: "var(--font-mono)",
-                color: emAlerta ? "var(--danger)" : "var(--fg)",
-              }}>
-                {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
-              </span>
-              <span style={{ fontSize: 12, color: "var(--fg-subtle)", marginLeft: 4 }}>{item.unidade}</span>
-            </div>
-
-            {/* Mínimo + gravidade */}
-            <div style={{ textAlign: "right" }}>
-              {editMin ? (
-                <MinimoForm item={item} onClose={() => setEditandoMinimo(null)} />
-              ) : (
-                <button
-                  onClick={() => setEditandoMinimo(editMin ? null : item.id)}
-                  title="Editar mínimo"
-                  style={{ background: "none", border: "none", cursor: "pointer", textAlign: "right", padding: 0 }}
-                >
-                  <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>
-                    mín. {item.quantidadeMinima} {item.unidade}
-                  </span>
-                  {emAlerta && gravidade > 0 && (
-                    <span style={{ display: "block", fontSize: 11, color: gravidadeCor, marginTop: 1 }}>
-                      −{gravidade}% do mín.
-                    </span>
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Botão de registro */}
-            <button
-              onClick={() => setExpandido(aberto ? null : item.id)}
-              style={{
-                background: aberto ? "var(--bg-inset)" : "color-mix(in srgb, var(--accent-bright) 12%, transparent)",
-                color: "var(--accent-bright)",
-                border: `1px solid ${aberto ? "var(--border)" : "color-mix(in srgb, var(--accent-bright) 30%, transparent)"}`,
-                borderRadius: 4, padding: "6px 14px",
-                fontSize: 13, fontWeight: 500, cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {aberto ? "Cancelar" : "+ Registrar"}
-            </button>
-          </div>
-        </div>
-
-        {/* Formulário expandido + histórico */}
-        {aberto && (
-          <div style={{ padding: "0 20px 16px", borderTop: "1px solid var(--border)" }}>
-            <MovimentoForm item={item} onClose={() => setExpandido(null)} />
-          </div>
-        )}
-      </div>
-    );
-  }
 
   if (itens.length === 0) {
     return (
@@ -408,36 +246,214 @@ export function EstoqueClient({ itens }: { itens: ItemEstoque[] }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      {alertas.length > 0 && (
-        <div>
-          <p style={{
-            fontSize: 11, fontWeight: 500, color: "var(--danger)",
-            textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
-          }}>
-            {alertas.length} alerta{alertas.length > 1 ? "s" : ""} de estoque baixo
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {alertas.map(renderRow)}
-          </div>
+    <>
+      {/* Modal */}
+      {modalItem && (
+        <MovimentoModal item={modalItem} onClose={() => setModalItem(null)} />
+      )}
+
+      {/* Aviso de versão */}
+      <p style={{ fontSize: 12, color: "var(--fg-subtle)", marginTop: -8 }}>
+        Estoque atual por produto. O controle inteligente por ingredientes será ativado quando as receitas estiverem configuradas.
+      </p>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
+        {(["atencao", "movimentacoes"] as const).map(t => {
+          const label = t === "atencao" ? "Atenção" : "Movimentações";
+          const count = t === "atencao" ? alertas.length : undefined;
+          const ativo = tab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                background: "none", border: "none",
+                borderBottom: `2px solid ${ativo ? "var(--accent-bright)" : "transparent"}`,
+                padding: "10px 16px",
+                fontSize: 13, fontWeight: ativo ? 500 : 400,
+                color: ativo ? "var(--fg)" : "var(--fg-muted)",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6,
+                transition: "color 150ms",
+                marginBottom: -1,
+              }}
+            >
+              {label}
+              {count !== undefined && count > 0 && (
+                <span style={{
+                  background: "var(--danger)",
+                  color: "#fff",
+                  fontSize: 10, fontWeight: 700,
+                  borderRadius: 10, padding: "1px 5px",
+                }}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Tab: Atenção ── */}
+      {tab === "atencao" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+          {alertas.length > 0 && (
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 500, color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+                {alertas.length} alerta{alertas.length > 1 ? "s" : ""} de estoque baixo
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {alertas.map(item => {
+                  const gravidade = item.quantidadeMinima > 0
+                    ? Math.round(((item.quantidadeMinima - item.quantidadeAtual) / item.quantidadeMinima) * 100)
+                    : 0;
+                  return (
+                    <div key={item.id} style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid color-mix(in srgb, var(--danger) 25%, var(--border))",
+                      borderRadius: 4,
+                      display: "flex", alignItems: "center",
+                      gap: 12, padding: "14px 20px",
+                    }}>
+                      <span style={{
+                        fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 2,
+                        background: "color-mix(in srgb, var(--danger) 12%, transparent)",
+                        color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.06em",
+                        flexShrink: 0,
+                      }}>
+                        Alerta
+                      </span>
+
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", flex: 1 }}>
+                        {item.produtoNome}
+                      </span>
+
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <span style={{ fontSize: 18, fontWeight: 600, fontFamily: "var(--font-mono)", color: "var(--danger)" }}>
+                          {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
+                          <span style={{ fontSize: 12, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>{item.unidade}</span>
+                        </span>
+                        <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
+                          mín. {item.quantidadeMinima} {item.unidade}
+                          {gravidade > 0 && (
+                            <span style={{ color: "var(--danger)", marginLeft: 4 }}>· −{gravidade}%</span>
+                          )}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setModalItem(item)}
+                        style={{
+                          background: "color-mix(in srgb, var(--accent-bright) 12%, transparent)",
+                          color: "var(--accent-bright)",
+                          border: "1px solid color-mix(in srgb, var(--accent-bright) 30%, transparent)",
+                          borderRadius: 4, padding: "6px 14px",
+                          fontSize: 13, fontWeight: 500, cursor: "pointer",
+                          whiteSpace: "nowrap", flexShrink: 0,
+                        }}
+                      >
+                        Registrar entrada
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {ok.length > 0 && (
+            <div>
+              {alertas.length > 0 && (
+                <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+                  Em dia
+                </p>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {ok.map(item => (
+                  <div key={item.id} style={{
+                    background: "var(--bg-elevated)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 4,
+                    display: "flex", alignItems: "center",
+                    gap: 12, padding: "12px 20px",
+                  }}>
+                    <span style={{ fontSize: 13, color: "var(--fg-muted)", flex: 1 }}>
+                      {item.produtoNome}
+                    </span>
+                    <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                      {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
+                      <span style={{ fontSize: 11, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>{item.unidade}</span>
+                    </span>
+                    <button
+                      onClick={() => setModalItem(item)}
+                      style={{
+                        background: "none", border: "1px solid var(--border)",
+                        borderRadius: 4, padding: "5px 12px",
+                        fontSize: 12, color: "var(--fg-muted)", cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      + Registrar
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {ok.length > 0 && (
-        <div>
-          {alertas.length > 0 && (
-            <p style={{
-              fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)",
-              textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10,
-            }}>
-              Em dia
+      {/* ── Tab: Movimentações ── */}
+      {tab === "movimentacoes" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {movimentos.length === 0 ? (
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "24px 0" }}>
+              Nenhuma movimentação registrada ainda.
             </p>
+          ) : (
+            <div style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}>
+              {movimentos.map((mov, i) => {
+                const meta = TIPO_META[mov.tipo] ?? { label: mov.tipo, cor: "var(--fg-subtle)", sinal: "·" };
+                return (
+                  <div
+                    key={mov.id}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "12px 20px",
+                      borderBottom: i < movimentos.length - 1 ? "1px solid var(--border)" : "none",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, fontWeight: 600, color: meta.cor, minWidth: 52, flexShrink: 0 }}>
+                      {meta.label}
+                    </span>
+                    <span style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: meta.cor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+                      {meta.sinal}{mov.quantidade}
+                    </span>
+                    <span style={{ fontSize: 13, color: "var(--fg)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {mov.produtoNome}
+                    </span>
+                    {mov.motivo && (
+                      <span style={{ fontSize: 12, color: "var(--fg-subtle)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {mov.motivo}
+                      </span>
+                    )}
+                    <span style={{ fontSize: 11, color: "var(--fg-subtle)", flexShrink: 0, marginLeft: "auto" }}>
+                      {dataRelativa(mov.criadoEm)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {ok.map(renderRow)}
-          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

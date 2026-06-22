@@ -16,6 +16,7 @@ import {
   getMetaMes,
   getLiveStats,
   getPrimeirosPassos,
+  getUltimoTurnoFechado,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
 import { categorizarProdutos, calcularCmv } from "@/lib/dashboard/menu-engineering";
@@ -79,106 +80,220 @@ export default async function DashboardPage() {
   const turno = await getTurnoAtual(current.bar.id);
 
   if (!turno) {
-    const passos = await getPrimeirosPassos(current.bar.id, current.userId);
-    const tudo_pronto = passos.nProdutos > 0 && passos.nMesas > 0;
-    const steps = [
-      { label: "Conta criada",           done: true,                   href: null },
-      { label: `Cardápio — ${passos.nProdutos} ${passos.nProdutos === 1 ? "produto" : "produtos"}`,
-        done: passos.nProdutos > 0,   href: "/dashboard/cardapio" },
-      { label: `Mesas — ${passos.nMesas} ${passos.nMesas === 1 ? "mesa" : "mesas"}`,
-        done: passos.nMesas > 0,      href: "/dashboard/mesas" },
-      { label: passos.nEquipe === 0
-          ? "Equipe — só você por enquanto"
-          : `Equipe — ${passos.nEquipe} ${passos.nEquipe === 1 ? "membro" : "membros"}`,
-        done: passos.nEquipe > 0,     href: "/dashboard/equipe" },
-    ];
+    const [passos, ultimoTurno, inteligencia] = await Promise.all([
+      getPrimeirosPassos(current.bar.id, current.userId),
+      getUltimoTurnoFechado(current.bar.id),
+      getInteligenciaStage(current.bar.id),
+    ]);
 
-    return (
-      <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "70vh" }}>
-        <div style={{ width: "100%", maxWidth: 440 }}>
+    // ── Bar novo: nunca teve turno → setup checklist ────────────────────────
+    if (passos.nTurnos === 0) {
+      const steps = [
+        { label: "Conta criada",           done: true,                   href: null },
+        { label: `Cardápio — ${passos.nProdutos} ${passos.nProdutos === 1 ? "produto" : "produtos"}`,
+          done: passos.nProdutos > 0,   href: "/dashboard/cardapio" },
+        { label: `Mesas — ${passos.nMesas} ${passos.nMesas === 1 ? "mesa" : "mesas"}`,
+          done: passos.nMesas > 0,      href: "/dashboard/mesas" },
+        { label: passos.nEquipe === 0
+            ? "Equipe — só você por enquanto"
+            : `Equipe — ${passos.nEquipe} ${passos.nEquipe === 1 ? "membro" : "membros"}`,
+          done: passos.nEquipe > 0,     href: "/dashboard/equipe" },
+      ];
 
-          {/* Título contextual */}
-          <h2 style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
-            {passos.nTurnos === 0 ? "Vamos configurar seu bar" : "Aguardando início do turno"}
-          </h2>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 28px", textAlign: "center", lineHeight: 1.6 }}>
-            {passos.nTurnos === 0
-              ? "Complete os passos abaixo. Quando tudo estiver pronto, peça ao caixa para abrir o primeiro turno."
-              : "O caixa abre o turno pelo painel de Caixa antes de iniciar o atendimento."}
-          </p>
-
-          {/* Checklist — só aparece no primeiro acesso */}
-          {passos.nTurnos === 0 && (
+      return (
+        <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "70vh" }}>
+          <div style={{ width: "100%", maxWidth: 440 }}>
+            <h2 style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
+              Vamos configurar seu bar
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 28px", textAlign: "center", lineHeight: 1.6 }}>
+              Complete os passos abaixo. Quando tudo estiver pronto, peça ao caixa para abrir o primeiro turno.
+            </p>
             <div style={{ ...card, padding: 0, marginBottom: 20 }}>
               {steps.map((step, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 14,
-                    padding: "14px 20px",
-                    borderBottom: i < steps.length - 1 ? "1px solid var(--border)" : "none",
-                  }}
-                >
-                  {/* Indicador */}
-                  <div style={{
-                    width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                    background: step.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
-                    border: `1.5px solid ${step.done ? "var(--ok)" : "var(--border)"}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 11, fontWeight: 700, color: "var(--ok)",
-                  }}>
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: i < steps.length - 1 ? "1px solid var(--border)" : "none" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: step.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)", border: `1.5px solid ${step.done ? "var(--ok)" : "var(--border)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--ok)" }}>
                     {step.done ? "✓" : ""}
                   </div>
-
-                  {/* Label */}
-                  <span style={{ flex: 1, fontSize: 13, color: step.done ? "var(--fg-muted)" : "var(--fg)" }}>
-                    {step.label}
-                  </span>
-
-                  {/* CTA */}
+                  <span style={{ flex: 1, fontSize: 13, color: step.done ? "var(--fg-muted)" : "var(--fg)" }}>{step.label}</span>
                   {step.href && !step.done && (
-                    <a href={step.href} style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
-                      Configurar →
-                    </a>
+                    <a href={step.href} style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>Configurar →</a>
                   )}
                 </div>
               ))}
-
-              {/* Último passo: abrir turno — informativo, link para Caixa */}
               <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px" }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                  background: "color-mix(in srgb, var(--fg) 5%, transparent)",
-                  border: "1.5px solid var(--border)",
-                }} />
-                <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>
-                  Peça ao caixa para abrir o primeiro turno
-                </span>
-                <a href="/dashboard/caixa" style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
-                  Ver Caixa →
-                </a>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "1.5px solid var(--border)" }} />
+                <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>Peça ao caixa para abrir o primeiro turno</span>
+                <a href="/dashboard/caixa" style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>Ver Caixa →</a>
               </div>
             </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Bar com histórico: mostra último turno + inteligência ───────────────
+    function labelTurno(abertoEm: string, fechadoEm: string): { dia: string; horas: string } {
+      const abertura = new Date(abertoEm);
+      const fechamento = new Date(fechadoEm);
+      const hoje = new Date();
+      const ontem = new Date(hoje); ontem.setDate(hoje.getDate() - 1);
+
+      const fmt = (d: Date) => `${d.getHours()}h`;
+      const horas = `${fmt(abertura)} às ${fmt(fechamento)}`;
+
+      const isHoje = abertura.toDateString() === hoje.toDateString() || fechamento.toDateString() === hoje.toDateString();
+      const isOntem = abertura.toDateString() === ontem.toDateString() || fechamento.toDateString() === ontem.toDateString();
+      const dia = isHoje ? "Hoje" : isOntem ? "Ontem"
+        : capitalizarPrimeiraLetra(dataExtenso.format(abertura));
+
+      return { dia, horas };
+    }
+
+    const agora = new Date();
+    const primeiroNome = current.userNome.split(" ")[0];
+    const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
+    const label = ultimoTurno ? labelTurno(ultimoTurno.abertoEm, ultimoTurno.fechadoEm) : null;
+
+    return (
+      <div className="flex flex-col" style={{ overflowX: "hidden", width: "100%" }}>
+
+        {/* Hero */}
+        <div className="relative pt-8 pb-6 lg:px-8 lg:pt-14 lg:pb-10" style={{ background: "var(--bg)" }}>
+          <h1 className="lg:text-[24px] text-[18px]" style={{ fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", lineHeight: 1.15, marginBottom: "6px", textAlign: "center" }}>
+            {saudacao(agora.getHours())}, {primeiroNome}
+          </h1>
+          <p style={{ fontSize: "13px", color: "var(--fg-subtle)", textAlign: "center" }}>
+            {dataFormatada} · bar fechado
+          </p>
+        </div>
+
+        <div className="lg:px-8" style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}>
+
+          {/* Inteligência — mesma lógica do turno aberto */}
+          {inteligencia.stage === 1 ? (
+            <section>
+              <span style={sectionLabel}>Inteligência</span>
+              <div style={{ ...card, display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>🧠</span>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Estamos aprendendo sobre seu bar</p>
+                </div>
+                <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.6 }}>
+                  Precisamos de pelo menos 30 comandas registradas para gerar recomendações confiáveis.
+                </p>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Comandas registradas</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>{inteligencia.comandas} / 30</span>
+                  </div>
+                  <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 4, overflow: "hidden" }}>
+                    <div style={{ background: "var(--accent)", borderRadius: 2, height: 4, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <section>
+              <span style={sectionLabel}>Inteligência</span>
+              <a href="/dashboard/inteligencia" style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", cursor: "pointer" }} className="hover:!border-[var(--border-strong)]">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 16 }}>🧠</span>
+                  <div>
+                    {inteligencia.insightsNaoLidos > 0 ? (
+                      <>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{inteligencia.insightsNaoLidos === 1 ? "1 item precisa da sua atenção" : `${inteligencia.insightsNaoLidos} itens precisam da sua atenção`}</p>
+                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Ver análise completa →</p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Nenhum alerta importante hoje</p>
+                        <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0" }}>Tudo dentro do esperado · Ver Inteligência →</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {inteligencia.insightsNaoLidos > 0 && (
+                  <span style={{ background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: "50%", minWidth: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px", flexShrink: 0 }}>
+                    {inteligencia.insightsNaoLidos > 9 ? "9+" : inteligencia.insightsNaoLidos}
+                  </span>
+                )}
+              </a>
+            </section>
           )}
 
-          {/* Retorno: link informativo para Caixa */}
-          {passos.nTurnos > 0 && (
-            <a
-              href="/dashboard/caixa"
-              style={{
-                display: "block", textAlign: "center",
-                padding: "14px 24px",
-                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
-                color: "var(--fg-muted)",
-                borderRadius: "6px",
-                fontSize: "13px", fontWeight: 600,
-                textDecoration: "none",
-                border: "1px solid var(--border)",
-              }}
-            >
-              Ir para Caixa →
-            </a>
+          {/* AI Chat */}
+          <section>
+            <AiHeroInput barId={current.bar.id} />
+          </section>
+
+          {/* Último turno */}
+          {ultimoTurno && label && (
+            <section>
+              <span style={sectionLabel}>Último turno</span>
+
+              {/* Data do turno */}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)" }}>{label.dia}</span>
+                <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>{label.horas}</span>
+              </div>
+
+              {/* KPI cards — 2 colunas mobile, 4 desktop */}
+              <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: "12px" }}>
+
+                <div style={{ ...card }}>
+                  <p style={overline}>Faturamento</p>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                    {currency.format(ultimoTurno.faturamento)}
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
+                    {ultimoTurno.totalComandas} {ultimoTurno.totalComandas === 1 ? "comanda" : "comandas"}
+                  </p>
+                </div>
+
+                <div style={{ ...card }}>
+                  <p style={overline}>Ticket médio</p>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                    {currency.format(ultimoTurno.ticketMedio)}
+                  </p>
+                </div>
+
+                <div style={{ ...card }}>
+                  <p style={overline}>CMV</p>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                    {ultimoTurno.cmv !== null ? `${ultimoTurno.cmv}%` : "—"}
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
+                    {ultimoTurno.cmv === null ? "custos não configurados" : "custo sobre receita"}
+                  </p>
+                </div>
+
+                <div style={{ ...card }}>
+                  <p style={overline}>Top drink</p>
+                  <p className="text-[22px] lg:text-[26px]" style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {ultimoTurno.topDrink ?? "—"}
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>mais vendido</p>
+                </div>
+
+              </div>
+
+              {/* Link para detalhes */}
+              <a href={`/dashboard/turnos/${ultimoTurno.id}`} style={{ display: "inline-block", marginTop: 12, fontSize: 12, color: "var(--fg-subtle)", textDecoration: "none" }}
+                className="hover:!text-[var(--fg-muted)]">
+                Ver detalhes do turno →
+              </a>
+            </section>
           )}
+
+          {/* Footer: turno fechado */}
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>
+            Bar fechado ·{" "}
+            <a href="/caixa" style={{ color: "var(--accent-bright)", textDecoration: "none" }}>
+              O caixa abre o próximo turno →
+            </a>
+          </p>
+
         </div>
       </div>
     );

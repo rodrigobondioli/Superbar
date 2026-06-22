@@ -18,6 +18,8 @@ export async function registrarMovimento(
   const quantidadeStr = String(formData.get("quantidade") ?? "").replace(",", ".");
   const tipo = String(formData.get("tipo") ?? "") as MovimentoTipo;
   const motivo = String(formData.get("motivo") ?? "").trim() || null;
+  const custoStr = String(formData.get("custo_unitario") ?? "").replace(",", ".");
+  const custoUnitario = custoStr ? parseFloat(custoStr) : null;
 
   const quantidade = parseFloat(quantidadeStr);
   if (isNaN(quantidade) || quantidade <= 0) return { error: "Quantidade inválida." };
@@ -60,6 +62,7 @@ export async function registrarMovimento(
     referencia_tipo: "estoque",
     referencia_id: estoqueId,
     motivo,
+    ...(custoUnitario !== null && !isNaN(custoUnitario) ? { custo_unitario: custoUnitario } : {}),
     criado_por: current.userId,
     criado_em: new Date().toISOString(),
   });
