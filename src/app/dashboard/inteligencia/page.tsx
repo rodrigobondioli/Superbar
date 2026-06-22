@@ -11,7 +11,7 @@ export default async function InteligenciaPage() {
   const insights = await getInsightsPendentes(current.bar.id);
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8">
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "32px 24px 48px" }}>
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 32 }}>
@@ -20,9 +20,7 @@ export default async function InteligenciaPage() {
       </div>
 
       {/* ── Cards ── */}
-      <div className="max-w-2xl">
-        <InsightCards insights={insights} />
-      </div>
+      <InsightCards insights={insights} />
 
     </div>
   );
