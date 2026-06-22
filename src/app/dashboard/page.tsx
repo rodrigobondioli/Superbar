@@ -651,7 +651,7 @@ export default async function DashboardPage() {
 
         {/* 2. AO VIVO — só existe quando turno está aberto */}
         <section>
-          <span style={sectionLabel}>Ao vivo</span>
+          <span style={sectionLabel}>Turno Atual</span>
           <LiveBar
             turnoId={turno.id}
             barId={current.bar.id}
@@ -784,27 +784,16 @@ export default async function DashboardPage() {
 
             {/* Receita — gráfico */}
             <div
-              className="animate-fade-in-up lg:col-span-3"
+              className="animate-fade-in-up lg:col-span-2"
               style={{ ...card, animationDelay: "240ms" }}
             >
-              <p style={{ ...overline, marginBottom: "16px" }}>Receita — últimos 7 dias</p>
-              <p className="text-[22px] lg:text-[28px]" style={{
-                fontWeight: 600,
-                color: "var(--fg)",
-                fontFamily: "var(--font-mono)",
-                fontVariantNumeric: "tabular-nums",
-              }}>
-                {currency.format(receitaSemana.atual)}
-              </p>
-              <span className="hidden lg:inline-block">
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10 }}>
+                <p style={overline}>Receita — 7 dias</p>
                 <TrendText percent={receitaSemana.percentual} comparativoLabel="vs semana passada" />
-              </span>
-              <div className="mt-3" style={{ maxHeight: "160px", overflow: "hidden" }}>
-                <BarChart data={pontosReceita} height={160} />
               </div>
-              <span className="lg:hidden block mt-2">
-                <TrendText percent={receitaSemana.percentual} comparativoLabel="vs semana passada" />
-              </span>
+              <div style={{ maxHeight: "90px", overflow: "hidden" }}>
+                <BarChart data={pontosReceita} height={90} />
+              </div>
             </div>
 
             {/* Oportunidade principal */}
