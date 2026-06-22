@@ -895,7 +895,7 @@ export default async function DashboardPage() {
                 <div style={{ padding: "10px 16px 14px", borderTop: "1px solid var(--border)" }}>
                   <p style={{ fontSize: 11, color: "var(--fg-muted)", margin: 0 }}>
                     {produtosTop5[0].produtoNome} tem a maior margem.{" "}
-                    {produtosTop5[0].categoria === "estrela" || produtosTop5[0].categoria === "vaca"
+                    {produtosTop5[0].categoria === "star" || produtosTop5[0].categoria === "cash_cow"
                       ? "Já vende bem — treine o time para sugerir ainda mais."
                       : "Considere destacá-lo no cardápio e no discurso do time."}
                   </p>
