@@ -119,26 +119,36 @@ export function InsightCards({ insights }: { insights: InsightPendente[] }) {
     });
   }
 
+  const MONITORANDO = [
+    "CMV por produto",
+    "Ticket médio",
+    "Estoque abaixo do mínimo",
+    "Produtos parados",
+    "Performance da equipe",
+  ];
+
   if (visible.length === 0) {
     return (
-      <div
-        style={{
-          ...CARD,
-          padding: "48px 32px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 10,
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: 28, margin: 0 }}>✓</p>
-        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
-          Tudo certo por enquanto
+      <div style={{ ...CARD, padding: "28px 28px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <span style={{ fontSize: 18 }}>✓</span>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
+            Tudo certo por enquanto
+          </p>
+        </div>
+
+        <p style={{ fontSize: 12, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em", margin: "0 0 12px" }}>
+          Monitorando
         </p>
-        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>
-          Nenhum alerta pendente. Os insights aparecem aqui quando o sistema identificar algo que precisa da sua atenção.
-        </p>
+
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
+          {MONITORANDO.map(item => (
+            <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ok)", flexShrink: 0 }}>✓</span>
+              <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>{item}</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
