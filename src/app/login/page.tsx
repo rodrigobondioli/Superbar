@@ -50,7 +50,7 @@ export default function LoginPage({
         {/* Center content */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px 64px" }}>
           <h1 style={{ fontSize: 28, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-mono)", textAlign: "center" }}>
-            Seja bem-vindo ao Superbar
+            Bem-vindo ao Superbar
           </h1>
           <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "0 0 32px", textAlign: "center" }}>
             The operating system for premium bars.
