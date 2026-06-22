@@ -222,6 +222,7 @@ interface EstoqueClientProps {
 export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
   const [tab, setTab]           = useState<"atencao" | "movimentacoes">("atencao");
   const [modalItem, setModalItem] = useState<ItemEstoque | null>(null);
+  const [copiadoLista, setCopiadoLista] = useState(false);
 
   const alertas = itens
     .filter(i => i.abaixoDoMinimo)
@@ -233,6 +234,26 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
       return gB - gA;
     });
   const ok = itens.filter(i => !i.abaixoDoMinimo);
+
+  // Quantidade sugerida: enche até 2× o mínimo — evita reordenar toda semana
+  function calcularSugerida(item: ItemEstoque): number {
+    return Math.max(1, Math.ceil(item.quantidadeMinima * 2 - item.quantidadeAtual));
+  }
+
+  function fmtQtd(n: number): string {
+    return n % 1 === 0 ? String(n) : n.toFixed(1);
+  }
+
+  async function copiarLista() {
+    const linhas = alertas.map(item => {
+      const qtd = calcularSugerida(item);
+      return `- ${item.produtoNome}: ${fmtQtd(qtd)} ${item.unidade}`;
+    });
+    const texto = `Comprar hoje:\n${linhas.join("\n")}`;
+    await navigator.clipboard.writeText(texto);
+    setCopiadoLista(true);
+    setTimeout(() => setCopiadoLista(false), 2000);
+  }
 
   if (itens.length === 0) {
     return (
@@ -260,7 +281,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
       {/* Tabs */}
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
         {(["atencao", "movimentacoes"] as const).map(t => {
-          const label = t === "atencao" ? "Atenção" : "Movimentações";
+          const label = t === "atencao" ? "Comprar" : "Movimentações";
           const count = t === "atencao" ? alertas.length : undefined;
           const ativo = tab === t;
           return (
@@ -299,47 +320,58 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
       {tab === "atencao" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-          {alertas.length > 0 && (
+          {alertas.length > 0 ? (
             <div>
-              <p style={{ fontSize: 11, fontWeight: 500, color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
-                {alertas.length} alerta{alertas.length > 1 ? "s" : ""} de estoque baixo
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {alertas.map(item => {
-                  const gravidade = item.quantidadeMinima > 0
-                    ? Math.round(((item.quantidadeMinima - item.quantidadeAtual) / item.quantidadeMinima) * 100)
-                    : 0;
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
+                  {alertas.length} {alertas.length === 1 ? "item" : "itens"} para comprar
+                </p>
+                <button
+                  onClick={copiarLista}
+                  style={{
+                    background: copiadoLista
+                      ? "color-mix(in srgb, var(--ok) 12%, transparent)"
+                      : "none",
+                    border: `1px solid ${copiadoLista ? "color-mix(in srgb, var(--ok) 30%, transparent)" : "var(--border)"}`,
+                    borderRadius: 4, padding: "5px 12px",
+                    fontSize: 12,
+                    color: copiadoLista ? "var(--ok)" : "var(--fg-muted)",
+                    cursor: "pointer", transition: "all 150ms",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {copiadoLista ? "✓ Copiado!" : "Copiar lista"}
+                </button>
+              </div>
+
+              {/* Lista de compra */}
+              <div style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border)",
+                borderRadius: 4, overflow: "hidden",
+              }}>
+                {alertas.map((item, i) => {
+                  const sugerida = calcularSugerida(item);
                   return (
                     <div key={item.id} style={{
-                      background: "var(--bg-elevated)",
-                      border: "1px solid color-mix(in srgb, var(--danger) 25%, var(--border))",
-                      borderRadius: 4,
-                      display: "flex", alignItems: "center",
-                      gap: 12, padding: "14px 20px",
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "14px 20px",
+                      borderBottom: i < alertas.length - 1 ? "1px solid var(--border)" : "none",
                     }}>
-                      <span style={{
-                        fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 2,
-                        background: "color-mix(in srgb, var(--danger) 12%, transparent)",
-                        color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.06em",
-                        flexShrink: 0,
-                      }}>
-                        Alerta
-                      </span>
-
                       <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", flex: 1 }}>
                         {item.produtoNome}
                       </span>
 
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <span style={{ fontSize: 18, fontWeight: 600, fontFamily: "var(--font-mono)", color: "var(--danger)" }}>
-                          {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
-                          <span style={{ fontSize: 12, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>{item.unidade}</span>
+                      <div style={{ textAlign: "right", flexShrink: 0, minWidth: 80 }}>
+                        <span style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                          {fmtQtd(sugerida)}
+                          <span style={{ fontSize: 12, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 4 }}>
+                            {item.unidade}
+                          </span>
                         </span>
                         <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
-                          mín. {item.quantidadeMinima} {item.unidade}
-                          {gravidade > 0 && (
-                            <span style={{ color: "var(--danger)", marginLeft: 4 }}>· −{gravidade}%</span>
-                          )}
+                          atual {fmtQtd(item.quantidadeAtual)} · mín {fmtQtd(item.quantidadeMinima)}
                         </p>
                       </div>
 
@@ -354,12 +386,17 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                           whiteSpace: "nowrap", flexShrink: 0,
                         }}
                       >
-                        Registrar entrada
+                        Dar entrada
                       </button>
                     </div>
                   );
                 })}
               </div>
+            </div>
+          ) : (
+            <div style={{ padding: "28px 0", textAlign: "center" as const }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ok)", marginBottom: 4 }}>✓ Estoque em dia</p>
+              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>Nenhum item abaixo do mínimo.</p>
             </div>
           )}
 
