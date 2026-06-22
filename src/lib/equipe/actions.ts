@@ -2,9 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentBar } from "@/lib/dashboard/queries";
-import { traduzirErro } from "@/lib/utils";
 import type { BarRole } from "@/types/database";
 
 async function assertDono() {
@@ -55,25 +53,27 @@ export async function removerMembro(membroId: string) {
   revalidatePath("/dashboard/equipe");
 }
 
-export type ConvidarState = {
+export type AdicionarState = {
   error?: string;
   ok?: boolean;
-  tipo?: "convite" | "direto";
 } | null;
 
-export async function convidarMembro(
-  _prev: ConvidarState,
+/**
+ * Adiciona membro diretamente à equipe — sem convite, sem email, sem Supabase Auth.
+ * Operadores (bartender, garçom, caixa) não têm conta: user_id = NULL.
+ * Dono/gerente que precisam de login se cadastram pelo fluxo normal de auth.
+ */
+export async function adicionarMembro(
+  _prev: AdicionarState,
   formData: FormData,
-): Promise<ConvidarState> {
+): Promise<AdicionarState> {
   const nome      = (formData.get("nome")      as string ?? "").trim();
   const sobrenome = (formData.get("sobrenome") as string ?? "").trim();
-  const email     = (formData.get("email")     as string ?? "").trim();
   const role      = formData.get("role") as BarRole;
 
-  if (!nome && !email) return { error: "Informe pelo menos o nome do membro." };
-  if (!role) return { error: "Selecione uma função." };
-
-  const nomeCompleto = [nome, sobrenome].filter(Boolean).join(" ") || null;
+  const nomeCompleto = [nome, sobrenome].filter(Boolean).join(" ");
+  if (!nomeCompleto) return { error: "Informe o nome do membro." };
+  if (!role)         return { error: "Selecione uma função." };
 
   try {
     const current = await getCurrentBar();
@@ -82,79 +82,16 @@ export async function convidarMembro(
       return { error: "Sem permissão." };
 
     const supabase = await createClient();
-
-    // Sem e-mail — cria direto como membro sem conta (sem convite)
-    if (!email) {
-      await supabase.from("bar_members")
-        .insert({ bar_id: current.bar.id, role, nome: nomeCompleto, ativo: true });
-      revalidatePath("/dashboard/equipe");
-      return { ok: true, tipo: "direto" };
-    }
-
-    // Com e-mail — verifica se já tem conta (profiles = usuários que fizeram cadastro próprio)
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle() as { data: { id: string } | null };
-
-    if (profile) {
-      // Usuário existente — vincula diretamente, sem email de convite
-      const { data: existing } = await supabase.from("bar_members")
-        .select("id, ativo")
-        .eq("bar_id", current.bar.id)
-        .eq("user_id", profile.id)
-        .maybeSingle() as { data: { id: string; ativo: boolean } | null };
-
-      if (existing) {
-        if (existing.ativo) return { error: "Esse usuário já faz parte da equipe." };
-        await supabase.from("bar_members")
-          .update({ ativo: true, role, ...(nomeCompleto ? { nome: nomeCompleto } : {}) })
-          .eq("id", existing.id);
-      } else {
-        await supabase.from("bar_members").insert({
-          bar_id: current.bar.id,
-          user_id: profile.id,
-          role,
-          ativo: true,
-          ...(nomeCompleto ? { nome: nomeCompleto } : {}),
-        });
-      }
-
-      revalidatePath("/dashboard/equipe");
-      return { ok: true, tipo: "direto" };
-    }
-
-    // Novo usuário — cria linha pendente (user_id=null, ativo=false) e envia email de convite
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) return { error: "NEXT_PUBLIC_APP_URL não configurado no servidor." };
-
-    const { data: pendingRow, error: insertError } = await supabase.from("bar_members")
-      .insert({
-        bar_id: current.bar.id,
-        role,
-        nome: nomeCompleto ?? email.split("@")[0],
-        ativo: false,
-      })
-      .select("id")
-      .single() as { data: { id: string } | null; error: unknown };
-
-    if (insertError || !pendingRow?.id) return { error: "Erro ao criar registro pendente." };
-
-    const adminClient = createAdminClient();
-    const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      data: { bar_id: current.bar.id, role, bar_member_id: pendingRow.id },
-      redirectTo: `${appUrl}/aceitar-convite`,
+    const { error } = await supabase.from("bar_members").insert({
+      bar_id: current.bar.id,
+      role,
+      nome:   nomeCompleto,
+      ativo:  true,
     });
 
-    if (inviteError) {
-      // Rollback: remove linha pendente se o email falhou
-      await supabase.from("bar_members").delete().eq("id", pendingRow.id);
-      return { error: "Erro ao enviar convite. " + traduzirErro(inviteError.message) };
-    }
-
+    if (error) return { error: error.message };
     revalidatePath("/dashboard/equipe");
-    return { ok: true, tipo: "convite" };
+    return { ok: true };
   } catch {
     return { error: "Erro inesperado. Tente novamente." };
   }

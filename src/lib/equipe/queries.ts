@@ -3,9 +3,8 @@ import type { BarRole } from "@/types/database";
 
 export interface MembroEquipe {
   id: string; // bar_members.id
-  userId: string | null; // null = convite pendente (ainda não aceitou)
+  userId: string | null; // null = staff operacional sem conta de auth
   nome: string;
-  email: string;
   role: BarRole;
   ativo: boolean;
   desde: string;
@@ -27,18 +26,18 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       ativo,
       nome,
       created_at,
-      profiles!bar_members_user_id_fkey(nome, email)
+      profiles!bar_members_user_id_fkey(nome)
     `)
     .eq("bar_id", barId)
     .order("created_at", { ascending: true })
     .returns<{
       id: string;
-      user_id: string;
+      user_id: string | null;
       role: BarRole;
       ativo: boolean;
       nome: string | null;
       created_at: string;
-      profiles: { nome: string; email: string } | null;
+      profiles: { nome: string } | null;
     }[]>();
 
   if (!membros?.length) return [];
@@ -62,16 +61,15 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
   return membros.map((m) => {
     const stat = m.user_id ? (statsMap.get(m.user_id) ?? { count: 0, total: 0 }) : { count: 0, total: 0 };
     return {
-      id: m.id,
-      userId: m.user_id ?? null,
-      nome: m.nome || m.profiles?.nome || "—",
-      email: m.profiles?.email ?? "—",
-      role: m.role,
-      ativo: m.ativo,
-      desde: m.created_at,
+      id:           m.id,
+      userId:       m.user_id ?? null,
+      nome:         m.nome || m.profiles?.nome || "—",
+      role:         m.role,
+      ativo:        m.ativo,
+      desde:        m.created_at,
       totalComandas: stat.count,
-      totalVendas: stat.total,
-      ticketMedio: stat.count > 0 ? stat.total / stat.count : 0,
+      totalVendas:   stat.total,
+      ticketMedio:   stat.count > 0 ? stat.total / stat.count : 0,
     };
   });
 }

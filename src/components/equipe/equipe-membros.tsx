@@ -4,14 +4,13 @@ import { useState, useTransition } from "react";
 import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
 import { alterarRole, desativarMembro, reativarMembro, removerMembro } from "@/lib/equipe/actions";
 import { toast } from "@/components/ui/toaster";
-import { CARD, LABEL, BTN_ICON, BTN_SECONDARY } from "@/lib/ui";
+import { CARD, LABEL, BTN_ICON } from "@/lib/ui";
 import type { BarRole } from "@/types/database";
 
 export type MembroRow = {
   id: string;
-  userId: string | null; // null = convite pendente
+  userId: string | null;
   nome: string;
-  email: string;
   role: BarRole;
   ativo: boolean;
   totalComandas: number;
@@ -51,9 +50,8 @@ function MembroRow({
   const [toggling, setToggling] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [, startTransition] = useTransition();
-  const isPending = m.userId === null;
-  const isOwn = m.userId === currentUserId;
-  const canEdit = isDono && !isOwn && !isPending;
+  const isOwn    = m.userId === currentUserId;
+  const canEdit  = isDono && !isOwn;
 
   async function saveRole() {
     setSaving(true);
@@ -114,26 +112,13 @@ function MembroRow({
         }}>
           {m.nome[0]?.toUpperCase() ?? "?"}
         </div>
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {m.nome}
-          </p>
-          <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {m.email}
-          </p>
-        </div>
+        <p style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {m.nome}
+        </p>
       </div>
 
-      {/* Role — badge de pendente ou editável inline */}
-      {isPending ? (
-        <span style={{
-          fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 4,
-          background: "color-mix(in srgb, var(--warn) 15%, transparent)",
-          color: "var(--warn)", display: "inline-block",
-        }}>
-          Convite enviado
-        </span>
-      ) : editing ? (
+      {/* Role — editável inline */}
+      {editing ? (
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <select
             value={role}
@@ -226,9 +211,6 @@ export function EquipeMembros({
   isDono: boolean;
   currentUserId: string;
 }) {
-  const pendentes   = inativos.filter(m => m.userId === null);
-  const desativados = inativos.filter(m => m.userId !== null);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
@@ -261,26 +243,12 @@ export function EquipeMembros({
         </div>
       </div>
 
-      {/* Convites pendentes */}
-      {pendentes.length > 0 && (
-        <div>
-          <p style={{ ...LABEL, marginBottom: 12, color: "var(--warn)" }}>Convites pendentes</p>
-          <div style={{ ...CARD, overflow: "hidden" }}>
-            {pendentes.map((m, i) => (
-              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Desativados */}
-      {desativados.length > 0 && (
+      {inativos.length > 0 && (
         <div>
           <p style={{ ...LABEL, marginBottom: 12, color: "var(--fg-subtle)" }}>Sem acesso</p>
           <div style={{ ...CARD, overflow: "hidden" }}>
-            {desativados.map((m, i) => (
+            {inativos.map((m, i) => (
               <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
                 <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} />
               </div>

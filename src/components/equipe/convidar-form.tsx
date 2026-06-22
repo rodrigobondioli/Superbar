@@ -1,11 +1,11 @@
 "use client";
 
 import { useActionState, useRef, useEffect } from "react";
-import { convidarMembro } from "@/lib/equipe/actions";
+import { adicionarMembro } from "@/lib/equipe/actions";
 import { CARD, LABEL, BTN_PRIMARY, INPUT } from "@/lib/ui";
 
 export function ConvidarForm() {
-  const [state, action, pending] = useActionState(convidarMembro, null);
+  const [state, action, pending] = useActionState(adicionarMembro, null);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Limpa o form depois de sucesso
@@ -33,17 +33,12 @@ export function ConvidarForm() {
           border: "1px solid color-mix(in srgb, var(--ok) 30%, transparent)",
           borderRadius: 4, padding: "10px 14px", marginBottom: 14,
         }}>
-          <p style={{ fontSize: 13, color: "var(--ok)", margin: 0 }}>
-            {state.tipo === "convite"
-              ? "Convite enviado! O membro receberá um email para definir a senha."
-              : "Membro adicionado com sucesso!"}
-          </p>
+          <p style={{ fontSize: 13, color: "var(--ok)", margin: 0 }}>Membro adicionado com sucesso!</p>
         </div>
       )}
 
       <form ref={formRef} action={action}>
-        {/* Linha 1: Nome + Sobrenome */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_160px_auto] gap-2.5 items-end">
           <div>
             <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>Nome</label>
             <input name="nome" type="text" placeholder="João" style={INPUT} />
@@ -51,14 +46,6 @@ export function ConvidarForm() {
           <div>
             <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>Sobrenome</label>
             <input name="sobrenome" type="text" placeholder="Silva" style={INPUT} />
-          </div>
-        </div>
-
-        {/* Linha 2: E-mail + Função + Botão */}
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_160px_auto] gap-2.5 items-end">
-          <div>
-            <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>E-mail <span style={{ color: "var(--fg-subtle)", fontWeight: 400 }}>(opcional)</span></label>
-            <input name="email" type="email" placeholder="nome@email.com" style={INPUT} />
           </div>
           <div>
             <label style={{ ...LABEL, display: "block", marginBottom: 6 }}>Função *</label>
