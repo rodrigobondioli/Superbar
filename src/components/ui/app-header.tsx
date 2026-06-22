@@ -19,7 +19,10 @@ export function AppHeader({
   return (
     <header style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 20px", height: 52, flexShrink: 0,
+      padding: "0 20px",
+      paddingTop: "env(safe-area-inset-top)",
+      height: "calc(52px + env(safe-area-inset-top))",
+      flexShrink: 0,
       borderBottom: "1px solid var(--border)",
       background: "var(--bg)",
     }}>
