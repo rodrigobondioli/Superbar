@@ -180,30 +180,34 @@ export default async function DashboardPage() {
 
         <div className="lg:px-8" style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}>
 
-          {/* 1. ATENÇÃO */}
-          {inteligencia.stage === 1 ? (
-            <section>
-              <span style={sectionLabel}>Atenção</span>
-              <div style={{ ...card, display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 16 }}>🧠</span>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Estamos aprendendo sobre seu bar</p>
-                </div>
-                <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.6 }}>
-                  Precisamos de pelo menos 30 comandas registradas para gerar recomendações confiáveis.
-                </p>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Comandas registradas</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>{inteligencia.comandas} / 30</span>
-                  </div>
-                  <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 4, overflow: "hidden" }}>
-                    <div style={{ background: "var(--accent)", borderRadius: 2, height: 4, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
-                  </div>
-                </div>
+          {/* 0. SCORE DE SAÚDE */}
+          <div style={{ ...card }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+              <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+              <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+              <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+            </div>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
               </div>
-            </section>
-          ) : (
+              <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+              </div>
+              <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+                {Math.max(0, 30 - inteligencia.comandas) > 0
+                  ? `Disponível após mais ${30 - inteligencia.comandas} ${30 - inteligencia.comandas === 1 ? "comanda registrada" : "comandas registradas"}.`
+                  : "Calculando score inicial…"}
+              </p>
+            </div>
+          </div>
+
+          {/* 1. ATENÇÃO */}
+          {inteligencia.stage === 1 ? null : (
             <section>
               <span style={sectionLabel}>Atenção</span>
               <a href="/dashboard/inteligencia" style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", cursor: "pointer" }} className="hover:!border-[var(--border-strong)]">
@@ -497,40 +501,34 @@ export default async function DashboardPage() {
         style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "32px" }}
       >
 
-        {/* 1. ATENÇÃO */}
-        {inteligencia.stage === 1 ? (
-          <section>
-            <span style={sectionLabel}>Atenção</span>
-            <div style={{ ...card, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 16 }}>🧠</span>
-                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
-                  Estamos aprendendo sobre seu bar
-                </p>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.6 }}>
-                Analisamos padrões de consumo, ticket médio e comportamento de vendas para gerar recomendações confiáveis. Precisamos de pelo menos 30 comandas registradas.
-              </p>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Comandas registradas</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>
-                    {inteligencia.comandas} / 30
-                  </span>
-                </div>
-                <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 4, overflow: "hidden" }}>
-                  <div style={{
-                    background: "var(--accent)",
-                    borderRadius: 2,
-                    height: 4,
-                    width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`,
-                    transition: "width 0.6s ease",
-                  }} />
-                </div>
-              </div>
+        {/* 0. SCORE DE SAÚDE */}
+        <div style={{ ...card }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>Saúde do Bar</span>
+            <span style={{ fontSize: 10, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>Em calibração</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 14 }}>
+            <span style={{ fontSize: 44, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", lineHeight: 1 }}>—</span>
+            <span style={{ fontSize: 20, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>/100</span>
+          </div>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Aguardando dados suficientes</span>
+              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
             </div>
-          </section>
-        ) : (
+            <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 3, overflow: "hidden" }}>
+              <div style={{ background: "color-mix(in srgb, var(--accent) 40%, transparent)", borderRadius: 2, height: 3, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+            </div>
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 8, marginBottom: 0 }}>
+              {Math.max(0, 30 - inteligencia.comandas) > 0
+                ? `Disponível após mais ${30 - inteligencia.comandas} ${30 - inteligencia.comandas === 1 ? "comanda registrada" : "comandas registradas"}.`
+                : "Calculando score inicial…"}
+            </p>
+          </div>
+        </div>
+
+        {/* 1. ATENÇÃO */}
+        {inteligencia.stage >= 2 && (
           <section>
             <span style={sectionLabel}>Atenção</span>
             <a
