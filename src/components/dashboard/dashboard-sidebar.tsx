@@ -191,7 +191,7 @@ export function DashboardSidebar({ barNome, role, insightCount = 0, onNavigate, 
           className="hover:brightness-110"
         >
           <MonitorSmartphone style={{ width: touchMode ? "16px" : "14px", height: touchMode ? "16px" : "14px" }} />
-          Modo Bartender
+          Ver operação
         </Link>
       </div>
 
