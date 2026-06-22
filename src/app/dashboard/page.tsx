@@ -224,6 +224,7 @@ export default async function DashboardPage() {
 
           {/* AI Chat */}
           <section>
+            <span style={sectionLabel}>Superbar AI</span>
             <AiHeroInput barId={current.bar.id} />
           </section>
 
@@ -506,8 +507,9 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Bloco 0b — PERGUNTE */}
+        {/* Bloco 0b — SUPERBAR AI */}
         <section>
+          <span style={sectionLabel}>Superbar AI</span>
           <AiHeroInput barId={current.bar.id} />
         </section>
 
