@@ -50,6 +50,37 @@ export function categorizarProdutos(produtos: TopDrink[]): ProdutoCategorizado[]
   });
 }
 
+// ─── Cobertura de custo ─────────────────────────────────────────────────────
+
+export type CmvStatus = "indisponivel" | "estimado" | "confiavel";
+
+export interface CoberturaReceita {
+  /** 0–100: % da receita do período com custo cadastrado */
+  cobertura: number;
+  status: CmvStatus;
+}
+
+/**
+ * Cobertura ponderada por receita — não conta produtos, pesa pela receita.
+ * Regra:   < 50% → indisponivel | 50–79% → estimado | 80%+ → confiavel
+ */
+export function calcularCoberturaReceita(produtos: TopDrink[]): CoberturaReceita {
+  const faturamentoTotal = produtos.reduce((acc, p) => acc + p.faturamento, 0);
+  if (faturamentoTotal === 0) return { cobertura: 0, status: "indisponivel" };
+
+  const faturamentoComCusto = produtos
+    .filter((p) => p.custo != null)
+    .reduce((acc, p) => acc + p.faturamento, 0);
+
+  const cobertura = Math.round((faturamentoComCusto / faturamentoTotal) * 100);
+  const status: CmvStatus =
+    cobertura >= 80 ? "confiavel" : cobertura >= 50 ? "estimado" : "indisponivel";
+
+  return { cobertura, status };
+}
+
+// ─── CMV ────────────────────────────────────────────────────────────────────
+
 /**
  * CMV (Custo de Mercadoria Vendida) % = custo total dos itens vendidos /
  * faturamento desses mesmos itens. Só entram produtos com `custo`

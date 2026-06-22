@@ -19,7 +19,7 @@ import {
   getUltimoTurnoFechado,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
-import { categorizarProdutos, calcularCmv } from "@/lib/dashboard/menu-engineering";
+import { categorizarProdutos, calcularCmv, calcularCoberturaReceita } from "@/lib/dashboard/menu-engineering";
 import { getFaturamentoPorDia, getComparacaoPeriodo } from "@/lib/dashboard/relatorios";
 import { resolvePeriodo } from "@/lib/dashboard/periodo";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
@@ -433,8 +433,8 @@ export default async function DashboardPage() {
   const primeiroNome = current.userNome.split(" ")[0];
   const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
 
-  const produtosComCusto = produtosVendidos.filter(p => p.custo != null).length;
-  const cmvParcial = cmvAtual !== null && produtosComCusto < produtosVendidos.length;
+  const coberturaReceita = calcularCoberturaReceita(produtosVendidos);
+  const cmvParcial = coberturaReceita.status !== "confiavel";
 
   const insights: InsightItem[] = gerarInsight({
     produtosCategorizado: produtosCategorizados,
@@ -623,27 +623,36 @@ export default async function DashboardPage() {
               <div className="flex flex-col lg:block">
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                   <p style={overline}>CMV</p>
-                  {cmvParcial && (
+                  {coberturaReceita.status === "estimado" && (
                     <span style={{
                       fontSize: "9px", fontWeight: 500,
                       padding: "2px 5px", borderRadius: "2px",
                       background: "color-mix(in srgb, var(--warn) 12%, transparent)",
                       color: "var(--warn)",
-                      textTransform: "uppercase", letterSpacing: "0.05em",
+                      textTransform: "uppercase" as const, letterSpacing: "0.05em",
                       whiteSpace: "nowrap",
                     }}>estimado</span>
                   )}
                 </div>
                 <p
                   className="text-[22px] lg:text-[26px]"
-                  style={{ fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: "4px" }}
+                  style={{ fontWeight: 600, color: coberturaReceita.status === "indisponivel" ? "var(--fg-subtle)" : "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: "4px" }}
                 >
-                  {cmvAtual !== null ? `${percent.format(cmvAtual)}%` : "—"}
+                  {coberturaReceita.status === "indisponivel" ? "—" : `${percent.format(cmvAtual ?? 0)}%`}
                 </p>
-                <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>custo sobre receita</p>
+                <p style={{ fontSize: "11px", color: "var(--fg-subtle)", marginTop: "2px" }}>
+                  {coberturaReceita.status === "indisponivel"
+                    ? `${coberturaReceita.cobertura}% da receita com custo`
+                    : coberturaReceita.status === "estimado"
+                    ? `${coberturaReceita.cobertura}% da receita coberta`
+                    : "custo sobre receita"}
+                </p>
               </div>
               <div className="lg:mt-1 flex-shrink-0 ml-4 lg:ml-0">
-                <TrendText percent={comparacao.cmv} invert={true} />
+                {coberturaReceita.status !== "indisponivel"
+                  ? <TrendText percent={comparacao.cmv} invert={true} />
+                  : <a href="/dashboard/cardapio" style={{ fontSize: "11px", color: "var(--accent)", textDecoration: "none" }}>Configurar →</a>
+                }
               </div>
             </div>
 
