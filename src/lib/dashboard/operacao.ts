@@ -223,6 +223,7 @@ export async function getTempoMedioPreparo(
 export interface InsightOperacional {
   texto: string;
   tipo: "action" | "opportunity" | "info";
+  contexto?: string;
   sugestao?: string;
   impactoReais?: number;
 }
@@ -276,6 +277,7 @@ export function gerarInsightsOperacionais({
   if (tempos.mediaMinutos !== null && tempos.mediaMinutos >= 8) {
     insights.push({
       texto: `Preparo médio em ${tempos.mediaMinutos}min — acima do ideal.`,
+      contexto: `Média de ${tempos.totalEntregues} pedido${tempos.totalEntregues === 1 ? "" : "s"} entregues neste turno.`,
       tipo: "action",
       sugestao: "Bar pode estar sobrecarregado. Verifique a distribuição de tarefas.",
     });

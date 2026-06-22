@@ -605,14 +605,19 @@ export default async function DashboardPage() {
                   const severityLabel = item.tipo === "action" ? "🔴 AÇÃO NECESSÁRIA" : item.tipo === "opportunity" ? "🟢 OPORTUNIDADE" : "🔵 INFORMAÇÃO";
                   return (
                     <div key={i} style={{
-                      ...card,
-                      borderLeft: `3px solid ${severityColor}`,
-                      padding: "16px 20px",
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--border)",
+                      borderLeft: `${item.tipo === "info" ? "2px" : "3px"} solid ${severityColor}`,
+                      borderRadius: "4px",
+                      padding: item.tipo === "info" ? "12px 16px" : "16px 20px",
                     }}>
-                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: severityColor, margin: "0 0 8px" }}>
+                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: severityColor, margin: "0 0 6px" }}>
                         {severityLabel}
                       </p>
-                      <p style={{ fontSize: 13, color: "var(--fg)", margin: "0 0 6px", lineHeight: 1.5 }}>{item.texto}</p>
+                      <p style={{ fontSize: item.tipo === "info" ? 12 : 13, color: item.tipo === "info" ? "var(--fg-muted)" : "var(--fg)", margin: "0 0 4px", lineHeight: 1.5 }}>{item.texto}</p>
+                      {item.contexto && (
+                        <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "0 0 6px", fontStyle: "italic" }}>{item.contexto}</p>
+                      )}
                       {item.impactoReais !== undefined && (
                         <p style={{ fontSize: 12, fontWeight: 600, color: item.impactoReais < 0 ? "#ef4444" : "var(--ok)", fontFamily: "var(--font-mono)", margin: "0 0 6px" }}>
                           Impacto estimado: {item.impactoReais < 0 ? `−${currency.format(Math.abs(item.impactoReais))}` : `+${currency.format(item.impactoReais)}`} neste turno
@@ -802,78 +807,59 @@ export default async function DashboardPage() {
               </span>
             </div>
 
-            {/* Top drinks — tabela */}
+            {/* Oportunidade principal */}
             <div
               className="animate-fade-in-up lg:col-span-2"
-              style={{ ...card, padding: 0, animationDelay: "300ms" }}
+              style={{ ...card, animationDelay: "300ms" }}
             >
-              <div style={{ padding: "20px 24px 0" }}>
-                <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--fg)", fontFamily: "var(--font-mono)", marginBottom: "2px" }}>
-                  Oportunidades
-                </p>
-                <p style={{ ...overline, marginBottom: "16px" }}>maior margem · turno atual</p>
-              </div>
-              <table className="w-full text-left">
-                <thead>
-                  <tr style={overline}>
-                    <th className="font-medium" style={{ padding: "4px 16px" }}>#</th>
-                    <th className="font-medium" style={{ padding: "4px 8px" }}>Drink</th>
-                    <th className="hidden sm:table-cell font-medium" style={{ padding: "4px 8px" }}>Tag</th>
-                    <th className="hidden sm:table-cell text-right font-medium" style={{ padding: "4px 8px" }}>Qtde</th>
-                    <th className="hidden lg:table-cell text-right font-medium" style={{ padding: "4px 8px" }}>Margem</th>
-                    <th className="text-right font-medium" style={{ padding: "4px 16px" }}>Receita</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {produtosTop5.map((produto, i) => (
-                    <tr
-                      key={produto.produtoId}
-                      style={{ borderBottom: "1px solid var(--border)" }}
-                      className="hover:bg-white/[0.02]"
-                    >
-                      <td style={{ fontSize: "12px", color: "var(--fg-subtle)", padding: "10px 16px", fontFamily: "var(--font-mono)" }}>{i + 1}</td>
-                      <td style={{ fontSize: "13px", color: "var(--fg)", padding: "10px 8px", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{produto.produtoNome}</td>
-                      <td className="hidden sm:table-cell" style={{ padding: "10px 8px" }}>
-                        <CategoriaBadge categoria={produto.categoria} />
-                      </td>
-                      <td className="hidden sm:table-cell text-right" style={{ fontSize: "12px", color: "var(--fg-muted)", padding: "10px 8px", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
-                        {produto.quantidadeVendida}
-                      </td>
-                      <td
-                        className={cn("hidden lg:table-cell text-right", produto.categoria === "problema" ? "text-error" : "")}
-                        style={{
-                          fontSize: "12px", padding: "10px 8px",
-                          color: produto.categoria === "problema" ? undefined : "var(--fg-muted)",
-                          fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums",
-                        }}
-                      >
-                        {produto.margemPercentual !== null ? `${percent.format(produto.margemPercentual)}%` : "—"}
-                      </td>
-                      <td className="text-right" style={{ fontSize: "12px", color: "var(--fg)", padding: "10px 16px", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
-                        {currency.format(produto.faturamento)}
-                      </td>
-                    </tr>
-                  ))}
-                  {produtosTop5.length === 0 && (
-                    <tr>
-                      <td colSpan={6} style={{ fontSize: "13px", color: "var(--fg-muted)", padding: "16px 16px" }}>
-                        Nenhuma venda neste turno ainda.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-              {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
-                <div style={{ padding: "10px 16px 14px", borderTop: "1px solid var(--border)" }}>
-                  <p style={{ fontSize: 11, color: "var(--fg-muted)", margin: 0 }}>
-                    {produtosTop5[0].produtoNome} tem a maior margem.{" "}
-                    {produtosTop5[0].categoria === "star" || produtosTop5[0].categoria === "cash_cow"
-                      ? "Já vende bem — treine o time para sugerir ainda mais."
-                      : "Considere destacá-lo no cardápio e no discurso do time."}
+              {produtosTop5.length === 0 || produtosTop5[0].margemPercentual === null ? (
+                <>
+                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ok)", margin: "0 0 10px" }}>
+                    🎯 OPORTUNIDADE PRINCIPAL
                   </p>
-                </div>
+                  <p style={{ fontSize: 13, color: "var(--fg-muted)" }}>Nenhuma venda com dado de margem ainda.</p>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ok)", margin: "0 0 10px" }}>
+                    🎯 OPORTUNIDADE PRINCIPAL
+                  </p>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: "0 0 6px", letterSpacing: "-0.01em" }}>
+                    {produtosTop5[0].produtoNome}
+                  </p>
+                  <div style={{ display: "flex", gap: 14, marginBottom: 12, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 12, color: "var(--ok)", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                      {percent.format(produtosTop5[0].margemPercentual ?? 0)}% margem
+                    </span>
+                    <span style={{ fontSize: 12, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>
+                      {currency.format(produtosTop5[0].faturamento)} vendido
+                    </span>
+                    <span style={{ fontSize: 12, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>
+                      {produtosTop5[0].quantidadeVendida}× pedido
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.6, marginBottom: produtosTop5.length > 1 ? 14 : 0 }}>
+                    {produtosTop5[0].categoria === "star" || produtosTop5[0].categoria === "cash_cow"
+                      ? "Já vende bem. Treine a equipe para sugerir ainda mais."
+                      : "Alta margem com potencial. Considere destacar no cardápio e no discurso da equipe."}
+                  </p>
+                  {produtosTop5.length > 1 && (
+                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                      <p style={{ ...overline, marginBottom: 8 }}>Outros com boa margem</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {produtosTop5.slice(1).filter(p => p.margemPercentual !== null).map(p => (
+                          <div key={p.produtoId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>{p.produtoNome}</span>
+                            <span style={{ fontSize: 11, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
+                              {percent.format(p.margemPercentual ?? 0)}% · {currency.format(p.faturamento)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
-              <div className="h-3" />
             </div>
 
           </div>

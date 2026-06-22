@@ -3,8 +3,9 @@ import type { ProdutoCategorizado } from "@/lib/dashboard/menu-engineering";
 export interface InsightItem {
   texto: string;
   tipo: "action" | "opportunity" | "info";
+  contexto?: string;      // explica o baseline de comparação ("Comparado ao último turno.")
   sugestao?: string;
-  impactoReais?: number; // negativo = perda, positivo = ganho (estimativa)
+  impactoReais?: number;  // negativo = perda, positivo = ganho (estimativa)
 }
 
 interface GerarInsightParams {
@@ -53,7 +54,8 @@ export function gerarInsight({
     // Custo extra estimado = faturamento × (delta CMV / 100)
     const impacto = faturamento > 0 ? -Math.round(faturamento * (cmvTrend / 100)) : undefined;
     insights.push({
-      texto: `CMV subiu ${cmvTrend.toFixed(1)}% em relação ao turno anterior.`,
+      texto: `CMV subiu ${cmvTrend.toFixed(1)}%`,
+      contexto: "Comparado ao último turno.",
       tipo: "action",
       sugestao: "Revise o custo dos produtos mais vendidos neste turno.",
       impactoReais: impacto,
@@ -73,7 +75,8 @@ export function gerarInsight({
       }
     }
     insights.push({
-      texto: `Ticket médio caiu ${Math.abs(ticketMedioTrend).toFixed(1)}% em relação ao turno anterior.`,
+      texto: `Ticket médio caiu ${Math.abs(ticketMedioTrend).toFixed(1)}%`,
+      contexto: "Comparado ao último turno.",
       tipo: "action",
       sugestao: "Observe se houve aumento de vendas de itens de menor valor.",
       impactoReais: impacto,
