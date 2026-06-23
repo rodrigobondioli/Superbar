@@ -22,7 +22,6 @@ function MetricBlock({
   return (
     <div style={{
       background: "var(--bg-elevated)",
-      border: "1px solid var(--border)",
       borderRadius: 8,
       padding: "22px 24px",
     }}>
@@ -100,7 +99,6 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
           </p>
           <div style={{
             background: "var(--bg-elevated)",
-            border: "1px solid var(--border)",
             borderRadius: 8,
             overflow: "hidden",
           }}>
@@ -145,7 +143,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
             { label: "Inadimplentes",  count: stats.bares_inadimplentes, color: "#ef4444" },
             { label: "Sem assinatura", count: bares.filter(b => !b.assinatura_status).length, color: "var(--fg-subtle)" },
           ].map(({ label, count, color }) => (
-            <div key={label} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 16px" }}>
+            <div key={label} style={{ background: "var(--bg-elevated)", borderRadius: 6, padding: "12px 16px" }}>
               <p style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-mono)", color: count > 0 ? color : "var(--fg-subtle)", margin: "0 0 2px", letterSpacing: "-0.03em" }}>{count}</p>
               <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>{label}</p>
             </div>

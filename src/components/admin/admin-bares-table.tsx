@@ -152,7 +152,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
   };
 
   return (
-    <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+    <div style={{ background: "var(--bg-elevated)", borderRadius: 8, overflow: "hidden" }}>
 
       {/* Toolbar */}
       <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -216,7 +216,6 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                       <div style={{
                         width: 34, height: 34, borderRadius: 6,
                         background: `hsl(${hashCode(bar.id) % 360}, 40%, 18%)`,
-                        border: "1px solid var(--border)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: 13, fontWeight: 700,
                         color: `hsl(${hashCode(bar.id) % 360}, 60%, 70%)`,

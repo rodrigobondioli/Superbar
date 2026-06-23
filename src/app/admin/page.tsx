@@ -5,7 +5,7 @@ import { AdminAtencao } from "@/components/admin/admin-atencao";
 
 function IconTrendUp() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
       <polyline points="17 6 23 6 23 12"/>
     </svg>
@@ -13,7 +13,7 @@ function IconTrendUp() {
 }
 function IconShield() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
     </svg>
   );
@@ -22,6 +22,14 @@ function IconShield() {
 const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency", currency: "BRL", maximumFractionDigits: 0,
 });
+
+// ─── Card base sem bordas ─────────────────────────────────────────────────────
+
+const card: React.CSSProperties = {
+  background: "var(--bg-elevated)",
+  borderRadius: 8,
+  padding: "20px 22px",
+};
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -56,30 +64,19 @@ export default async function AdminPage() {
 
         {/* MRR — featured, 2 linhas */}
         <div style={{
+          ...card,
           gridRow: "span 2",
-          background: "var(--bg-elevated)",
-          border: "1px solid var(--border)",
-          borderRadius: 8,
           padding: "28px 28px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          position: "relative",
-          overflow: "hidden",
         }}>
-          {/* Glow sutil no canto */}
-          <div style={{
-            position: "absolute", top: -40, right: -40,
-            width: 120, height: 120, borderRadius: "50%",
-            background: "color-mix(in srgb, var(--accent-bright) 12%, transparent)",
-            filter: "blur(36px)", pointerEvents: "none",
-          }} />
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                 MRR
               </span>
-              <span style={{ color: "var(--accent-bright)", opacity: 0.7 }}><IconTrendUp /></span>
+              <span style={{ color: "var(--fg-subtle)" }}><IconTrendUp /></span>
             </div>
             <p style={{ fontSize: 38, fontWeight: 800, color: "var(--accent-bright)", fontFamily: "var(--font-mono)", margin: "0 0 4px", letterSpacing: "-0.04em", lineHeight: 1 }}>
               {currency.format(stats.mrr)}
@@ -97,15 +94,10 @@ export default async function AdminPage() {
         </div>
 
         {/* Saúde */}
-        <div style={{
-          background: "var(--bg-elevated)",
-          border: stats.bares_risco > 0 ? "1px solid rgba(239,68,68,0.22)" : "1px solid var(--border)",
-          borderRadius: 8,
-          padding: "20px 22px",
-        }}>
+        <div style={card}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>Saúde</span>
-            <span style={{ color: stats.bares_risco > 0 ? "#ef4444" : "#22c55e", opacity: 0.8 }}><IconShield /></span>
+            <span style={{ color: "var(--fg-subtle)" }}><IconShield /></span>
           </div>
           <p style={{ fontSize: 30, fontWeight: 800, color: stats.bares_risco > 0 ? "#ef4444" : "#22c55e", fontFamily: "var(--font-mono)", margin: "0 0 10px", letterSpacing: "-0.04em", lineHeight: 1 }}>
             {stats.bares_saudaveis}
@@ -118,12 +110,7 @@ export default async function AdminPage() {
         </div>
 
         {/* Implantação */}
-        <div style={{
-          background: "var(--bg-elevated)",
-          border: stats.implantacao_abandonado > 0 ? "1px solid rgba(245,158,11,0.22)" : "1px solid var(--border)",
-          borderRadius: 8,
-          padding: "20px 22px",
-        }}>
+        <div style={card}>
           <div style={{ marginBottom: 14 }}>
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>Implantação</span>
           </div>
@@ -139,11 +126,8 @@ export default async function AdminPage() {
 
         {/* Sem uso 7d — ocupa as 2 colunas direitas, linha 2 */}
         <div style={{
+          ...card,
           gridColumn: "span 2",
-          background: "var(--bg-elevated)",
-          border: stats.bares_sem_uso_7d > 0 ? "1px solid rgba(245,158,11,0.22)" : "1px solid var(--border)",
-          borderRadius: 8,
-          padding: "20px 22px",
           display: "flex",
           alignItems: "center",
           gap: 40,

@@ -71,7 +71,6 @@ export function AdminImplantacao({ bares }: { bares: BarResumo[] }) {
           <a key={bar.id} href={`/admin/${bar.id}`} style={{ textDecoration: "none" }}>
             <div style={{
               background: "var(--bg-elevated)",
-              border: "1px solid var(--border)",
               borderRadius: 8,
               padding: "16px 20px",
               display: "grid",
@@ -84,7 +83,6 @@ export function AdminImplantacao({ bares }: { bares: BarResumo[] }) {
                 <div style={{
                   width: 32, height: 32, borderRadius: 6, flexShrink: 0,
                   background: `hsl(${hashCode(bar.id) % 360}, 40%, 18%)`,
-                  border: "1px solid var(--border)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 11, fontWeight: 700,
                   color: `hsl(${hashCode(bar.id) % 360}, 60%, 70%)`,

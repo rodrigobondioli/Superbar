@@ -118,8 +118,6 @@ export function AdminAtencao({ bares }: { bares: BarResumo[] }) {
 
 function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "verificar" }) {
   const action = suggestedAction(bar);
-  const accentColor = urgency === "imediata" ? "#ef4444" : "#f59e0b";
-  const topAlert = bar.alertas[0];
 
   return (
     <a
@@ -131,20 +129,16 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
         textDecoration: "none",
         borderRadius: 6,
         overflow: "hidden",
-        border: "1px solid var(--border)",
         background: "var(--bg-elevated)",
-        transition: "background 100ms",
+        transition: "opacity 100ms",
       }}
     >
-      {/* Borda colorida esquerda */}
-      <div style={{ width: 3, alignSelf: "stretch", background: accentColor, flexShrink: 0 }} />
 
       {/* Avatar */}
       <div style={{
-        width: 36, height: 36, margin: "14px 14px 14px 16px",
+        width: 36, height: 36, margin: "14px 14px 14px 14px",
         borderRadius: 6,
         background: `hsl(${hashCode(bar.id) % 360}, 40%, 18%)`,
-        border: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 12, fontWeight: 700,
         color: `hsl(${hashCode(bar.id) % 360}, 60%, 70%)`,
