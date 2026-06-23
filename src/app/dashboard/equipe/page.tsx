@@ -90,7 +90,7 @@ export default async function EquipePage() {
           ) : (
             <div style={{
               background: "var(--bg-elevated)",
-              border: "1px solid var(--border)",
+
               borderRadius: 4, padding: 24,
             }}>
               <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", margin: "0 0 6px" }}>

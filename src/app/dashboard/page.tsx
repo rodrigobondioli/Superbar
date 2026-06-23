@@ -68,7 +68,6 @@ const overline: React.CSSProperties = {
 
 const card: React.CSSProperties = {
   background: "var(--bg-elevated)",
-  border: "1px solid var(--border)",
   borderRadius: "4px",
   padding: "20px 24px",
 };
@@ -606,7 +605,6 @@ export default async function DashboardPage() {
                   return (
                     <div key={i} style={{
                       background: "var(--bg-elevated)",
-                      border: "1px solid var(--border)",
                       borderLeft: `${item.tipo === "info" ? "2px" : "3px"} solid ${severityColor}`,
                       borderRadius: "4px",
                       padding: item.tipo === "info" ? "12px 16px" : "16px 20px",

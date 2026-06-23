@@ -28,7 +28,7 @@ export default function DashboardLoading() {
           {[1, 2, 3].map(i => (
             <div key={i} style={{
               background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-              border: "1px solid var(--border)", borderRadius: 8, padding: 20,
+              borderRadius: 8, padding: 20,
             }}>
               <div style={{ ...pulse, height: 12, width: 80, marginBottom: 14 }} />
               <div style={{ ...pulse, height: 36, width: 140, marginBottom: 8 }} />
@@ -40,7 +40,7 @@ export default function DashboardLoading() {
         {/* Wide card (chart placeholder) */}
         <div style={{
           background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-          border: "1px solid var(--border)", borderRadius: 8, padding: 24, marginBottom: 24,
+          borderRadius: 8, padding: 24, marginBottom: 24,
         }}>
           <div style={{ ...pulse, height: 14, width: 160, marginBottom: 20 }} />
           <div style={{ ...pulse, height: 160, width: "100%" }} />
@@ -51,7 +51,7 @@ export default function DashboardLoading() {
           {[1, 2].map(i => (
             <div key={i} style={{
               background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-              border: "1px solid var(--border)", borderRadius: 8, padding: 20,
+              borderRadius: 8, padding: 20,
             }}>
               <div style={{ ...pulse, height: 14, width: 120, marginBottom: 16 }} />
               {[1, 2, 3, 4].map(j => (

@@ -29,7 +29,7 @@ const overline: React.CSSProperties = {
 
 const metricCard: React.CSSProperties = {
   background: "var(--bg-elevated)",
-  border: "1px solid var(--border)",
+
   borderRadius: "4px",
   padding: "20px 24px",
   minWidth: 0,

@@ -25,7 +25,7 @@ export default function DashboardCaixaLoading() {
           </div>
           <div style={{
             background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-            border: "1px solid var(--border)", borderRadius: 8, padding: "10px 16px",
+            borderRadius: 8, padding: "10px 16px",
           }}>
             <div style={{ ...pulse, height: 11, width: 60, marginBottom: 8 }} />
             <div style={{ ...pulse, height: 32, width: 40 }} />
@@ -37,7 +37,7 @@ export default function DashboardCaixaLoading() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} style={{
               background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-              border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden",
+              borderRadius: 8, overflow: "hidden",
             }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
                 <div>

@@ -366,7 +366,6 @@ function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string;
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px",
         background: "var(--bg-inset)",
-        border: "1px solid var(--border)",
         borderRadius: 6,
         gap: 16,
       }}>
@@ -417,7 +416,6 @@ function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string;
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px", marginTop: 10,
         background: "var(--bg-inset)",
-        border: "1px solid var(--border)",
         borderRadius: 6,
         gap: 16,
       }}>
