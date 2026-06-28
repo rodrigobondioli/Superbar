@@ -55,6 +55,13 @@ export default function LoginPage({
           background: "linear-gradient(to bottom, #0A0A0B 0%, #111113 100%)",
         }}
       >
+        {/* Superbar Intelligence */}
+        <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 32 }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 400, fontSize: 12, color: "#ffffff" }}>
+            Superbar Intelligence
+          </span>
+        </div>
+
         {/* Logo */}
         <div className="absolute left-4 md:left-8 lg:left-14" style={{ top: 32 }}>
           <Link href="/">
