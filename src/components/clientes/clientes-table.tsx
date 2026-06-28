@@ -37,12 +37,13 @@ export function ClientesTable({ clientes }: Props) {
   function iniciarEdicao(c: Cliente) {
     setEditando(c.id);
     setForm({
-      nome: c.nome,
-      telefone: c.telefone ?? "",
-      email: c.email ?? "",
+      nome:            c.nome,
+      telefone:        c.telefone ?? "",
+      email:           c.email ?? "",
       data_nascimento: c.data_nascimento ?? "",
-      time_coracao: c.time_coracao ?? "",
-      notas: c.notas ?? "",
+      drink_favorito:  c.drink_favorito ?? "",
+      restricoes:      c.restricoes ?? "",
+      notas:           c.notas ?? "",
     });
   }
 
@@ -53,7 +54,8 @@ export function ClientesTable({ clientes }: Props) {
         telefone:        form.telefone ?? "",
         email:           form.email ?? "",
         data_nascimento: form.data_nascimento ?? "",
-        time_coracao:    form.time_coracao ?? "",
+        drink_favorito:  form.drink_favorito ?? "",
+        restricoes:      form.restricoes ?? "",
         notas:           form.notas ?? "",
       });
       setEditando(null);
@@ -105,7 +107,7 @@ export function ClientesTable({ clientes }: Props) {
         textTransform: "uppercase",
       }}>
         <span>Cliente</span>
-        <span>Aniversário · Time</span>
+        <span>Aniversário · Drink</span>
         <span>Contato</span>
         <span style={{ textAlign: "right" }}>Visitas</span>
         <span style={{ textAlign: "right" }}>Total</span>
@@ -124,14 +126,14 @@ export function ClientesTable({ clientes }: Props) {
               background: "color-mix(in srgb, var(--accent) 4%, var(--bg))",
             }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
-                {[
-                  { label: "Nome*", key: "nome", type: "text" },
-                  { label: "Telefone", key: "telefone", type: "tel" },
-                  { label: "E-mail", key: "email", type: "email" },
-                  { label: "Nascimento", key: "data_nascimento", type: "date" },
-                  { label: "Time do coração", key: "time_coracao", type: "text" },
-                  { label: "Notas", key: "notas", type: "text" },
-                ].map(({ label, key, type }) => (
+                {([
+                  ["Nome*",          "nome",            "text"],
+                  ["Telefone",       "telefone",        "tel"],
+                  ["E-mail",         "email",           "email"],
+                  ["Aniversário",    "data_nascimento", "date"],
+                  ["Drink favorito", "drink_favorito",  "text"],
+                  ["Restrições",     "restricoes",      "text"],
+                ] as const).map(([label, key, type]) => (
                   <div key={key}>
                     <label style={{ fontSize: 11, color: "var(--fg-subtle)", display: "block", marginBottom: 4 }}>
                       {label}
@@ -149,6 +151,23 @@ export function ClientesTable({ clientes }: Props) {
                     />
                   </div>
                 ))}
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ fontSize: 11, color: "var(--fg-subtle)", display: "block", marginBottom: 4 }}>
+                    Notas
+                  </label>
+                  <input
+                    type="text"
+                    value={(form.notas as string) ?? ""}
+                    onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))}
+                    placeholder="Anota o que o bartender precisa saber..."
+                    style={{
+                      width: "100%", boxSizing: "border-box",
+                      background: "var(--bg)", border: "1px solid var(--border)",
+                      borderRadius: 6, padding: "6px 10px", fontSize: 13,
+                      color: "var(--fg)", outline: "none",
+                    }}
+                  />
+                </div>
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
@@ -189,11 +208,16 @@ export function ClientesTable({ clientes }: Props) {
                 {c.notas && (
                   <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-subtle)" }}>{c.notas}</p>
                 )}
+                {c.restricoes && (
+                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--warning, #f59e0b)" }}>
+                    ⚠️ {c.restricoes}
+                  </p>
+                )}
               </div>
               <div style={{ fontSize: 13, color: "var(--fg-muted)" }}>
                 {c.data_nascimento ? `🎂 ${fmtData(c.data_nascimento)}` : "—"}
-                {c.time_coracao && (
-                  <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)" }}>⚽ {c.time_coracao}</p>
+                {c.drink_favorito && (
+                  <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)" }}>🍹 {c.drink_favorito}</p>
                 )}
               </div>
               <div style={{ fontSize: 12, color: "var(--fg-muted)" }}>

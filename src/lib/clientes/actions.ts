@@ -9,7 +9,8 @@ export async function criarCliente(dados: {
   telefone?: string;
   email?: string;
   data_nascimento?: string;
-  time_coracao?: string;
+  drink_favorito?: string;
+  restricoes?: string;
   notas?: string;
   identificador?: string;
 }): Promise<{ id: string } | { error: string }> {
@@ -20,14 +21,15 @@ export async function criarCliente(dados: {
   const { data, error } = await supabase
     .from("clientes")
     .insert({
-      bar_id:           current.bar.id,
-      nome:             dados.nome.trim(),
-      telefone:         dados.telefone?.trim() || null,
-      email:            dados.email?.trim() || null,
-      data_nascimento:  dados.data_nascimento || null,
-      time_coracao:     dados.time_coracao?.trim() || null,
-      notas:            dados.notas?.trim() || null,
-      identificador:    dados.identificador?.trim() || null,
+      bar_id:          current.bar.id,
+      nome:            dados.nome.trim(),
+      telefone:        dados.telefone?.trim() || null,
+      email:           dados.email?.trim() || null,
+      data_nascimento: dados.data_nascimento || null,
+      drink_favorito:  dados.drink_favorito?.trim() || null,
+      restricoes:      dados.restricoes?.trim() || null,
+      notas:           dados.notas?.trim() || null,
+      identificador:   dados.identificador?.trim() || null,
     })
     .select("id")
     .single<{ id: string }>();
@@ -44,7 +46,8 @@ export async function atualizarCliente(
     telefone: string;
     email: string;
     data_nascimento: string;
-    time_coracao: string;
+    drink_favorito: string;
+    restricoes: string;
     notas: string;
     identificador: string;
   }>,
@@ -57,12 +60,13 @@ export async function atualizarCliente(
     .from("clientes")
     .update({
       ...dados,
-      nome:          dados.nome?.trim(),
-      telefone:      dados.telefone?.trim() || null,
-      email:         dados.email?.trim() || null,
-      time_coracao:  dados.time_coracao?.trim() || null,
-      notas:         dados.notas?.trim() || null,
-      identificador: dados.identificador?.trim() || null,
+      nome:           dados.nome?.trim(),
+      telefone:       dados.telefone?.trim() || null,
+      email:          dados.email?.trim() || null,
+      drink_favorito: dados.drink_favorito?.trim() || null,
+      restricoes:     dados.restricoes?.trim() || null,
+      notas:          dados.notas?.trim() || null,
+      identificador:  dados.identificador?.trim() || null,
     })
     .eq("id", clienteId)
     .eq("bar_id", current.bar.id);

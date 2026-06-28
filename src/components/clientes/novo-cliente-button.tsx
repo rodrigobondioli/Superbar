@@ -20,7 +20,7 @@ export function NovoClienteButton() {
   const [aberto, setAberto] = useState(false);
   const [form, setForm] = useState({
     nome: "", telefone: "", email: "",
-    data_nascimento: "", time_coracao: "", notas: "",
+    data_nascimento: "", drink_favorito: "", restricoes: "", notas: "",
   });
   const [erro, setErro] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -35,7 +35,7 @@ export function NovoClienteButton() {
     startTransition(async () => {
       const res = await criarCliente(form);
       if ("error" in res) { setErro(res.error); return; }
-      setForm({ nome: "", telefone: "", email: "", data_nascimento: "", time_coracao: "", notas: "" });
+      setForm({ nome: "", telefone: "", email: "", data_nascimento: "", drink_favorito: "", restricoes: "", notas: "" });
       setAberto(false);
     });
   }
@@ -68,7 +68,8 @@ export function NovoClienteButton() {
                 ["Telefone", "telefone", "tel"],
                 ["E-mail", "email", "email"],
                 ["Aniversário", "data_nascimento", "date"],
-                ["Time do coração", "time_coracao", "text"],
+                ["Drink favorito", "drink_favorito", "text"],
+                ["Restrições / alergias", "restricoes", "text"],
               ] as const).map(([label, key, type]) => (
                 <div key={key} style={key === "nome" ? { gridColumn: "1 / -1" } : {}}>
                   <label style={{ fontSize: 12, color: "var(--fg-subtle)", display: "block", marginBottom: 6 }}>

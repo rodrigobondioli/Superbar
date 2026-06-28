@@ -240,9 +240,10 @@ export interface Cliente {
   nome: string;
   telefone: string | null;
   email: string | null;
-  data_nascimento: string | null; // ISO date YYYY-MM-DD
-  time_coracao: string | null;
-  notas: string | null;
+  data_nascimento: string | null;  // ISO date YYYY-MM-DD
+  drink_favorito: string | null;   // drink preferido / assinatura
+  restricoes: string | null;       // alergias, não bebe X, vegetariano...
+  notas: string | null;            // anotações livres do bartender/dono
   total_visitas: number;
   ultima_visita: string | null;
   total_gasto: number;
