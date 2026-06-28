@@ -44,10 +44,11 @@ export function CtaSection() {
 
         <p
           style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 400,
+            fontFamily: "var(--font-sans)",
+            fontWeight: 700,
             fontSize: "clamp(3rem, 10vw, 9rem)",
             color: "#ffffff",
+            textTransform: "uppercase",
             letterSpacing: "-0.02em",
             lineHeight: 0.9,
             marginBottom: "1.5rem",
@@ -58,8 +59,9 @@ export function CtaSection() {
 
         <p
           style={{
-            fontFamily: "var(--font-roboto-mono)",
-            fontSize: "0.875rem",
+            fontFamily: "var(--font-sans)",
+            fontSize: "1.25rem",
+            fontWeight: 400,
             color: "#ffffff",
             marginBottom: "2rem",
           }}
