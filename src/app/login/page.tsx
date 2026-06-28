@@ -49,7 +49,9 @@ export default function LoginPage({
 
       <div
         style={{
-          minHeight: "100dvh",
+          height: "100dvh",
+          overflow: "hidden",
+          position: "relative",
           display: "flex",
           flexDirection: "column",
           background: "linear-gradient(to bottom, #0A0A0B 0%, #111113 100%)",
@@ -84,7 +86,7 @@ export default function LoginPage({
             alignItems: "center",
             justifyContent: "center",
             flex: 1,
-            padding: "120px 16px 48px",
+            padding: "0 16px",
           }}
         >
           <h1
