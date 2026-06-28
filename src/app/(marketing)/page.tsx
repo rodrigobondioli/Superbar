@@ -206,7 +206,7 @@ export default async function Home() {
                 style={{
                   fontFamily: "var(--font-sans)",
                   fontWeight: 600,
-                  fontSize: 36,
+                  fontSize: 32,
                   lineHeight: 1.15,
                   letterSpacing: "-0.01em",
                 }}
@@ -230,7 +230,7 @@ export default async function Home() {
                       style={{
                         fontFamily: "var(--font-sans)",
                         fontWeight: 400,
-                        fontSize: 20,
+                        fontSize: 16,
                         color: "#ffffff",
                         lineHeight: 1.5,
                       }}
