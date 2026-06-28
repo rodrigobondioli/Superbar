@@ -100,19 +100,20 @@ export async function registrarPagamento(
         const ids = (cmdIds ?? []).map((c) => c.id);
 
         if (ids.length >= 5) {
-          type ItemRow = { nome: string | null; comanda_id: string | null };
+          type ItemRow = { produto_id: string | null; comanda_id: string | null; produtos: { nome: string } | null };
           const { data: items } = await supabase
             .from("comanda_items")
-            .select("nome, comanda_id")
+            .select("produto_id, comanda_id, produtos(nome)")
             .in("comanda_id", ids)
             .neq("status", "cancelado") as { data: ItemRow[] | null };
 
           // Contar em quantas comandas distintas cada produto apareceu
           const porcComanda = new Map<string, Set<string>>();
           for (const item of items ?? []) {
-            if (!item.nome || !item.comanda_id) continue;
-            if (!porcComanda.has(item.nome)) porcComanda.set(item.nome, new Set());
-            porcComanda.get(item.nome)!.add(item.comanda_id);
+            const nome = item.produtos?.nome;
+            if (!nome || !item.comanda_id) continue;
+            if (!porcComanda.has(nome)) porcComanda.set(nome, new Set());
+            porcComanda.get(nome)!.add(item.comanda_id);
           }
 
           let topNome = "";
