@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { signIn } from "@/lib/auth/actions";
 import { useState, use } from "react";
@@ -18,56 +19,85 @@ export default function LoginPage({
 
   const inputStyle = (focused: boolean): React.CSSProperties => ({
     width: "100%",
-    background: focused ? "color-mix(in srgb, var(--bg-inset) 80%, var(--bg))" : "var(--bg-inset)",
-    border: "none",
+    background: "#1C1C1E",
+    border: focused ? "1px solid rgba(245,158,11,0.5)" : "1px solid #2C2C2E",
     borderRadius: "12px",
     padding: "14px 16px",
-    color: "var(--fg)",
+    color: "#FAFAFA",
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
     colorScheme: "dark",
-    transition: "background 0.15s",
+    fontFamily: "var(--font-sans)",
+    transition: "border-color 0.15s",
   });
 
   return (
     <>
-      <style>{`input::placeholder { color: var(--fg-subtle); }`}</style>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`input::placeholder { color: #52525B; }`}</style>
 
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
-
-        {/* Version — top-right */}
-        <div style={{ position: "absolute", top: 32, right: 32 }}>
-          <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontWeight: 500, letterSpacing: "0.04em" }}>
-            Versão 1.0
-          </span>
-        </div>
-
-        {/* Logo — same position as site-nav (px-4 md:px-8 lg:px-14 / py-6) */}
-        <div className="absolute top-6 left-4 md:left-8 lg:left-14">
-          <Image src="/img-lp/logo-superbar.svg" width={48} height={48} alt="Superbar" priority style={{ opacity: 0.9 }} />
+      <div
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          flexDirection: "column",
+          background: "linear-gradient(to bottom, #0A0A0B 0%, #111113 100%)",
+        }}
+      >
+        {/* Logo */}
+        <div className="absolute left-4 md:left-8 lg:left-14" style={{ top: 32 }}>
+          <Link href="/">
+            <Image
+              src="/img-lp/logo-superbar.svg"
+              width={84}
+              height={84}
+              alt="Superbar"
+              priority
+              style={{ opacity: 0.9 }}
+            />
+          </Link>
         </div>
 
         {/* Center content */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px 64px" }}>
-          <h1 style={{ fontSize: 32, fontWeight: 400, color: "var(--fg)", margin: "0 0 20px", fontFamily: "var(--font-display)", textAlign: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
+            padding: "80px 16px 64px",
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "clamp(1.375rem, 5.5vw, 2rem)",
+              fontWeight: 600,
+              color: "#FAFAFA",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.2,
+              margin: "0 0 28px",
+              textAlign: "center",
+            }}
+          >
             Bem-vindo ao Superbar
           </h1>
 
           {/* Card */}
           <div
-            className="p-6 sm:p-10"
             style={{
-              width: "100%", maxWidth: "420px",
-              background: "var(--bg-elevated)",
-              border: "none",
-              borderRadius: "16px",
+              width: "100%",
+              maxWidth: "420px",
+              background: "#1C1C1E",
+              border: "1px solid #2C2C2E",
+              borderRadius: "20px",
+              padding: "32px",
             }}
           >
             <form
               action={signIn}
-              style={{ display: "flex", flexDirection: "column", gap: 16 }}
+              style={{ display: "flex", flexDirection: "column", gap: 12 }}
               onSubmit={() => setLoading(true)}
             >
               <input
@@ -88,51 +118,77 @@ export default function LoginPage({
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
               />
+
               {error && (
-                <p style={{
-                  fontSize: 13, borderRadius: 12,
-                  border: "none",
-                  background: "var(--danger-bg)",
-                  padding: "8px 12px", color: "var(--danger)", margin: 0,
-                }}>
+                <p
+                  style={{
+                    fontSize: 13,
+                    borderRadius: 12,
+                    background: "rgba(239,68,68,0.10)",
+                    padding: "10px 14px",
+                    color: "#EF4444",
+                    margin: 0,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
                   {error}
                 </p>
               )}
+
               <button
                 type="submit"
                 disabled={loading}
                 style={{
+                  marginTop: 8,
                   width: "100%",
-                  background: loading ? "color-mix(in srgb, var(--accent) 55%, transparent)" : "var(--accent)",
+                  background: loading ? "rgba(245,158,11,0.55)" : "#F59E0B",
                   border: "none",
                   borderRadius: "9999px",
                   padding: "14px 32px",
                   color: "#000000",
-                  fontFamily: "var(--font-mono)",
-                  fontWeight: "700",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 700,
                   fontSize: "14px",
                   cursor: loading ? "default" : "pointer",
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.01em",
                   transition: "background 0.15s, opacity 0.15s",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
-                  opacity: loading ? 0.6 : 1,
+                  minHeight: "44px",
+                  opacity: loading ? 0.7 : 1,
                 }}
               >
-                {loading ? "Entrando..." : <>Entrar <ArrowRight size={16} /></>}
+                {loading ? "Entrando…" : <>Entrar <ArrowRight size={16} /></>}
               </button>
             </form>
           </div>
 
-          <div style={{ marginTop: "16px", display: "flex", gap: 24 }}>
-            <a href="/recuperar-senha" style={{ color: "var(--fg-subtle)", fontSize: "13px", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+          {/* Links auxiliares */}
+          <div style={{ marginTop: 20, display: "flex", gap: 28 }}>
+            <Link
+              href="/recuperar-senha"
+              style={{
+                color: "#A1A1AA",
+                fontSize: "13px",
+                textDecoration: "none",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
               Esqueceu a senha?
-            </a>
-            <a href="/cadastro" style={{ color: "var(--fg-subtle)", fontSize: "13px", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+            </Link>
+            <Link
+              href="/cadastro"
+              style={{
+                color: "#A1A1AA",
+                fontSize: "13px",
+                textDecoration: "none",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
               Criar conta
-            </a>
+            </Link>
           </div>
         </div>
       </div>

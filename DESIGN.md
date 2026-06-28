@@ -169,6 +169,73 @@ Breakpoints:
 
 ---
 
+## Tipografia — escala completa
+
+### Dashboard / Auth (px fixos, viewport controlado)
+
+| Estilo            | Font-size | Weight | Letter-spacing | Uso                         |
+|------------------|-----------|--------|----------------|-----------------------------|
+| Display          | 22–28px   | 700    | -0.025em       | H1, nome do bar, títulos    |
+| Heading          | 18–20px   | 600    | -0.02em        | Seções, sub-títulos         |
+| KPI Number       | 24–32px   | 700    | -0.01em        | Receita, ticket, métricas   |
+| Body             | 13–14px   | 400    | 0              | Texto corrido               |
+| Label / Overline | 10–11px   | 600    | 0.08–0.10em    | Maiúsculas, CardOverline    |
+| Caption          | 11–12px   | 400–500| 0              | Subtexto, datas             |
+
+### Landing page (fluid com clamp)
+
+| Estilo           | clamp                              | Uso                                    |
+|-----------------|------------------------------------|----------------------------------------|
+| H1 Hero         | `clamp(2.5rem, 8vw, 72px)`         | Headline principal                     |
+| H2 Grande       | `clamp(1.75rem, 8vw, 3rem)`        | Seções de impacto (Dores, Dono)        |
+| H2 Padrão       | `clamp(1.375rem, 5.5vw, 2rem)`     | FAQ, Processo, Contato, Para Você      |
+| Subtítulo       | `clamp(1rem, 2.5vw, 1.25rem)`      | Parágrafos descritivos                 |
+| Card title      | `clamp(1.125rem, 3vw, 1.375rem)`   | Títulos de cards menores               |
+| CTA display     | `clamp(3rem, 10vw, 9rem)`          | "INTELIGENTE." — único uso             |
+| CTA pre-title   | `clamp(1.25rem, 3.5vw, 3.25rem)`   | "Seu bar ficou super"                  |
+
+**Regras gerais de tipografia:**
+- `fontFamily: "var(--font-sans)"` em todos os elementos (sem exceção)
+- `--font-display` e `--font-mono` são aliases — preferir `--font-sans` diretamente
+- Sentence case em todo texto de UI (exceto "INTELIGENTE." na CTA — único caso de all caps intencional)
+- `text-balance` em todos os headings e subtítulos para quebra de linha equilibrada
+- `letterSpacing: "-0.02em"` em H1/H2 grandes; `"-0.01em"` em H2 padrões
+
+---
+
+## Botões
+
+| Variante       | Background   | Texto      | Borda  | Border-radius | Uso                        |
+|---------------|-------------|-----------|--------|---------------|----------------------------|
+| Primary        | `#F59E0B`   | `#000000` | none   | 9999px        | CTA principal em todas as telas |
+| Dark           | `#000000`   | `#ffffff` | none   | 9999px        | CTA sobre fundo amber (modal, CTA section) |
+| Subtle         | `var(--bg-card)` | `var(--fg)` | `1px solid #2C2C2E` | 9999px | Ações secundárias |
+| Destructive    | `var(--danger-bg)` | `var(--danger)` | none | 8px | Ações destrutivas |
+
+Padding padrão: `14px 32px`. Min-height: `44px` (touch target).
+
+---
+
+## Inputs
+
+```css
+background: var(--bg-card);          /* #1C1C1E */
+border: 1px solid #2C2C2E;
+border-radius: 12px;
+padding: 14px 16px;
+color: var(--fg);
+font-size: 14px;
+colorScheme: dark;
+
+/* focus */
+border-color: rgba(245,158,11,0.5);  /* accent com opacidade */
+outline: none;
+```
+
+Placeholder: `color: var(--fg-subtle)`.
+
+---
+
 ## Landing page (marketing)
 
 A landing page (`/`) usa o **mesmo sistema de design** que o dashboard. Não existem duas paletas — existe uma paleta, aplicada em dois contextos.
@@ -179,30 +246,43 @@ A landing page (`/`) usa o **mesmo sistema de design** que o dashboard. Não exi
 |--------------------------------------------|------------------------------|
 | Fundo geral do site                        | `#111113`                    |
 | Hero (gradient topo → fundo)               | `#0A0A0B` → `#111113`       |
-| Seção "Seu bar ficou super INTELIGENTE"    | `#0A0A0B`                   |
-| Cards de dores / processo mobile           | `#1C1C1E`                   |
+| Seção CTA "INTELIGENTE."                   | `#F59E0B` (amber)            |
+| Cards de dores / processo mobile           | `#1C1C1E`                    |
 | Cards processo desktop (profundidade)      | `#1C1C1E` / `#232325` / `#2A2A2C` |
+| Modal de contato                           | `#F59E0B` (amber)            |
 | Footer                                     | `#111113`                    |
 
 ### Cards na landing
 
-Todo card usa borda: `border: "1px solid #2C2C2E"`.
+Todo card usa `border: "1px solid #2C2C2E"`, `borderRadius: 20px`.
 
 Os 3 cards do Processo criam profundidade com tons progressivos: `#1C1C1E` → `#232325` → `#2A2A2C`. Divider interno: `rgba(255,255,255,0.1)`.
+
+### Serrilhado (zigzag)
+
+Usado como separador entre seções de cores distintas. Fill = cor da seção adjacente. Nunca inventar outra forma de separação.
 
 ### Accent na landing
 
 Idêntico ao dashboard: `#F59E0B`. Aplicado em títulos de cards de dores, check icons, CTAs primários, FAQ, badges da parallax.
 
-### Badges da parallax scene
-
-Dois badges visualmente distintos:
-- Badge 1 "Diminuímos o CMV": `bg #F59E0B`, `fg #000000`
-- Badge 2 "Aumentamos a Margem": `bg #2C2C2E`, `fg #F59E0B`
-
 ### Regra absoluta
 
 Nunca crie "a paleta da landing" separada "da paleta do dashboard". Uma paleta, dois contextos. Qualquer valor novo que não caiba nos tokens existentes deve ser documentado aqui — nunca improvisado inline.
+
+---
+
+## Auth (login, cadastro, recuperar-senha)
+
+Mesma linguagem visual da landing page. Regras:
+
+- **Fundo:** gradient `#0A0A0B` → `#111113` (igual ao hero)
+- **Logo:** `logo-superbar.svg`, `width: 64px`, posição `top: 32px, left: 32px` (ou `px-4 md:px-8 lg:px-14`)
+- **Card:** `background: #1C1C1E`, `border: 1px solid #2C2C2E`, `borderRadius: 20px`
+- **H1:** `clamp(1.375rem, 5.5vw, 2rem)`, weight 600, `letterSpacing: "-0.01em"`, `color: var(--fg)`
+- **Inputs:** conforme seção Inputs acima (bg `#1C1C1E`, border `#2C2C2E`)
+- **Botão primário:** variante Primary (amber `#F59E0B`, texto preto, pill)
+- **Links auxiliares** (esqueceu senha, criar conta): `color: var(--fg-muted)`, font-size 13px, sem sublinhado por padrão
 
 ---
 
