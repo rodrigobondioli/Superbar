@@ -211,15 +211,16 @@ export function DashboardSidebar({
           onClick={onNavigate}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-            padding: touchMode ? "16px 0" : "10px 0",
-            borderTop: "1px solid var(--border)",
-            color: "var(--fg-subtle)",
+            margin: touchMode ? "8px 12px 4px" : "6px 8px 2px",
+            padding: touchMode ? "14px 0" : "10px 0",
+            borderRadius: 9999,
+            background: "var(--accent)",
+            color: "#000000",
             fontSize: touchMode ? "14px" : "12px",
-            fontWeight: 500,
+            fontWeight: 700,
             textDecoration: "none",
-            transition: "color 150ms",
+            transition: "opacity 150ms",
           }}
-          className="hover:!text-[var(--fg-muted)]"
         >
           <MonitorSmartphone style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13 }} />
           Ver operação
