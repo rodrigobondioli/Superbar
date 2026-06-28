@@ -1,4 +1,5 @@
-import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import { getOuCriarTurno } from "@/lib/dashboard/turno-actions";
 import { getComandasPendentes } from "@/lib/caixa/queries";
 import { CaixaComandas } from "@/components/caixa/caixa-comandas";
 import { TurnoControles } from "@/components/dashboard/turno-controles";
@@ -8,7 +9,7 @@ export default async function CaixaPage() {
   if (!current) return null;
 
   const taxaServicoPct = current.bar.configuracoes?.taxa_servico_pct ?? 10;
-  const turno = await getTurnoAtual(current.bar.id);
+  const turno = await getOuCriarTurno(current.bar.id, current.userId);
 
   if (!turno) {
     return (

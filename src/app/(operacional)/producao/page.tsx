@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
-import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import { getOuCriarTurno } from "@/lib/dashboard/turno-actions";
 import { ProducaoTab } from "@/components/bartender/producao-tab";
 
 export default async function ProducaoPage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
 
-  const turno = await getTurnoAtual(current.bar.id);
+  const turno = await getOuCriarTurno(current.bar.id, current.userId);
   if (!turno) {
     return (
       <div style={{ display: "flex", height: "100%", alignItems: "center", justifyContent: "center", padding: 24 }}>
