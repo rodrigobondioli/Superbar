@@ -105,12 +105,12 @@ export function ProximaMelhorAcao({
                   <span style={{ fontSize: 12, fontWeight: 500, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0, marginRight: 8 }}>
                     {p.produtoNome}
                   </span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#1133FF", fontFamily: "var(--font-mono)", flexShrink: 0 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", fontFamily: "var(--font-mono)", flexShrink: 0 }}>
                     {percent.format(p.margemPercentual ?? 0)}%
                   </span>
                 </div>
                 <div style={{ height: 3, background: "rgba(255,255,255,0.12)", borderRadius: 2, overflow: "hidden" }}>
-                  <div style={{ width: `${p.margemPercentual ?? 0}%`, height: "100%", background: "#1133FF", borderRadius: 2, transition: "width 0.5s ease" }} />
+                  <div style={{ width: `${p.margemPercentual ?? 0}%`, height: "100%", background: "var(--accent)", borderRadius: 2, transition: "width 0.5s ease" }} />
                 </div>
               </div>
             ))}

@@ -368,7 +368,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                       className="sb-submit"
                       style={{
                         width: "100%",
-                        background: isPending ? "rgba(26,1,84,0.6)" : "#1133FF",
+                        background: isPending ? "color-mix(in srgb, var(--accent) 55%, transparent)" : "var(--accent)",
                         color: "#FFFFFF",
                         fontFamily: "var(--font-roboto-mono)",
                         fontSize: "0.875rem",

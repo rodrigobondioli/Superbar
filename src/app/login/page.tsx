@@ -103,7 +103,7 @@ export default function LoginPage({
                 disabled={loading}
                 style={{
                   width: "100%",
-                  background: loading ? "color-mix(in srgb, #1133FF 55%, transparent)" : "#1133FF",
+                  background: loading ? "color-mix(in srgb, var(--accent) 55%, transparent)" : "var(--accent)",
                   border: "none",
                   borderRadius: "9999px",
                   padding: "14px 32px",

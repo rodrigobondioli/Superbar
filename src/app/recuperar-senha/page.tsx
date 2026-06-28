@@ -103,7 +103,7 @@ export default function RecuperarSenhaPage() {
                   disabled={loading}
                   style={{
                     width: "100%",
-                    background: "#1133FF",
+                    background: "var(--accent)",
                     border: "none",
                     borderRadius: "9999px",
                     padding: "14px 32px",

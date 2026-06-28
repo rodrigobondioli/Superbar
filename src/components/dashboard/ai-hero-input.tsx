@@ -122,7 +122,7 @@ export function AiHeroInput({
             onClick={() => ask(question)}
             disabled={loading}
             style={{
-              background: '#1133FF',
+              background: 'var(--accent)',
               border: 'none',
               borderRadius: '4px',
               width: '28px',
