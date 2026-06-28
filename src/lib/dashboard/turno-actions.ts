@@ -11,7 +11,7 @@ import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 export async function getOuCriarTurno(
   barId: string,
   userId: string,
-): Promise<{ id: string } | null> {
+) {
   const supabase = await createClient();
   const turno = await getTurnoAtual(barId);
   if (turno) return turno;
@@ -19,8 +19,8 @@ export async function getOuCriarTurno(
   const { data } = await supabase
     .from("turnos")
     .insert({ bar_id: barId, abertura_por: userId, status: "aberto" })
-    .select("id")
-    .single<{ id: string }>();
+    .select("*")
+    .single();
 
   return data ?? null;
 }
