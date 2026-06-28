@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { listarClientes, getClientesStats, getAniversariantesDoMes, getClientesInativos } from "@/lib/clientes/queries";
-import { LABEL, H1, SUBTITLE, CARD } from "@/lib/ui";
+import { H1, SUBTITLE, CARD } from "@/lib/ui";
 import { ClientesTable } from "@/components/clientes/clientes-table";
 import { NovoClienteButton } from "@/components/clientes/novo-cliente-button";
 
@@ -26,10 +26,9 @@ export default async function ClientesPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
         <div>
-          <p style={LABEL}>Clientes</p>
-          <h1 style={H1}>Base de clientes</h1>
+          <h1 style={H1}>Clientes</h1>
           <p style={SUBTITLE}>
-            {stats?.total ?? 0} cliente{(stats?.total ?? 0) !== 1 ? "s" : ""} cadastrados
+            {stats?.total ?? 0} cliente{(stats?.total ?? 0) !== 1 ? "s" : ""} cadastrado{(stats?.total ?? 0) !== 1 ? "s" : ""}
           </p>
         </div>
         <NovoClienteButton />
