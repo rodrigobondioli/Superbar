@@ -143,11 +143,11 @@ export function ProcessoSection() {
         style={{ minHeight: `${N * 100}vh`, background: BG }}
       >
         <style>{`
-          .processo-stack { height: 240px; }
-          .processo-card  { padding: 28px 32px; }
+          .processo-stack { height: 320px; }
+          .processo-card  { padding: 40px 36px; }
           @media (min-width: 1024px) {
-            .processo-stack { height: 220px; }
-            .processo-card  { padding: 32px 44px; }
+            .processo-stack { height: 300px; }
+            .processo-card  { padding: 44px 52px; }
           }
         `}</style>
 
@@ -188,13 +188,13 @@ export function ProcessoSection() {
                       fontWeight: 600,
                       color: "#F59E0B",
                       letterSpacing: "-0.01em",
-                      margin: "0 0 12px",
+                      margin: "0 0 20px",
                       lineHeight: 1.1,
                     }}
                   >
                     {step.num} {step.title}
                   </p>
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: "12px" }} />
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: "20px" }} />
                   <p
                     className="text-pretty"
                     style={{
