@@ -12,7 +12,7 @@ export function CtaSection() {
   return (
     <section
       className="relative flex items-center justify-center overflow-hidden py-28 md:min-h-[80vh] md:py-0"
-      style={{ background: "#000000" }}
+      style={{ background: "#F59E0B" }}
     >
       {/* Serrilhado topo */}
       <div className="absolute left-0 right-0 top-0" style={{ lineHeight: 0 }}>
@@ -35,7 +35,7 @@ export function CtaSection() {
             fontFamily: "var(--font-sans)",
             fontWeight: 400,
             fontSize: "clamp(1.25rem, 3.5vw, 3.25rem)",
-            color: "#ffffff",
+            color: "#000000",
             lineHeight: 1.05,
             marginBottom: "8px",
           }}
@@ -48,7 +48,7 @@ export function CtaSection() {
             fontFamily: "var(--font-sans)",
             fontWeight: 700,
             fontSize: "clamp(3rem, 10vw, 9rem)",
-            color: "#ffffff",
+            color: "#000000",
             textTransform: "uppercase",
             letterSpacing: "-0.02em",
             lineHeight: 0.9,
@@ -63,7 +63,7 @@ export function CtaSection() {
             fontFamily: "var(--font-sans)",
             fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
             fontWeight: 400,
-            color: "#ffffff",
+            color: "#000000",
             marginBottom: "2rem",
           }}
         >
@@ -74,8 +74,8 @@ export function CtaSection() {
           onClick={open}
           className="inline-flex cursor-pointer items-center gap-3 rounded-full px-8 py-4 text-sm font-bold transition hover:opacity-90"
           style={{
-            background: "#F59E0B",
-            color: "#000000",
+            background: "#000000",
+            color: "#ffffff",
             fontFamily: "var(--font-roboto-mono)",
             border: "none",
             minHeight: "44px",
