@@ -3,18 +3,16 @@
 import { useEffect, useRef } from "react";
 
 const WORDS =
-  "IMAGINE SEU BAR COMO UMA COQUETELEIRA. VOCÊ COLOCA TUDO DENTRO. INSUMO, EQUIPE, TEMPO, E ENERGIA. TRABALHA A SEMANA INTEIRA PARA ENCHER O BAR. SERVE. REPETE. MAS EXISTE UM VAZAMENTO QUE VOCÊ NÃO VÊ. ENQUANTO O BAR ENCHE, O LUCRO VAZA. VOCÊ SABE QUANTO ENTROU, MAS NÃO SABE QUANTO SOBROU."
+  "Imagine seu bar como uma coqueteleira. Você coloca tudo dentro. Insumo, Equipe, Tempo, e Energia. Trabalha a semana inteira para encher o bar. Serve. Repete. Mas existe um vazamento que você não vê. Enquanto o bar enche, o lucro vaza. Você sabe quanto entrou. Não sabe quanto sobrou."
     .split(" ");
 
 const FEATHER = 10;
 
 const TEXT_STYLE: React.CSSProperties = {
-  fontFamily: "var(--font-display)",
-  fontWeight: 400,
-  fontSize: "clamp(1.25rem, 4.5vw, 2.5rem)",
-  lineHeight: 1.3,
-  letterSpacing: "0.03em",
-  textTransform: "uppercase",
+  fontFamily: "var(--font-sans)",
+  fontWeight: 500,
+  fontSize: "clamp(1.75rem, 4.5vw, 3.5rem)",
+  lineHeight: 1.25,
   color: "#ffffff",
   maxWidth: "1100px",
 };
