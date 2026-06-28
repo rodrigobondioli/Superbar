@@ -88,6 +88,103 @@ export async function buscarComandaPorCartao(identificador: string): Promise<str
   return data?.id ?? null;
 }
 
+export type ResultadoBusca = {
+  id: string;
+  label: string; // Ex: "Mesa 3 — Ana" ou "Balcão — João"
+};
+
+/**
+ * Busca comanda ativa por:
+ *  1. identificador exato (cartão NFC/QR)
+ *  2. nome do cliente (ilike)
+ *  3. nome ou número da mesa (ilike no nome, ou número exato)
+ */
+export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[]> {
+  const current = await getCurrentBar();
+  if (!current) return [];
+
+  const turno = await getTurnoAtual(current.bar.id);
+  if (!turno) return [];
+
+  const supabase = await createClient();
+  const barId   = current.bar.id;
+  const turnoId = turno.id;
+  const t       = termo.trim();
+  if (!t) return [];
+
+  type Row = {
+    id: string;
+    nome_cliente: string | null;
+    identificador: string | null;
+    mesas: { nome: string | null; numero: number | null } | null;
+  };
+
+  // 1. Identificador exato
+  const { data: porCartao } = await supabase
+    .from("comandas")
+    .select("id, nome_cliente, identificador, mesas(nome, numero)")
+    .eq("bar_id", barId)
+    .eq("turno_id", turnoId)
+    .eq("identificador", t)
+    .in("status", ["aberta", "aguardando_pagamento"])
+    .returns<Row[]>();
+
+  if (porCartao?.length) {
+    return porCartao.map(c => ({
+      id: c.id,
+      label: buildLabel(c),
+    }));
+  }
+
+  // 2. Nome do cliente (ilike)
+  const { data: porNome } = await supabase
+    .from("comandas")
+    .select("id, nome_cliente, identificador, mesas(nome, numero)")
+    .eq("bar_id", barId)
+    .eq("turno_id", turnoId)
+    .ilike("nome_cliente", `%${t}%`)
+    .in("status", ["aberta", "aguardando_pagamento"])
+    .returns<Row[]>();
+
+  if (porNome?.length) {
+    return porNome.map(c => ({ id: c.id, label: buildLabel(c) }));
+  }
+
+  // 3. Mesa por nome ou número
+  const numMesa = parseInt(t, 10);
+  const mesaQuery = supabase
+    .from("mesas")
+    .select("id")
+    .eq("bar_id", barId);
+
+  const mesaFilter = isNaN(numMesa)
+    ? mesaQuery.ilike("nome", `%${t}%`)
+    : mesaQuery.or(`nome.ilike.%${t}%,numero.eq.${numMesa}`);
+
+  const { data: mesas } = await mesaFilter.returns<{ id: string }[]>();
+  const mesaIds = (mesas ?? []).map(m => m.id);
+
+  if (!mesaIds.length) return [];
+
+  const { data: porMesa } = await supabase
+    .from("comandas")
+    .select("id, nome_cliente, identificador, mesas(nome, numero)")
+    .eq("bar_id", barId)
+    .eq("turno_id", turnoId)
+    .in("mesa_id", mesaIds)
+    .in("status", ["aberta", "aguardando_pagamento"])
+    .returns<Row[]>();
+
+  return (porMesa ?? []).map(c => ({ id: c.id, label: buildLabel(c) }));
+}
+
+function buildLabel(c: { nome_cliente: string | null; mesas: { nome: string | null; numero: number | null } | null }): string {
+  const mesa = c.mesas
+    ? (c.mesas.nome ?? `Mesa ${c.mesas.numero}`)
+    : "Balcão";
+  return c.nome_cliente ? `${mesa} — ${c.nome_cliente}` : mesa;
+}
+
 export async function adicionarItem(
   produtoId: string,
   comandaId: string,

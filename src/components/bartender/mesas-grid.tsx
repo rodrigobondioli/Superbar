@@ -170,15 +170,15 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
     return (
       <button type="button" onClick={onAbrir} style={{
         display: "flex", flexDirection: "column", alignItems: "stretch",
-        borderRadius: 8, padding: 0,
-        background: "color-mix(in srgb, var(--fg) 5%, transparent)",
-        border: "1px solid var(--border-strong)",
+        borderRadius: "var(--radius-lg)", padding: 0,
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
         cursor: "pointer", width: "100%", textAlign: "left",
         WebkitTapHighlightColor: "transparent", overflow: "hidden",
+        transition: "border-color 120ms",
       }}>
-        {/* Nome + capacidade */}
-        <div style={{ padding: "14px 14px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-muted)", lineHeight: 1.2 }}>
+        <div style={{ padding: "14px 14px 12px", display: "flex", flexDirection: "column", gap: 5 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", lineHeight: 1.2 }}>
             {label}
           </span>
           {capacidade && (
@@ -187,13 +187,12 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
             </span>
           )}
         </div>
-        {/* CTA */}
         <div style={{
           borderTop: "1px solid var(--border)",
-          padding: "9px 14px",
-          fontSize: 12, fontWeight: 600,
-          color: "var(--fg-muted)",
-          background: "color-mix(in srgb, var(--fg) 4%, transparent)",
+          padding: "8px 14px",
+          fontSize: 11, fontWeight: 600,
+          color: "var(--fg-subtle)",
+          letterSpacing: "0.02em",
         }}>
           + Abrir comanda
         </div>
@@ -207,25 +206,28 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
     ? "var(--danger-bg)"
     : hasAguardando
       ? "var(--warn-bg)"
-      : "color-mix(in srgb, var(--accent-bright) 9%, transparent)";
-  const border = hasChamada
-    ? "1.5px solid color-mix(in srgb, var(--danger) 55%, transparent)"
+      : "var(--bg-card)";
+  const borderColor = hasChamada
+    ? "var(--danger)"
     : hasAguardando
-      ? "1.5px solid color-mix(in srgb, var(--warn) 45%, transparent)"
-      : "1px solid color-mix(in srgb, var(--accent-bright) 22%, transparent)";
+      ? "var(--warn)"
+      : "var(--border)";
 
   return (
     <div
       className={hasChamada ? "mesa-chamada" : undefined}
-      style={{ background: bg, border, borderRadius: 8, overflow: "hidden" }}
+      style={{
+        background: bg,
+        border: `1.5px solid ${borderColor}`,
+        borderRadius: "var(--radius-lg)", overflow: "hidden",
+      }}
     >
       {/* Banner de chamada */}
       {hasChamada && (
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "8px 14px",
-          background: "var(--danger-bg)",
-          borderBottom: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
+          borderBottom: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
         }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--danger)", display: "flex", alignItems: "center", gap: 6 }}>
             🔔 Chamando atendimento
@@ -233,7 +235,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
           <button
             onClick={e => { e.stopPropagation(); onAtender?.(); }}
             style={{
-              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 4,
+              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: "var(--radius-sm)",
               background: "var(--danger)", border: "none", color: "white",
               cursor: "pointer", WebkitTapHighlightColor: "transparent",
             }}
@@ -246,10 +248,10 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
       {/* Header da mesa */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "12px 16px", borderBottom: "1px solid var(--border)",
+        padding: "14px 16px", borderBottom: "1px solid var(--border)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>
             {label}
           </span>
           {maisAntiga && (
@@ -258,12 +260,12 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
             </span>
           )}
         </div>
-        <span style={{ fontSize: 16, fontWeight: 900, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.4px" }}>
+        <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>
           {currency.format(totalValor)}
         </span>
       </div>
 
-      {/* Comanda da mesa — link direto */}
+      {/* Comandas — link para cada uma */}
       {comandas.map((c) => {
         const querPagar = c.status === "aguardando_pagamento";
         return (
@@ -272,16 +274,19 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
             href={`/garcom/${c.id}`}
             style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "14px 16px", textDecoration: "none",
+              padding: "13px 16px", textDecoration: "none",
+              borderBottom: "1px solid var(--border)",
             }}
           >
             <span style={{
               fontSize: 12, fontWeight: 600,
               color: querPagar ? "var(--warn)" : "var(--fg-subtle)",
             }}>
-              {querPagar ? "Aguardando pagamento" : "Ver comanda →"}
+              {c.nome_cliente
+                ? `${c.nome_cliente}${querPagar ? " — pagar" : ""}`
+                : querPagar ? "Aguardando pagamento" : "Ver comanda"}
             </span>
-            <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>›</span>
+            <span style={{ fontSize: 14, color: "var(--fg-subtle)" }}>›</span>
           </Link>
         );
       })}
@@ -474,75 +479,67 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
   const GRID_OCUPADAS: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: 10,
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gap: 12,
   };
 
   const GRID_LIVRES: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: 8,
+    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+    gap: 10,
   };
 
   const SecLabel = ({ label, count }: { label: string; count: number }) => (
     <p style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: "0.12em",
-      textTransform: "uppercase", margin: "0 0 12px", color: "var(--fg-subtle)",
+      fontSize: 10, fontWeight: 700, letterSpacing: "0.10em",
+      textTransform: "uppercase", margin: "0 0 12px",
+      color: "var(--fg-subtle)",
     }}>
-      {label} · {count}
+      {label}
+      <span style={{ marginLeft: 8, fontVariantNumeric: "tabular-nums", opacity: 0.7 }}>{count}</span>
     </p>
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:px-7 md:py-6">
+    <div className="flex-1 overflow-y-auto" style={{ padding: "20px 20px 40px" }}>
 
-      {/* Busca por cartão */}
-      <div style={{ marginBottom: 24 }}>
+      {/* Busca */}
+      <div style={{ marginBottom: 20 }}>
         <ScanCartao />
       </div>
 
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <p style={{ fontSize: 10, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>
-          Mesas
-        </p>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 16, flexWrap: "wrap" }}>
-          <p style={{ fontSize: 22, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.4px", fontFamily: "var(--font-mono)" }}>
-            {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {aguardando.length > 0 && (
-              <span style={{
-                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 4,
-                background: "var(--warn-bg)",
-                border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
-                color: "var(--warn)",
-              }}>
-                {aguardando.length} aguardando pagamento
-              </span>
-            )}
-            {livres.length > 0 && (
-              <span style={{
-                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 4,
-                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
-                border: "1px solid var(--border)",
-                color: "var(--fg-subtle)",
-              }}>
-                {livres.length} livre{livres.length > 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
+      {/* Header de status */}
+      <div style={{ marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>
+          {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
+        </h1>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {aguardando.length > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: "var(--radius-sm)",
+              background: "var(--warn-bg)", border: "1px solid var(--warn)", color: "var(--warn)",
+            }}>
+              {aguardando.length} aguardando pag.
+            </span>
+          )}
+          {livres.length > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: "var(--radius-sm)",
+              background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg-subtle)",
+            }}>
+              {livres.length} livre{livres.length > 1 ? "s" : ""}
+            </span>
+          )}
         </div>
       </div>
 
       {mesas.length === 0 && (
         <div style={{
-          background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-          borderRadius: 8, border: "1px solid var(--border)",
-          padding: "28px 20px", textAlign: "center", marginBottom: 16,
+          background: "var(--bg-card)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+          padding: "32px 20px", textAlign: "center", marginBottom: 20,
         }}>
           <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
-          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "8px 0 0", opacity: 0.7 }}>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "6px 0 0", opacity: 0.7 }}>
             Configure as mesas em Dashboard → Mesas.
           </p>
         </div>
@@ -552,12 +549,12 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       <style>{`
         @keyframes pulse-chamada {
           0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-          50%       { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.25); }
+          50%       { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.22); }
         }
         .mesa-chamada { animation: pulse-chamada 1.4s ease-in-out infinite; }
       `}</style>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
         {aguardando.length > 0 && (
           <section>
             <SecLabel label="Aguardando pagamento" count={aguardando.length} />
