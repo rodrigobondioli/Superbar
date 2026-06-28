@@ -9,14 +9,14 @@ export function SiteNav() {
           <Image
             src="/img-lp/logo-superbar.svg"
             alt="Superbar"
-            width={48}
-            height={48}
+            width={58}
+            height={58}
             className="opacity-90"
           />
         </Link>
         <span
           className="text-white"
-          style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 16 }}
+          style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 14 }}
         >
           Superbar Intelligence
         </span>

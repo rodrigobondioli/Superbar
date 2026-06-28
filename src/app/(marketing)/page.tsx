@@ -80,7 +80,7 @@ export default async function Home() {
             fontSize: 20,
             fontWeight: 400,
             lineHeight: 1.6,
-            maxWidth: "700px",
+            maxWidth: "860px",
           }}
         >
           <span className="block">O primeiro sistema criado para mostrar o lucro real do seu bar.</span>
