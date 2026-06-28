@@ -156,22 +156,6 @@ export function DashboardSidebar({
         {/* User + settings */}
         {!touchMode && bar && barId && userId && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
-            {userAvatarUrl ? (
-              <img
-                src={userAvatarUrl}
-                alt={userNome}
-                style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-              />
-            ) : (
-              <div style={{
-                width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                background: "color-mix(in srgb, var(--accent) 20%, transparent)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700, color: "var(--accent)",
-              }}>
-                {userNome.charAt(0).toUpperCase()}
-              </div>
-            )}
             <span style={{ fontSize: 12, color: "var(--fg-muted)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {userNome.split(" ")[0]}
             </span>
