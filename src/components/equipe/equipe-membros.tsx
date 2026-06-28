@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
-import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro } from "@/lib/equipe/actions";
+import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro, renomearMembro } from "@/lib/equipe/actions";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
 import { CARD, LABEL, BTN_ICON } from "@/lib/ui";
@@ -174,11 +174,24 @@ function MembroRow({
   const [editing, setEditing] = useState(false);
   const [role, setRole] = useState<BarRole>(m.role);
   const [saving, setSaving] = useState(false);
+  const [editingNome, setEditingNome] = useState(false);
+  const [nome, setNome] = useState(m.nome);
+  const [savingNome, setSavingNome] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [, startTransition] = useTransition();
   const isOwn    = m.userId === currentUserId;
   const canEdit  = isDono && !isOwn;
+
+  async function saveNome() {
+    if (!nome.trim() || nome.trim() === m.nome) { setEditingNome(false); return; }
+    setSavingNome(true);
+    const res = await renomearMembro(m.id, nome.trim());
+    if ("error" in res) toast(res.error, "error");
+    else toast("Nome atualizado.", "ok");
+    setSavingNome(false);
+    setEditingNome(false);
+  }
 
   async function saveRole() {
     setSaving(true);
@@ -233,10 +246,40 @@ function MembroRow({
     >
       {/* Info */}
       <div className="flex-1 min-w-0" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <MemberAvatar memberId={m.id} nome={m.nome} fotoUrl={m.fotoUrl} size={34} canUpload={isDono} />
-        <p style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {m.nome}
-        </p>
+        <MemberAvatar memberId={m.id} nome={nome} fotoUrl={m.fotoUrl} size={34} canUpload={isDono} />
+        {isDono && editingNome ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, minWidth: 0 }}>
+            <input
+              autoFocus
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") saveNome(); if (e.key === "Escape") { setNome(m.nome); setEditingNome(false); } }}
+              style={{
+                flex: 1, minWidth: 0, fontSize: 14, fontWeight: 500,
+                background: "var(--bg-inset)", border: "1px solid var(--border)",
+                borderRadius: 4, padding: "2px 8px", color: "var(--fg)", outline: "none",
+              }}
+            />
+            <button onClick={saveNome} disabled={savingNome} style={{ ...BTN_ICON, color: "var(--ok)", padding: 3 }}>
+              <Check style={{ width: 12, height: 12 }} />
+            </button>
+            <button onClick={() => { setNome(m.nome); setEditingNome(false); }} style={{ ...BTN_ICON, padding: 3 }}>
+              <X style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+        ) : (
+          <p
+            onClick={() => isDono && setEditingNome(true)}
+            title={isDono ? "Clique para editar o nome" : undefined}
+            style={{
+              fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              cursor: isDono ? "text" : "default",
+            }}
+          >
+            {nome}
+          </p>
+        )}
       </div>
 
       {/* Role — editável inline */}

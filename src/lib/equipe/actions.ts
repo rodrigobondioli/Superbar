@@ -59,6 +59,26 @@ export async function removerMembro(membroId: string): Promise<{ ok: true } | { 
   }
 }
 
+export async function renomearMembro(
+  membroId: string,
+  novoNome: string,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const current = await assertDono();
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("bar_members")
+      .update({ nome: novoNome.trim() })
+      .eq("id", membroId)
+      .eq("bar_id", current.bar.id);
+    if (error) throw error;
+    revalidatePath("/dashboard/equipe");
+    return { ok: true };
+  } catch (e: unknown) {
+    return { error: e instanceof Error ? e.message : "Erro ao renomear membro." };
+  }
+}
+
 export async function atualizarFotoMembro(
   membroId: string,
   fotoUrl: string | null,
