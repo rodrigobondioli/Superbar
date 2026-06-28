@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, BarChart3, History, UtensilsCrossed,
   TableProperties, Users, MonitorSmartphone, Wallet, Package, Sparkles,
+  HeadphonesIcon, Lightbulb,
 } from "lucide-react";
 import type { BarRole, Bar } from "@/types/database";
 import { Drawer } from "@/components/ui/drawer";
@@ -170,12 +171,15 @@ export function DashboardSidebar({
 
         {/* Support links */}
         <div style={{ padding: touchMode ? "8px 12px" : "4px 10px" }}>
-          {(["Suporte", "Sugestão"] as const).map((label) => (
+          {([
+            { label: "Suporte",   type: "suporte",   Icon: HeadphonesIcon },
+            { label: "Sugestão",  type: "sugestao",  Icon: Lightbulb },
+          ] as const).map(({ label, type, Icon }) => (
             <button
               key={label}
-              onClick={() => { setDrawerType(label === "Suporte" ? "suporte" : "sugestao"); setDrawerOpen(true); }}
+              onClick={() => { setDrawerType(type); setDrawerOpen(true); }}
               style={{
-                display: "block", width: "100%", textAlign: "left",
+                display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left",
                 padding: touchMode ? "12px 14px" : "7px 10px",
                 background: "none", border: "none", cursor: "pointer",
                 fontSize: touchMode ? "14px" : "12px",
@@ -184,25 +188,25 @@ export function DashboardSidebar({
               }}
               className="hover:!text-[var(--fg-muted)]"
             >
+              <Icon style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13, flexShrink: 0 }} strokeWidth={1.75} />
               {label}
             </button>
           ))}
         </div>
 
-        {/* Ver operação */}
+        {/* Ver operação — full-width, flat, amber */}
         <Link
           href="/garcom"
           onClick={onNavigate}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-            margin: touchMode ? "8px 12px 4px" : "6px 8px 2px",
-            padding: touchMode ? "14px 0" : "10px 0",
-            borderRadius: 9999,
+            padding: touchMode ? "16px 0" : "12px 0",
             background: "var(--accent)",
             color: "#000000",
             fontSize: touchMode ? "14px" : "12px",
             fontWeight: 700,
             textDecoration: "none",
+            borderRadius: 0,
             transition: "opacity 150ms",
           }}
         >
