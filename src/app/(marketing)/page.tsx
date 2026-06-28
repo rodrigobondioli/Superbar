@@ -268,7 +268,7 @@ export default async function Home() {
       {/* ─── FOOTER ────────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.1)", background: "#111113" }}>
         <div
-          className="flex flex-col gap-3 px-4 py-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-6 lg:px-14"
+          className="flex flex-col items-center gap-0 px-4 py-6 text-center md:flex-row md:items-center md:justify-between md:px-8 md:py-6 md:text-left lg:px-14"
         >
           <span
             style={{
@@ -276,7 +276,9 @@ export default async function Home() {
               fontSize: "0.75rem",
               color: "#ffffff",
               lineHeight: 1.5,
+              paddingBottom: "0.75rem",
             }}
+            className="w-full pb-3 md:w-auto md:pb-0 border-b border-white/20 md:border-0"
           >
             Superbar — Uma plataforma que roda a operação do seu bar em tempo real e transforma cada dado em decisão.
           </span>
@@ -286,7 +288,9 @@ export default async function Home() {
               fontSize: "0.75rem",
               color: "#ffffff",
               flexShrink: 0,
+              paddingTop: "0.75rem",
             }}
+            className="w-full pt-3 md:w-auto md:pt-0"
           >
             Copyright © 2026. Superbar. Todos os direitos Reservados.
           </span>
