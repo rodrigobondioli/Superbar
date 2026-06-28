@@ -202,13 +202,13 @@ export default async function Home() {
             {/* Conteúdo */}
             <div>
               <h2
-                className="mb-8 uppercase text-white text-balance md:mb-10"
+                className="mb-8 text-white md:mb-10"
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 400,
-                  fontSize: "clamp(1.25rem, 3.5vw, 2rem)",
-                  letterSpacing: "0.08em",
-                  lineHeight: 1.1,
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
+                  fontSize: 36,
+                  lineHeight: 1.15,
+                  letterSpacing: "-0.01em",
                 }}
               >
                 O Superbar é para você que:
@@ -222,15 +222,15 @@ export default async function Home() {
                     style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}
                   >
                     <Check
-                      className="h-4 w-4 flex-shrink-0 md:h-5 md:w-5"
+                      className="h-5 w-5 flex-shrink-0"
                       style={{ color: "#F59E0B" }}
                       strokeWidth={2.5}
                     />
                     <span
-                      className="text-pretty"
                       style={{
-                        fontFamily: "var(--font-roboto-mono)",
-                        fontSize: "clamp(0.8125rem, 2.5vw, 1rem)",
+                        fontFamily: "var(--font-sans)",
+                        fontWeight: 400,
+                        fontSize: 20,
                         color: "#ffffff",
                         lineHeight: 1.5,
                       }}
