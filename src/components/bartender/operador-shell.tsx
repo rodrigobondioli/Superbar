@@ -39,8 +39,8 @@ function QuemEVoce({
         Quem está operando agora?
       </p>
       <div style={{
-        display: "flex", flexWrap: "wrap", gap: 16,
-        justifyContent: "center", width: "100%", maxWidth: 760,
+        display: "flex", flexWrap: "wrap", gap: 12,
+        justifyContent: "center", width: "100%", maxWidth: 960,
       }}>
         {membros.map(m => (
           <button
@@ -49,8 +49,8 @@ function QuemEVoce({
             style={{
               background: "color-mix(in srgb, var(--fg) 4%, transparent)",
               border: "1px solid var(--border)", borderRadius: 8,
-              padding: "28px 24px", cursor: "pointer",
-              textAlign: "center", width: 180, flexShrink: 0,
+              padding: "20px 16px", cursor: "pointer",
+              textAlign: "center", width: 140, flexShrink: 0,
               transition: "background 0.15s, border-color 0.15s",
               WebkitTapHighlightColor: "transparent",
             }}
