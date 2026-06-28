@@ -51,12 +51,11 @@ const btnPrimary: React.CSSProperties = {
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: 4,
-  padding: "9px 18px",
+  borderRadius: "var(--radius-lg)",
+  padding: "7px 16px",
   fontSize: 13,
   fontWeight: 600,
   cursor: "pointer",
-  whiteSpace: "nowrap",
 };
 
 const btnSecondary: React.CSSProperties = {
@@ -639,11 +638,11 @@ export function CardapioClient({
             onClick={() => setImportPanelOpen(true)}
             style={{
               display: "flex", alignItems: "center", gap: 6,
-              padding: "8px 14px",
+              padding: "7px 16px",
               background: "transparent",
               border: "1px solid var(--border-strong)",
-              borderRadius: 4,
-              color: "var(--fg-muted)",
+              borderRadius: "var(--radius-lg)",
+              color: "var(--fg)",
               fontSize: 13,
               fontWeight: 500,
               cursor: "pointer",

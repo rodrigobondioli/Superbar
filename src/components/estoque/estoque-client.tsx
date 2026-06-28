@@ -378,11 +378,11 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                       <button
                         onClick={() => setModalItem(item)}
                         style={{
-                          background: "color-mix(in srgb, var(--accent-bright) 12%, transparent)",
-                          color: "var(--accent-bright)",
-                          border: "1px solid color-mix(in srgb, var(--accent-bright) 30%, transparent)",
-                          borderRadius: 4, padding: "6px 14px",
-                          fontSize: 13, fontWeight: 500, cursor: "pointer",
+                          background: "var(--accent)",
+                          color: "var(--accent-fg)",
+                          border: "none",
+                          borderRadius: "var(--radius-lg)", padding: "7px 16px",
+                          fontSize: 13, fontWeight: 600, cursor: "pointer",
                           whiteSpace: "nowrap", flexShrink: 0,
                         }}
                       >

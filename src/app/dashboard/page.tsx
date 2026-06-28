@@ -620,12 +620,11 @@ export default async function DashboardPage() {
                 const isCritical = item.tipo === "action";
                 return (
                   <div key={i} style={{
-                    borderLeft: `3px solid ${cor}`,
                     borderBottom: i < Math.min(insightsSorted.length, 3) - 1 ? "1px solid var(--border)" : "none",
-                    background: isCritical ? "color-mix(in srgb, var(--danger) 5%, transparent)" : "transparent",
+                    background: isCritical ? "color-mix(in srgb, var(--danger) 4%, transparent)" : "transparent",
                     padding: "14px 16px",
                   }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: cor, margin: "0 0 4px" }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: cor, margin: "0 0 5px" }}>
                       {item.tipo === "action" ? "Crítico" : item.tipo === "opportunity" ? "Oportunidade" : "Info"}
                     </p>
                     <p style={{ fontSize: isCritical ? 13 : 12, fontWeight: isCritical ? 700 : 500, color: "var(--fg)", margin: 0, lineHeight: 1.4 }}>
