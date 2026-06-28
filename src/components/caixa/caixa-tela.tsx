@@ -409,6 +409,9 @@ function ComandaCard({
 
       {/* Pagamento */}
       <div style={{ padding: "10px 16px 14px", borderTop: "1px solid var(--border)" }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 10px" }}>
+          Forma de pagamento
+        </p>
         {error && <p style={{ fontSize: 12, color: "var(--danger)", margin: "0 0 10px" }}>{error}</p>}
 
         {cartaoAberto ? (
@@ -420,8 +423,8 @@ function ComandaCard({
                 style={{
                   flex: 1, height: 44,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  background: "color-mix(in srgb, var(--fg) 8%, transparent)",
-                  borderRadius: 6, border: "1px solid var(--border)",
+                  background: "var(--bg-card)", borderRadius: 9999,
+                  border: "1px solid var(--border)",
                   cursor: "pointer", opacity: isPending ? 0.5 : 1,
                 }}
               >
@@ -433,8 +436,9 @@ function ComandaCard({
             ))}
             <button onClick={() => setCartaoAberto(false)}
               style={{
-                width: 38, height: 44, borderRadius: 6, border: "none",
-                background: "color-mix(in srgb, var(--fg) 5%, transparent)",
+                width: 38, height: 44, borderRadius: 9999,
+                border: "1px solid var(--border)",
+                background: "var(--bg-card)",
                 color: "var(--fg-subtle)", fontSize: 14, cursor: "pointer", flexShrink: 0,
               }}
             >✕</button>
@@ -453,16 +457,15 @@ function ComandaCard({
                 style={{
                   height: 44,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                  background: b.primary
-                    ? "color-mix(in srgb, var(--fg) 9%, transparent)"
-                    : "color-mix(in srgb, var(--fg) 5%, transparent)",
-                  borderRadius: 6, border: "none",
+                  background: b.primary ? "var(--accent)" : "var(--bg-card)",
+                  border: b.primary ? "none" : "1px solid var(--border)",
+                  borderRadius: 9999,
                   cursor: isPending ? "not-allowed" : "pointer",
                   opacity: isPending ? 0.5 : 1,
                 }}
               >
                 <span style={{ fontSize: 16 }}>{b.icon}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: b.primary ? "var(--fg)" : "var(--fg-muted)" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: b.primary ? "#000000" : "var(--fg)" }}>
                   {b.label}
                 </span>
               </button>
