@@ -593,6 +593,9 @@ export default async function DashboardPage() {
           </DashCard>
         )}
 
+        {/* ═══ AI INPUT ═══ */}
+        <AiHeroInput barId={current.bar.id} alertCount={nAction} />
+
         {/* ═══ GRÁFICO — Receita 7 dias ═══ */}
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -720,8 +723,6 @@ export default async function DashboardPage() {
 
         </div>
 
-        {/* AI Input */}
-        <AiHeroInput barId={current.bar.id} alertCount={nAction} />
 
       </div>
     </div>
