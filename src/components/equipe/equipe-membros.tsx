@@ -36,6 +36,39 @@ const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", curren
 
 const lbl: React.CSSProperties = { ...LABEL, margin: 0 };
 
+// ─── Avatar com fallback para foto de /funcionarios/ ─────────────────────────
+function MemberAvatar({ nome, size = 34 }: { nome: string; size?: number }) {
+  const [erro, setErro] = useState(false);
+  const fotoUrl = `/funcionarios/${encodeURIComponent(nome)}.png`;
+
+  if (!erro) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={fotoUrl}
+        alt={nome}
+        onError={() => setErro(true)}
+        style={{
+          width: size, height: size, borderRadius: "50%", objectFit: "cover",
+          flexShrink: 0,
+          border: "1px solid color-mix(in srgb, var(--border) 60%, transparent)",
+        }}
+      />
+    );
+  }
+
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%", flexShrink: 0,
+      background: "color-mix(in srgb, var(--fg) 10%, transparent)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: Math.round(size * 0.35), fontWeight: 700, color: "var(--fg)",
+    }}>
+      {nome[0]?.toUpperCase() ?? "?"}
+    </div>
+  );
+}
+
 // ─── Single member row ────────────────────────────────────────────────────────
 function MembroRow({
   m, isDono, currentUserId,
@@ -104,14 +137,7 @@ function MembroRow({
     >
       {/* Info */}
       <div className="flex-1 min-w-0" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{
-          width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-          background: "color-mix(in srgb, var(--fg) 10%, transparent)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "var(--fg)",
-        }}>
-          {m.nome[0]?.toUpperCase() ?? "?"}
-        </div>
+        <MemberAvatar nome={m.nome} size={34} />
         <p style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {m.nome}
         </p>
