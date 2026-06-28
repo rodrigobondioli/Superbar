@@ -25,11 +25,10 @@ const DARK = "#FAFAFA";
 const CARD_COLORS = ["#1C1C1E", "#232325", "#2A2A2C"];
 
 const TITLE_STYLE: React.CSSProperties = {
-  fontFamily: "var(--font-display)",
-  fontWeight: 400,
-  fontSize: "clamp(1.25rem, 3.5vw, 2.25rem)",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
+  fontFamily: "var(--font-sans)",
+  fontWeight: 600,
+  fontSize: 32,
+  letterSpacing: "-0.01em",
   color: "#ffffff",
 };
 
@@ -107,12 +106,11 @@ export function ProcessoSection() {
               <p
                 className="text-balance"
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "1.125rem",
-                  fontWeight: 400,
-                  color: DARK,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 32,
+                  fontWeight: 600,
+                  color: "#F59E0B",
+                  letterSpacing: "-0.01em",
                   margin: "0 0 16px",
                   lineHeight: 1.1,
                 }}
@@ -123,10 +121,11 @@ export function ProcessoSection() {
               <p
                 className="text-pretty"
                 style={{
-                  fontFamily: "var(--font-roboto-mono)",
-                  fontSize: "0.8125rem",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 16,
+                  fontWeight: 400,
                   color: DARK,
-                  lineHeight: 1.65,
+                  lineHeight: 1.6,
                   margin: 0,
                 }}
               >
@@ -144,11 +143,11 @@ export function ProcessoSection() {
         style={{ minHeight: `${N * 100}vh`, background: BG }}
       >
         <style>{`
-          .processo-stack { height: 280px; }
+          .processo-stack { height: 340px; }
           .processo-card  { padding: 32px 36px; }
           @media (min-width: 1024px) {
-            .processo-stack { height: 260px; }
-            .processo-card  { padding: 40px 48px; }
+            .processo-stack { height: 320px; }
+            .processo-card  { padding: 36px 48px; }
           }
         `}</style>
 
@@ -182,12 +181,11 @@ export function ProcessoSection() {
                   <p
                     className="text-balance"
                     style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "clamp(1.125rem, 3vw, 1.625rem)",
-                      fontWeight: 400,
-                      color: DARK,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 32,
+                      fontWeight: 600,
+                      color: "#F59E0B",
+                      letterSpacing: "-0.01em",
                       margin: "0 0 12px",
                       lineHeight: 1.1,
                     }}
@@ -198,10 +196,11 @@ export function ProcessoSection() {
                   <p
                     className="text-pretty"
                     style={{
-                      fontFamily: "var(--font-roboto-mono)",
-                      fontSize: "clamp(0.75rem, 2vw, 0.9375rem)",
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 16,
+                      fontWeight: 400,
                       color: DARK,
-                      lineHeight: 1.65,
+                      lineHeight: 1.6,
                       margin: 0,
                     }}
                   >
