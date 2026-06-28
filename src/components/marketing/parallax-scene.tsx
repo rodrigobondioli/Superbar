@@ -14,7 +14,7 @@ const ITEMS: Item[] = [
     float: "float-badge-a", delay: "0s" },
 
   { id: "badge-yellow", type: "badge",
-    text: "Aumentamos a Margem", bg: "#2C2C2E", fg: "#F59E0B",
+    text: "Aumentamos a Margem", bg: "#FF6F00", fg: "#111113",
     left: "50%", top: "54%", speedY: 110, speedX: 28, rot: 8, z: 2, centerX: true,
     float: "float-badge-b", delay: "0.6s" },
 
