@@ -37,6 +37,7 @@ export function CtaSection() {
             fontSize: "clamp(1.25rem, 3.5vw, 3.25rem)",
             color: "#ffffff",
             lineHeight: 1.05,
+            marginBottom: "8px",
           }}
         >
           Seu bar ficou super

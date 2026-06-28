@@ -131,7 +131,7 @@ export function FaqSection() {
             <p
               style={{
                 fontFamily: "var(--font-sans)",
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: 400,
                 color: "#ffffff",
                 lineHeight: 1.6,

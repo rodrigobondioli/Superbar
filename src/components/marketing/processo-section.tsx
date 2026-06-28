@@ -107,7 +107,7 @@ export function ProcessoSection() {
                 className="text-balance"
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: 32,
+                  fontSize: 22,
                   fontWeight: 600,
                   color: "#F59E0B",
                   letterSpacing: "-0.01em",
