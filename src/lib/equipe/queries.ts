@@ -28,7 +28,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       nome,
       foto_url,
       created_at,
-      profiles!bar_members_user_id_fkey(nome)
+      profiles!bar_members_user_id_fkey(nome, avatar_url)
     `)
     .eq("bar_id", barId)
     .order("created_at", { ascending: true })
@@ -40,7 +40,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       nome: string | null;
       foto_url: string | null;
       created_at: string;
-      profiles: { nome: string } | null;
+      profiles: { nome: string; avatar_url: string | null } | null;
     }[]>();
 
   if (!membros?.length) return [];
@@ -70,7 +70,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       role:         m.role,
       ativo:        m.ativo,
       desde:        m.created_at,
-      fotoUrl:      m.foto_url ?? null,
+      fotoUrl:      m.foto_url ?? m.profiles?.avatar_url ?? null,
       totalComandas: stat.count,
       totalVendas:   stat.total,
       ticketMedio:   stat.count > 0 ? stat.total / stat.count : 0,
