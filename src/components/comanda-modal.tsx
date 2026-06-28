@@ -44,7 +44,7 @@ const ZIGZAG_BOT =
 
 // ── Color tokens ──────────────────────────────────────────────────────────────
 
-const MODAL_BG   = "#FFD601";
+const MODAL_BG   = "#F59E0B";
 const TEXT_MAIN  = "#412402";
 const TEXT_SEC   = "#633806";
 const INPUT_BG   = "#FFFFFF";
