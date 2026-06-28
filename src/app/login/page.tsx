@@ -17,14 +17,25 @@ export default function LoginPage({
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const labelStyle: React.CSSProperties = {
+    fontFamily: "var(--font-sans)",
+    fontSize: "11px",
+    fontWeight: 600,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "#A1A1AA",
+    display: "block",
+    marginBottom: "6px",
+  };
+
   const inputStyle = (focused: boolean): React.CSSProperties => ({
     width: "100%",
-    background: "#1C1C1E",
+    background: "#111113",
     border: focused ? "1px solid rgba(245,158,11,0.5)" : "1px solid #2C2C2E",
     borderRadius: "12px",
     padding: "14px 16px",
     color: "#FAFAFA",
-    fontSize: "14px",
+    fontSize: "15px",
     outline: "none",
     boxSizing: "border-box",
     colorScheme: "dark",
@@ -34,7 +45,7 @@ export default function LoginPage({
 
   return (
     <>
-      <style>{`input::placeholder { color: #52525B; }`}</style>
+      <style>{`input::placeholder { color: #71717A; }`}</style>
 
       <div
         style={{
@@ -97,27 +108,35 @@ export default function LoginPage({
           >
             <form
               action={signIn}
-              style={{ display: "flex", flexDirection: "column", gap: 12 }}
+              style={{ display: "flex", flexDirection: "column", gap: 16 }}
               onSubmit={() => setLoading(true)}
             >
-              <input
-                type="email"
-                name="email"
-                placeholder="E-mail"
-                required
-                style={inputStyle(emailFocused)}
-                onFocus={() => setEmailFocused(true)}
-                onBlur={() => setEmailFocused(false)}
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Senha"
-                required
-                style={inputStyle(passwordFocused)}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => setPasswordFocused(false)}
-              />
+              <div>
+                <label htmlFor="email" style={labelStyle}>E-mail</label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="seu@email.com"
+                  required
+                  style={inputStyle(emailFocused)}
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" style={labelStyle}>Senha</label>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  style={inputStyle(passwordFocused)}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
+                />
+              </div>
 
               {error && (
                 <p
