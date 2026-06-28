@@ -208,17 +208,16 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                     <h2
                       id="comanda-title"
                       style={{
-                        fontFamily: "var(--font-display)",
-                        fontWeight: 400,
+                        fontFamily: "var(--font-sans)",
+                        fontWeight: 700,
                         fontSize: "1.375rem",
                         color: TEXT_MAIN,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
                         lineHeight: 1.15,
+                        letterSpacing: "-0.01em",
                         margin: "0 0 10px",
                       }}
                     >
-                      Seu bar mais inteligente
+                      Seu bar ficou super inteligente.
                     </h2>
                     <p style={{
                       fontFamily: "var(--font-roboto-mono)",
@@ -368,7 +367,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                       className="sb-submit"
                       style={{
                         width: "100%",
-                        background: isPending ? "color-mix(in srgb, var(--accent) 55%, transparent)" : "var(--accent)",
+                        background: isPending ? "#444" : "#0B0B0B",
                         color: "#FFFFFF",
                         fontFamily: "var(--font-roboto-mono)",
                         fontSize: "0.875rem",
