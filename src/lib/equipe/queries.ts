@@ -9,6 +9,7 @@ export interface MembroEquipe {
   ativo: boolean;
   desde: string;
   fotoUrl: string | null;
+  ordem: number;
   // ranking
   totalComandas: number;
   totalVendas: number;
@@ -27,10 +28,12 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       ativo,
       nome,
       foto_url,
+      ordem,
       created_at,
       profiles!bar_members_user_id_fkey(nome, avatar_url)
     `)
     .eq("bar_id", barId)
+    .order("ordem", { ascending: true })
     .order("created_at", { ascending: true })
     .returns<{
       id: string;
@@ -39,6 +42,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       ativo: boolean;
       nome: string | null;
       foto_url: string | null;
+      ordem: number;
       created_at: string;
       profiles: { nome: string; avatar_url: string | null } | null;
     }[]>();
@@ -71,6 +75,7 @@ export async function getMembrosEquipe(barId: string): Promise<MembroEquipe[]> {
       ativo:        m.ativo,
       desde:        m.created_at,
       fotoUrl:      m.foto_url ?? m.profiles?.avatar_url ?? null,
+      ordem:        m.ordem,
       totalComandas: stat.count,
       totalVendas:   stat.total,
       ticketMedio:   stat.count > 0 ? stat.total / stat.count : 0,

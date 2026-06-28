@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
-import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro, renomearMembro } from "@/lib/equipe/actions";
+import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2, GripVertical } from "lucide-react";
+import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro, renomearMembro, reordenarEquipe } from "@/lib/equipe/actions";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
 import { CARD, LABEL, BTN_ICON } from "@/lib/ui";
@@ -16,6 +16,7 @@ export type MembroRow = {
   role: BarRole;
   ativo: boolean;
   fotoUrl: string | null;
+  ordem: number;
   totalComandas: number;
   totalVendas: number;
   ticketMedio: number;
@@ -23,16 +24,6 @@ export type MembroRow = {
 
 const ROLE_LABELS: Record<BarRole, string> = {
   dono: "Dono", gerente: "Gerente", bar_manager: "Bar Manager", bartender: "Bartender", garcom: "Garçom", caixa: "Caixa",
-};
-
-// Color by role — small text identity indicator (minimal exception)
-const ROLE_COLORS: Record<BarRole, string> = {
-  dono:        "var(--fg)",
-  gerente:     "var(--accent-bright)",
-  bar_manager: "var(--fg-muted)",
-  bartender:   "var(--fg-muted)",
-  garcom:      "var(--fg-muted)",
-  caixa:       "var(--fg-muted)",
 };
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -55,7 +46,6 @@ function MemberAvatar({
   const [uploading, setUploading] = useState(false);
   const [hovered, setHovered] = useState(false);
 
-  // fallback para arquivo estático
   const staticUrl = `/funcionarios/${encodeURIComponent(nome)}.png`;
   const displayUrl = url ?? staticUrl;
 
@@ -76,7 +66,7 @@ function MemberAvatar({
         .getPublicUrl(path);
       const res = await atualizarFotoMembro(memberId, publicUrl);
       if ("error" in res) throw new Error(res.error);
-      setUrl(`${publicUrl}?t=${Date.now()}`); // cache-bust
+      setUrl(`${publicUrl}?t=${Date.now()}`);
       setImgErro(false);
       toast("Foto atualizada!", "ok");
     } catch (err) {
@@ -104,7 +94,6 @@ function MemberAvatar({
         />
       )}
 
-      {/* Avatar */}
       {hasPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -131,7 +120,6 @@ function MemberAvatar({
         </div>
       )}
 
-      {/* Overlay de câmera ao hover / loading */}
       {canUpload && (
         <button
           onClick={() => !uploading && inputRef.current?.click()}
@@ -162,13 +150,18 @@ function MemberAvatar({
 }
 
 // ─── Single member row ────────────────────────────────────────────────────────
-function MembroRow({
+function MembroItem({
   m, isDono, currentUserId, onRemove,
+  isDragging, onDragStart, onDragEnter, onDragEnd,
 }: {
   m: MembroRow;
   isDono: boolean;
   currentUserId: string;
   onRemove: (id: string) => void;
+  isDragging: boolean;
+  onDragStart: () => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -180,8 +173,8 @@ function MembroRow({
   const [toggling, setToggling] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [, startTransition] = useTransition();
-  const isOwn    = m.userId === currentUserId;
-  const canEdit  = isDono && !isOwn;
+  const isOwn   = m.userId === currentUserId;
+  const canEdit = isDono && !isOwn;
 
   async function saveNome() {
     if (!nome.trim() || nome.trim() === m.nome) { setEditingNome(false); return; }
@@ -241,9 +234,28 @@ function MembroRow({
 
   return (
     <div
-      className="flex flex-row items-center gap-3 px-4 py-3.5 lg:grid lg:grid-cols-[1fr_160px_80px_88px] lg:gap-3 lg:px-[18px] lg:py-[13px]"
-      style={{ opacity: m.ativo ? 1 : 0.5 }}
+      draggable={isDono}
+      onDragStart={onDragStart}
+      onDragEnter={onDragEnter}
+      onDragEnd={onDragEnd}
+      onDragOver={e => e.preventDefault()}
+      className="flex flex-row items-center gap-3 px-4 py-3.5 lg:grid lg:grid-cols-[20px_1fr_160px_80px_88px] lg:gap-3 lg:px-[18px] lg:py-[13px]"
+      style={{
+        opacity: isDragging ? 0.4 : m.ativo ? 1 : 0.5,
+        cursor: isDono ? "grab" : "default",
+        transition: "opacity 0.15s",
+      }}
     >
+      {/* Drag handle — desktop only, dono only */}
+      <div className="hidden lg:flex" style={{ alignItems: "center", justifyContent: "center" }}>
+        {isDono && (
+          <GripVertical
+            size={14}
+            style={{ color: "var(--fg-subtle)", flexShrink: 0, cursor: "grab" }}
+          />
+        )}
+      </div>
+
       {/* Info */}
       <div className="flex-1 min-w-0" style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <MemberAvatar memberId={m.id} nome={nome} fotoUrl={m.fotoUrl} size={34} canUpload={isDono} />
@@ -325,7 +337,6 @@ function MembroRow({
       {/* Ações */}
       {canEdit ? (
         <div style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-          {/* Editar role */}
           <button
             onClick={() => setEditing(e => !e)}
             style={{ ...BTN_ICON, color: editing ? "var(--accent-bright)" : "var(--fg-subtle)" }}
@@ -334,7 +345,6 @@ function MembroRow({
             <Pencil style={{ width: 13, height: 13 }} />
           </button>
 
-          {/* Toggle ativo/inativo */}
           <button
             type="button"
             disabled={toggling}
@@ -349,7 +359,6 @@ function MembroRow({
                 : <Eye style={{ width: 13, height: 13 }} />}
           </button>
 
-          {/* Deletar */}
           <button
             type="button"
             disabled={removing}
@@ -377,12 +386,40 @@ export function EquipeMembros({
   currentUserId: string;
 }) {
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
+  const [localAtivos, setLocalAtivos] = useState<MembroRow[]>(ativosInit);
+
+  // Drag state
+  const draggingIdx = useRef<number | null>(null);
+  const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const localRef    = useRef<MembroRow[]>(localAtivos);
+  localRef.current  = localAtivos;
+
+  function handleDragStart(idx: number) {
+    draggingIdx.current = idx;
+  }
+
+  function handleDragEnter(idx: number) {
+    if (draggingIdx.current === null || draggingIdx.current === idx) return;
+    const next = [...localRef.current];
+    const [item] = next.splice(draggingIdx.current, 1);
+    next.splice(idx, 0, item);
+    draggingIdx.current = idx;
+    setLocalAtivos(next);
+  }
+
+  function handleDragEnd() {
+    draggingIdx.current = null;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      reordenarEquipe(localRef.current.map(m => m.id));
+    }, 500);
+  }
 
   function onRemove(id: string) {
     setRemovedIds(prev => new Set(prev).add(id));
+    setLocalAtivos(prev => prev.filter(m => m.id !== id));
   }
 
-  const ativos  = ativosInit.filter(m => !removedIds.has(m.id));
   const inativos = inativosInit.filter(m => !removedIds.has(m.id));
 
   return (
@@ -394,24 +431,34 @@ export function EquipeMembros({
         <div style={{ ...CARD, overflow: "hidden" }}>
           {/* Col header — desktop only */}
           <div
-            className="hidden lg:grid lg:grid-cols-[1fr_160px_80px_88px] gap-3 px-[18px] py-[10px] border-b"
+            className="hidden lg:grid lg:grid-cols-[20px_1fr_160px_80px_88px] gap-3 px-[18px] py-[10px] border-b"
             style={{ borderColor: "var(--border)" }}
           >
+            <span />
             <span style={lbl}>Nome</span>
             <span style={lbl}>Função</span>
             <span style={{ ...lbl, textAlign: "right" }}>Vendas</span>
             <span />
           </div>
 
-          {ativos.length === 0 && (
+          {localAtivos.length === 0 && (
             <p style={{ fontSize: 14, color: "var(--fg-subtle)", padding: "24px 18px", margin: 0 }}>
               Nenhum membro ativo.
             </p>
           )}
 
-          {ativos.map((m, i) => (
+          {localAtivos.map((m, i) => (
             <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-              <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} onRemove={onRemove} />
+              <MembroItem
+                m={m}
+                isDono={isDono}
+                currentUserId={currentUserId}
+                onRemove={onRemove}
+                isDragging={draggingIdx.current === i}
+                onDragStart={() => handleDragStart(i)}
+                onDragEnter={() => handleDragEnter(i)}
+                onDragEnd={handleDragEnd}
+              />
             </div>
           ))}
         </div>
@@ -424,7 +471,16 @@ export function EquipeMembros({
           <div style={{ ...CARD, overflow: "hidden" }}>
             {inativos.map((m, i) => (
               <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                <MembroRow m={m} isDono={isDono} currentUserId={currentUserId} onRemove={onRemove} />
+                <MembroItem
+                  m={m}
+                  isDono={isDono}
+                  currentUserId={currentUserId}
+                  onRemove={onRemove}
+                  isDragging={false}
+                  onDragStart={() => {}}
+                  onDragEnter={() => {}}
+                  onDragEnd={() => {}}
+                />
               </div>
             ))}
           </div>

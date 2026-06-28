@@ -142,3 +142,19 @@ export async function adicionarMembro(
     return { error: "Erro inesperado. Tente novamente." };
   }
 }
+
+export async function reordenarEquipe(ids: string[]): Promise<void> {
+  const current = await getCurrentBar();
+  if (!current) return;
+
+  const supabase = await createClient();
+  await Promise.all(
+    ids.map((id, i) =>
+      supabase.from("bar_members")
+        .update({ ordem: i + 1 })
+        .eq("id", id)
+        .eq("bar_id", current.bar.id)
+    )
+  );
+  revalidatePath("/dashboard/equipe");
+}
