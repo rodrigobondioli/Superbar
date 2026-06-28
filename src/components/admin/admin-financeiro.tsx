@@ -225,7 +225,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
             )}
           </div>
           <p style={{ fontSize: 11, color: "var(--fg-subtle)", fontStyle: "italic", margin: "8px 0 0" }}>
-            CMV calculado sobre itens com custo de produto cadastrado. Cobertura = % da receita que tem custo rastreado.
+            Benchmark de referência: 25–30% para coquetelaria premium · 30–35% para alta gastronomia. Calculado sobre itens com custo cadastrado — cobertura = % da receita rastreada.
           </p>
         </div>
       )}

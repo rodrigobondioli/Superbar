@@ -209,7 +209,7 @@ export default async function AdminPage() {
 
             {/* Nota de honestidade */}
             <p style={{ marginLeft: "auto", fontSize: 11, color: "var(--fg-subtle)", fontStyle: "italic", maxWidth: 220, textAlign: "right", lineHeight: 1.5 }}>
-              Calculado sobre itens com custo cadastrado. Quanto maior a cobertura, mais preciso.
+              Benchmark: 25–30% para coquetelaria premium. Calculado sobre itens com custo cadastrado — quanto maior a cobertura, mais preciso.
             </p>
           </div>
         )}
