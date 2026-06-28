@@ -3,8 +3,8 @@
 import { cookies } from "next/headers";
 import { getBarByKioskToken, verificarPin, regenerarKioskToken, getKioskToken } from "./queries";
 import { createClient } from "@/lib/supabase/server";
+import { KIOSK_COOKIE } from "./constants";
 
-export const KIOSK_COOKIE = "sb_kiosk";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 /** Ativa o kiosk no dispositivo atual: salva cookie por 1 ano.

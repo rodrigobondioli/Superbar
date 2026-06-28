@@ -4,7 +4,7 @@ import type { Bar, BarRole, Turno } from "@/types/database";
 import { percentChange } from "@/lib/dashboard/percent-change";
 import { calcularCmv } from "@/lib/dashboard/menu-engineering";
 import { getBarByKioskToken } from "@/lib/kiosk/queries";
-import { KIOSK_COOKIE } from "@/lib/kiosk/actions";
+import { KIOSK_COOKIE } from "@/lib/kiosk/constants";
 
 export interface CurrentBar {
   bar: Bar;
