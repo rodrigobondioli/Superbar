@@ -25,30 +25,26 @@ export function DonoSection() {
           {/* Texto */}
           <div>
             <h2
-              className="text-balance"
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(1.25rem, 3.5vw, 2rem)",
-                fontWeight: 400,
+                fontFamily: "var(--font-sans)",
+                fontSize: 48,
+                fontWeight: 600,
                 color: "#ffffff",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                lineHeight: 1.2,
+                lineHeight: 1.15,
+                letterSpacing: "-0.02em",
                 marginBottom: "1.5rem",
               }}
             >
               O dono médio procura mais clientes.
             </h2>
             <h2
-              className="text-balance"
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(1.25rem, 3.5vw, 2rem)",
-                fontWeight: 400,
+                fontFamily: "var(--font-sans)",
+                fontSize: 48,
+                fontWeight: 600,
                 color: "#ffffff",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                lineHeight: 1.2,
+                lineHeight: 1.15,
+                letterSpacing: "-0.02em",
               }}
             >
               O dono inteligente procura mais margem.
@@ -58,12 +54,15 @@ export function DonoSection() {
 
         {/* Subtítulo centralizado */}
         <p
-          className="text-pretty md:text-center"
+          className="text-balance md:text-center"
           style={{
-            fontFamily: "var(--font-roboto-mono)",
-            fontSize: "0.875rem",
+            fontFamily: "var(--font-sans)",
+            fontWeight: 400,
+            fontSize: 20,
             color: "#ffffff",
-            lineHeight: 1.7,
+            lineHeight: 1.6,
+            maxWidth: 640,
+            margin: "0 auto",
           }}
         >
           Você não precisa vender o dobro. Precisa enxergar melhor.
