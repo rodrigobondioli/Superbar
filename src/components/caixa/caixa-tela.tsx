@@ -124,9 +124,7 @@ function MesaCard({ group, selected, pago, onSelect }: {
       style={{
         aspectRatio: "1", borderRadius: 12,
         border: selected ? "2px solid var(--accent)" : "1px solid var(--border)",
-        background: selected
-          ? "color-mix(in srgb, var(--accent) 10%, var(--bg-elevated))"
-          : "var(--bg-elevated)",
+        background: "var(--bg-elevated)",
         display: "flex", flexDirection: "column",
         padding: "14px 14px 12px",
         cursor: "pointer", textAlign: "left",
@@ -274,6 +272,14 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
     );
   }
 
+  const btnPrimary: React.CSSProperties = {
+    flex: 1, height: 52, display: "flex", alignItems: "center", justifyContent: "center",
+    background: "var(--accent)", border: "none", borderRadius: 10,
+    cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.5 : 1,
+    fontSize: 15, fontWeight: 700, color: "var(--accent-fg)",
+    WebkitTapHighlightColor: "transparent",
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
@@ -289,8 +295,6 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
             <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "1px solid var(--border)", cursor: "pointer", color: "var(--fg-subtle)", fontSize: 16 }}>✕</button>
           </div>
         </div>
-
-        {/* Garçom */}
         {group.garcom_nome && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
             {group.garcom_foto ? (
@@ -306,155 +310,86 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
         )}
       </div>
 
-      {/* Lista de pessoas / comandas */}
-      <div style={{ flex: 1, overflowY: "auto" }}>
-        {group.comandas.map((comanda, idx) => {
-          const nome = comanda.nome_cliente ?? `Pessoa ${idx + 1}`;
-          const aberto = expandida === comanda.id;
-          return (
-            <div key={comanda.id} style={{ borderBottom: "1px solid var(--border)" }}>
-              <button
-                onClick={() => setExpandida(aberto ? null : comanda.id)}
-                style={{
-                  width: "100%", display: "flex", alignItems: "center",
-                  padding: "12px 20px", background: "none", border: "none",
-                  cursor: "pointer", textAlign: "left",
-                  gap: 10,
-                }}
-              >
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                  background: "var(--bg-hover)", display: "flex", alignItems: "center",
-                  justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--fg-muted)",
-                }}>
-                  {nome.charAt(0).toUpperCase()}
-                </div>
-                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{nome}</span>
-                <span style={{ fontSize: 13, color: "var(--fg-muted)", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
-                  {currency.format(comanda.total)}
-                </span>
-                <span style={{ fontSize: 10, color: "var(--fg-subtle)", marginLeft: 4 }}>
-                  {aberto ? "▲" : "▼"}
-                </span>
-              </button>
-              {aberto && comanda.itens.length > 0 && (
-                <div style={{ padding: "0 20px 10px 56px" }}>
-                  {comanda.itens.map((it, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-                      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>
-                        {it.quantidade}× {it.nome}
-                      </span>
-                      <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontFamily: "var(--font-sans)" }}>
-                        {currency.format(it.preco_total)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {/* Conteúdo rolável: pessoas + totais + pagamento */}
+      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
-      {/* Totais + pagamento */}
-      <div style={{ padding: "14px 20px 24px", flexShrink: 0, borderTop: "1px solid var(--border)" }}>
-
-        {/* Serviço */}
-        {taxaServicoPct > 0 && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button onClick={() => setIncluirServico(v => !v)} style={{
-                width: 32, height: 18, borderRadius: 9, border: "none", padding: 0, flexShrink: 0,
-                background: incluirServico ? "var(--accent)" : "rgba(255,255,255,0.12)",
-                position: "relative", cursor: "pointer", transition: "background 180ms",
-              }}>
-                <span style={{
-                  position: "absolute", top: 2, left: incluirServico ? 15 : 2,
-                  width: 14, height: 14, borderRadius: "50%",
-                  background: incluirServico ? "var(--accent-fg)" : "#fff", transition: "left 180ms",
-                }} />
-              </button>
-              <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Serviço {taxaServicoPct}%</span>
-            </div>
-            <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontFamily: "var(--font-sans)" }}>
-              {currency.format(servicoValor)}
-            </span>
-          </div>
-        )}
-
-        {/* Total */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: "1px solid var(--border)", paddingTop: 12, marginBottom: 14 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)" }}>Total</span>
-          <span style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", fontFamily: "var(--font-sans)", letterSpacing: "-0.8px" }}>
-            {currency.format(totalFinal)}
-          </span>
+        {/* Lista de pessoas */}
+        <div>
+          {group.comandas.map((comanda, idx) => {
+            const nome = comanda.nome_cliente ?? `Pessoa ${idx + 1}`;
+            const aberto = expandida === comanda.id;
+            return (
+              <div key={comanda.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                <button
+                  onClick={() => setExpandida(aberto ? null : comanda.id)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", padding: "12px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 10 }}
+                >
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--fg-muted)" }}>
+                    {nome.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{nome}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-muted)", fontFamily: "var(--font-sans)", fontWeight: 600 }}>{currency.format(comanda.total)}</span>
+                  <span style={{ fontSize: 10, color: "var(--fg-subtle)", marginLeft: 4 }}>{aberto ? "▲" : "▼"}</span>
+                </button>
+                {aberto && comanda.itens.length > 0 && (
+                  <div style={{ padding: "0 20px 10px 56px" }}>
+                    {comanda.itens.map((it, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                        <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{it.quantidade}× {it.nome}</span>
+                        <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontFamily: "var(--font-sans)" }}>{currency.format(it.preco_total)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {error && <p style={{ fontSize: 12, color: "var(--danger)", margin: "0 0 10px" }}>{error}</p>}
+        {/* Totais + pagamento — logo após a lista */}
+        <div style={{ padding: "16px 20px 28px", borderTop: "1px solid var(--border)", marginTop: "auto" }}>
 
-        {/* Botões de pagamento */}
-        {cartaoAberto ? (
-          <div style={{ display: "flex", gap: 8 }}>
-            {(["debito", "credito"] as PagamentoMetodo[]).map(key => (
-              <button key={key} onClick={() => { pagar(key); setCartaoAberto(false); }} disabled={isPending} style={{
-                flex: 1, height: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                background: "color-mix(in srgb, var(--fg) 7%, transparent)",
-                border: "1px solid var(--border)", borderRadius: 12,
-                cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.5 : 1,
-              }}>
-                <span style={{ fontSize: 16 }}>💳</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)" }}>{key === "debito" ? "Débito" : "Crédito"}</span>
-              </button>
-            ))}
-            <button onClick={() => setCartaoAberto(false)} style={{ width: 56, height: 56, borderRadius: 12, border: "1px solid var(--border)", background: "transparent", color: "var(--fg-subtle)", fontSize: 16, cursor: "pointer", flexShrink: 0 }}>✕</button>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {/* Linha 1: Pix + Dinheiro */}
-            <div style={{ display: "flex", gap: 8 }}>
-              {([
-                { key: "pix",      label: "Pix",      icon: "⚡" },
-                { key: "dinheiro", label: "Dinheiro", icon: "💵" },
-              ] as { key: PagamentoMetodo; label: string; icon: string }[]).map(b => (
-                <button key={b.key} onClick={() => pagar(b.key)} disabled={isPending} style={{
-                  flex: 1, height: 56,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  background: "var(--accent)", border: "none", borderRadius: 12,
-                  cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.5 : 1,
-                  WebkitTapHighlightColor: "transparent",
+          {taxaServicoPct > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button onClick={() => setIncluirServico(v => !v)} style={{
+                  width: 32, height: 18, borderRadius: 9, border: "none", padding: 0, flexShrink: 0,
+                  background: incluirServico ? "var(--accent)" : "rgba(255,255,255,0.12)",
+                  position: "relative", cursor: "pointer", transition: "background 180ms",
                 }}>
-                  <span style={{ fontSize: 20 }}>{b.icon}</span>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-fg)" }}>{b.label}</span>
+                  <span style={{ position: "absolute", top: 2, left: incluirServico ? 15 : 2, width: 14, height: 14, borderRadius: "50%", background: incluirServico ? "var(--accent-fg)" : "#fff", transition: "left 180ms" }} />
+                </button>
+                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Serviço {taxaServicoPct}%</span>
+              </div>
+              <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontFamily: "var(--font-sans)" }}>{currency.format(servicoValor)}</span>
+            </div>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: "1px solid var(--border)", paddingTop: 12, marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)" }}>Total</span>
+            <span style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", fontFamily: "var(--font-sans)", letterSpacing: "-0.8px" }}>{currency.format(totalFinal)}</span>
+          </div>
+
+          {error && <p style={{ fontSize: 12, color: "var(--danger)", margin: "0 0 10px" }}>{error}</p>}
+
+          {cartaoAberto ? (
+            <div style={{ display: "flex", gap: 8 }}>
+              {(["debito", "credito"] as PagamentoMetodo[]).map(key => (
+                <button key={key} onClick={() => { pagar(key); setCartaoAberto(false); }} disabled={isPending} style={btnPrimary}>
+                  {key === "debito" ? "Débito" : "Crédito"}
                 </button>
               ))}
+              <button onClick={() => setCartaoAberto(false)} style={{ width: 52, height: 52, borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--fg-subtle)", fontSize: 16, cursor: "pointer", flexShrink: 0 }}>✕</button>
             </div>
-            {/* Linha 2: Cartão + Cortesia */}
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setCartaoAberto(true)} disabled={isPending} style={{
-                flex: 1, height: 48,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                background: "color-mix(in srgb, var(--fg) 7%, transparent)",
-                border: "1px solid var(--border)", borderRadius: 12,
-                cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.5 : 1,
-                WebkitTapHighlightColor: "transparent",
-              }}>
-                <span style={{ fontSize: 15 }}>💳</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg-muted)" }}>Cartão</span>
-              </button>
-              <button onClick={() => setShowCortesia(true)} disabled={isPending} style={{
-                flex: 1, height: 48,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                background: "color-mix(in srgb, var(--fg) 7%, transparent)",
-                border: "1px solid var(--border)", borderRadius: 12,
-                cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.5 : 1,
-                WebkitTapHighlightColor: "transparent",
-              }}>
-                <span style={{ fontSize: 15 }}>🎁</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg-muted)" }}>Cortesia</span>
-              </button>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <button onClick={() => pagar("pix")}          disabled={isPending} style={btnPrimary}>Pix</button>
+              <button onClick={() => pagar("dinheiro")}     disabled={isPending} style={btnPrimary}>Dinheiro</button>
+              <button onClick={() => setCartaoAberto(true)} disabled={isPending} style={btnPrimary}>Cartão</button>
+              <button onClick={() => setShowCortesia(true)} disabled={isPending} style={btnPrimary}>Cortesia</button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {showCortesia && (
