@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { signOut } from "@/lib/auth/actions";
 import { checkPin } from "@/lib/kiosk/actions";
 import { AppHeader } from "@/components/ui/app-header";
+import { Button } from "@/components/ui/button";
 
 export type MembroSimples = { id: string; nome: string; role: string; temPin: boolean; fotoUrl?: string | null };
 
@@ -45,21 +46,12 @@ function QuemEVoce({
           <button
             key={m.id}
             onClick={() => onSelect(m)}
+            className="[-webkit-tap-highlight-color:transparent] hover:bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] transition-[background,border-color] duration-150"
             style={{
               background: "color-mix(in srgb, var(--fg) 4%, transparent)",
               border: "1px solid var(--border)", borderRadius: 8,
               padding: "20px 16px", cursor: "pointer",
               textAlign: "center", width: 140, flexShrink: 0,
-              transition: "background 0.15s, border-color 0.15s",
-              WebkitTapHighlightColor: "transparent",
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget).style.background = "color-mix(in srgb, var(--accent) 18%, transparent)";
-              (e.currentTarget).style.borderColor = "color-mix(in srgb, var(--accent) 45%, transparent)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget).style.background = "color-mix(in srgb, var(--fg) 4%, transparent)";
-              (e.currentTarget).style.borderColor = "var(--border)";
             }}
           >
             {m.fotoUrl && !fotoErros.has(m.id) ? (
@@ -222,15 +214,7 @@ function PinPad({
         })}
       </div>
 
-      <button
-        onClick={onCancel}
-        style={{
-          fontSize: 13, color: "var(--fg-subtle)",
-          background: "none", border: "none", cursor: "pointer", padding: "8px 16px",
-        }}
-      >
-        ← Voltar
-      </button>
+      <Button variant="ghost" onClick={onCancel}>← Voltar</Button>
     </div>
   );
 }
@@ -317,24 +301,14 @@ export function OperadorShell({
         roleLabel={roleLabel}
         right={
           operador ? (
-            <button
-              onClick={trocar}
-              style={{
-                fontSize: 12, fontWeight: 500, color: "var(--fg-muted)",
-                background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-                border: "1px solid var(--border)",
-                borderRadius: 4, padding: "6px 12px", cursor: "pointer",
-              }}
-            >
+            <Button variant="secondary" size="sm" onClick={trocar}>
               {operador.nome} · Trocar
-            </button>
+            </Button>
           ) : (
             /* Kiosk: sem Sair. Auth normal: mostra Sair */
             !isKiosk ? (
               <form action={signOut}>
-                <button type="submit" style={{ fontSize: 12, color: "var(--fg-subtle)", background: "none", border: "none", cursor: "pointer" }}>
-                  Sair
-                </button>
+                <Button variant="ghost" size="sm" type="submit">Sair</Button>
               </form>
             ) : null
           )

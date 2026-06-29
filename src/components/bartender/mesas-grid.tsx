@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
 import { abrirComanda, atenderChamada } from "@/lib/bartender/actions";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
+import { Button } from "@/components/ui/button";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -81,23 +82,17 @@ function SeletorPessoas({
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
               {[1,2,3,4,5,6,7,8].map(n => (
-                <button key={n} onClick={() => !isPending && confirmarQtd(n)} disabled={isPending} style={{
-                  height: 64, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 22, fontWeight: 800, fontFamily: "var(--font-mono)",
-                  background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-                  border: "1px solid var(--border)", borderRadius: 8,
-                  cursor: isPending ? "not-allowed" : "pointer", color: "var(--fg)",
-                  transition: "background 120ms", WebkitTapHighlightColor: "transparent",
-                  opacity: isPending ? 0.5 : 1,
-                }}>{n}</button>
+                <Button key={n} variant="secondary" disabled={isPending}
+                  onClick={() => !isPending && confirmarQtd(n)}
+                  className="h-16 text-[22px] font-extrabold font-mono">
+                  {n}
+                </Button>
               ))}
             </div>
-            <button onClick={() => !isPending && onConfirm(0)} disabled={isPending} style={{
-              width: "100%", padding: "14px", background: "transparent", border: "none",
-              color: "var(--fg-subtle)", fontSize: 13, cursor: "pointer",
-            }}>
+            <Button variant="ghost" disabled={isPending} className="w-full py-[14px]"
+              onClick={() => !isPending && onConfirm(0)}>
               Pular (não informar)
-            </button>
+            </Button>
           </>
         ) : (
           <>
@@ -121,25 +116,14 @@ function SeletorPessoas({
                 color: "var(--fg)", fontSize: 16, outline: "none", marginBottom: 16,
               } as React.CSSProperties}
             />
-            <button
-              onClick={() => !isPending && onConfirm(qtd, nome || undefined)}
-              disabled={isPending}
-              style={{
-                width: "100%", padding: "16px",
-                background: "var(--accent)", border: "none", borderRadius: 8,
-                color: "var(--accent-fg)", fontSize: 15, fontWeight: 700,
-                cursor: isPending ? "not-allowed" : "pointer",
-                WebkitTapHighlightColor: "transparent",
-              }}
-            >
+            <Button variant="op" disabled={isPending} className="w-full"
+              onClick={() => !isPending && onConfirm(qtd, nome || undefined)}>
               {isPending ? "Abrindo..." : "Abrir comanda"}
-            </button>
-            <button onClick={() => setStep("pessoas")} style={{
-              width: "100%", padding: "12px", background: "transparent", border: "none",
-              color: "var(--fg-subtle)", fontSize: 13, cursor: "pointer", marginTop: 4,
-            }}>
+            </Button>
+            <Button variant="ghost" className="w-full mt-1"
+              onClick={() => setStep("pessoas")}>
               ← Voltar
-            </button>
+            </Button>
           </>
         )}
       </div>
@@ -228,16 +212,10 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--danger)", display: "flex", alignItems: "center", gap: 6 }}>
             🔔 Chamando atendimento
           </span>
-          <button
-            onClick={e => { e.stopPropagation(); onAtender?.(); }}
-            style={{
-              fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: "var(--radius-sm)",
-              background: "var(--danger)", border: "none", color: "white",
-              cursor: "pointer", WebkitTapHighlightColor: "transparent",
-            }}
-          >
+          <Button variant="danger" size="sm"
+            onClick={e => { e.stopPropagation(); onAtender?.(); }}>
             Atendi ✓
-          </button>
+          </Button>
         </div>
       )}
 
@@ -594,13 +572,9 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
             }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "var(--danger)", margin: 0 }}>⚠ Erro ao abrir comanda</p>
               <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.5 }}>{openError}</p>
-              <button onClick={() => setOpenError(null)} style={{
-                background: "var(--bg-inset)", border: "1px solid var(--border)",
-                borderRadius: 6, padding: "10px", fontSize: 13, fontWeight: 600,
-                color: "var(--fg)", cursor: "pointer",
-              }}>
+              <Button variant="secondary" className="w-full" onClick={() => setOpenError(null)}>
                 Fechar
-              </button>
+              </Button>
             </div>
           </div>
         </>
