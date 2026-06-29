@@ -35,12 +35,12 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
       }}
     >
       {/* Header */}
-      <div style={{ padding: "18px 20px 16px", borderBottom: "1px solid var(--border)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0, display: "block" }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em" }}>SUPERBAR</span>
-        </div>
+      <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border)" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 44, height: 44, borderRadius: 10, display: "block", marginBottom: 10 }} />
+        <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", marginBottom: 6 }}>
+          SUPERBAR
+        </span>
         <span style={{
           display: "inline-block",
           fontSize: 10, fontWeight: 600,
