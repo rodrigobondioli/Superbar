@@ -22,25 +22,22 @@ function dimColor(pct: number): string {
   return "var(--danger)";
 }
 
-// Dimensões: Uso / Produtos / Custos / Equipe → score 0-100
+// Dimensões: Pedidos / Cardápio / Custos / Equipe → score 0-100
 function implantacaoPct(bar: BarResumo): {
-  uso: number;
-  produtos: number;
+  pedidos: number;
+  cardapio: number;
   custos: number;
   equipe: number;
   total: number;
 } {
-  // Uso: baseado em turnos (0 → 0%, 1 → 30%, 2 → 60%, 3+ → 100%)
-  const uso = bar.total_turnos === 0 ? 0
-    : bar.total_turnos === 1 ? 30
-    : bar.total_turnos === 2 ? 60
+  // Pedidos: pagamentos confirmados (uso real do sistema)
+  const pedidos = bar.ticket_count_total === 0 ? 0
+    : bar.ticket_count_total < 5  ? 40
+    : bar.ticket_count_total < 20 ? 70
     : 100;
 
-  // Produtos: 0 = 0%, 1-4 = 40%, 5-9 = 70%, 10+ = 100%
-  const produtos = bar.total_produtos === 0 ? 0
-    : bar.total_produtos < 5  ? 40
-    : bar.total_produtos < 10 ? 70
-    : 100;
+  // Cardápio: binário — tem produto cadastrado ou não
+  const cardapio = bar.total_produtos > 0 ? 100 : 0;
 
   // Custos: direto da cobertura
   const custos = bar.cobertura_custo_pct;
@@ -50,9 +47,9 @@ function implantacaoPct(bar: BarResumo): {
     : bar.total_membros === 1 ? 50
     : 100;
 
-  const total = Math.round((uso + produtos + custos + equipe) / 4);
+  const total = Math.round((pedidos + cardapio + custos + equipe) / 4);
 
-  return { uso, produtos, custos, equipe, total };
+  return { pedidos, cardapio, custos, equipe, total };
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -102,10 +99,10 @@ export function AdminImplantacao({ bares }: { bares: BarResumo[] }) {
 
               {/* Dimensões */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <DimBar label="Uso"     pct={dim.uso}     color={dimColor(dim.uso)} />
-                <DimBar label="Produtos" pct={dim.produtos} color={dimColor(dim.produtos)} />
-                <DimBar label="Custos"  pct={dim.custos}  color={dimColor(dim.custos)} />
-                <DimBar label="Equipe"  pct={dim.equipe}  color={dimColor(dim.equipe)} />
+                <DimBar label="Pedidos"  pct={dim.pedidos}  color={dimColor(dim.pedidos)} />
+                <DimBar label="Cardápio" pct={dim.cardapio} color={dimColor(dim.cardapio)} />
+                <DimBar label="Custos"   pct={dim.custos}   color={dimColor(dim.custos)} />
+                <DimBar label="Equipe"   pct={dim.equipe}   color={dimColor(dim.equipe)} />
               </div>
 
               {/* Score total */}
