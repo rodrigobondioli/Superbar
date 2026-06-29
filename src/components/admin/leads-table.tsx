@@ -101,6 +101,16 @@ export function LeadsTable({ leads: initial }: { leads: Lead[] }) {
                   @{lead.instagram.replace(/^@/, "")}
                 </a>
               )}
+              {lead.site && (
+                <a
+                  href={lead.site.startsWith("http") ? lead.site : `https://${lead.site}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: 12, color: "var(--fg-muted)", textDecoration: "none", fontFamily: "var(--font-mono)" }}
+                >
+                  {lead.site.replace(/^https?:\/\//, "")}
+                </a>
+              )}
               <span style={{ fontSize: 11, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
                 {fmt.format(new Date(lead.created_at))}
               </span>

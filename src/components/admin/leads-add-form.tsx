@@ -7,7 +7,7 @@ const TIPO_OPTIONS = ["Coquetelaria", "Wine Bar", "Speakeasy", "Gastrobar", "Out
 
 const EMPTY = {
   nome_bar: "", cidade: "São Paulo", tipo_bar: "Coquetelaria",
-  nome_responsavel: "", whatsapp: "", email: "", instagram: "", notas: "",
+  nome_responsavel: "", whatsapp: "", email: "", instagram: "", site: "", notas: "",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -154,10 +154,16 @@ export function LeadsAddForm() {
                 </div>
               </div>
 
-              {/* Instagram */}
-              <div>
-                <label style={labelStyle}>Instagram</label>
-                <input name="instagram" value={form.instagram} onChange={handleChange} placeholder="@nomedobar" style={inputStyle} />
+              {/* Instagram + Site */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>Instagram</label>
+                  <input name="instagram" value={form.instagram} onChange={handleChange} placeholder="@nomedobar" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Site</label>
+                  <input name="site" value={form.site} onChange={handleChange} placeholder="https://nomedobar.com.br" style={inputStyle} />
+                </div>
               </div>
 
               {/* Notas */}

@@ -65,6 +65,7 @@ export async function createLeadAdmin(payload: {
   tipo_bar: string;
   whatsapp?: string;
   instagram?: string;
+  site?: string;
   nome_responsavel?: string;
   email?: string;
   notas?: string;
@@ -77,6 +78,7 @@ export async function createLeadAdmin(payload: {
     tipo_bar: payload.tipo_bar,
     whatsapp: payload.whatsapp?.trim() || null,
     instagram: payload.instagram?.trim() || null,
+    site: payload.site?.trim() || null,
     nome_responsavel: payload.nome_responsavel?.trim() || null,
     email: payload.email?.trim() || null,
     notas: payload.notas?.trim() || null,
