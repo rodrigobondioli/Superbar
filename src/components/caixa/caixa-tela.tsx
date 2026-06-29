@@ -123,7 +123,8 @@ function MesaCard({ group, selected, pago, onSelect }: {
       onClick={onSelect}
       style={{
         aspectRatio: "1", borderRadius: 12,
-        border: selected ? "2px solid var(--accent)" : "1px solid var(--border)",
+        border: "1px solid var(--border)",
+        boxShadow: selected ? "0 0 0 2px var(--accent)" : "none",
         background: "var(--bg-elevated)",
         display: "flex", flexDirection: "column",
         padding: "14px 14px 12px",
@@ -311,7 +312,7 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
       </div>
 
       {/* Conteúdo rolável: pessoas + totais + pagamento */}
-      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
+      <div style={{ overflowY: "auto", flex: 1 }}>
 
         {/* Lista de pessoas */}
         <div>
@@ -347,7 +348,7 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
         </div>
 
         {/* Totais + pagamento — logo após a lista */}
-        <div style={{ padding: "16px 20px 28px", borderTop: "1px solid var(--border)", marginTop: "auto" }}>
+        <div style={{ padding: "16px 20px 28px", borderTop: "1px solid var(--border)" }}>
 
           {taxaServicoPct > 0 && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
