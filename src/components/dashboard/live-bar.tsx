@@ -107,22 +107,17 @@ export function LiveBar({
     letterSpacing: "0.12em", color: "var(--fg-subtle)", margin: "0 0 10px", display: "block",
   };
   const valueStyle: React.CSSProperties = {
-    fontSize: 34, fontWeight: 800, lineHeight: 1,
+    fontSize: 40, fontWeight: 800, lineHeight: 1,
     fontVariantNumeric: "tabular-nums", letterSpacing: "-0.025em",
     margin: "0 0 8px",
   };
 
   return (
-    <div style={{ padding: "24px 32px 0" }}>
-      <div style={{
-        background: "var(--bg-card)",
-        border: "1px solid var(--border)",
-        borderRadius: 16,
-        overflow: "hidden",
-      }}>
+    <div style={{ padding: "28px 32px 0", borderBottom: "1px solid var(--border)" }}>
+      <div>
 
         {/* ── Status row ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 28px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 20 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
             <span
               className="animate-live-pulse"
@@ -139,10 +134,10 @@ export function LiveBar({
         </div>
 
         {/* ── 3 Hero Metrics ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "20px 28px 22px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "0 0 24px" }}>
 
           {/* Ticket Médio */}
-          <div style={{ paddingRight: 28, borderRight: "1px solid var(--border)" }}>
+          <div style={{ paddingRight: 32, borderRight: "1px solid var(--border)" }}>
             <span style={overlineStyle}>Ticket Médio</span>
             <p style={{ ...valueStyle, color: "var(--fg)" }}>
               {data.pessoas > 0 ? currency.format(ticketMedio) : "—"}
@@ -153,7 +148,7 @@ export function LiveBar({
           </div>
 
           {/* Margem */}
-          <div style={{ paddingLeft: 28, paddingRight: 28, borderRight: "1px solid var(--border)" }}>
+          <div style={{ paddingLeft: 32, paddingRight: 32, borderRight: "1px solid var(--border)" }}>
             <span style={overlineStyle}>Margem</span>
             <p style={{ ...valueStyle, color: margemColor }}>
               {margemPct !== null ? `${margemPct.toFixed(0)}%` : "—"}
@@ -162,7 +157,7 @@ export function LiveBar({
           </div>
 
           {/* CMV */}
-          <div style={{ paddingLeft: 28 }}>
+          <div style={{ paddingLeft: 32 }}>
             <span style={overlineStyle}>CMV</span>
             <p style={{ ...valueStyle, color: cmvColor }}>
               {cmvPct !== null ? `${cmvPct.toFixed(0)}%` : "—"}
@@ -176,8 +171,8 @@ export function LiveBar({
         <div style={{
           display: "flex", alignItems: "center", gap: 0,
           borderTop: "1px solid var(--border)",
-          padding: "12px 28px",
-          background: "color-mix(in srgb, var(--fg) 1.5%, transparent)",
+          padding: "12px 0 20px",
+          background: "transparent",
         }}>
 
           {/* Faturamento */}

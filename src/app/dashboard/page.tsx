@@ -560,7 +560,7 @@ export default async function DashboardPage() {
 
 
       {/* ── CONTENT ── */}
-      <div style={{ padding: "20px 32px 48px", display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ padding: "24px 32px 64px", display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* ═══ STATUS BANNER — diagnóstico em linguagem natural ═══ */}
         <StatusBanner
@@ -623,7 +623,7 @@ export default async function DashboardPage() {
         />
 
         {/* ═══ SECUNDÁRIAS — Gráfico + Insights lado a lado ═══ */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
 
           {/* Gráfico 7 dias */}
           <div>
@@ -706,7 +706,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* ═══ BOTTOM — 2 cards ═══ */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
 
           {/* Vendas por hora */}
           <DashCard>

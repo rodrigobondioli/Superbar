@@ -40,7 +40,8 @@ export function ProximaMelhorAcao({
         background: "var(--bg-elevated)",
         border: "1px solid var(--border)",
         borderRadius: 16,
-        padding: "28px 32px",
+        padding: "32px 36px",
+        boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24 }}>
@@ -158,59 +159,39 @@ export function ProximaMelhorAcao({
                 .filter((p) => p.margemPercentual !== null)
                 .slice(0, 4)
                 .map((p) => (
-                  <div key={p.produtoId}>
-                    <div
+                  <div
+                    key={p.produtoId}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "baseline",
-                        marginBottom: 4,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 12,
-                          color: "var(--fg)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          flex: 1,
-                          minWidth: 0,
-                          marginRight: 8,
-                        }}
-                      >
-                        {p.produtoNome}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "var(--fg-subtle)",
-                          fontFamily: "var(--font-mono)",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {percent.format(p.margemPercentual ?? 0)}%
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 2,
-                        background: "var(--border-strong)",
-                        borderRadius: 2,
+                        fontSize: 12,
+                        color: "var(--fg-subtle)",
                         overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        flex: 1,
+                        minWidth: 0,
+                        marginRight: 12,
                       }}
                     >
-                      <div
-                        style={{
-                          width: `${p.margemPercentual ?? 0}%`,
-                          height: "100%",
-                          background: "color-mix(in srgb, var(--fg) 30%, transparent)",
-                          borderRadius: 2,
-                          transition: "width 0.5s ease",
-                        }}
-                      />
-                    </div>
+                      {p.produtoNome}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "var(--fg-subtle)",
+                        fontFamily: "var(--font-mono)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {percent.format(p.margemPercentual ?? 0)}%
+                    </span>
                   </div>
                 ))}
             </div>
