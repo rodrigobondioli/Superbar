@@ -2,6 +2,7 @@ import { TrendText } from "@/components/ui/trend-text";
 import { BarChart } from "@/components/ui/bar-chart";
 import { CategoriaBadge } from "@/components/dashboard/categoria-badge";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
+import { StatusBanner } from "@/components/dashboard/status-banner";
 import { LiveBar } from "@/components/dashboard/live-bar";
 import { ProximaMelhorAcao } from "@/components/dashboard/proxima-melhor-acao";
 import { DashCard } from "@/components/dashboard/dash-card";
@@ -559,7 +560,16 @@ export default async function DashboardPage() {
 
 
       {/* ── CONTENT ── */}
-      <div style={{ padding: "24px 32px 48px", display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ padding: "20px 32px 48px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+        {/* ═══ STATUS BANNER — diagnóstico em linguagem natural ═══ */}
+        <StatusBanner
+          cmvPct={cmvAtual}
+          cmvDelta={comparacao.cmv}
+          ticketDelta={comparacao.ticketMedio}
+          cmvParcial={cmvParcial}
+          topProdutoProblema={produtosTop5.length > 0 && (cmvAtual ?? 0) >= 42 ? null : null}
+        />
 
         {/* ═══ APRENDIZADO (stage 1 only) ═══ */}
         {inteligencia.stage === 1 && (
@@ -586,15 +596,38 @@ export default async function DashboardPage() {
           </DashCard>
         )}
 
-        {/* ═══ AI CHAT ═══ */}
-        <AiHeroInput barId={current.bar.id} alertCount={nAction} />
+        {/* ═══ PRÓXIMA AÇÃO — hero full-width ═══ */}
+        {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? (
+          <ProximaMelhorAcao
+            produtoNome={produtosTop5[0].produtoNome}
+            margemPercentual={produtosTop5[0].margemPercentual}
+            faturamento={produtosTop5[0].faturamento}
+            quantidadeVendida={produtosTop5[0].quantidadeVendida}
+            categoria={produtosTop5[0].categoria}
+            ranking={produtosTop5.slice(1).map(p => ({
+              produtoId: p.produtoId,
+              produtoNome: p.produtoNome,
+              margemPercentual: p.margemPercentual,
+              faturamento: p.faturamento,
+            }))}
+          />
+        ) : null}
+
+        {/* ═══ AI CHAT — chips contextuais ═══ */}
+        <AiHeroInput
+          barId={current.bar.id}
+          alertCount={nAction}
+          cmvAlto={cmvAtual !== null && cmvAtual >= 36}
+          ticketCaindo={comparacao.ticketMedio !== null && comparacao.ticketMedio < -5}
+          produtoSugerido={produtosTop5.length > 0 ? produtosTop5[0].produtoNome : null}
+        />
 
         {/* ═══ SECUNDÁRIAS — Gráfico + Insights lado a lado ═══ */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
           {/* Gráfico 7 dias */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--fg-subtle)" }}>
                 Receita — 7 dias
               </span>
@@ -607,7 +640,7 @@ export default async function DashboardPage() {
 
           {/* Insights / Análises */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--fg-subtle)" }}>
                 Inteligência
               </span>
@@ -672,8 +705,8 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* ═══ BOTTOM — 3 cards ═══ */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
+        {/* ═══ BOTTOM — 2 cards ═══ */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
           {/* Vendas por hora */}
           <DashCard>
@@ -694,38 +727,6 @@ export default async function DashboardPage() {
               </div>
             )}
           </DashCard>
-
-          {/* Próxima ação */}
-          {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? (
-            <ProximaMelhorAcao
-              produtoNome={produtosTop5[0].produtoNome}
-              margemPercentual={produtosTop5[0].margemPercentual}
-              faturamento={produtosTop5[0].faturamento}
-              quantidadeVendida={produtosTop5[0].quantidadeVendida}
-              categoria={produtosTop5[0].categoria}
-              ranking={produtosTop5.slice(1).map(p => ({
-                produtoId: p.produtoId,
-                produtoNome: p.produtoNome,
-                margemPercentual: p.margemPercentual,
-                faturamento: p.faturamento,
-              }))}
-            />
-          ) : rankingMesas.length > 0 ? (
-            <DashCard>
-              <CardOverline>Mesa destaque</CardOverline>
-              <p style={{ fontSize: "2rem", fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1, margin: "8px 0 6px" }}>
-                {rankingMesas[0].mesaLabel}
-              </p>
-              <p style={{ fontSize: 11, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
-                {currency.format(rankingMesas[0].faturamento)} · {rankingMesas[0].comandas} comanda{rankingMesas[0].comandas !== 1 ? "s" : ""}
-              </p>
-            </DashCard>
-          ) : (
-            <DashCard>
-              <CardOverline>Próxima ação</CardOverline>
-              <p style={{ fontSize: 12, color: "var(--fg-subtle)", marginTop: 8, lineHeight: 1.5 }}>Aguardando dados de venda para sugerir a próxima ação.</p>
-            </DashCard>
-          )}
 
           {/* Estoque */}
           <DashCard>

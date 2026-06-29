@@ -2,26 +2,72 @@
 
 import { useRef, useState } from 'react'
 
-const SUGGESTIONS = [
+const SUGGESTIONS_DEFAULT = [
   'Como está meu CMV agora?',
   'O que precisa da minha atenção?',
   'Qual produto mais vendeu hoje?',
-  'Qual produto derrubou minha margem?',
   'Resumo do turno',
   'As cortesias estão fora do padrão?',
 ]
 
+function buildSuggestions({
+  cmvAlto,
+  ticketCaindo,
+  produtoSugerido,
+}: {
+  cmvAlto?: boolean;
+  ticketCaindo?: boolean;
+  produtoSugerido?: string | null;
+}): string[] {
+  const chips: string[] = []
+
+  if (cmvAlto) {
+    chips.push('Por que meu CMV subiu hoje?')
+    chips.push('Qual produto está derrubando minha margem?')
+  }
+
+  if (ticketCaindo) {
+    chips.push('Por que o ticket está caindo?')
+    chips.push('O que a equipe deve sugerir agora?')
+  }
+
+  if (produtoSugerido) {
+    chips.push(`Por que ${produtoSugerido} é a melhor opção agora?`)
+  }
+
+  if (!cmvAlto && !ticketCaindo) {
+    chips.push('O que devo acompanhar nas próximas 2 horas?')
+  }
+
+  chips.push('Resumo do turno para o WhatsApp')
+
+  for (const s of SUGGESTIONS_DEFAULT) {
+    if (chips.length >= 5) break
+    if (!chips.includes(s)) chips.push(s)
+  }
+
+  return chips.slice(0, 5)
+}
+
 export function AiHeroInput({
   barId,
   alertCount,
+  cmvAlto,
+  ticketCaindo,
+  produtoSugerido,
 }: {
   barId: string
   alertCount?: number
+  cmvAlto?: boolean
+  ticketCaindo?: boolean
+  produtoSugerido?: string | null
 }) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
   const [loading, setLoading] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const suggestions = buildSuggestions({ cmvAlto, ticketCaindo, produtoSugerido })
 
   async function ask(q: string) {
     if (!q.trim()) return
@@ -37,7 +83,7 @@ export function AiHeroInput({
       const data = await res.json()
       setAnswer(data.response)
     } catch {
-      setAnswer('Erro ao consultar.')
+      setAnswer('Erro ao consultar. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -52,7 +98,6 @@ export function AiHeroInput({
 
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setQuestion(e.target.value)
-    // Auto-resize
     const el = e.target
     el.style.height = 'auto'
     el.style.height = `${el.scrollHeight}px`
@@ -80,34 +125,36 @@ export function AiHeroInput({
         overflow: 'hidden',
       }}>
 
-        {/* Chips */}
+        {/* Chips contextuais */}
         <div style={{
           display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center',
           padding: '10px 16px',
           borderBottom: '1px solid var(--border)',
         }}>
-          <a
-            href="/dashboard/inteligencia"
-            style={{ ...chipBase, textDecoration: 'none', display: 'inline-flex' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-subtle)' }}
-          >
-            Ver análise →
-          </a>
-          {SUGGESTIONS.map(s => (
+          {suggestions.map(s => (
             <button
               key={s}
               onClick={() => { setQuestion(s); setTimeout(() => ask(s), 0) }}
               style={chipBase}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--fg)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-subtle)' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--border-strong)'
+                e.currentTarget.style.color = 'var(--fg)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.color = 'var(--fg-subtle)'
+              }}
             >
               {s}
             </button>
           ))}
           {alertCount !== undefined && alertCount > 0 && (
             <button
-              onClick={() => { const q = 'O que precisa da minha atenção agora? Me dê o impacto em reais.'; setQuestion(q); setTimeout(() => ask(q), 0) }}
+              onClick={() => {
+                const q = 'O que precisa da minha atenção agora? Me dê o impacto em reais.'
+                setQuestion(q)
+                setTimeout(() => ask(q), 0)
+              }}
               style={{
                 marginLeft: 'auto', fontSize: 10, fontFamily: 'var(--font-mono)',
                 color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer',
@@ -126,7 +173,7 @@ export function AiHeroInput({
             value={question}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="Pergunte sobre margem, produtos, pagamentos ou gargalos…"
+            placeholder="Ou pergunte com suas próprias palavras…"
             rows={2}
             style={{
               flex: 1,
@@ -163,7 +210,9 @@ export function AiHeroInput({
             {loading ? (
               <span style={{ color: 'var(--fg-subtle)', fontSize: 18, lineHeight: 1 }}>·</span>
             ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={question.trim() ? '#000' : 'var(--fg-subtle)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke={question.trim() ? '#000' : 'var(--fg-subtle)'}
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
               </svg>
@@ -187,7 +236,9 @@ export function AiHeroInput({
           lineHeight: 1.7,
         }}>
           {loading ? (
-            <span style={{ color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', fontSize: 13 }}>Consultando dados do bar…</span>
+            <span style={{ color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+              Consultando dados do bar…
+            </span>
           ) : answer}
         </div>
       )}
