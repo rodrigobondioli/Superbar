@@ -7,11 +7,13 @@ import type { AssinaturaStatus } from "@/types/database";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const STATUS_DOT: Record<AssinaturaStatus, string> = {
-  trial:        "#3b82f6",
-  ativa:        "#22c55e",
-  cancelada:    "#65656b",
-  inadimplente: "#ef4444",
+// Note: trial usa #3b82f6 (azul) — sem token CSS equivalente no design system.
+// Os demais mapeiam para CSS vars.
+const STATUS_CONFIG: Record<AssinaturaStatus, { color: string; bg: string; border: string }> = {
+  trial:        { color: "#3b82f6",          bg: "color-mix(in srgb, #3b82f6 10%, transparent)",             border: "color-mix(in srgb, #3b82f6 20%, transparent)" },
+  ativa:        { color: "var(--ok)",         bg: "var(--ok-bg)",                                            border: "color-mix(in srgb, var(--ok) 20%, transparent)" },
+  cancelada:    { color: "var(--fg-subtle)",  bg: "color-mix(in srgb, var(--fg-subtle) 10%, transparent)",   border: "color-mix(in srgb, var(--fg-subtle) 20%, transparent)" },
+  inadimplente: { color: "var(--danger)",     bg: "var(--danger-bg)",                                        border: "color-mix(in srgb, var(--danger) 20%, transparent)" },
 };
 
 const STATUS_LABEL: Record<AssinaturaStatus, string> = {
@@ -42,9 +44,9 @@ function relDate(iso: string | null): string {
 
 function HealthBadge({ score, alertas }: { score: HealthScore; alertas: RiskAlert[] }) {
   const config = {
-    green:  { emoji: "🟢", label: "Saudável",  color: "#22c55e", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
-    yellow: { emoji: "🟡", label: "Atenção",   color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
-    red:    { emoji: "🔴", label: "Risco",     color: "#ef4444", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
+    green:  { emoji: "🟢", label: "Saudável",  color: "var(--ok)",     bg: "var(--ok-bg)",     border: "color-mix(in srgb, var(--ok) 20%, transparent)"     },
+    yellow: { emoji: "🟡", label: "Atenção",   color: "var(--warn)",   bg: "var(--warn-bg)",   border: "color-mix(in srgb, var(--warn) 20%, transparent)"   },
+    red:    { emoji: "🔴", label: "Risco",     color: "var(--danger)", bg: "var(--danger-bg)", border: "color-mix(in srgb, var(--danger) 20%, transparent)" },
   }[score];
 
   const topAlert = alertas[0];
@@ -63,7 +65,8 @@ function HealthBadge({ score, alertas }: { score: HealthScore; alertas: RiskAler
       </span>
       {topAlert && (
         <span style={{
-          fontSize: 10, color: topAlert.level === "red" ? "#ef4444" : "#f59e0b",
+          fontSize: 10,
+          color: topAlert.level === "red" ? "var(--danger)" : "var(--warn)",
           paddingLeft: 2,
         }}>
           {topAlert.label}
@@ -76,18 +79,19 @@ function HealthBadge({ score, alertas }: { score: HealthScore; alertas: RiskAler
 
 function StatusPill({ status }: { status: AssinaturaStatus | null }) {
   if (!status) return <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>—</span>;
+  const cfg = STATUS_CONFIG[status];
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 5,
       padding: "3px 9px", borderRadius: 99,
-      border: `1px solid ${STATUS_DOT[status]}33`,
-      background: `${STATUS_DOT[status]}10`,
-      fontSize: 11, fontWeight: 600, color: STATUS_DOT[status],
+      border: `1px solid ${cfg.border}`,
+      background: cfg.bg,
+      fontSize: 11, fontWeight: 600, color: cfg.color,
       letterSpacing: "0.02em", whiteSpace: "nowrap",
     }}>
       <span style={{
-        width: 5, height: 5, borderRadius: "50%", background: STATUS_DOT[status], flexShrink: 0,
-        ...(status === "ativa" ? { boxShadow: `0 0 6px ${STATUS_DOT[status]}` } : {}),
+        width: 5, height: 5, borderRadius: "50%", background: cfg.color, flexShrink: 0,
+        ...(status === "ativa" ? { boxShadow: `0 0 6px ${cfg.color}` } : {}),
       }} />
       {STATUS_LABEL[status]}
     </span>
@@ -123,7 +127,6 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
   const sorted = [...bares].sort((a, b) => {
     const hDiff = HEALTH_ORDER[a.healthScore] - HEALTH_ORDER[b.healthScore];
     if (hDiff !== 0) return hDiff;
-    // Se mesmo nível, mais antigo (sem uso) primeiro
     const dA = a.dias_sem_uso ?? 9999;
     const dB = b.dias_sem_uso ?? 9999;
     return dB - dA;
@@ -152,7 +155,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
   };
 
   return (
-    <div style={{ background: "var(--bg-elevated)", borderRadius: 8, overflow: "hidden" }}>
+    <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
 
       {/* Toolbar */}
       <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -192,15 +195,15 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
               const isYellow  = bar.healthScore === "yellow";
 
               const rowBg = isHovered
-                ? "rgba(255,255,255,0.03)"
+                ? "color-mix(in srgb, var(--fg) 4%, transparent)"
                 : isRed
-                ? "rgba(239,68,68,0.02)"
+                ? "color-mix(in srgb, var(--danger) 3%, transparent)"
                 : "transparent";
 
               const leftBorder = isRed && !isHovered
-                ? "2px solid rgba(239,68,68,0.35)"
+                ? "2px solid color-mix(in srgb, var(--danger) 35%, transparent)"
                 : isYellow && !isHovered
-                ? "2px solid rgba(245,158,11,0.25)"
+                ? "2px solid color-mix(in srgb, var(--warn) 25%, transparent)"
                 : "2px solid transparent";
 
               return (
@@ -245,7 +248,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span style={{
                         fontSize: 13,
-                        color: bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "#f59e0b"
+                        color: bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "var(--warn)"
                               : bar.dias_sem_uso !== null && bar.dias_sem_uso >= 3 ? "var(--fg-muted)"
                               : "var(--fg)",
                         fontFamily: "var(--font-mono)",
@@ -271,7 +274,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
                         <span style={{
                           fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em",
-                          color: bar.cmv_pct <= 30 ? "#22c55e" : bar.cmv_pct <= 38 ? "#f59e0b" : "#ef4444",
+                          color: bar.cmv_pct <= 30 ? "var(--ok)" : bar.cmv_pct <= 38 ? "var(--warn)" : "var(--danger)",
                         }}>
                           {bar.cmv_pct.toFixed(1)}%
                         </span>

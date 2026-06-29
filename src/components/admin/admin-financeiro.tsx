@@ -22,6 +22,7 @@ function MetricBlock({
   return (
     <div style={{
       background: "var(--bg-elevated)",
+      border: "1px solid var(--border)",
       borderRadius: 8,
       padding: "22px 24px",
     }}>
@@ -69,7 +70,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
           label="MRR"
           value={currency.format(stats.mrr)}
           sub={`${stats.bares_saudaveis + stats.bares_atencao} ativas`}
-          color="var(--accent-bright)"
+          color="var(--accent)"
         />
         <MetricBlock
           label="ARR (estimado)"
@@ -86,7 +87,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
           label="Em risco"
           value={currency.format(inadimplenteValor)}
           sub={`${stats.bares_inadimplentes} inadimplente${stats.bares_inadimplentes !== 1 ? "s" : ""}`}
-          color={inadimplenteValor > 0 ? "#ef4444" : "var(--fg-muted)"}
+          color={inadimplenteValor > 0 ? "var(--danger)" : "var(--fg-muted)"}
           note={inadimplenteValor > 0 ? "Cobrar ou suspender" : undefined}
         />
       </div>
@@ -99,6 +100,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
           </p>
           <div style={{
             background: "var(--bg-elevated)",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             overflow: "hidden",
           }}>
@@ -138,12 +140,12 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8 }}>
           {[
-            { label: "Ativas",         count: stats.bares_saudaveis + stats.bares_atencao, color: "#22c55e" },
+            { label: "Ativas",         count: stats.bares_saudaveis + stats.bares_atencao, color: "var(--ok)" },
             { label: "Trial",          count: bares.filter(b => b.assinatura_status === "trial").length, color: "#3b82f6" },
-            { label: "Inadimplentes",  count: stats.bares_inadimplentes, color: "#ef4444" },
+            { label: "Inadimplentes",  count: stats.bares_inadimplentes, color: "var(--danger)" },
             { label: "Sem assinatura", count: bares.filter(b => !b.assinatura_status).length, color: "var(--fg-subtle)" },
           ].map(({ label, count, color }) => (
-            <div key={label} style={{ background: "var(--bg-elevated)", borderRadius: 6, padding: "12px 16px" }}>
+            <div key={label} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 16px" }}>
               <p style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-mono)", color: count > 0 ? color : "var(--fg-subtle)", margin: "0 0 2px", letterSpacing: "-0.03em" }}>{count}</p>
               <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>{label}</p>
             </div>
@@ -159,6 +161,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
           </p>
           <div style={{
             background: "var(--bg-elevated)",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             padding: "20px 24px",
             display: "flex",
@@ -173,9 +176,9 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
                 fontSize: 34, fontWeight: 800, fontFamily: "var(--font-mono)", margin: "0 0 4px",
                 letterSpacing: "-0.04em", lineHeight: 1,
                 color: stats.cmv_plataforma_pct !== null
-                  ? stats.cmv_plataforma_pct <= 30 ? "#22c55e"
-                  : stats.cmv_plataforma_pct <= 38 ? "#f59e0b"
-                  : "#ef4444"
+                  ? stats.cmv_plataforma_pct <= 30 ? "var(--ok)"
+                  : stats.cmv_plataforma_pct <= 38 ? "var(--warn)"
+                  : "var(--danger)"
                   : "var(--fg-muted)",
               }}>
                 {stats.cmv_plataforma_pct !== null ? `${stats.cmv_plataforma_pct.toFixed(1)}%` : "—"}
@@ -211,7 +214,7 @@ export function AdminFinanceiro({ bares, stats }: { bares: BarResumo[]; stats: A
                       <span style={{ fontSize: 12, color: "var(--fg-muted)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.nome}</span>
                       <span style={{
                         fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)",
-                        color: b.cmv_pct! <= 30 ? "#22c55e" : b.cmv_pct! <= 38 ? "#f59e0b" : "#ef4444",
+                        color: b.cmv_pct! <= 30 ? "var(--ok)" : b.cmv_pct! <= 38 ? "var(--warn)" : "var(--danger)",
                       }}>
                         {b.cmv_pct!.toFixed(1)}%
                       </span>

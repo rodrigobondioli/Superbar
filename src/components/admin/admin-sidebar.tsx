@@ -45,8 +45,8 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
           display: "inline-block",
           fontSize: 10, fontWeight: 600,
           padding: "3px 12px", borderRadius: 20,
-          background: "color-mix(in srgb, var(--accent-bright) 14%, transparent)",
-          color: "var(--accent-bright)",
+          background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+          color: "var(--accent)",
           letterSpacing: "0.06em", textTransform: "uppercase",
         }}>
           Admin
@@ -81,7 +81,7 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
               <link.icon
                 style={{
                   width: 15, height: 15, flexShrink: 0,
-                  color: active ? "var(--accent-bright)" : "var(--fg-subtle)",
+                  color: active ? "var(--accent)" : "var(--fg-subtle)",
                   strokeWidth: 1.75,
                 }}
               />
@@ -90,7 +90,7 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
               {link.href === "/admin" && alertCount > 0 && (
                 <span style={{
                   marginLeft: "auto",
-                  background: "#ef4444",
+                  background: "var(--danger)",
                   color: "#fff",
                   fontSize: 10,
                   fontWeight: 700,

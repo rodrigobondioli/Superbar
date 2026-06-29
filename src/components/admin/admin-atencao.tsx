@@ -77,14 +77,14 @@ export function AdminAtencao({ bares }: { bares: BarResumo[] }) {
       {imediata.length > 0 && (
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#ef4444" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)" }}>
               🔴 Ação imediata
             </span>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "rgba(239,68,68,0.1)", padding: "1px 8px", borderRadius: 99, border: "1px solid rgba(239,68,68,0.2)" }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--danger-bg)", padding: "1px 8px", borderRadius: 99, border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)" }}>
               {imediata.length}
             </span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
             {imediata.map((bar) => (
               <ActionItem key={bar.id} bar={bar} urgency="imediata" />
             ))}
@@ -96,14 +96,14 @@ export function AdminAtencao({ bares }: { bares: BarResumo[] }) {
       {verificar.length > 0 && (
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#f59e0b" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--warn)" }}>
               🟡 Verificar
             </span>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "rgba(245,158,11,0.1)", padding: "1px 8px", borderRadius: 99, border: "1px solid rgba(245,158,11,0.2)" }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--warn-bg)", padding: "1px 8px", borderRadius: 99, border: "1px solid color-mix(in srgb, var(--warn) 20%, transparent)" }}>
               {verificar.length}
             </span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
             {verificar.map((bar) => (
               <ActionItem key={bar.id} bar={bar} urgency="verificar" />
             ))}
@@ -127,12 +127,18 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
         alignItems: "center",
         gap: 0,
         textDecoration: "none",
-        borderRadius: 6,
-        overflow: "hidden",
         background: "var(--bg-elevated)",
-        transition: "opacity 100ms",
+        borderBottom: "1px solid var(--border)",
+        transition: "background 100ms",
       }}
+      className="last:border-b-0 hover:bg-[var(--bg-hover)]"
     >
+
+      {/* Left urgency bar */}
+      <div style={{
+        width: 3, alignSelf: "stretch", flexShrink: 0,
+        background: urgency === "imediata" ? "var(--danger)" : "var(--warn)",
+      }} />
 
       {/* Avatar */}
       <div style={{
@@ -170,9 +176,9 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
           <span key={i} style={{
             fontSize: 10, fontWeight: 600,
             padding: "2px 7px", borderRadius: 99,
-            background: a.level === "red" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
-            color: a.level === "red" ? "#ef4444" : "#f59e0b",
-            border: `1px solid ${a.level === "red" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)"}`,
+            background: a.level === "red" ? "var(--danger-bg)" : "var(--warn-bg)",
+            color: a.level === "red" ? "var(--danger)" : "var(--warn)",
+            border: `1px solid color-mix(in srgb, ${a.level === "red" ? "var(--danger)" : "var(--warn)"} 20%, transparent)`,
             whiteSpace: "nowrap",
           }}>
             {a.label}
@@ -188,9 +194,9 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
         <span style={{
           fontSize: 18, fontWeight: 800,
           fontFamily: "var(--font-mono)",
-          color: bar.healthScoreNumerico >= 70 ? "#22c55e"
-               : bar.healthScoreNumerico >= 40 ? "#f59e0b"
-               : "#ef4444",
+          color: bar.healthScoreNumerico >= 70 ? "var(--ok)"
+               : bar.healthScoreNumerico >= 40 ? "var(--warn)"
+               : "var(--danger)",
           letterSpacing: "-0.03em",
           minWidth: 32, textAlign: "right",
         }}>

@@ -17,9 +17,9 @@ function DimBar({ label, pct, color }: { label: string; pct: number; color: stri
 }
 
 function dimColor(pct: number): string {
-  if (pct >= 80) return "#22c55e";
-  if (pct >= 50) return "#f59e0b";
-  return "#ef4444";
+  if (pct >= 80) return "var(--ok)";
+  if (pct >= 50) return "var(--warn)";
+  return "var(--danger)";
 }
 
 // Dimensões: Uso / Produtos / Custos / Equipe → score 0-100
@@ -71,6 +71,7 @@ export function AdminImplantacao({ bares }: { bares: BarResumo[] }) {
           <a key={bar.id} href={`/admin/${bar.id}`} style={{ textDecoration: "none" }}>
             <div style={{
               background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
               borderRadius: 8,
               padding: "16px 20px",
               display: "grid",

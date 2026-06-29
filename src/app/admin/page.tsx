@@ -27,6 +27,7 @@ const currency = new Intl.NumberFormat("pt-BR", {
 
 const card: React.CSSProperties = {
   background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
   borderRadius: 8,
   padding: "20px 22px",
 };
@@ -73,7 +74,7 @@ export default async function AdminPage() {
               </span>
               <span style={{ color: "var(--fg-subtle)" }}><IconTrendUp /></span>
             </div>
-            <p style={{ fontSize: 38, fontWeight: 800, color: "var(--accent-bright)", fontFamily: "var(--font-mono)", margin: "0 0 4px", letterSpacing: "-0.04em", lineHeight: 1 }}>
+            <p style={{ fontSize: 38, fontWeight: 800, color: "var(--accent)", fontFamily: "var(--font-mono)", margin: "0 0 4px", letterSpacing: "-0.04em", lineHeight: 1 }}>
               {currency.format(stats.mrr)}
             </p>
             <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
@@ -94,13 +95,13 @@ export default async function AdminPage() {
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>Saúde</span>
             <span style={{ color: "var(--fg-subtle)" }}><IconShield /></span>
           </div>
-          <p style={{ fontSize: 30, fontWeight: 800, color: stats.bares_risco > 0 ? "#ef4444" : "#22c55e", fontFamily: "var(--font-mono)", margin: "0 0 10px", letterSpacing: "-0.04em", lineHeight: 1 }}>
+          <p style={{ fontSize: 30, fontWeight: 800, color: stats.bares_risco > 0 ? "var(--danger)" : "var(--ok)", fontFamily: "var(--font-mono)", margin: "0 0 10px", letterSpacing: "-0.04em", lineHeight: 1 }}>
             {stats.bares_saudaveis}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <p style={{ fontSize: 11, color: "#22c55e", margin: 0 }}>● {stats.bares_saudaveis} saudável{stats.bares_saudaveis !== 1 ? "is" : ""}</p>
-            {stats.bares_atencao > 0 && <p style={{ fontSize: 11, color: "#f59e0b", margin: 0 }}>● {stats.bares_atencao} atenção</p>}
-            {stats.bares_risco > 0   && <p style={{ fontSize: 11, color: "#ef4444", margin: 0 }}>● {stats.bares_risco} risco</p>}
+            <p style={{ fontSize: 11, color: "var(--ok)", margin: 0 }}>● {stats.bares_saudaveis} saudável{stats.bares_saudaveis !== 1 ? "is" : ""}</p>
+            {stats.bares_atencao > 0 && <p style={{ fontSize: 11, color: "var(--warn)", margin: 0 }}>● {stats.bares_atencao} atenção</p>}
+            {stats.bares_risco > 0   && <p style={{ fontSize: 11, color: "var(--danger)", margin: 0 }}>● {stats.bares_risco} risco</p>}
           </div>
         </div>
 
@@ -113,9 +114,9 @@ export default async function AdminPage() {
             {stats.implantacao_completo}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <p style={{ fontSize: 11, color: "#22c55e", margin: 0 }}>✓ {stats.implantacao_completo} completo{stats.implantacao_completo !== 1 ? "s" : ""}</p>
+            <p style={{ fontSize: 11, color: "var(--ok)", margin: 0 }}>✓ {stats.implantacao_completo} completo{stats.implantacao_completo !== 1 ? "s" : ""}</p>
             {stats.implantacao_parcial > 0    && <p style={{ fontSize: 11, color: "var(--fg-muted)", margin: 0 }}>◐ {stats.implantacao_parcial} parcial{stats.implantacao_parcial !== 1 ? "is" : ""}</p>}
-            {stats.implantacao_abandonado > 0 && <p style={{ fontSize: 11, color: "#f59e0b", margin: 0 }}>○ {stats.implantacao_abandonado} não implantado{stats.implantacao_abandonado !== 1 ? "s" : ""}</p>}
+            {stats.implantacao_abandonado > 0 && <p style={{ fontSize: 11, color: "var(--warn)", margin: 0 }}>○ {stats.implantacao_abandonado} não implantado{stats.implantacao_abandonado !== 1 ? "s" : ""}</p>}
           </div>
         </div>
 
@@ -129,7 +130,7 @@ export default async function AdminPage() {
         }}>
           <div>
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", display: "block", marginBottom: 10 }}>Sem uso esta semana</span>
-            <p style={{ fontSize: 34, fontWeight: 800, color: stats.bares_sem_uso_7d > 0 ? "#f59e0b" : "var(--fg-muted)", fontFamily: "var(--font-mono)", margin: "0 0 2px", letterSpacing: "-0.04em", lineHeight: 1 }}>
+            <p style={{ fontSize: 34, fontWeight: 800, color: stats.bares_sem_uso_7d > 0 ? "var(--warn)" : "var(--fg-muted)", fontFamily: "var(--font-mono)", margin: "0 0 2px", letterSpacing: "-0.04em", lineHeight: 1 }}>
               {stats.bares_sem_uso_7d}
             </p>
             <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>
@@ -139,7 +140,7 @@ export default async function AdminPage() {
           {stats.bares_inadimplentes > 0 && (
             <div style={{ borderLeft: "1px solid var(--border)", paddingLeft: 40 }}>
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", display: "block", marginBottom: 10 }}>Inadimplentes</span>
-              <p style={{ fontSize: 34, fontWeight: 800, color: "#ef4444", fontFamily: "var(--font-mono)", margin: "0 0 2px", letterSpacing: "-0.04em", lineHeight: 1 }}>
+              <p style={{ fontSize: 34, fontWeight: 800, color: "var(--danger)", fontFamily: "var(--font-mono)", margin: "0 0 2px", letterSpacing: "-0.04em", lineHeight: 1 }}>
                 {stats.bares_inadimplentes}
               </p>
               <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>cobrar</p>
@@ -166,7 +167,7 @@ export default async function AdminPage() {
                 fontSize: 38, fontWeight: 800, fontFamily: "var(--font-mono)", margin: "0 0 4px",
                 letterSpacing: "-0.04em", lineHeight: 1,
                 color: stats.cmv_plataforma_pct !== null
-                  ? stats.cmv_plataforma_pct <= 30 ? "#22c55e" : stats.cmv_plataforma_pct <= 38 ? "#f59e0b" : "#ef4444"
+                  ? stats.cmv_plataforma_pct <= 30 ? "var(--ok)" : stats.cmv_plataforma_pct <= 38 ? "var(--warn)" : "var(--danger)"
                   : "var(--fg-muted)",
               }}>
                 {stats.cmv_plataforma_pct !== null ? `${stats.cmv_plataforma_pct.toFixed(1)}%` : "—"}
