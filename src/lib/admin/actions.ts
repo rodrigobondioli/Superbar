@@ -89,6 +89,37 @@ export async function createLeadAdmin(payload: {
   return { ok: true };
 }
 
+// ─── Atualizar lead completo ──────────────────────────────────────────────────
+
+export async function updateLead(
+  id: string,
+  payload: Partial<{
+    nome_bar: string; cidade: string; tipo_bar: string;
+    whatsapp: string | null; instagram: string | null; site: string | null;
+    nome_responsavel: string | null; email: string | null;
+    status: string; notas: string | null;
+    follow_up_at: string | null; origem: string | null;
+  }>
+): Promise<{ ok: true } | { error: string }> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from("leads").update(payload).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/leads");
+  return { ok: true };
+}
+
+// ─── Deletar lead ─────────────────────────────────────────────────────────────
+
+export async function deleteLead(id: string): Promise<{ ok: true } | { error: string }> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { error } = await admin.from("leads").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/leads");
+  return { ok: true };
+}
+
 // ─── Atualizar status de lead ─────────────────────────────────────────────────
 
 export async function updateLeadStatus(
