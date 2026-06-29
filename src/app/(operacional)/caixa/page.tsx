@@ -11,23 +11,14 @@ export default async function CaixaPage() {
   const taxaServicoPct = current.bar.configuracoes?.taxa_servico_pct ?? 10;
   const turno = await getOuCriarTurno(current.bar.id, current.userId);
 
+  // Se o turno não pôde ser criado (falha de infra), mostra erro mínimo — não bloqueia.
+  // Em produção normal isso não deve acontecer: getOuCriarTurno auto-cria via admin client.
   if (!turno) {
     return (
-      <div style={{
-        display: "flex", height: "100%",
-        alignItems: "center", justifyContent: "center", padding: 32,
-      }}>
-        <div style={{
-          background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-          border: "1px solid var(--border)",
-          borderRadius: 10, padding: 36, maxWidth: 400, textAlign: "center",
-        }}>
-          <p style={{ fontSize: 32, margin: "0 0 12px" }}>🔒</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: "0 0 8px" }}>
-            Turno não iniciado
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 24px", lineHeight: 1.5 }}>
-            Abra o turno para liberar a caixa.
+      <div style={{ display: "flex", height: "100%", alignItems: "center", justifyContent: "center", padding: 32 }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 14, color: "var(--danger)", margin: "0 0 16px" }}>
+            Erro ao inicializar turno. Tente recarregar a página.
           </p>
           <TurnoControles turnoAtual={null} />
         </div>

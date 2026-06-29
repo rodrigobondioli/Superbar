@@ -2,27 +2,34 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 
 /**
  * Retorna o turno aberto ou cria um automaticamente.
- * Usado pelas telas operacionais — o bartender não precisa esperar o dono abrir.
+ * Usa admin client no INSERT para garantir que RLS nunca bloqueie
+ * a criação automática — o bar_id garante o isolamento por tenant.
  */
 export async function getOuCriarTurno(
   barId: string,
   userId: string,
 ) {
-  const supabase = await createClient();
   const turno = await getTurnoAtual(barId);
   if (turno) return turno;
 
-  const { data } = await supabase
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("turnos")
     .insert({ bar_id: barId, abertura_por: userId, status: "aberto" })
     .select("*")
     .single();
 
-  return data ?? null;
+  if (error) {
+    console.error("[getOuCriarTurno] falha ao criar turno:", error.message, { barId, userId });
+    return null;
+  }
+
+  return data;
 }
 
 export async function abrirTurno() {
