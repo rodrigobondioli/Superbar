@@ -20,7 +20,7 @@ export async function getOuCriarTurno(
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("turnos")
-    .insert({ bar_id: barId, abertura_por: userId, status: "aberto" })
+    .insert({ bar_id: barId, abertura_por: userId, status: "aberto", aberto_em: new Date().toISOString() })
     .select("*")
     .single();
 
