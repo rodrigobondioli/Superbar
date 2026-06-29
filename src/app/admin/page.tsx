@@ -212,6 +212,96 @@ export default async function AdminPage() {
 
       </div>
 
+      {/* ── KPIs de resultado ──────────────────────────────────────────── */}
+      {stats.faturamento_plataforma_total > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+          {/* Label seção */}
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: 0 }}>
+            Resultados — plataforma
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 10 }}>
+
+            {/* Faturamento mês */}
+            <div style={card}>
+              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: "0 0 10px" }}>
+                Faturamento (mês)
+              </p>
+              <p style={{ fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", margin: "0 0 4px", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                {currency.format(stats.faturamento_plataforma_mes_atual)}
+              </p>
+              {stats.faturamento_plataforma_crescimento_pct !== null ? (
+                <p style={{ fontSize: 11, margin: 0, color: stats.faturamento_plataforma_crescimento_pct >= 0 ? "var(--ok)" : "var(--danger)" }}>
+                  {stats.faturamento_plataforma_crescimento_pct >= 0 ? "↑" : "↓"} {Math.abs(stats.faturamento_plataforma_crescimento_pct)}% vs mês anterior
+                </p>
+              ) : (
+                <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>sem dado anterior</p>
+              )}
+            </div>
+
+            {/* Faturamento total histórico */}
+            <div style={card}>
+              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: "0 0 10px" }}>
+                Faturamento total
+              </p>
+              <p style={{ fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", margin: "0 0 4px", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                {currency.format(stats.faturamento_plataforma_total)}
+              </p>
+              <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>
+                acumulado histórico
+              </p>
+            </div>
+
+            {/* Ticket médio */}
+            <div style={card}>
+              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: "0 0 10px" }}>
+                Ticket médio
+              </p>
+              {stats.ticket_medio_plataforma_30d !== null ? (
+                <>
+                  <p style={{ fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", margin: "0 0 4px", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                    {currency.format(stats.ticket_medio_plataforma_30d)}
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>
+                    últimos 30 dias
+                    {stats.ticket_medio_plataforma_total && (
+                      <> · {currency.format(stats.ticket_medio_plataforma_total)} total</>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", margin: 0 }}>—</p>
+              )}
+            </div>
+
+            {/* Margem média */}
+            <div style={card}>
+              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: "0 0 10px" }}>
+                Margem média
+              </p>
+              {stats.margem_plataforma_pct !== null ? (
+                <>
+                  <p style={{
+                    fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", margin: "0 0 4px", letterSpacing: "-0.03em", lineHeight: 1,
+                    color: stats.margem_plataforma_pct >= 65 ? "var(--ok)" : stats.margem_plataforma_pct >= 55 ? "var(--warn)" : "var(--danger)",
+                  }}>
+                    {stats.margem_plataforma_pct.toFixed(1)}%
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>bares c/ cobertura ≥ 60%</p>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: 26, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg-subtle)", margin: "0 0 4px" }}>—</p>
+                  <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>cadastre custos para calcular</p>
+                </>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* ── Atenção ────────────────────────────────────────────────────── */}
       <AdminAtencao bares={bares} />
 

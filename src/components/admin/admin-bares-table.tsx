@@ -98,24 +98,6 @@ function StatusPill({ status }: { status: AssinaturaStatus | null }) {
   );
 }
 
-function Activity7d({ turnos, comandas, faturamento }: { turnos: number; comandas: number; faturamento: number }) {
-  if (turnos === 0 && comandas === 0)
-    return <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>sem atividade</span>;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      <span style={{ fontSize: 12, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
-        {turnos} turno{turnos !== 1 ? "s" : ""}
-        {comandas > 0 && <> · {comandas} cmd</>}
-      </span>
-      {faturamento > 0 && (
-        <span style={{ fontSize: 11, color: "var(--fg-muted)", fontFamily: "var(--font-mono)" }}>
-          {currency.format(faturamento)}
-        </span>
-      )}
-    </div>
-  );
-}
-
 // ─── Tabela principal ─────────────────────────────────────────────────────────
 
 export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
@@ -183,8 +165,9 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
               <th style={{ ...thStyle, paddingLeft: 20 }}>Bar</th>
               <th style={thStyle}>Saúde</th>
               <th style={thStyle}>Último uso</th>
-              <th style={thStyle}>Atividade 7d</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>CMV</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>Faturamento mês</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>Ticket médio</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>CMV · Margem</th>
               <th style={{ ...thStyle, textAlign: "right", paddingRight: 20 }}>Plano</th>
             </tr>
           </thead>
@@ -263,23 +246,78 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                     </div>
                   </td>
 
-                  {/* Atividade 7d */}
-                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)" }}>
-                    <Activity7d turnos={bar.turnos_7d} comandas={bar.comandas_7d} faturamento={bar.faturamento_7d} />
+                  {/* Faturamento mês */}
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                    {bar.faturamento_mes_atual > 0 || bar.faturamento_mes_anterior > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em", color: "var(--fg)" }}>
+                          {currency.format(bar.faturamento_mes_atual)}
+                        </span>
+                        {bar.crescimento_fat_mes_pct !== null ? (
+                          <span style={{ fontSize: 10, color: bar.crescimento_fat_mes_pct >= 0 ? "var(--ok)" : "var(--danger)" }}>
+                            {bar.crescimento_fat_mes_pct >= 0 ? "↑" : "↓"} {Math.abs(bar.crescimento_fat_mes_pct)}%
+                          </span>
+                        ) : bar.faturamento_mes_anterior > 0 ? (
+                          <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>
+                            {currency.format(bar.faturamento_mes_anterior)} mês ant.
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>sem movimento</span>
+                    )}
                   </td>
 
-                  {/* CMV */}
+                  {/* Ticket médio */}
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                    {bar.ticket_medio_30d !== null ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em", color: "var(--fg)" }}>
+                          {currency.format(bar.ticket_medio_30d)}
+                        </span>
+                        <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>30 dias</span>
+                        {bar.ticket_medio_total !== null && bar.ticket_medio_total !== bar.ticket_medio_30d && (
+                          <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>
+                            {currency.format(bar.ticket_medio_total)} total
+                          </span>
+                        )}
+                      </div>
+                    ) : bar.ticket_medio_total !== null ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                          {currency.format(bar.ticket_medio_total)}
+                        </span>
+                        <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>histórico</span>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>—</span>
+                    )}
+                  </td>
+
+                  {/* CMV + Margem */}
                   <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
                     {bar.cmv_pct !== null ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
                         <span style={{
-                          fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em",
+                          fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em",
                           color: bar.cmv_pct <= 30 ? "var(--ok)" : bar.cmv_pct <= 38 ? "var(--warn)" : "var(--danger)",
                         }}>
-                          {bar.cmv_pct.toFixed(1)}%
+                          CMV {bar.cmv_pct.toFixed(1)}%
                         </span>
+                        {bar.margem_pct !== null && (
+                          <span style={{
+                            fontSize: 12, fontWeight: 600, fontFamily: "var(--font-mono)",
+                            color: bar.margem_confiavel
+                              ? (bar.margem_pct >= 65 ? "var(--ok)" : bar.margem_pct >= 55 ? "var(--warn)" : "var(--danger)")
+                              : "var(--fg-subtle)",
+                            display: "flex", alignItems: "center", gap: 3,
+                          }}>
+                            {!bar.margem_confiavel && <span title="Cobertura de custo abaixo de 60% — dado estimado" style={{ opacity: 0.7 }}>⚠</span>}
+                            Margem {bar.margem_pct.toFixed(1)}%
+                          </span>
+                        )}
                         <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>
-                          {bar.cmv_cobertura_receita_pct}% cobertura
+                          {bar.cmv_cobertura_receita_pct}% cob.
                         </span>
                       </div>
                     ) : (

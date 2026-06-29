@@ -49,6 +49,21 @@ export interface BarResumo {
   cmv_receita_all: number;          // receita total de todos os itens não cancelados
   cmv_pct: number | null;           // cmv_custo_total / cmv_receita_total × 100 (null se sem dado)
   cmv_cobertura_receita_pct: number; // cmv_receita_total / cmv_receita_all × 100
+  // Faturamento real (pagamentos confirmados)
+  faturamento_total: number;        // histórico completo
+  faturamento_30d: number;          // últimos 30 dias
+  faturamento_mes_atual: number;    // mês corrente (1º ao hoje)
+  faturamento_mes_anterior: number; // mês anterior completo
+  // Ticket médio (faturamento / count pagamentos)
+  ticket_medio_total: number | null;  // histórico (null se sem pagamentos)
+  ticket_medio_30d: number | null;    // últimos 30 dias
+  ticket_count_total: number;
+  ticket_count_30d: number;
+  // Crescimento mês atual vs mês anterior
+  crescimento_fat_mes_pct: number | null; // null se mês anterior = 0
+  // Margem estimada (= 100 - cmv_pct), confiável quando cobertura >= 60%
+  margem_pct: number | null;
+  margem_confiavel: boolean; // true quando cmv_cobertura_receita_pct >= 60
   // Scores
   healthScore: HealthScore;
   healthScoreNumerico: number; // 0-100
@@ -71,9 +86,19 @@ export interface AdminStats {
   bares_sem_uso_7d: number;
   bares_inadimplentes: number;
   // CMV plataforma
-  cmv_plataforma_custo: number;    // soma de custo real de todos os bares
-  cmv_plataforma_receita: number;  // receita coberta por produtos com custo
-  cmv_plataforma_pct: number | null; // CMV médio ponderado da plataforma
+  cmv_plataforma_custo: number;
+  cmv_plataforma_receita: number;
+  cmv_plataforma_pct: number | null;
+  // Faturamento plataforma (todos os bares, pagamentos confirmados)
+  faturamento_plataforma_total: number;
+  faturamento_plataforma_mes_atual: number;
+  faturamento_plataforma_mes_anterior: number;
+  faturamento_plataforma_crescimento_pct: number | null; // null se mês anterior = 0
+  // Ticket médio plataforma
+  ticket_medio_plataforma_total: number | null;
+  ticket_medio_plataforma_30d: number | null;
+  // Margem média ponderada da plataforma
+  margem_plataforma_pct: number | null;
 }
 
 export interface BarDetalhe {
@@ -279,7 +304,12 @@ export async function getAdminBares(): Promise<{
   stats: AdminStats;
 }> {
   const admin = createAdminClient();
-  const ago7d = new Date(Date.now() - 7 * 86400000).toISOString();
+  const now   = new Date();
+  const ago7d  = new Date(Date.now() - 7 * 86400000).toISOString();
+  const ago30d = new Date(Date.now() - 30 * 86400000).toISOString();
+  // Limites de mês
+  const mesAtualInicio    = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const mesAnteriorInicio = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
 
   const { data: bares } = await admin
     .from("bars")
@@ -295,6 +325,10 @@ export async function getAdminBares(): Promise<{
         implantacao_completo: 0, implantacao_parcial: 0, implantacao_abandonado: 0,
         bares_sem_uso_7d: 0, bares_inadimplentes: 0,
         cmv_plataforma_custo: 0, cmv_plataforma_receita: 0, cmv_plataforma_pct: null,
+        faturamento_plataforma_total: 0, faturamento_plataforma_mes_atual: 0,
+        faturamento_plataforma_mes_anterior: 0, faturamento_plataforma_crescimento_pct: null,
+        ticket_medio_plataforma_total: null, ticket_medio_plataforma_30d: null,
+        margem_plataforma_pct: null,
       },
     };
   }
@@ -309,6 +343,7 @@ export async function getAdminBares(): Promise<{
     { data: pagamentos7d },
     { data: comandas7d },
     { data: cmvItems },
+    { data: pagamentosTodos },
   ] = await Promise.all([
     admin.from("assinaturas")
       .select("bar_id, status, trial_fim, planos(nome, preco_mensal)")
@@ -339,6 +374,11 @@ export async function getAdminBares(): Promise<{
       .select("bar_id, quantidade, preco_total, produtos(custo)")
       .in("bar_id", barIds)
       .neq("status", "cancelado"),
+    // Todos os pagamentos confirmados — para faturamento total, mensal e ticket médio
+    admin.from("pagamentos")
+      .select("bar_id, valor, taxa_servico_valor, processado_em")
+      .in("bar_id", barIds)
+      .eq("status", "confirmado"),
   ]);
 
   // ── Indexar por bar ──────────────────────────────────────────────────────
@@ -392,6 +432,41 @@ export async function getAdminBares(): Promise<{
     cmvMap.set(row.bar_id, cur);
   }
 
+  // ── Faturamento e ticket médio por bar ───────────────────────────────────
+  // Calculado sobre pagamentos confirmados (valor + taxa_servico_valor)
+
+  type PagRow = { bar_id: string; valor: number; taxa_servico_valor: number | null; processado_em: string };
+  interface FatAgg {
+    total: number;          // histórico completo
+    total_count: number;    // nº pagamentos total
+    mes30d: number;         // últimos 30 dias
+    mes30d_count: number;
+    mes_atual: number;      // mês corrente
+    mes_atual_count: number;
+    mes_anterior: number;   // mês anterior completo
+    mes_anterior_count: number;
+  }
+
+  const fatMap = new Map<string, FatAgg>();
+  for (const p of (pagamentosTodos as PagRow[] | null) ?? []) {
+    const cur = fatMap.get(p.bar_id) ?? {
+      total: 0, total_count: 0,
+      mes30d: 0, mes30d_count: 0,
+      mes_atual: 0, mes_atual_count: 0,
+      mes_anterior: 0, mes_anterior_count: 0,
+    };
+    const val = Number(p.valor ?? 0) + Number(p.taxa_servico_valor ?? 0);
+    const dt  = p.processado_em;
+
+    cur.total += val;
+    cur.total_count++;
+    if (dt >= ago30d)                               { cur.mes30d += val; cur.mes30d_count++; }
+    if (dt >= mesAtualInicio)                       { cur.mes_atual += val; cur.mes_atual_count++; }
+    if (dt >= mesAnteriorInicio && dt < mesAtualInicio) { cur.mes_anterior += val; cur.mes_anterior_count++; }
+
+    fatMap.set(p.bar_id, cur);
+  }
+
   // ── Montar lista ──────────────────────────────────────────────────────────
 
   const result: BarResumo[] = bares.map((b) => {
@@ -421,6 +496,22 @@ export async function getAdminBares(): Promise<{
       ? Math.round((cmv.receita_com_custo / cmv.receita_all) * 100)
       : 0;
 
+    const fat = fatMap.get(b.id) ?? {
+      total: 0, total_count: 0,
+      mes30d: 0, mes30d_count: 0,
+      mes_atual: 0, mes_atual_count: 0,
+      mes_anterior: 0, mes_anterior_count: 0,
+    };
+
+    const ticket_medio_total = fat.total_count > 0 ? Math.round(fat.total / fat.total_count) : null;
+    const ticket_medio_30d   = fat.mes30d_count > 0 ? Math.round(fat.mes30d / fat.mes30d_count) : null;
+    const crescimento_fat_mes_pct = fat.mes_anterior > 0
+      ? Math.round(((fat.mes_atual - fat.mes_anterior) / fat.mes_anterior) * 1000) / 10
+      : null;
+
+    const margem_pct       = cmv_pct !== null ? Math.round((100 - cmv_pct) * 10) / 10 : null;
+    const margem_confiavel = cmv_cobertura_receita_pct >= 60;
+
     return {
       id: b.id, nome: b.nome, slug: b.slug,
       cidade: end?.cidade ?? null, estado: end?.estado ?? null,
@@ -436,6 +527,17 @@ export async function getAdminBares(): Promise<{
       cmv_receita_all: cmv.receita_all,
       cmv_pct,
       cmv_cobertura_receita_pct,
+      faturamento_total: fat.total,
+      faturamento_30d: fat.mes30d,
+      faturamento_mes_atual: fat.mes_atual,
+      faturamento_mes_anterior: fat.mes_anterior,
+      ticket_medio_total,
+      ticket_medio_30d,
+      ticket_count_total: fat.total_count,
+      ticket_count_30d: fat.mes30d_count,
+      crescimento_fat_mes_pct,
+      margem_pct,
+      margem_confiavel,
       healthScore, healthScoreNumerico, implantacaoScore, alertas,
     };
   });
@@ -448,6 +550,27 @@ export async function getAdminBares(): Promise<{
   const cmvPlataformaReceita = result.reduce((acc, b) => acc + b.cmv_receita_total, 0);
   const cmvPlataformaPct     = cmvPlataformaReceita > 0
     ? Math.round((cmvPlataformaCusto / cmvPlataformaReceita) * 1000) / 10
+    : null;
+
+  // Faturamento plataforma (somar sobre todos os bares)
+  const fatTotalGlobal      = result.reduce((a, b) => a + b.faturamento_total, 0);
+  const fatMesAtualGlobal   = result.reduce((a, b) => a + b.faturamento_mes_atual, 0);
+  const fatMesAnteriorGlobal = result.reduce((a, b) => a + b.faturamento_mes_anterior, 0);
+  const fatCrescimentoPct   = fatMesAnteriorGlobal > 0
+    ? Math.round(((fatMesAtualGlobal - fatMesAnteriorGlobal) / fatMesAnteriorGlobal) * 1000) / 10
+    : null;
+
+  // Ticket médio plataforma
+  const ticketCountTotalGlobal = result.reduce((a, b) => a + b.ticket_count_total, 0);
+  const ticketCount30dGlobal   = result.reduce((a, b) => a + b.ticket_count_30d, 0);
+  const fat30dGlobal           = result.reduce((a, b) => a + b.faturamento_30d, 0);
+  const ticketMedioTotal = ticketCountTotalGlobal > 0 ? Math.round(fatTotalGlobal / ticketCountTotalGlobal) : null;
+  const ticketMedio30d   = ticketCount30dGlobal   > 0 ? Math.round(fat30dGlobal   / ticketCount30dGlobal)   : null;
+
+  // Margem média ponderada da plataforma (apenas bares com cobertura >= 60%)
+  const baresComMargem = result.filter((b) => b.margem_pct !== null && b.margem_confiavel);
+  const margemPlatPct = baresComMargem.length > 0
+    ? Math.round(baresComMargem.reduce((a, b) => a + b.margem_pct!, 0) / baresComMargem.length * 10) / 10
     : null;
 
   return {
@@ -466,6 +589,13 @@ export async function getAdminBares(): Promise<{
       cmv_plataforma_custo:    cmvPlataformaCusto,
       cmv_plataforma_receita:  cmvPlataformaReceita,
       cmv_plataforma_pct:      cmvPlataformaPct,
+      faturamento_plataforma_total:          fatTotalGlobal,
+      faturamento_plataforma_mes_atual:      fatMesAtualGlobal,
+      faturamento_plataforma_mes_anterior:   fatMesAnteriorGlobal,
+      faturamento_plataforma_crescimento_pct: fatCrescimentoPct,
+      ticket_medio_plataforma_total:         ticketMedioTotal,
+      ticket_medio_plataforma_30d:           ticketMedio30d,
+      margem_plataforma_pct:                 margemPlatPct,
     },
   };
 }
