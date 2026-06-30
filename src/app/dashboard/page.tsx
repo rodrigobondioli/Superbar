@@ -628,7 +628,7 @@ export default async function DashboardPage() {
           {/* Gráfico 7 dias */}
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#F59E0B" }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                 Receita — 7 dias
               </span>
               <TrendText percent={receitaSemana.percentual} comparativoLabel="vs semana passada" />
@@ -641,7 +641,7 @@ export default async function DashboardPage() {
           {/* Insights / Análises */}
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#F59E0B" }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                 Inteligência
               </span>
               {inteligencia.stage === 2 && inteligencia.insightsNaoLidos > 0 && (
@@ -661,7 +661,7 @@ export default async function DashboardPage() {
                       background: isCritical ? "color-mix(in srgb, var(--danger) 5%, transparent)" : "transparent",
                       padding: "12px 16px",
                     }}>
-                      <p style={{ fontSize: 11, fontWeight: 600, color: cor, margin: "0 0 4px", letterSpacing: "0.01em" }}>
+                      <p style={{ fontSize: 10, fontWeight: 700, color: cor, margin: "0 0 4px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                         {item.tipo === "action" ? "Crítico" : item.tipo === "opportunity" ? "Oportunidade" : "Info"}
                       </p>
                       <p style={{ fontSize: isCritical ? 13 : 12, fontWeight: isCritical ? 700 : 500, color: "var(--fg)", margin: 0, lineHeight: 1.4 }}>

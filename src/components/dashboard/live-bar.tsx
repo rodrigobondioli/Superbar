@@ -23,7 +23,6 @@ interface LiveBarProps {
   meta?: number;
 }
 
-// Delta normal: up = bom (verde), down = ruim (vermelho)
 function Delta({ pct, invert = false }: { pct: number | null | undefined; invert?: boolean }) {
   if (pct == null) return <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>—</span>;
   const isGood = invert ? pct <= 0 : pct >= 0;
@@ -42,6 +41,35 @@ function Delta({ pct, invert = false }: { pct: number | null | undefined; invert
   );
 }
 
+const LABEL: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 500,
+  color: "var(--fg-subtle)",
+  display: "block",
+  marginBottom: 8,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+};
+
+const VALUE: React.CSSProperties = {
+  fontSize: 36,
+  fontWeight: 800,
+  lineHeight: 1,
+  fontVariantNumeric: "tabular-nums",
+  letterSpacing: "-0.025em",
+  margin: "0 0 8px",
+  display: "block",
+};
+
+const KPI_CARD: React.CSSProperties = {
+  background: "#1C1C1E",
+  border: "1px solid #2C2C2E",
+  borderRadius: 14,
+  padding: "18px 22px",
+  display: "flex",
+  flexDirection: "column",
+};
+
 export function LiveBar({
   turnoId,
   barId,
@@ -51,7 +79,7 @@ export function LiveBar({
   comparacaoFaturamento,
   comparacaoTicket,
   comparacaoCmv,
-  margemEstimada, // = CMV%
+  margemEstimada,
   cmvParcial,
   dataFormatada,
   metaProgresso = 0,
@@ -81,8 +109,6 @@ export function LiveBar({
   }, [turnoId, fetchLiveData]);
 
   const ticketMedio = data.pessoas > 0 ? data.faturamento / data.pessoas : 0;
-
-  // margemEstimada = CMV%; margem = 100 - CMV
   const cmvPct    = margemEstimada ?? null;
   const margemPct = cmvPct !== null ? 100 - cmvPct : null;
 
@@ -95,123 +121,104 @@ export function LiveBar({
     : cmvPct < 42 ? "var(--warn)"
     : "var(--danger)";
 
-  const cmvStatus = cmvPct == null ? (cmvParcial ? "configurar custos" : "sem dados")
+  const cmvStatus = cmvPct == null ? (cmvParcial ? "estimativa parcial" : "sem dados")
     : cmvParcial ? "estimativa parcial"
     : cmvPct < 30 ? "excelente"
     : cmvPct < 36 ? "saudável"
     : cmvPct < 42 ? "atenção"
     : "crítico";
 
-  const overlineStyle: React.CSSProperties = {
-    fontSize: 12, fontWeight: 600, color: "#F59E0B",
-    margin: "0 0 10px", display: "block", letterSpacing: "0.01em",
-  };
-  const valueStyle: React.CSSProperties = {
-    fontSize: 40, fontWeight: 800, lineHeight: 1,
-    fontVariantNumeric: "tabular-nums", letterSpacing: "-0.025em",
-    margin: "0 0 8px",
-  };
-
   return (
-    <div style={{ padding: "28px 32px 0", borderBottom: "1px solid #2C2C2E" }}>
-      <div>
+    <div style={{ padding: "24px 32px 28px" }}>
 
-        {/* ── Status row ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 20 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <span
-              className="animate-live-pulse"
-              style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--ok)", display: "block", flexShrink: 0 }}
-            />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ok)", letterSpacing: "0.07em", textTransform: "uppercase" }}>Ao Vivo</span>
-          </span>
+      {/* Status row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <span
+            className="animate-live-pulse"
+            style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--ok)", display: "block", flexShrink: 0 }}
+          />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ok)", letterSpacing: "0.07em", textTransform: "uppercase" }}>Ao Vivo</span>
+        </span>
+        <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>·</span>
+        <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Turno aberto</span>
+        {dataFormatada && <>
           <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>·</span>
-          <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Turno aberto</span>
-          {dataFormatada && <>
-            <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>·</span>
-            <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>{dataFormatada}</span>
-          </>}
+          <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>{dataFormatada}</span>
+        </>}
+      </div>
+
+      {/* KPI cards — 3 individuais */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+
+        {/* Ticket Médio */}
+        <div style={KPI_CARD}>
+          <span style={LABEL}>Ticket Médio</span>
+          <span style={{ ...VALUE, color: "#F59E0B" }}>
+            {data.pessoas > 0 ? currency.format(ticketMedio) : "—"}
+          </span>
+          {data.pessoas > 0
+            ? <Delta pct={comparacaoTicket} />
+            : <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>sem comandas</span>}
         </div>
 
-        {/* ── 3 Hero Metrics ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "0 0 24px" }}>
-
-          {/* Ticket Médio */}
-          <div style={{ paddingRight: 32, borderRight: "1px solid #2C2C2E" }}>
-            <span style={overlineStyle}>Ticket Médio</span>
-            <p style={{ ...valueStyle, color: "var(--fg)" }}>
-              {data.pessoas > 0 ? currency.format(ticketMedio) : "—"}
-            </p>
-            {data.pessoas > 0
-              ? <Delta pct={comparacaoTicket} />
-              : <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>sem comandas</span>}
-          </div>
-
-          {/* Margem */}
-          <div style={{ paddingLeft: 32, paddingRight: 32, borderRight: "1px solid #2C2C2E" }}>
-            <span style={overlineStyle}>Margem</span>
-            <p style={{ ...valueStyle, color: margemColor }}>
-              {margemPct !== null ? `${margemPct.toFixed(0)}%` : "—"}
-            </p>
-            <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{cmvStatus}</span>
-          </div>
-
-          {/* CMV */}
-          <div style={{ paddingLeft: 32 }}>
-            <span style={overlineStyle}>CMV</span>
-            <p style={{ ...valueStyle, color: cmvColor }}>
-              {cmvPct !== null ? `${cmvPct.toFixed(0)}%` : "—"}
-            </p>
-            <Delta pct={comparacaoCmv} invert />
-          </div>
-
+        {/* Margem */}
+        <div style={KPI_CARD}>
+          <span style={LABEL}>Margem</span>
+          <span style={{ ...VALUE, color: margemColor }}>
+            {margemPct !== null ? `${margemPct.toFixed(0)}%` : "—"}
+          </span>
+          <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "capitalize" }}>{cmvStatus}</span>
         </div>
 
-        {/* ── Footer: Faturamento · Comandas · Meta ── */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: 0,
-          borderTop: "1px solid #2C2C2E",
-          padding: "12px 0 20px",
-          background: "transparent",
-        }}>
-
-          {/* Faturamento */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 20 }}>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600 }}>Fat.</span>
-            <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>
-              {currency.format(data.faturamento)}
-            </span>
-            <Delta pct={comparacaoFaturamento} />
-          </div>
-
-          <span style={{ width: 1, height: 20, background: "var(--border)", marginRight: 20, flexShrink: 0 }} />
-
-          {/* Comandas */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, paddingRight: 20 }}>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600 }}>Comandas</span>
-            <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>{data.pessoas}</span>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>abertas agora</span>
-          </div>
-
-          {meta > 0 && <>
-            <span style={{ width: 1, height: 20, background: "var(--border)", marginRight: 20, flexShrink: 0 }} />
-
-            {/* Meta */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-              <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600 }}>Meta</span>
-              <span style={{ fontSize: 14, fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>{metaProgresso}%</span>
-              <div style={{ flex: 1, maxWidth: 100, height: 3, background: "var(--border-strong)", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: 3, background: "var(--accent)", borderRadius: 2, width: `${metaProgresso}%`, transition: "width 0.6s" }} />
-              </div>
-              <span style={{ fontSize: 11, color: metaAtingida ? "var(--ok)" : "var(--fg-subtle)" }}>
-                {metaAtingida ? "meta atingida ✓" : `falta ${currency.format(metaFalta)}`}
-              </span>
-            </div>
-          </>}
-
+        {/* CMV */}
+        <div style={KPI_CARD}>
+          <span style={LABEL}>CMV</span>
+          <span style={{ ...VALUE, color: cmvColor }}>
+            {cmvPct !== null ? `${cmvPct.toFixed(0)}%` : "—"}
+          </span>
+          <Delta pct={comparacaoCmv} invert />
         </div>
 
       </div>
+
+      {/* Footer row — faturamento · comandas · meta */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 0,
+        borderTop: "1px solid #2C2C2E",
+        paddingTop: 14,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 20 }}>
+          <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 500 }}>Fat.</span>
+          <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>
+            {currency.format(data.faturamento)}
+          </span>
+          <Delta pct={comparacaoFaturamento} />
+        </div>
+
+        <span style={{ width: 1, height: 16, background: "#2C2C2E", marginRight: 20, flexShrink: 0 }} />
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingRight: 20 }}>
+          <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 500 }}>Comandas</span>
+          <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>{data.pessoas}</span>
+          <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>abertas agora</span>
+        </div>
+
+        {meta > 0 && <>
+          <span style={{ width: 1, height: 16, background: "#2C2C2E", marginRight: 20, flexShrink: 0 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 500 }}>Meta</span>
+            <span style={{ fontSize: 14, fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>{metaProgresso}%</span>
+            <div style={{ flex: 1, maxWidth: 100, height: 3, background: "var(--border-strong)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{ height: 3, background: "var(--accent)", borderRadius: 2, width: `${metaProgresso}%`, transition: "width 0.6s" }} />
+            </div>
+            <span style={{ fontSize: 11, color: metaAtingida ? "var(--ok)" : "var(--fg-subtle)" }}>
+              {metaAtingida ? "meta atingida ✓" : `falta ${currency.format(metaFalta)}`}
+            </span>
+          </div>
+        </>}
+      </div>
+
     </div>
   );
 }

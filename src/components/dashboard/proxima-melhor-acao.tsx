@@ -41,7 +41,7 @@ export function ProximaMelhorAcao({
         border: "1px solid var(--border)",
         borderRadius: 16,
         padding: "32px 36px",
-        boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.3)",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24 }}>
