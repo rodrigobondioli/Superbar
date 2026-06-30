@@ -95,9 +95,9 @@ export function AiHeroInput({
   return (
     <div style={{ width: '100%' }}>
       <div style={{
-        background: '#1C1C1E',
-        border: '1px solid #2C2C2E',
-        borderRadius: 16,
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: 4,
         overflow: 'hidden',
       }}>
 
@@ -108,7 +108,7 @@ export function AiHeroInput({
           flexWrap: 'wrap',
           alignItems: 'center',
           padding: '12px 18px',
-          borderBottom: '1px solid #2C2C2E',
+          borderBottom: '1px solid var(--border)',
         }}>
           {suggestions.map(s => (
             <button
@@ -116,7 +116,7 @@ export function AiHeroInput({
               onClick={() => { setQuestion(s); setTimeout(() => ask(s), 0) }}
               style={{
                 background: 'transparent',
-                border: '1px solid #2C2C2E',
+                border: '1px solid var(--border)',
                 borderRadius: 9999,
                 padding: '5px 14px',
                 color: 'var(--fg-subtle)',
@@ -131,7 +131,7 @@ export function AiHeroInput({
                 e.currentTarget.style.color = 'var(--fg)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = '#2C2C2E'
+                e.currentTarget.style.borderColor = 'var(--border)'
                 e.currentTarget.style.color = 'var(--fg-subtle)'
               }}
             >
@@ -199,9 +199,9 @@ export function AiHeroInput({
       {(answer || loading) && (
         <div style={{
           marginTop: 8,
-          background: '#1C1C1E',
-          border: '1px solid #2C2C2E',
-          borderRadius: 16,
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: 4,
           padding: '18px 20px',
           fontSize: 14,
           color: 'var(--fg)',

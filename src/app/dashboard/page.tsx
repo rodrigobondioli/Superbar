@@ -43,39 +43,40 @@ const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2
 
 function VendasPorHoraChart({ pontos }: { pontos: PontoPico[] }) {
   if (pontos.length < 2) return null;
-  const W = 600, H = 110, padL = 4, padR = 4, padT = 8, padB = 22;
+  const W = 600, H = 120, padL = 4, padR = 4, padT = 6, padB = 24;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
   const maxVal = Math.max(...pontos.map(p => p.drinks), 1);
-  const minHora = pontos[0].hora;
-  const maxHora = pontos[pontos.length - 1].hora;
-  const horaRange = Math.max(maxHora - minHora, 1);
-  const pts = pontos.map(p => ({
-    x: padL + ((p.hora - minHora) / horaRange) * chartW,
-    y: padT + chartH - (p.drinks / maxVal) * chartH,
-    hora: p.hora,
-  }));
-  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
-  const area = [
-    `M ${pts[0].x.toFixed(1)} ${(padT + chartH).toFixed(1)}`,
-    ...pts.map(p => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
-    `L ${pts[pts.length - 1].x.toFixed(1)} ${(padT + chartH).toFixed(1)} Z`,
-  ].join(" ");
-  const step = Math.ceil(pts.length / 6);
+  const n = pontos.length;
+  const barW = Math.max(Math.floor((chartW / n) * 0.65), 4);
+  const gap = chartW / n;
+  const maxIdx = pontos.reduce((mi, p, i, arr) => p.drinks > arr[mi].drinks ? i : mi, 0);
+  // Grid lines
+  const gridLines = [0.25, 0.5, 0.75, 1].map(f => padT + chartH - f * chartH);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 110 }} preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="horaGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(245,158,11,0.35)" stopOpacity="1" />
-          <stop offset="100%" stopColor="rgba(245,158,11,0.0)" stopOpacity="1" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#horaGrad)" />
-      <path d={line} fill="none" stroke="rgba(245,158,11,0.85)" strokeWidth="1.5" />
-      {pts.map((p, i) => {
-        if (i !== 0 && i !== pts.length - 1 && i % step !== 0) return null;
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 120 }} preserveAspectRatio="none">
+      {/* Grid horizontal */}
+      {gridLines.map((y, i) => (
+        <line key={i} x1={padL} y1={y} x2={W - padR} y2={y} stroke="#2C2C2E" strokeWidth="1" />
+      ))}
+      {/* Barras */}
+      {pontos.map((p, i) => {
+        const barH = Math.max((p.drinks / maxVal) * chartH, 1);
+        const x = padL + i * gap + (gap - barW) / 2;
+        const y = padT + chartH - barH;
+        const isPeak = i === maxIdx;
         return (
-          <text key={i} x={p.x} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--fg-subtle)" fontFamily="var(--font-sans)">
+          <rect key={i} x={x.toFixed(1)} y={y.toFixed(1)} width={barW} height={barH.toFixed(1)}
+            fill={isPeak ? "#FF6F00" : "#F59E0B"} />
+        );
+      })}
+      {/* Labels hora */}
+      {pontos.map((p, i) => {
+        const show = i === 0 || i === n - 1 || i === maxIdx || i % Math.ceil(n / 5) === 0;
+        if (!show) return null;
+        const x = padL + i * gap + gap / 2;
+        return (
+          <text key={i} x={x.toFixed(1)} y={H - 4} textAnchor="middle" fontSize="9" fill="#A1A1AA" fontFamily="Inter, sans-serif">
             {p.hora}h
           </text>
         );

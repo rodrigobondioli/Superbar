@@ -49,29 +49,25 @@
 
 [data-theme="dark"] {
   /* ── Superfícies ── */
-  --bg:              #0A0A0B;
+  --bg:              #111113;
   --bg-elevated:     #111113;
   --bg-card:         #1C1C1E;
   --bg-hover:        #242427;
 
-  /* ── Texto ──
-     Contraste calculado sobre --bg-card (#1C1C1E):
-     --fg        #FAFAFA  →  18:1  ✓ primário
-     --fg-muted  #A1A1AA  →   5.5:1 ✓ secundário
-     --fg-subtle #9999A5  →   5.2:1 ✓ terciário (labels visíveis)
-  */
-  --fg:              #FAFAFA;
+  /* ── Texto ── */
+  --fg:              #FFFFFF;
   --fg-muted:        #A1A1AA;
-  --fg-subtle:       #9999A5;
+  --fg-subtle:       #A1A1AA;
 
-  /* ── Bordas ── */
-  --border:          rgba(255,255,255,0.10);
-  --border-strong:   rgba(255,255,255,0.18);
+  /* ── Bordas — sólidas, sem opacidade ── */
+  --border:          #2C2C2E;
+  --border-strong:   #3A3A3C;
 
   /* ── Accent ── */
   --accent:          #F59E0B;
   --accent-fg:       #000000;
-  --accent-bright:   #FCD34D;
+  --accent-bright:   #F59E0B;
+  --accent-complement: #FF6F00;
   --ring:            #F59E0B;
 
   /* ── Status ── */

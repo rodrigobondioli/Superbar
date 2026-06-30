@@ -25,17 +25,26 @@ interface LiveBarProps {
 function Delta({ pct, invert = false }: { pct: number | null | undefined; invert?: boolean }) {
   if (pct == null) return null;
   const isGood = invert ? pct <= 0 : pct >= 0;
-  const color = isGood ? "var(--ok)" : "var(--danger)";
+  const color = isGood ? "#22C55E" : "#EF4444";
   const up = pct >= 0;
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, marginTop: 4 }}>
-      <svg width="6" height="6" viewBox="0 0 6 6" style={{ flexShrink: 0 }}>
-        {up
-          ? <path d="M3 0.5L5.8 5.5H0.2L3 0.5Z" fill={color} />
-          : <path d="M3 5.5L0.2 0.5H5.8L3 5.5Z" fill={color} />}
-      </svg>
-      <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600, color }}>{Math.abs(pct).toFixed(1)}%</span>
-      <span style={{ color: "var(--fg-subtle)" }}>vs ontem</span>
+    <span style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4,
+      marginTop: 6,
+      fontSize: 10,
+      fontWeight: 700,
+      color,
+      background: "#111113",
+      border: `1px solid ${color}`,
+      borderRadius: 2,
+      padding: "2px 6px",
+      fontVariantNumeric: "tabular-nums",
+      letterSpacing: "0.04em",
+      width: "fit-content",
+    }}>
+      {up ? "▲" : "▼"} {Math.abs(pct).toFixed(1)}%
     </span>
   );
 }
@@ -104,9 +113,9 @@ export function LiveBar({
     : "crítico";
 
   const cardStyle: React.CSSProperties = {
-    background: "var(--bg-card)",
-    border: "1px solid var(--border)",
-    borderRadius: "var(--radius-lg)",
+    background: "#1C1C1E",
+    border: "1px solid #2C2C2E",
+    borderRadius: 4,
     padding: "20px 24px",
     display: "flex",
     flexDirection: "column",
@@ -153,7 +162,21 @@ export function LiveBar({
         <span style={{ ...valueStyle, color: margemColor }}>
           {margemPct !== null ? `${margemPct.toFixed(0)}%` : "—"}
         </span>
-        <span style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "capitalize", marginTop: 4 }}>
+        <span style={{
+          display: "inline-flex",
+          alignItems: "center",
+          marginTop: 6,
+          fontSize: 10,
+          fontWeight: 700,
+          color: margemColor,
+          background: "#111113",
+          border: `1px solid ${margemColor}`,
+          borderRadius: 2,
+          padding: "2px 6px",
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          width: "fit-content",
+        }}>
           {cmvStatus}
         </span>
       </div>
