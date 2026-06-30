@@ -138,27 +138,6 @@ export function AiHeroInput({
               {s}
             </button>
           ))}
-          {alertCount !== undefined && alertCount > 0 && (
-            <button
-              onClick={() => {
-                const q = 'O que precisa da minha atenção agora? Me dê o impacto em reais.'
-                setQuestion(q)
-                setTimeout(() => ask(q), 0)
-              }}
-              style={{
-                marginLeft: 'auto',
-                fontSize: 11,
-                color: 'var(--danger)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                fontWeight: 600,
-              }}
-            >
-              {alertCount} {alertCount === 1 ? 'ponto requer atenção' : 'pontos requerem atenção'}
-            </button>
-          )}
         </div>
 
         {/* Textarea + send */}
@@ -189,7 +168,7 @@ export function AiHeroInput({
             onClick={() => ask(question)}
             disabled={loading || !question.trim()}
             style={{
-              background: question.trim() && !loading ? '#F59E0B' : '#2C2C2E',
+              background: 'var(--accent)',
               border: 'none',
               borderRadius: 9999,
               width: 38,
@@ -199,14 +178,15 @@ export function AiHeroInput({
               justifyContent: 'center',
               cursor: question.trim() && !loading ? 'pointer' : 'default',
               flexShrink: 0,
-              transition: 'background 150ms',
+              opacity: question.trim() && !loading ? 1 : 0.4,
+              transition: 'opacity 150ms',
             }}
           >
             {loading ? (
-              <span style={{ color: 'var(--fg-subtle)', fontSize: 16, lineHeight: 1 }}>·</span>
+              <span style={{ color: 'var(--accent-fg)', fontSize: 14, lineHeight: 1, fontWeight: 700 }}>·</span>
             ) : (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={question.trim() ? '#000' : 'var(--fg-subtle)'}
+                stroke="var(--accent-fg)"
                 strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
