@@ -34,7 +34,7 @@ export function ProximaMelhorAcao({
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderRadius: 4,
+        borderRadius: "var(--radius-lg)",
         padding: "24px 28px",
         display: "flex",
         alignItems: "center",
@@ -54,8 +54,8 @@ export function ProximaMelhorAcao({
           color: "#F59E0B",
           border: "1px solid #F59E0B",
           background: "#111113",
-          padding: "2px 8px",
-          borderRadius: 2,
+          padding: "2px 10px",
+          borderRadius: 9999,
           marginBottom: 14,
         }}>
           Superbar AI · Recomendação Tática
@@ -99,7 +99,7 @@ export function ProximaMelhorAcao({
             fontSize: 12,
             fontWeight: 700,
             padding: "10px 24px",
-            borderRadius: 2,
+            borderRadius: 9999,
             textDecoration: "none",
             display: "inline-flex",
             alignItems: "center",

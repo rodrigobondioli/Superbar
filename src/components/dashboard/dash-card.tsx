@@ -10,7 +10,7 @@ export function DashCard({ children, style, className }: DashCardProps) {
   const base: CSSProperties = {
     background: "var(--bg-card)",
     border: "1px solid var(--border)",
-    borderRadius: 4,
+    borderRadius: "var(--radius-lg)",
     padding: "20px 24px",
   };
   return (

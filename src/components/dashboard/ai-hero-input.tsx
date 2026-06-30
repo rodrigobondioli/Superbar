@@ -97,7 +97,7 @@ export function AiHeroInput({
       <div style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
-        borderRadius: 4,
+        borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
       }}>
 
@@ -201,7 +201,7 @@ export function AiHeroInput({
           marginTop: 8,
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
-          borderRadius: 4,
+          borderRadius: 'var(--radius-lg)',
           padding: '18px 20px',
           fontSize: 14,
           color: 'var(--fg)',
