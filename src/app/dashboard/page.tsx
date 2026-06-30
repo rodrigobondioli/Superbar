@@ -548,7 +548,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", overflowX: "hidden" }}>
-      <div className="lg:px-10" style={{ paddingTop: 32, paddingBottom: 64, display: "flex", flexDirection: "column", gap: 24 }}>
+      <div className="lg:px-10" style={{ paddingTop: 40, paddingBottom: 80, display: "flex", flexDirection: "column", gap: 40 }}>
 
         {/* ── 1. KPI STRIP — ao vivo, primeira coisa que o dono vê ── */}
         <LiveBar
