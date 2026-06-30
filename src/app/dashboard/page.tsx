@@ -539,7 +539,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", overflowX: "hidden" }}>
-      <div style={{ padding: "32px 40px 64px", display: "flex", flexDirection: "column", gap: 24, maxWidth: 1400, width: "100%" }}>
+      <div className="lg:px-10" style={{ paddingTop: 32, paddingBottom: 64, display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* ── ALFA PANEL — AI Recommendation ── */}
         {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? (

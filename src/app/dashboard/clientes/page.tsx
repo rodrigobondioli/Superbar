@@ -30,7 +30,7 @@ export default async function ClientesPage() {
   const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
+    <div className="py-6 lg:px-10 lg:py-8">
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
         <div>
