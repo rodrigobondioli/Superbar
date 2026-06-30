@@ -37,7 +37,7 @@ function Delta({ pct, invert = false }: { pct: number | null | undefined; invert
       fontWeight: 700,
       color,
       background: "#111113",
-      border: `1px solid ${color}`,
+      border: "1px solid var(--border)",
       borderRadius: 6,
       padding: "2px 8px",
       fontVariantNumeric: "tabular-nums",
@@ -159,7 +159,7 @@ export function LiveBar({
       {/* Margem */}
       <div style={cardStyle}>
         <span style={labelStyle}>Margem</span>
-        <span style={{ ...valueStyle, color: margemColor }}>
+        <span style={valueStyle}>
           {margemPct !== null ? `${margemPct.toFixed(0)}%` : "—"}
         </span>
         <span style={{
@@ -170,7 +170,7 @@ export function LiveBar({
           fontWeight: 700,
           color: margemColor,
           background: "#111113",
-          border: `1px solid ${margemColor}`,
+          border: "1px solid var(--border)",
           borderRadius: 6,
           padding: "2px 8px",
           letterSpacing: "0.06em",
@@ -189,7 +189,7 @@ export function LiveBar({
             <span style={{ color: "var(--danger)", marginLeft: 6, fontSize: 10 }}>▲ alerta</span>
           )}
         </span>
-        <span style={{ ...valueStyle, color: cmvColor }}>
+        <span style={valueStyle}>
           {cmvPct !== null ? `${cmvPct.toFixed(0)}%` : "—"}
         </span>
         <Delta pct={comparacaoCmv} invert />
