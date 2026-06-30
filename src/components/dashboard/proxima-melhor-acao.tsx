@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 interface ProximaMelhorAcaoProps {
@@ -27,7 +25,6 @@ export function ProximaMelhorAcao({
   ranking = [],
 }: ProximaMelhorAcaoProps) {
   const isSubofertado = categoria !== "star" && categoria !== "cash_cow";
-  const [btnHover, setBtnHover] = useState(false);
 
   return (
     <div
@@ -89,31 +86,6 @@ export function ProximaMelhorAcao({
 
       {/* Lado direito */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 20, flexShrink: 0 }}>
-        <a
-          href="/dashboard/cardapio"
-          onMouseEnter={() => setBtnHover(true)}
-          onMouseLeave={() => setBtnHover(false)}
-          style={{
-            background: btnHover ? "#FF6F00" : "#F59E0B",
-            color: "#000000",
-            fontSize: 12,
-            fontWeight: 700,
-            padding: "10px 24px",
-            borderRadius: 9999,
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            lineHeight: 1,
-            letterSpacing: "0.02em",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-            transition: "background 80ms",
-          }}
-        >
-          Orientar Equipe →
-        </a>
-
         {ranking.filter(p => p.margemPercentual !== null).length > 0 && (
           <div style={{ textAlign: "right" }}>
             <p style={{
