@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, BarChart3, History, UtensilsCrossed,
   TableProperties, Users, MonitorSmartphone, Wallet, Package, Sparkles,
-  HeadphonesIcon, Lightbulb, Contact,
+  HeadphonesIcon, Lightbulb, Contact, PanelLeft,
 } from "lucide-react";
 import type { BarRole, Bar } from "@/types/database";
 import { Drawer } from "@/components/ui/drawer";
@@ -43,12 +43,15 @@ interface DashboardSidebarProps {
   userAvatarUrl?: string | null;
   autoPedido?: boolean;
   taxaServicoPct?: number;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export function DashboardSidebar({
   barNome, userNome, role, insightCount = 0, onNavigate, hideHeader,
   touchMode, alertas = [], bar, barId, userId, userEmail = "",
   userAvatarUrl, autoPedido = false, taxaServicoPct = 10,
+  collapsed = false, onToggleCollapse,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -57,45 +60,87 @@ export function DashboardSidebar({
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href);
 
+  const iconSize = touchMode ? "h-5 w-5" : "h-4 w-4";
+
   return (
     <aside
       className="flex flex-col"
       style={{
-        width: touchMode ? "100%" : "220px",
+        width: touchMode ? "100%" : collapsed ? 52 : 220,
         height: touchMode ? "100%" : "100dvh",
         overflow: "hidden",
         background: "var(--bg-elevated)",
         borderRight: "1px solid var(--border)",
+        transition: "width 200ms ease",
       }}
     >
 
-      {/* ── Logo + bar name ── */}
+      {/* ── Logo + toggle ── */}
       {!hideHeader && (
-        <div style={{ padding: "18px 20px 16px", borderBottom: "1px solid var(--border)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0, display: "block" }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em" }}>SUPERBAR</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
-              {barNome}
-            </span>
-            <span style={{
-              fontSize: 10, fontWeight: 600,
-              padding: "2px 8px", borderRadius: 20,
-              background: "color-mix(in srgb, var(--accent) 14%, transparent)",
-              color: "var(--accent)",
-              flexShrink: 0,
-            }}>
-              {ROLE_LABEL[role] ?? role}
-            </span>
-          </div>
+        <div style={{
+          padding: collapsed ? "14px 0" : "18px 20px 16px",
+          borderBottom: "1px solid var(--border)",
+          display: "flex",
+          flexDirection: collapsed ? "column" : "column",
+          alignItems: collapsed ? "center" : "stretch",
+          gap: collapsed ? 8 : 0,
+        }}>
+          {!collapsed && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0, display: "block" }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em" }}>SUPERBAR</span>
+                </div>
+                {onToggleCollapse && (
+                  <button onClick={onToggleCollapse} aria-label="Colapsar menu" style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 28, height: 28, borderRadius: 6,
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "var(--fg-subtle)", flexShrink: 0,
+                  }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
+                    <PanelLeft style={{ width: 15, height: 15 }} strokeWidth={1.75} />
+                  </button>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ fontSize: 11, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                  {barNome}
+                </span>
+                <span style={{
+                  fontSize: 10, fontWeight: 600,
+                  padding: "2px 8px", borderRadius: 20,
+                  background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+                  color: "var(--accent)",
+                  flexShrink: 0,
+                }}>
+                  {ROLE_LABEL[role] ?? role}
+                </span>
+              </div>
+            </>
+          )}
+          {collapsed && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, display: "block" }} />
+              {onToggleCollapse && (
+                <button onClick={onToggleCollapse} aria-label="Expandir menu" style={{
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 28, height: 28, borderRadius: 6,
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "var(--fg-subtle)",
+                }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
+                  <PanelLeft style={{ width: 15, height: 15, transform: "scaleX(-1)" }} strokeWidth={1.75} />
+                </button>
+              )}
+            </>
+          )}
         </div>
       )}
 
       {/* ── Nav ── */}
-      <nav style={{ padding: touchMode ? "12px" : "10px 10px 0", flex: 1 }}>
+      <nav style={{ padding: touchMode ? "12px" : collapsed ? "10px 8px 0" : "10px 10px 0", flex: 1 }}>
         {links.map((link) => {
           const active = isActive(link.href);
           return (
@@ -103,11 +148,13 @@ export function DashboardSidebar({
               key={link.href}
               href={link.href}
               onClick={onNavigate}
+              title={collapsed ? link.label : undefined}
               style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: collapsed ? "center" : "flex-start",
                 gap: touchMode ? 14 : 9,
-                padding: touchMode ? "13px 14px" : "8px 10px",
+                padding: collapsed ? "9px 0" : touchMode ? "13px 14px" : "8px 10px",
                 borderRadius: 8,
                 marginBottom: 2,
                 fontSize: touchMode ? "15px" : "13px",
@@ -120,12 +167,12 @@ export function DashboardSidebar({
               className={!active ? "hover:!bg-white/[0.05] hover:!text-[var(--fg)]" : ""}
             >
               <link.icon
-                className={touchMode ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0"}
+                className={`${iconSize} shrink-0`}
                 strokeWidth={1.75}
                 style={{ color: active ? "var(--accent-bright)" : "var(--fg-subtle)" }}
               />
-              <span style={{ flex: 1 }}>{link.label}</span>
-              {"badge" in link && link.badge && insightCount > 0 && (
+              {!collapsed && <span style={{ flex: 1 }}>{link.label}</span>}
+              {!collapsed && "badge" in link && link.badge && insightCount > 0 && (
                 <span style={{
                   fontSize: 10, fontWeight: 700,
                   padding: "2px 6px", borderRadius: 10,
@@ -137,6 +184,15 @@ export function DashboardSidebar({
                   {insightCount > 9 ? "9+" : insightCount}
                 </span>
               )}
+              {collapsed && "badge" in link && link.badge && insightCount > 0 && (
+                <span style={{
+                  position: "absolute",
+                  top: 6, right: 6,
+                  width: 6, height: 6,
+                  borderRadius: "50%",
+                  background: "var(--danger)",
+                }} />
+              )}
             </Link>
           );
         })}
@@ -145,8 +201,8 @@ export function DashboardSidebar({
       {/* ── Footer ── */}
       <div style={{ borderTop: "1px solid var(--border)" }}>
 
-        {/* User + settings */}
-        {!touchMode && bar && barId && userId && (
+        {/* User + settings — só expandido */}
+        {!touchMode && !collapsed && bar && barId && userId && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
             <span style={{ fontSize: 12, color: "var(--fg-muted)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {userNome.split(" ")[0]}
@@ -160,38 +216,41 @@ export function DashboardSidebar({
           </div>
         )}
 
-        {/* Support links */}
-        <div style={{ padding: touchMode ? "8px 12px 16px" : "4px 10px 12px" }}>
-          {([
-            { label: "Suporte",   type: "suporte",   Icon: HeadphonesIcon },
-            { label: "Sugestão",  type: "sugestao",  Icon: Lightbulb },
-          ] as const).map(({ label, type, Icon }) => (
-            <button
-              key={label}
-              onClick={() => { setDrawerType(type); setDrawerOpen(true); }}
-              style={{
-                display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left",
-                padding: touchMode ? "12px 14px" : "7px 10px",
-                background: "none", border: "none", cursor: "pointer",
-                fontSize: touchMode ? "14px" : "12px",
-                color: "var(--fg-subtle)",
-                borderRadius: 6,
-              }}
-              className="hover:!text-[var(--fg-muted)]"
-            >
-              <Icon style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13, flexShrink: 0 }} strokeWidth={1.75} />
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* Support links — só expandido */}
+        {!collapsed && (
+          <div style={{ padding: touchMode ? "8px 12px 16px" : "4px 10px 12px" }}>
+            {([
+              { label: "Suporte",   type: "suporte",   Icon: HeadphonesIcon },
+              { label: "Sugestão",  type: "sugestao",  Icon: Lightbulb },
+            ] as const).map(({ label, type, Icon }) => (
+              <button
+                key={label}
+                onClick={() => { setDrawerType(type); setDrawerOpen(true); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left",
+                  padding: touchMode ? "12px 14px" : "7px 10px",
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: touchMode ? "14px" : "12px",
+                  color: "var(--fg-subtle)",
+                  borderRadius: 6,
+                }}
+                className="hover:!text-[var(--fg-muted)]"
+              >
+                <Icon style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13, flexShrink: 0 }} strokeWidth={1.75} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
-        {/* Ver operação — full-width, flat, amber */}
+        {/* Ver operação */}
         <Link
           href="/garcom"
           onClick={onNavigate}
+          title={collapsed ? "Ver operação" : undefined}
           style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-            padding: touchMode ? "16px 0" : "12px 0",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: collapsed ? 0 : 7,
+            padding: collapsed ? "12px 0" : touchMode ? "16px 0" : "12px 0",
             background: "var(--accent)",
             color: "#000000",
             fontSize: touchMode ? "14px" : "12px",
@@ -202,7 +261,7 @@ export function DashboardSidebar({
           }}
         >
           <MonitorSmartphone style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13 }} />
-          Ver operação
+          {!collapsed && "Ver operação"}
         </Link>
       </div>
 

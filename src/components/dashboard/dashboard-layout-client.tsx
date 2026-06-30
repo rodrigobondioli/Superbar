@@ -43,6 +43,7 @@ export function DashboardLayoutClient({
   children,
 }: DashboardLayoutClientProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div data-theme="dark" className="flex flex-col" style={{ height: "100dvh", overflow: "hidden", background: "var(--bg)" }}>
@@ -89,7 +90,7 @@ export function DashboardLayoutClient({
         {/* Desktop sidebar */}
         <aside
           className="hidden lg:block flex-shrink-0"
-          style={{ width: 220, height: "100%" }}
+          style={{ width: collapsed ? 52 : 220, height: "100%", transition: "width 200ms ease" }}
         >
           <DashboardSidebar
             barNome={barNome}
@@ -104,6 +105,8 @@ export function DashboardLayoutClient({
             userAvatarUrl={userAvatarUrl}
             autoPedido={autoPedido}
             taxaServicoPct={taxaServicoPct}
+            collapsed={collapsed}
+            onToggleCollapse={() => setCollapsed(c => !c)}
           />
         </aside>
 
