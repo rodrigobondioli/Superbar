@@ -154,7 +154,7 @@ export function LiveBar({
         {/* Ticket Médio */}
         <div style={KPI_CARD}>
           <span style={LABEL}>Ticket Médio</span>
-          <span style={{ ...VALUE, color: "#F59E0B" }}>
+          <span style={{ ...VALUE, color: "var(--fg)" }}>
             {data.pessoas > 0 ? currency.format(ticketMedio) : "—"}
           </span>
           {data.pessoas > 0

@@ -102,29 +102,22 @@ export function ProximaMelhorAcao({
             <a
               href="/dashboard/cardapio"
               style={{
-                background: "var(--accent)",
+                background: "#F59E0B",
                 color: "#000",
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: 700,
-                padding: "10px 22px",
-                borderRadius: 8,
+                padding: "12px 28px",
+                borderRadius: 9999,
                 textDecoration: "none",
-                display: "inline-block",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
                 lineHeight: 1,
                 flexShrink: 0,
+                letterSpacing: "-0.01em",
               }}
             >
-              Ver no cardápio
-            </a>
-            <a
-              href="/dashboard/cardapio"
-              style={{
-                fontSize: 12,
-                color: "var(--fg-subtle)",
-                textDecoration: "none",
-              }}
-            >
-              Ver todos de margem alta →
+              Ver no cardápio →
             </a>
           </div>
         </div>

@@ -23,14 +23,14 @@
   --border-strong:   rgba(0,0,0,0.14);
 
   /* ── Accent ── */
-  --accent:          #D97706;
-  --accent-fg:       #FFFFFF;
-  --accent-bright:   #F59E0B;
+  --accent:          #F59E0B;
+  --accent-fg:       #000000;
+  --accent-bright:   #FCD34D;
   --ring:            #F59E0B;
 
   /* ── Status ── */
   --ok:              #16A34A;  --ok-bg:     rgba(22,163,74,0.10);
-  --warn:            #D97706;  --warn-bg:   rgba(217,119,6,0.10);
+  --warn:            #F59E0B;  --warn-bg:   rgba(245,158,11,0.10);
   --danger:          #DC2626;  --danger-bg: rgba(220,38,38,0.10);
 
   /* ── Raios ── */
