@@ -540,22 +540,6 @@ export default async function DashboardPage() {
     <div style={{ display: "flex", flexDirection: "column", width: "100%", overflowX: "hidden" }}>
       <div style={{ padding: "32px 40px 64px", display: "flex", flexDirection: "column", gap: 24, maxWidth: 1400, width: "100%" }}>
 
-        {/* ── HEADER ── */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: 0, letterSpacing: "-0.02em" }}>
-              Operação ao Vivo
-            </h1>
-            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "4px 0 0" }}>
-              {dataFormatada}
-            </p>
-          </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "7px 14px" }}>
-            <span className="animate-live-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--ok)", display: "block", flexShrink: 0 }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ok)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Ao Vivo</span>
-          </div>
-        </div>
-
         {/* ── ALFA PANEL — AI Recommendation ── */}
         {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? (
           <ProximaMelhorAcao
