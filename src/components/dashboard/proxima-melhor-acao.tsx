@@ -139,10 +139,10 @@ export function ProximaMelhorAcao({
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: "var(--radius-xl)",
-        padding: "36px 40px",
+        padding: "28px 32px",
         display: "flex",
         flexDirection: "column",
-        gap: 16,
+        gap: 12,
       }}>
         {/* Overline */}
         <span style={{
@@ -163,38 +163,38 @@ export function ProximaMelhorAcao({
 
         {/* Nome do produto */}
         <p style={{
-          fontSize: "clamp(2.5rem, 5vw, 72px)",
+          fontSize: "clamp(22px, 2.4vw, 32px)",
           fontWeight: 700,
           color: "#FFFFFF",
           margin: 0,
-          lineHeight: 1.05,
-          letterSpacing: "-0.04em",
+          lineHeight: 1.15,
+          letterSpacing: "-0.03em",
         }}>
           {produtoNome}
         </p>
 
         {/* Margem + faturamento */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: 700,
             color: "#22C55E",
             border: "1px solid var(--border)",
             borderRadius: 9999,
-            padding: "4px 14px",
+            padding: "2px 10px",
             fontVariantNumeric: "tabular-nums",
           }}>
             {percent.format(margemPercentual ?? 0)}% margem
           </span>
           {faturamento > 0 && (
-            <span style={{ fontSize: 14, color: "#A1A1AA", fontVariantNumeric: "tabular-nums" }}>
+            <span style={{ fontSize: 12, color: "#A1A1AA", fontVariantNumeric: "tabular-nums" }}>
               {currency.format(faturamento)} gerado hoje
             </span>
           )}
         </div>
 
         {/* Razão */}
-        <p style={{ fontSize: 15, color: "#A1A1AA", lineHeight: 1.6, margin: 0, maxWidth: 520 }}>
+        <p style={{ fontSize: 13, color: "#A1A1AA", lineHeight: 1.6, margin: 0, maxWidth: 520 }}>
           {isSubofertado
             ? `Apareceu pouco hoje — sugerir ativamente nas próximas 2h pode mais que dobrar as vendas com zero esforço.`
             : `Já lidera em vendas. Manter no topo das sugestões é o caminho de menor esforço para crescer a receita.`}

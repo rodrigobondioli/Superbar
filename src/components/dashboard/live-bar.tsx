@@ -181,28 +181,28 @@ export function LiveBar({
     background: "var(--bg-card)",
     border: "1px solid var(--border)",
     borderRadius: "var(--radius-xl)",
-    padding: "24px 28px",
+    padding: "20px 24px",
     display: "flex",
     flexDirection: "column",
-    gap: 6,
+    gap: 4,
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 600,
-    color: "var(--accent)",
+    color: "var(--fg-subtle)",
     textTransform: "uppercase",
-    letterSpacing: "0.08em",
+    letterSpacing: "0.1em",
     marginBottom: 4,
     display: "block",
   };
 
   const valueStyle: React.CSSProperties = {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 700,
     lineHeight: 1,
     fontVariantNumeric: "tabular-nums",
-    letterSpacing: "-0.03em",
+    letterSpacing: "-0.02em",
     color: "var(--fg)",
     display: "block",
   };
