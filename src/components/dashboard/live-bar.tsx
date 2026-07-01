@@ -182,10 +182,10 @@ export function LiveBar({
     background: "var(--bg-card)",
     border: "1px solid var(--border)",
     borderRadius: "var(--radius-2xl)",
-    padding: "14px 18px",
+    padding: "18px 22px",
     display: "flex",
     flexDirection: "column",
-    gap: 3,
+    gap: 4,
   };
 
   const labelStyle: React.CSSProperties = {
@@ -199,33 +199,55 @@ export function LiveBar({
   };
 
   const valueStyle: React.CSSProperties = {
-    fontSize: 28,
-    fontWeight: 700,
+    fontSize: 36,
+    fontWeight: 600,
     lineHeight: 1,
     fontVariantNumeric: "tabular-nums",
-    letterSpacing: "-0.02em",
+    letterSpacing: "-0.03em",
     color: "var(--fg)",
     display: "block",
+    marginTop: 6,
   };
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12, flexShrink: 0 }}>
 
       {/* ── Faturado no Turno (HERÓI) ── */}
-      <div style={cardStyle} title="Soma de tudo que foi vendido desde a abertura do turno.">
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div style={{
+        ...cardStyle,
+        background: "var(--bg-hero)",
+        border: "1px solid var(--border-accent)",
+        position: "relative",
+        overflow: "hidden",
+        padding: "18px 22px",
+      }} title="Soma de tudo que foi vendido desde a abertura do turno.">
+
+        {/* Glow orb */}
+        <div style={{
+          position: "absolute",
+          top: -60, left: -40,
+          width: 220, height: 220,
+          borderRadius: "50%",
+          background: "var(--glow-hero)",
+          filter: "blur(40px)",
+          pointerEvents: "none",
+        }} />
+
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
           <span style={labelStyle}>Faturado no Turno</span>
           {historicoFaturamento && historicoFaturamento.length >= 2 && (
             <MiniSparkline values={historicoFaturamento} />
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 4, lineHeight: 1, marginTop: 4 }}>
-          <span style={{ fontSize: 18, fontWeight: 300, color: "var(--fg)", opacity: 0.45, paddingTop: 8, letterSpacing: 0 }}>R$</span>
-          <span style={{ fontSize: 52, fontWeight: 300, letterSpacing: "-0.04em", fontVariantNumeric: "tabular-nums", color: "var(--fg)", lineHeight: 1 }}>
+
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 5, lineHeight: 1, marginTop: 6, position: "relative" }}>
+          <span style={{ fontSize: 20, fontWeight: 300, color: "var(--fg)", opacity: 0.35, paddingBottom: 10, letterSpacing: 0 }}>R$</span>
+          <span style={{ fontSize: 72, fontWeight: 200, letterSpacing: "-0.05em", fontVariantNumeric: "tabular-nums", color: "var(--fg)", lineHeight: 0.9 }}>
             {currencyNum.format(Math.round(data.faturamento))}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 2 }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, position: "relative" }}>
           <Delta pct={comparacaoFaturamento} />
           {data.pessoas > 0 && (
             <span style={{ fontSize: 10, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
@@ -233,24 +255,23 @@ export function LiveBar({
             </span>
           )}
         </div>
+
         {meta > 0 && (
-          <div style={{ marginTop: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+          <div style={{ marginTop: 10, position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
               <span style={{ fontSize: 9, color: "var(--fg-subtle)" }}>Meta {currency.format(meta)}</span>
               <span style={{ fontSize: 9, color: metaAtingida ? "var(--ok)" : "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
                 {metaProgresso}%
               </span>
             </div>
-            <div style={{ height: 2, background: "var(--border)", borderRadius: 2, overflow: "hidden" }}>
-              <div
-                style={{
-                  height: 2,
-                  background: metaAtingida ? "var(--ok)" : "var(--accent)",
-                  borderRadius: 2,
-                  width: `${Math.min(metaProgresso, 100)}%`,
-                  transition: "width 0.6s",
-                }}
-              />
+            <div style={{ height: 2, background: "var(--border-strong)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{
+                height: 2,
+                background: metaAtingida ? "var(--ok)" : "var(--accent)",
+                borderRadius: 2,
+                width: `${Math.min(metaProgresso, 100)}%`,
+                transition: "width 0.6s",
+              }} />
             </div>
           </div>
         )}

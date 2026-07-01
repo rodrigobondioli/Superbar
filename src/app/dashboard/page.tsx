@@ -598,10 +598,10 @@ export default async function DashboardPage() {
 
         {/* ── COL A: Dinheiro Entrando ─────────────────────────────── */}
         <div style={{
-          background: "var(--bg-card)",
+          background: "var(--bg-card-hi)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius-2xl)",
-          padding: "20px 24px",
+          padding: "24px 28px",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
@@ -632,36 +632,26 @@ export default async function DashboardPage() {
           </div>
 
           {/* Sub-stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 12, flexShrink: 0 }}>
-            <div style={{ background: "var(--bg)", borderRadius: "var(--radius-md)", padding: "8px 10px" }}>
-              <span style={{ display: "block", fontSize: 9, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Até agora</span>
-              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>
-                {currency.format(kpis.faturamento)}
-              </span>
-            </div>
-            <div style={{ background: "var(--bg)", borderRadius: "var(--radius-md)", padding: "8px 10px" }}>
-              <span style={{ display: "block", fontSize: 9, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Drinks</span>
-              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>
-                {liveStats.drinks}
-              </span>
-            </div>
-            <div style={{ background: "var(--bg)", borderRadius: "var(--radius-md)", padding: "8px 10px" }}>
-              <span style={{ display: "block", fontSize: 9, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>
-                {pico ? "Pico previsto" : "Mesas abertas"}
-              </span>
-              <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>
-                {pico ? `${pico.hora}h` : String(kpis.comandasAbertas)}
-              </span>
-            </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 14, flexShrink: 0 }}>
+            {[
+              { label: "Até agora", value: currency.format(kpis.faturamento) },
+              { label: "Drinks", value: String(liveStats.drinks) },
+              { label: pico ? "Pico previsto" : "Mesas abertas", value: pico ? `${pico.hora}h` : String(kpis.comandasAbertas) },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "10px 12px" }}>
+                <span style={{ display: "block", fontSize: 9, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>{label}</span>
+                <span style={{ display: "block", fontSize: 17, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.025em" }}>{value}</span>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* ── COL B: Saúde do Dinheiro ─────────────────────────────── */}
         <div style={{
-          background: "var(--bg-card)",
+          background: "var(--bg-card-hi)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius-2xl)",
-          padding: "20px 24px",
+          padding: "24px 28px",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
