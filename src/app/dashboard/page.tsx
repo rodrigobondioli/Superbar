@@ -81,14 +81,14 @@ const card: React.CSSProperties = {
 const kpiCard: React.CSSProperties = {
   background: "var(--bg-card)",
   border: "1px solid var(--border)",
-  borderRadius: 24,
-  padding: "28px 32px 32px",
+  borderRadius: 20,
+  padding: "16px 20px 18px",
   display: "flex",
   flexDirection: "column",
 };
-const kpiLabel: React.CSSProperties = { fontSize: 15, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1.05, marginTop: 8 };
-const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "16px 0 12px" };
+const kpiLabel: React.CSSProperties = { fontSize: 13, color: "var(--fg-muted)" };
+const kpiMetric: React.CSSProperties = { fontSize: 40, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 4 };
+const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "12px 0 8px" };
 
 export default async function DashboardPage() {
   const current = await getCurrentBar();
@@ -522,10 +522,12 @@ export default async function DashboardPage() {
 
   return (
     <div style={{
+      height: "100%",
       display: "flex",
       flexDirection: "column",
-      padding: "24px 32px 48px",
-      gap: 24,
+      padding: "14px 32px 16px",
+      gap: 12,
+      overflow: "hidden",
       boxSizing: "border-box",
     }}>
 
@@ -572,7 +574,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ══ ROW 1: KPI CARDS (Figma) ═════════════════════════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 16, flexShrink: 0 }}>
 
         {/* Faturado no turno */}
         <div style={kpiCard}>
@@ -615,33 +617,33 @@ export default async function DashboardPage() {
       </div>
 
       {/* ══ ROW 2: STAT PILLS ════════════════════════════════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, flexShrink: 0 }}>
         {[
           { label: "Drinks no turno", value: String(liveStats.drinks) },
           { label: "Mesas abertas", value: String(kpis.comandasAbertas) },
           { label: "Fila atual", value: `${filaAtual} ${filaAtual === 1 ? "pedido" : "pedidos"}` },
           { label: "Ticket médio", value: currency.format(kpis.ticketMedio) },
         ].map((s) => (
-          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <span style={{ fontSize: 15, color: "var(--fg-muted)" }}>{s.label}</span>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
+          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
           </div>
         ))}
       </div>
 
       {/* ══ ROW 3: AI + SUPER AÇÃO (esq) · TOP DRINKS (dir) ═══════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 24, alignItems: "start" }}>
+      <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
 
         {/* LEFT column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
 
           <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
 
           {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center" }}>
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center", flexShrink: 0 }}>
               <div>
                 <span style={sectionLabel}>Super ação</span>
-                <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "8px 0 12px" }}>{produtosTop5[0].produtoNome}</p>
+                <p style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "6px 0 8px" }}>{produtosTop5[0].produtoNome}</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
                   <span style={{ color: "var(--ok)", fontSize: 11 }}>▲</span>
                   <span style={{ color: "var(--fg-muted)" }}>{produtosTop5[0].margemPercentual}% de margem</span>
@@ -662,17 +664,17 @@ export default async function DashboardPage() {
         </div>
 
         {/* RIGHT: Top drinks */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 28px 28px", display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 15, color: "var(--fg)", fontWeight: 600, marginBottom: 16 }}>Top drinks do turno</span>
-          <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: "16px 20px 18px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+          <span style={{ fontSize: 14, color: "var(--fg)", fontWeight: 600, marginBottom: 10 }}>Top drinks do turno</span>
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflowY: "auto" }}>
             {produtosTop5.slice(0, 6).map((p, i) => {
               const max = produtosTop5[0]?.faturamento || 1;
               const last = i >= Math.min(produtosTop5.length, 6) - 1;
               return (
-                <div key={p.produtoNome + i} style={{ padding: "12px 0", borderBottom: last ? "none" : "1px solid var(--border)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontSize: 15, color: "var(--fg)" }}><span style={{ color: "var(--fg-subtle)", marginRight: 10 }}>{i + 1}</span>{p.produtoNome}</span>
-                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                <div key={p.produtoNome + i} style={{ padding: "8px 0", borderBottom: last ? "none" : "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 6 }}>
+                    <span style={{ fontSize: 14, color: "var(--fg)" }}><span style={{ color: "var(--fg-subtle)", marginRight: 10 }}>{i + 1}</span>{p.produtoNome}</span>
+                    <span style={{ fontSize: 14, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
                   </div>
                   <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
                     <div style={{ height: 3, borderRadius: 999, background: "var(--accent)", width: `${Math.max(4, Math.round((p.faturamento / max) * 100))}%` }} />
