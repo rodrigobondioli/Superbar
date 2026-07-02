@@ -30,24 +30,24 @@ A interface some — os dados falam. Nenhum elemento existe por estética; cada 
 
 | Token                | Valor             | Uso                                 |
 |---------------------|-------------------|-------------------------------------|
-| `--bg`              | `#0A0A0B`         | Fundo da página                     |
+| `--bg`              | `#111113`         | Fundo da página                     |
 | `--bg-elevated`     | `#111113`         | Sidebar, header, superfícies altas  |
 | `--bg-card`         | `#1C1C1E`         | Cards, painéis                      |
-| `--bg-hover`        | `#242427`         | Hover states, inputs                |
-| `--fg`              | `#FAFAFA`         | Texto primário                      |
-| `--fg-muted`        | `#A1A1AA`         | Texto secundário, legendas          |
-| `--fg-subtle`       | `#52525B`         | Labels, placeholders, eixos         |
+| `--bg-hover`        | `#242426`         | Hover states, inputs                |
+| `--fg`              | `#FFFFFF`         | Texto primário                      |
+| `--fg-muted`        | `#898989`         | Texto secundário, legendas          |
+| `--fg-subtle`       | `#6B6B75`         | Labels, placeholders, eixos         |
 | `--border`          | `rgba(255,255,255,0.08)` | Bordas hairline              |
-| `--border-strong`   | `rgba(255,255,255,0.14)` | Divisores, separadores           |
-| `--accent`          | `#F59E0B`         | Ação primária, progresso, destaque  |
+| `--border-strong`   | `#383839` | Divisores, separadores           |
+| `--accent`          | `#FF3500`         | Ação primária, progresso, destaque  |
 | `--accent-fg`       | `#000000`         | Texto sobre fundo accent            |
-| `--accent-bright`   | `#FCD34D`         | Hover sobre accent                  |
+| `--accent-bright`   | `#D92D00`         | Hover sobre accent                  |
 | `--ok`              | `#22C55E`         | Positivo, meta atingida             |
 | `--ok-bg`           | `rgba(34,197,94,0.10)` | Background de status ok        |
-| `--warn`            | `#F59E0B`         | Atenção (mesmo tom do accent)       |
+| `--warn`            | `#F59E0B`         | Atenção (âmbar, distinto do accent laranja)       |
 | `--warn-bg`         | `rgba(245,158,11,0.10)` | Background de aviso           |
-| `--danger`          | `#EF4444`         | Crítico, CMV alto, alerta           |
-| `--danger-bg`       | `rgba(239,68,68,0.10)` | Background de erro             |
+| `--danger`          | `#FF3B30`         | Crítico, CMV alto, alerta           |
+| `--danger-bg`       | `rgba(255,59,48,0.10)` | Background de erro             |
 
 **Regra absoluta:** nunca use hex direto no JSX. Sempre `var(--token)`.
 
@@ -146,9 +146,9 @@ Breakpoints:
 
 ### BarChart
 ```tsx
-// Barras: gradiente amber (rgba(245,158,11,0.90) → rgba(245,158,11,0.25))
+// Barras: gradiente laranja (rgba(255,53,0,0.90) → rgba(255,53,0,0.25))
 // Eixo X: var(--fg-subtle)
-// Cursor hover: rgba(245,158,11,0.06)
+// Cursor hover: rgba(255,53,0,0.06)
 // fill=true: preench 100% da altura do container
 
 <BarChart data={[{label:"Seg",value:1200}]} />
@@ -159,7 +159,7 @@ Breakpoints:
 
 ## Padrões proibidos
 
-- ❌ Hex direto: `color: "#F59E0B"` → use `color: "var(--accent)"`
+- ❌ Hex direto: `color: "#FF3500"` → use `color: "var(--accent)"`
 - ❌ `rgba(255,255,255,X)` hardcoded para texto → use `var(--fg-subtle)`, `var(--fg-muted)`
 - ❌ `borderRadius: 0` para cards → use `var(--radius-lg)`
 - ❌ `background: "var(--bg-inset)"` → token removido, use `var(--bg-hover)`
@@ -207,8 +207,8 @@ Breakpoints:
 
 | Variante       | Background   | Texto      | Borda  | Border-radius | Uso                        |
 |---------------|-------------|-----------|--------|---------------|----------------------------|
-| Primary        | `#F59E0B`   | `#000000` | none   | 9999px        | CTA principal em todas as telas |
-| Dark           | `#000000`   | `#ffffff` | none   | 9999px        | CTA sobre fundo amber (modal, CTA section) |
+| Primary        | `#FF3500`   | `#000000` | none   | 9999px        | CTA principal em todas as telas |
+| Dark           | `#000000`   | `#ffffff` | none   | 9999px        | CTA sobre fundo laranja (modal, CTA section) |
 | Subtle         | `var(--bg-card)` | `var(--fg)` | `1px solid #2C2C2E` | 9999px | Ações secundárias |
 | Destructive    | `var(--danger-bg)` | `var(--danger)` | none | 8px | Ações destrutivas |
 
@@ -228,7 +228,7 @@ font-size: 14px;
 colorScheme: dark;
 
 /* focus */
-border-color: rgba(245,158,11,0.5);  /* accent com opacidade */
+border-color: rgba(255,53,0,0.5);  /* accent com opacidade */
 outline: none;
 ```
 
@@ -245,11 +245,11 @@ A landing page (`/`) usa o **mesmo sistema de design** que o dashboard. Não exi
 | Área                                        | Cor                          |
 |--------------------------------------------|------------------------------|
 | Fundo geral do site                        | `#111113`                    |
-| Hero (gradient topo → fundo)               | `#0A0A0B` → `#111113`       |
-| Seção CTA "INTELIGENTE."                   | `#F59E0B` (amber)            |
+| Hero (gradient topo → fundo)               | `#111113` → `#111113`       |
+| Seção CTA "INTELIGENTE."                   | `#FF3500` (laranja)            |
 | Cards de dores / processo mobile           | `#1C1C1E`                    |
 | Cards processo desktop (profundidade)      | `#1C1C1E` / `#232325` / `#2A2A2C` |
-| Modal de contato                           | `#F59E0B` (amber)            |
+| Modal de contato                           | `#FF3500` (laranja)            |
 | Footer                                     | `#111113`                    |
 
 ### Cards na landing
@@ -264,7 +264,7 @@ Usado como separador entre seções de cores distintas. Fill = cor da seção ad
 
 ### Accent na landing
 
-Idêntico ao dashboard: `#F59E0B`. Aplicado em títulos de cards de dores, check icons, CTAs primários, FAQ, badges da parallax.
+Idêntico ao dashboard: `#FF3500`. Aplicado em títulos de cards de dores, check icons, CTAs primários, FAQ, badges da parallax.
 
 ### Regra absoluta
 
@@ -276,12 +276,12 @@ Nunca crie "a paleta da landing" separada "da paleta do dashboard". Uma paleta, 
 
 Mesma linguagem visual da landing page. Regras:
 
-- **Fundo:** gradient `#0A0A0B` → `#111113` (igual ao hero)
+- **Fundo:** gradient `#111113` → `#111113` (igual ao hero)
 - **Logo:** `logo-superbar.svg`, `width: 64px`, posição `top: 32px, left: 32px` (ou `px-4 md:px-8 lg:px-14`)
 - **Card:** `background: #1C1C1E`, `border: 1px solid #2C2C2E`, `borderRadius: 20px`
 - **H1:** `clamp(1.375rem, 5.5vw, 2rem)`, weight 600, `letterSpacing: "-0.01em"`, `color: var(--fg)`
 - **Inputs:** conforme seção Inputs acima (bg `#1C1C1E`, border `#2C2C2E`)
-- **Botão primário:** variante Primary (amber `#F59E0B`, texto preto, pill)
+- **Botão primário:** variante Primary (laranja `#FF3500`, texto preto, pill)
 - **Links auxiliares** (esqueceu senha, criar conta): `color: var(--fg-muted)`, font-size 13px, sem sublinhado por padrão
 
 ---
@@ -289,5 +289,41 @@ Mesma linguagem visual da landing page. Regras:
 ## Referências
 
 - Inspiração técnica: Linear, Vercel, Stripe Dashboard
-- Acento amber: comunica premium, hospitalidade, spirits, receita (diferente de todos os concorrentes que usam azul)
-- "Zinc palette" (Tailwind): bg `#0A0A0B` = zinc-950, card `#1C1C1E` = zinc-900 custom
+- Acento laranja: comunica premium, hospitalidade, spirits, receita (diferente de todos os concorrentes que usam azul)
+- "Zinc palette" (Tailwind): bg `#111113` = zinc-950, card `#1C1C1E` = zinc-900 custom
+
+---
+
+## Biblioteca de componentes (Figma DS)
+
+O DS vive no Figma (arquivo **Superbar - Design System**) e é a fonte dos componentes. Publicado como biblioteca — **instanciar, nunca recriar na mão**. Os componentes de código em `src/components/ui` devem espelhar estes.
+
+### Base (`🧱 Components / Base`)
+- **Button** — Type (Primary/Secondary/Ghost) × Size (MD/SM) × Icon (None/Leading). Primary = `#FF3500`, texto `#111113`, pill.
+- **Icon button** — botão de ícone 48px (câmera, busca das tabs).
+- **Badge** — Status (Neutral/Positive/Warning/Danger). Ponto + label.
+- **Count badge** — contador numérico (notificação, quantidade). Círculo laranja.
+- **Chip** — State (Default/Active). Filtros, categorias, seletores de tempo.
+- **Input** — State (Default/Focus).
+- **Avatar** · **Progress bar**.
+
+### Complexos (`🧩 Components / Complex`)
+- **Nav item** (Default/Active) · **KPI card** (Progress/Delta) · **Ranked row** · **Top bar**
+- **Stock item row** (Severity × Tag) · **Status card** (Critical/Warning/Ok)
+- **Client row** · **Team member row**
+- **Mesa card** (Aguardando/Aberta) · **Mesa card livre** · **Produto card** (Default/Selected/Variação)
+- **User menu**
+
+### Escala tipográfica — Figma (fonte de verdade)
+
+**Landing:** Display 72 · H1 56 · H2 40 · H3 30 · H4 24 · Body L 20 · Body 16 · Small 14 · Overline 12 (Semi Bold, +8% tracking).
+**Dashboard:** Metric 64 · Display 32 · Heading 24 · Title 18 · Title Medium 18 · Body 15 · Body Medium 15 · Body Strong 15 · Small 13 · Small Medium 13 · Label 13 · Badge 9.
+
+> Nota: os text styles de Dashboard no Figma estão com `line-height 100%` — no código usamos line-heights web (1.1–1.55) para não cortar descendente. Corrigir o LH no Figma quando possível.
+
+### Spacing (base-4)
+Dense: 4 · 8 · 12 · 16 · 24 · 32. Comfortable: 4 · 8 · 16 · 24 · 32 · 48. Nunca usar valores fora da escala.
+
+### Pendências de reconciliação (Figma ↔ código)
+- **`text/subtle` no Figma (`#c7c7c7`)** está mais claro que `text/muted` — invertido. No código mantivemos `#6B6B75` (mais escuro). Corrigir no Figma.
+- **Radius:** Figma tem `sm 8 / md 16 / pill 999`; código usa `4/8/12/16/20`. Unificar numa próxima rodada.

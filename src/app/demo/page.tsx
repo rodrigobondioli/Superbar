@@ -311,12 +311,12 @@ function VendasPorHoraChart() {
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 110 }} preserveAspectRatio="none">
       <defs>
         <linearGradient id="horaGradDemo" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(245,158,11,0.35)" />
-          <stop offset="100%" stopColor="rgba(245,158,11,0.0)" />
+          <stop offset="0%" stopColor="rgba(255,53,0,0.35)" />
+          <stop offset="100%" stopColor="rgba(255,53,0,0.0)" />
         </linearGradient>
       </defs>
       <path d={area} fill="url(#horaGradDemo)" />
-      <path d={line} fill="none" stroke="rgba(245,158,11,0.85)" strokeWidth="1.5" />
+      <path d={line} fill="none" stroke="rgba(255,53,0,0.85)" strokeWidth="1.5" />
       {pts.map((p, i) => (
         <text key={i} x={p.x} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--fg-subtle)" fontFamily="var(--font-sans)">
           {p.hora}h

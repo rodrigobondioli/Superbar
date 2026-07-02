@@ -2,7 +2,7 @@
 
 /* ═══════════════════════════════════════════════════════════
    SUPERBAR — Design Tokens & Type Scale
-   Sistema: Zinc + Amber · Inter
+   Sistema: Zinc + Laranja (#FF3500) · Inter
    Fonte de verdade: docs/DESIGN.md
    ═══════════════════════════════════════════════════════════ */
 
@@ -23,10 +23,10 @@
   --border-strong:   rgba(0,0,0,0.14);
 
   /* ── Accent ── */
-  --accent:          #F59E0B;
+  --accent:          #FF3500;
   --accent-fg:       #000000;
-  --accent-bright:   #FCD34D;
-  --ring:            #F59E0B;
+  --accent-bright:   #FF5A2C;
+  --ring:            #FF3500;
 
   /* ── Status ── */
   --ok:              #16A34A;  --ok-bg:     rgba(22,163,74,0.10);
@@ -54,37 +54,37 @@
 
 [data-theme="dark"] {
   /* ── Superfícies ── */
-  --bg:              #090909;
-  --bg-elevated:     #0D0D0F;
-  --bg-card:         #111113;
-  --bg-card-hi:      #1A1A1D;
-  --bg-hover:        #1C1C1F;
+  --bg:              #111113;   /* Figma bg/canvas */
+  --bg-elevated:     #1C1C1E;   /* Figma bg/surface */
+  --bg-card:         #1C1C1E;   /* Figma bg/surface */
+  --bg-card-hi:      #242426;   /* Figma bg/surface-raised */
+  --bg-hover:        #242426;   /* Figma bg/surface-raised */
 
   /* ── Texto ── */
-  --fg:              #FFFFFF;
-  --fg-muted:        #8A8A94;
-  --fg-subtle:       #6B6B75;
+  --fg:              #FFFFFF;   /* Figma text/primary */
+  --fg-muted:        #898989;   /* Figma text/muted */
+  --fg-subtle:       #6B6B75;   /* mais escuro que muted (Figma text/subtle #c7c7c7 está invertido — corrigir lá) */
 
   /* ── Bordas ── */
   --border:          #222226;
-  --border-strong:   #2E2E34;
-  --border-accent:   rgba(245,158,11,0.18);
+  --border-strong:   #383839;   /* Figma border/default */
+  --border-accent:   rgba(255,53,0,0.18);
 
   /* ── Accent ── */
-  --accent:          #F59E0B;
-  --accent-fg:       #000000;
-  --accent-bright:   #F59E0B;
+  --accent:          #FF3500;   /* Figma brand/primary */
+  --accent-fg:       #111113;   /* Figma brand/on-brand */
+  --accent-bright:   #D92D00;   /* Figma brand/primary-hover */
   --accent-complement: #FF6F00;
-  --ring:            #F59E0B;
+  --ring:            #FF3500;
 
   /* ── Hero card — Faturamento ── */
-  --bg-hero:         linear-gradient(140deg, rgba(245,158,11,0.07) 0%, #111113 55%);
-  --glow-hero:       rgba(245,158,11,0.10);
+  --bg-hero:         linear-gradient(140deg, rgba(255,53,0,0.07) 0%, #111113 55%);
+  --glow-hero:       rgba(255,53,0,0.10);
 
   /* ── Status ── */
   --ok:              #22C55E;  --ok-bg:     rgba(34,197,94,0.08);
   --warn:            #F59E0B;  --warn-bg:   rgba(245,158,11,0.08);
-  --danger:          #EF4444;  --danger-bg: rgba(239,68,68,0.08);
+  --danger:          #FF3B30;  --danger-bg: rgba(255,59,48,0.08);  /* Figma status/danger */
 
   /* ── AI card surface ── */
   --bg-ai:           linear-gradient(135deg, #141824 0%, #0F1118 100%);
@@ -192,7 +192,7 @@
 
 @layer components {
   .t-display {
-    font-size: 32px; font-weight: 800; line-height: 1.1;
+    font-size: 32px; font-weight: 700; line-height: 1.1;
     letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
   }
   .t-title-lg {
@@ -200,7 +200,7 @@
     letter-spacing: -0.025em;
   }
   .t-title {
-    font-size: 20px; font-weight: 700; line-height: 1.2;
+    font-size: 18px; font-weight: 700; line-height: 1.2;
     letter-spacing: -0.02em;
   }
   .t-heading {
@@ -208,7 +208,7 @@
     letter-spacing: -0.015em;
   }
   .t-body-lg { font-size: 15px; font-weight: 400; line-height: 1.55; }
-  .t-body    { font-size: 14px; font-weight: 400; line-height: 1.55; }
+  .t-body    { font-size: 15px; font-weight: 400; line-height: 1.55; }
   .t-body-sm { font-size: 13px; font-weight: 400; line-height: 1.5;  }
   .t-small   { font-size: 12px; font-weight: 400; line-height: 1.4;  }
   .t-caption { font-size: 11px; font-weight: 400; line-height: 1.35; }

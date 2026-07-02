@@ -44,9 +44,9 @@ const ZIGZAG_BOT =
 
 // ── Color tokens ──────────────────────────────────────────────────────────────
 
-const MODAL_BG   = "#F59E0B";
-const TEXT_MAIN  = "#412402";
-const TEXT_SEC   = "#633806";
+const MODAL_BG   = "#FF3500";
+const TEXT_MAIN  = "#000000";
+const TEXT_SEC   = "#000000";
 const INPUT_BG   = "#FFFFFF";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         <>
           {/* Scoped placeholder + focus styles */}
           <style>{`
-            .sb-field::placeholder { color: #6E5F2B; opacity: 1; }
+            .sb-field::placeholder { color: #555555; opacity: 1; }
             .sb-field:focus { outline: 2px solid ${TEXT_MAIN}; outline-offset: 0; border-color: transparent; }
             .sb-submit:active { transform: scale(0.98); }
             .sb-submit:hover:not(:disabled) { opacity: 0.88; }
@@ -202,7 +202,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                 {!success && (
                   <div style={{
                     padding: "20px 20px 24px",
-                    borderBottom: `1px solid rgba(65,36,2,0.14)`,
+                    borderBottom: `1px solid rgba(0,0,0,0.14)`,
                     display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px",
                   }}>
                     <div>

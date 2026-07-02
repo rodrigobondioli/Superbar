@@ -98,7 +98,7 @@ export default async function Home() {
         {/* Header */}
         <div className="mx-auto mb-10 max-w-4xl px-4 md:mb-16 md:px-8 md:text-center lg:px-14">
           <h2
-            className="mb-4 text-white text-balance md:mb-5 md:whitespace-nowrap"
+            className="mb-4 text-white text-balance md:mb-5 lg:whitespace-nowrap"
             style={{
               fontFamily: "var(--font-sans)",
               fontWeight: 600,
@@ -133,7 +133,7 @@ export default async function Home() {
                 <div key={item.title} className="rounded-2xl p-5 md:p-7" style={{ background: "#1C1C1E", border: "1px solid #2C2C2E" }}>
                   <p
                     className="mb-3 md:mb-4"
-                    style={{ color: "#F59E0B", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "clamp(1.125rem, 3vw, 1.375rem)", lineHeight: 1.2 }}
+                    style={{ color: "#FF3500", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "clamp(1.125rem, 3vw, 1.375rem)", lineHeight: 1.2 }}
                   >
                     {item.title}
                   </p>
@@ -164,7 +164,7 @@ export default async function Home() {
                 <div key={item.title} className="rounded-2xl p-5 md:p-7" style={{ background: "#1C1C1E", border: "1px solid #2C2C2E" }}>
                   <p
                     className="mb-3 md:mb-4"
-                    style={{ color: "#F59E0B", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "clamp(1.125rem, 3vw, 1.375rem)", lineHeight: 1.2 }}
+                    style={{ color: "#FF3500", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "clamp(1.125rem, 3vw, 1.375rem)", lineHeight: 1.2 }}
                   >
                     {item.title}
                   </p>
@@ -223,7 +223,7 @@ export default async function Home() {
                   >
                     <Check
                       className="h-5 w-5 flex-shrink-0"
-                      style={{ color: "#F59E0B" }}
+                      style={{ color: "#FF3500" }}
                       strokeWidth={2.5}
                     />
                     <span

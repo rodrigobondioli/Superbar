@@ -50,10 +50,10 @@ export function BarChart({ data, height = 140, fill = false }: BarChartProps) {
             tick={{ fill: "#A1A1AA", fontSize: 10 }}
           />
           <YAxis hide domain={[0, (max: number) => max * 1.1]} />
-          <Tooltip content={ChartTooltip} cursor={{ fill: "rgba(245,158,11,0.04)" }} />
+          <Tooltip content={ChartTooltip} cursor={{ fill: "rgba(255,53,0,0.04)" }} />
           <Bar
             dataKey="value"
-            fill="#F59E0B"
+            fill="#FF3500"
             radius={[0, 0, 0, 0]}
             isAnimationActive={false}
           />

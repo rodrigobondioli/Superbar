@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const YELLOW = "#F59E0B";
+const YELLOW = "#FF3500";
 const BG = "#111113";
 
 const FAQS = [
@@ -143,7 +143,7 @@ export function FaqSection() {
               Aqui colocamos as perguntas mais comuns e você também pode falar com o nosso time através dos canais abaixo.
             </p>
             {/* Ice cube hidden on mobile to save space */}
-            <div className="hidden lg:block" style={{ animation: "faq-float 3.5s ease-in-out infinite" }}>
+            <div className="hidden lg:block" style={{ animation: "faq-float 3.5s ease-in-out infinite", marginTop: "48px" }}>
               <Image src="/img-lp/cubo-gelo.png" alt="" width={180} height={180} />
             </div>
           </div>

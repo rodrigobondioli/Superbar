@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 /*
   SUPERBAR — Padrão de botões
   ──────────────────────────────────────────────────────────
-  primary      → fundo accent cheio (#F59E0B), texto preto
+  primary      → fundo accent cheio (#FF3500), texto preto
   secondary    → transparente + borda, texto claro
   ghost        → sem fundo nem borda, texto muted
   danger       → fundo danger (#EF4444), texto branco

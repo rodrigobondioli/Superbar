@@ -30,7 +30,7 @@ export default function RecuperarSenhaPage() {
   const inputStyle = (focused: boolean): React.CSSProperties => ({
     width: "100%",
     background: "#111113",
-    border: focused ? "1px solid rgba(245,158,11,0.5)" : "1px solid #2C2C2E",
+    border: focused ? "1px solid rgba(255,53,0,0.5)" : "1px solid #2C2C2E",
     borderRadius: "12px",
     padding: "14px 16px",
     color: "#FAFAFA",
@@ -162,7 +162,7 @@ export default function RecuperarSenhaPage() {
                   style={{
                     marginTop: 8,
                     width: "100%",
-                    background: loading ? "rgba(245,158,11,0.55)" : "#F59E0B",
+                    background: loading ? "rgba(255,53,0,0.55)" : "#FF3500",
                     border: "none",
                     borderRadius: "9999px",
                     padding: "14px 32px",

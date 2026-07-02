@@ -9,7 +9,7 @@ type Item  = Img | Badge;
 
 const ITEMS: Item[] = [
   { id: "badge-orange", type: "badge",
-    text: "Diminuímos o CMV", bg: "#F59E0B", fg: "#000000",
+    text: "Diminuímos o CMV", bg: "#FF3500", fg: "#000000",
     left: "50%", top: "30%", speedY: 90, speedX: -35, rot: -12, z: 3, centerX: true,
     float: "float-badge-a", delay: "0s" },
 

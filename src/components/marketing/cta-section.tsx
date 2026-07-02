@@ -12,7 +12,7 @@ export function CtaSection() {
   return (
     <section
       className="relative flex items-center justify-center overflow-hidden py-28 md:min-h-[80vh] md:py-0"
-      style={{ background: "#F59E0B" }}
+      style={{ background: "#FF3500" }}
     >
       {/* Serrilhado topo */}
       <div className="absolute left-0 right-0 top-0" style={{ lineHeight: 0 }}>
