@@ -1,15 +1,4 @@
-import { AlertCircle, Gauge, Star } from "lucide-react";
-import { TrendText } from "@/components/ui/trend-text";
-import { BarChart } from "@/components/ui/bar-chart";
-import { CategoriaBadge } from "@/components/dashboard/categoria-badge";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
-import { StatusBanner } from "@/components/dashboard/status-banner";
-import { LiveBar } from "@/components/dashboard/live-bar";
-import { ProximaMelhorAcao } from "@/components/dashboard/proxima-melhor-acao";
-import { DashCard } from "@/components/dashboard/dash-card";
-import { CardOverline } from "@/components/dashboard/card-overline";
-import { cn } from "@/lib/utils";
-import type { PontoPico } from "@/lib/dashboard/operacao";
 import {
   getCurrentBar,
   getTurnoAtual,
@@ -35,68 +24,30 @@ import {
   getTempoMedioPreparo,
   calcularPico,
   gerarInsightsOperacionais,
-  labelMetodo,
 } from "@/lib/dashboard/operacao";
 
 const TOP_DRINKS_LIMIT = 5;
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
 const dataLongaFmt = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
-function VendasPorHoraChart({ pontos }: { pontos: PontoPico[] }) {
-  if (pontos.length < 2) return null;
-  const W = 600, H = 160, padL = 4, padR = 4, padT = 8, padB = 24;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
-  const maxVal = Math.max(...pontos.map(p => p.drinks), 1);
-  const n = pontos.length;
-  const maxIdx = pontos.reduce((mi, p, i, arr) => p.drinks > arr[mi].drinks ? i : mi, 0);
-  const pts = pontos.map((p, i) => ({
-    x: padL + (i / (n - 1)) * chartW,
-    y: padT + chartH - (p.drinks / maxVal) * chartH,
-  }));
-  // Catmull-Rom cubic bezier
-  const tension = 0.4;
-  let linePath = `M ${pts[0].x.toFixed(2)},${pts[0].y.toFixed(2)}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(0, i - 1)];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[Math.min(pts.length - 1, i + 2)];
-    const cp1x = p1.x + (p2.x - p0.x) * tension / 3;
-    const cp1y = p1.y + (p2.y - p0.y) * tension / 3;
-    const cp2x = p2.x - (p3.x - p1.x) * tension / 3;
-    const cp2y = p2.y - (p3.y - p1.y) * tension / 3;
-    linePath += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
-  }
-  const areaClose = `V ${(padT + chartH).toFixed(1)} H ${padL} Z`;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "100%", display: "block" }} preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${linePath} ${areaClose}`} fill="url(#chartGrad)" />
-      <path d={linePath} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={pts[maxIdx].x.toFixed(2)} cy={pts[maxIdx].y.toFixed(2)} r="4" fill="var(--accent)" opacity="0.9" />
-      {pontos.map((p, i) => {
-        const show = i === 0 || i === n - 1 || i === maxIdx || i % Math.ceil(n / 5) === 0;
-        if (!show) return null;
-        return (
-          <text key={i} x={pts[i].x.toFixed(2)} y={H - 4} textAnchor="middle" fontSize="9" fill="var(--fg-subtle)" fontFamily="Inter, sans-serif">
-            {p.hora}h
-          </text>
-        );
-      })}
-    </svg>
-  );
-}
-
 function capitalizarPrimeiraLetra(texto: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+// Delta vs. período anterior (▲/▼ + cor semântica). invert=true → subir é ruim (ex: CMV).
+function DeltaRow({ value, invert = false }: { value: number | null | undefined; invert?: boolean }) {
+  if (value === null || value === undefined) return null;
+  const up = value >= 0;
+  const good = invert ? !up : up;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
+      <span style={{ color: good ? "var(--ok)" : "var(--danger)", fontSize: 11, lineHeight: 1 }}>{up ? "▲" : "▼"}</span>
+      <span style={{ color: "var(--fg-muted)" }}>
+        {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
+      </span>
+    </div>
+  );
 }
 
 const sectionLabel: React.CSSProperties = {
@@ -126,6 +77,18 @@ const card: React.CSSProperties = {
   borderRadius: "16px",
   padding: "20px 24px",
 };
+
+const kpiCard: React.CSSProperties = {
+  background: "var(--bg-card)",
+  border: "1px solid var(--border)",
+  borderRadius: 24,
+  padding: "28px 32px 32px",
+  display: "flex",
+  flexDirection: "column",
+};
+const kpiLabel: React.CSSProperties = { fontSize: 15, color: "var(--fg-muted)" };
+const kpiMetric: React.CSSProperties = { fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1.05, marginTop: 8 };
+const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "16px 0 12px" };
 
 export default async function DashboardPage() {
   const current = await getCurrentBar();
@@ -608,350 +571,123 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* ══ ROW 1: KPI STRIP ══════════════════════════════════════════════ */}
-      <LiveBar
-        turnoId={turno.id}
-        barId={current.bar.id}
-        faturamentoInicial={kpis.faturamento}
-        pessoasInicial={kpis.comandasAbertas}
-        drinksInicial={liveStats.drinks}
-        margemEstimada={cmvAtual}
-        comparacaoFaturamento={comparacao.faturamento}
-        comparacaoTicket={comparacao.ticketMedio}
-        comparacaoCmv={comparacao.cmv}
-        cmvParcial={cmvParcial}
-        metaProgresso={metaProgresso}
-        metaFalta={metaFalta}
-        metaAtingida={metaAtingida}
-        meta={meta}
-        historicoFaturamento={historicoTurnos?.faturamento}
-        historicoTicket={historicoTurnos?.ticketMedio}
-      />
+      {/* ══ ROW 1: KPI CARDS (Figma) ═════════════════════════════════════ */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 24 }}>
 
-      {/* ══ ROW 2: MAIN BENTO ═════════════════════════════════════════════ */}
-      <div style={{
-        flex: 1,
-        display: "grid",
-        gridTemplateColumns: "1.5fr 1fr 1fr",
-        gap: 12,
-        minHeight: 0,
-      }}>
-
-        {/* ── COL A: Dinheiro Entrando ─────────────────────────────── */}
-        <div style={{
-          background: "var(--bg-card-hi)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-2xl)",
-          padding: "24px 28px",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          minHeight: 0,
-        }}>
-          <div style={{ flexShrink: 0, marginBottom: 12 }}>
-            <span style={sectionLabel}>Dinheiro Entrando</span>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.025em", lineHeight: 1.2, margin: "4px 0 4px" }}>
-              Receita do turno
-            </h2>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
-              Faturamento por hora desde a abertura.
-              {pico && <span style={{ marginLeft: 8, color: "var(--fg-muted)" }}>Pico às {pico.hora}h</span>}
-            </p>
+        {/* Faturado no turno */}
+        <div style={kpiCard}>
+          <span style={kpiLabel}>Faturado no turno</span>
+          <span style={kpiMetric}>{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
+          <div style={{ marginTop: 10 }}><DeltaRow value={comparacao.faturamento} /></div>
+          <div style={kpiDivider} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <span style={kpiLabel}>Meta Mensal - {Math.round(meta).toLocaleString("pt-BR")}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)" }}>{metaProgresso}%</span>
           </div>
-
-          {/* Chart */}
-          <div style={{ flex: 1, minHeight: 80 }}>
-            {pontosHora.length >= 2 ? (
-              <VendasPorHoraChart pontos={pontosHora} />
-            ) : (
-              <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, textAlign: "center" }}>
-                  O movimento por hora aparece aqui em tempo real.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Sub-stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 14, flexShrink: 0 }}>
-            {[
-              { label: "Até agora", value: currency.format(kpis.faturamento) },
-              { label: "Drinks", value: String(liveStats.drinks) },
-              { label: pico ? "Pico previsto" : "Mesas abertas", value: pico ? `${pico.hora}h` : String(kpis.comandasAbertas) },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "10px 12px" }}>
-                <span style={{ display: "block", fontSize: 9, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>{label}</span>
-                <span style={{ display: "block", fontSize: 17, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.025em" }}>{value}</span>
-              </div>
-            ))}
+          <div style={{ height: 4, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 8 }}>
+            <div style={{ height: 4, borderRadius: 999, background: "var(--accent)", width: `${metaProgresso}%` }} />
           </div>
         </div>
 
-        {/* ── COL B: Saúde do Dinheiro ─────────────────────────────── */}
-        <div style={{
-          background: "var(--bg-card-hi)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-2xl)",
-          padding: "24px 28px",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          minHeight: 0,
-        }}>
-          <div style={{ flexShrink: 0, marginBottom: 16 }}>
-            <span style={sectionLabel}>Controle Real</span>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.025em", lineHeight: 1.2, margin: "4px 0 4px" }}>
-              Saúde do dinheiro
-            </h2>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
-              Faturamento não paga conta sozinho.
-            </p>
-          </div>
-
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}>
-
-            {/* CMV */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>CMV atual</span>
-                <span style={{
-                  fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums",
-                  color: cmvAtual === null ? "var(--fg)" : cmvAtual < 36 ? "var(--ok)" : cmvAtual < 42 ? "var(--warn)" : "var(--danger)",
-                }}>
-                  {cmvAtual !== null ? `${cmvAtual.toFixed(1)}%` : "—"}
-                </span>
-              </div>
-              <div style={{ height: 5, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-                <div style={{
-                  height: 5, borderRadius: 3, transition: "width 0.6s",
-                  background: cmvAtual === null ? "var(--border-strong)" : cmvAtual < 36 ? "var(--ok)" : cmvAtual < 42 ? "var(--warn)" : "var(--danger)",
-                  width: cmvAtual !== null ? `${Math.min((cmvAtual / 60) * 100, 100)}%` : "0%",
-                }} />
-              </div>
-              <span style={{ display: "block", fontSize: 10, color: "var(--fg-subtle)", marginTop: 4 }}>
-                {cmvAtual !== null
-                  ? cmvAtual < 30 ? "Excelente · abaixo do alvo" : cmvAtual < 36 ? "Saudável · dentro do ideal" : cmvAtual < 42 ? "Atenção · revisar fichas técnicas" : "Crítico · ação imediata"
-                  : cmvParcial ? "Estimativa parcial (sem fichas técnicas)" : "Sem dados de custo"}
-              </span>
-            </div>
-
-            {/* Margem */}
-            {cmvAtual !== null && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Margem bruta</span>
-                  <span style={{ fontSize: 16, fontWeight: 700, color: "var(--ok)", fontVariantNumeric: "tabular-nums" }}>
-                    {(100 - cmvAtual).toFixed(1)}%
-                  </span>
-                </div>
-                <div style={{ height: 5, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ height: 5, borderRadius: 3, background: "var(--ok)", width: `${Math.min(100 - cmvAtual, 100)}%`, transition: "width 0.6s" }} />
-                </div>
-                <span style={{ display: "block", fontSize: 10, color: "var(--fg-subtle)", marginTop: 4 }}>
-                  {currency.format(kpis.faturamento * (1 - cmvAtual / 100))} estimados neste turno
-                </span>
-              </div>
-            )}
-
-            {/* Meta do mês */}
-            {meta > 0 && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Meta do mês</span>
-                  <span style={{ fontSize: 16, fontWeight: 700, color: metaAtingida ? "var(--ok)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                    {metaProgresso}%
-                  </span>
-                </div>
-                <div style={{ height: 5, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ height: 5, borderRadius: 3, background: metaAtingida ? "var(--ok)" : "var(--accent)", width: `${Math.min(metaProgresso, 100)}%`, transition: "width 0.6s" }} />
-                </div>
-                <span style={{ display: "block", fontSize: 10, color: "var(--fg-subtle)", marginTop: 4 }}>
-                  {metaAtingida ? "Meta atingida!" : `faltam ${currency.format(metaFalta)}`}
-                </span>
-              </div>
-            )}
-
-            {/* Cortesias */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Cortesias</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: cortesiaPct > 5 ? "var(--warn)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                  {cortesiaPct.toFixed(1)}%
-                </span>
-              </div>
-              <div style={{ height: 5, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-                <div style={{ height: 5, borderRadius: 3, background: cortesiaPct > 5 ? "var(--warn)" : "var(--fg-subtle)", width: `${Math.min(cortesiaPct * 10, 100)}%`, transition: "width 0.6s" }} />
-              </div>
-              <span style={{ display: "block", fontSize: 10, color: "var(--fg-subtle)", marginTop: 4 }}>
-                {cortesiaPct > 5 ? "Acima de 5% · atenção ao controle" : "Dentro do tolerável"}
-              </span>
-            </div>
-
-          </div>
+        {/* Margem */}
+        <div style={kpiCard}>
+          <span style={kpiLabel}>Margem</span>
+          <span style={kpiMetric}>{cmvAtual !== null ? `${100 - cmvAtual}%` : "—"}</span>
+          <div style={kpiDivider} />
+          <span style={{ fontSize: 15, fontWeight: 500, color: cmvCorVeredito }}>{cmvVeredito}</span>
         </div>
 
-        {/* ── COL C: AI — Próxima Melhor Ação ─────────────────────── */}
-        {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? (
-          <ProximaMelhorAcao
-            produtoNome={produtosTop5[0].produtoNome}
-            margemPercentual={produtosTop5[0].margemPercentual}
-            faturamento={produtosTop5[0].faturamento}
-            quantidadeVendida={produtosTop5[0].quantidadeVendida}
-            categoria={produtosTop5[0].categoria}
-            impactoEstimado={typeof impactoEstimado === "number" && impactoEstimado > 0 ? impactoEstimado : null}
-          />
-        ) : (
-          <div style={{
-            background: "var(--bg-ai)",
-            border: "1px solid var(--border-ai)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "20px 24px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            gap: 10,
-          }}>
-            <span style={sectionLabel}>Próxima Melhor Ação</span>
-            <p style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.025em", margin: 0 }}>
-              Ação agora
-            </p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
-              Aparece quando houver dados suficientes de margem no turno.
-            </p>
-            <a href="/dashboard/inteligencia" style={{ fontSize: 11, color: "var(--fg-subtle)", textDecoration: "none", marginTop: 4 }}>
-              Ver inteligência →
-            </a>
-          </div>
-        )}
+        {/* Custo (CMV) */}
+        <div style={kpiCard}>
+          <span style={kpiLabel}>Custo (CMV)</span>
+          <span style={kpiMetric}>{cmvAtual !== null ? `${cmvAtual}%` : "—"}</span>
+          <div style={kpiDivider} />
+          <DeltaRow value={comparacao.cmv} invert />
+        </div>
 
+        {/* Ticket Médio */}
+        <div style={kpiCard}>
+          <span style={kpiLabel}>Ticket Médio</span>
+          <span style={kpiMetric}>{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
+          <div style={kpiDivider} />
+          <DeltaRow value={comparacao.ticketMedio} />
+        </div>
       </div>
 
-      {/* ══ ROW 3: BOTTOM STRIP ═══════════════════════════════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, flexShrink: 0 }}>
-
-        {/* Verdade ou Silêncio */}
-        <div style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-2xl)",
-          padding: "14px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <AlertCircle size={12} color="var(--fg-subtle)" opacity={0.7} />
-            <span style={sectionLabel}>Verdade ou Silêncio</span>
+      {/* ══ ROW 2: STAT PILLS ════════════════════════════════════════════ */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        {[
+          { label: "Drinks no turno", value: String(liveStats.drinks) },
+          { label: "Mesas abertas", value: String(kpis.comandasAbertas) },
+          { label: "Fila atual", value: `${filaAtual} ${filaAtual === 1 ? "pedido" : "pedidos"}` },
+          { label: "Ticket médio", value: currency.format(kpis.ticketMedio) },
+        ].map((s) => (
+          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontSize: 15, color: "var(--fg-muted)" }}>{s.label}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
           </div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: temAlertas ? "var(--danger)" : "var(--fg)", letterSpacing: "-0.02em", margin: 0 }}>
-            {temAlertas ? "Atenção" : "Tudo certo"}
-          </p>
-          <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
-            {temAlertas
-              ? [
-                  alertas.length > 0 ? `${alertas.length} item${alertas.length > 1 ? "s" : ""} de estoque` : null,
-                  alertasAction.length > 0 ? `${alertasAction.length} alerta${alertasAction.length > 1 ? "s" : ""} AI` : null,
-                ].filter(Boolean).join(" · ")
-              : "Nenhum alerta crítico neste turno."}
-          </p>
-          {temAlertas && (
-            <a href="/dashboard/estoque" style={{ fontSize: 10, color: "var(--fg-subtle)", textDecoration: "none", marginTop: 2 }}>
-              Ver detalhes →
-            </a>
+        ))}
+      </div>
+
+      {/* ══ ROW 3: AI + SUPER AÇÃO (esq) · TOP DRINKS (dir) ═══════════════ */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 24, alignItems: "start" }}>
+
+        {/* LEFT column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+          <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
+
+          {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center" }}>
+              <div>
+                <span style={sectionLabel}>Super ação</span>
+                <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "8px 0 12px" }}>{produtosTop5[0].produtoNome}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
+                  <span style={{ color: "var(--ok)", fontSize: 11 }}>▲</span>
+                  <span style={{ color: "var(--fg-muted)" }}>{produtosTop5[0].margemPercentual}% de margem</span>
+                </div>
+              </div>
+              <div>
+                <span style={sectionLabel}>Impacto direto</span>
+                <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "8px 0 16px", lineHeight: 1.5 }}>Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
+                {impactoEstimado !== null && (
+                  <div style={{ display: "inline-flex", alignItems: "baseline", gap: 6, background: "var(--bg-card-hi)", borderRadius: 12, padding: "12px 16px" }}>
+                    <span style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{Math.round(impactoEstimado).toLocaleString("pt-BR")}</span>
+                    <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>reais</span>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Gargalo Operacional */}
-        <div style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-2xl)",
-          padding: "14px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Gauge size={12} color="var(--fg-subtle)" opacity={0.7} />
-            <span style={sectionLabel}>Gargalo Operacional</span>
-          </div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", margin: "0 0 4px" }}>
-            Operação ao vivo
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {tempos.mediaMinutos !== null && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Preparo médio</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                  {tempos.mediaMinutos}m
-                </span>
-              </div>
-            )}
-            {filaAtual > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Fila atual</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: filaAtual > 8 ? "var(--danger)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                  {filaAtual} pedidos
-                </span>
-              </div>
-            )}
-            {kpis.comandasAbertas > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Mesas abertas</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-                  {kpis.comandasAbertas}
-                </span>
-              </div>
-            )}
-            {tempos.mediaMinutos === null && filaAtual === 0 && kpis.comandasAbertas === 0 && (
-              <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>Dados aparecem com os primeiros pedidos.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Menu Engineering */}
-        <div style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-2xl)",
-          padding: "14px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-          overflow: "hidden",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Star size={12} color="var(--fg-subtle)" opacity={0.7} />
-            <span style={sectionLabel}>Menu Engineering</span>
-          </div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", margin: "0 0 4px" }}>
-            Produtos e margem
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {produtosTop5.slice(0, 3).map((p, i) => (
-              <div key={p.produtoId} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 10, color: "var(--fg-subtle)", width: 12, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
-                <span style={{ flex: 1, fontSize: 12, color: "var(--fg)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {p.produtoNome}
-                </span>
-                {p.margemPercentual !== null && (
-                  <span style={{
-                    fontSize: 11, fontWeight: 700, flexShrink: 0, fontVariantNumeric: "tabular-nums",
-                    color: p.margemPercentual > 60 ? "var(--ok)" : p.margemPercentual > 40 ? "var(--warn)" : "var(--danger)",
-                  }}>
-                    {p.margemPercentual.toFixed(0)}%
-                  </span>
-                )}
-              </div>
-            ))}
+        {/* RIGHT: Top drinks */}
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 28px 28px", display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: 15, color: "var(--fg)", fontWeight: 600, marginBottom: 16 }}>Top drinks do turno</span>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {produtosTop5.slice(0, 6).map((p, i) => {
+              const max = produtosTop5[0]?.faturamento || 1;
+              const last = i >= Math.min(produtosTop5.length, 6) - 1;
+              return (
+                <div key={p.produtoNome + i} style={{ padding: "12px 0", borderBottom: last ? "none" : "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                    <span style={{ fontSize: 15, color: "var(--fg)" }}><span style={{ color: "var(--fg-subtle)", marginRight: 10 }}>{i + 1}</span>{p.produtoNome}</span>
+                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                  </div>
+                  <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
+                    <div style={{ height: 3, borderRadius: 999, background: "var(--accent)", width: `${Math.max(4, Math.round((p.faturamento / max) * 100))}%` }} />
+                  </div>
+                </div>
+              );
+            })}
             {produtosTop5.length === 0 && (
-              <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>Nenhum produto vendido ainda.</p>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>Sem vendas registradas ainda.</p>
             )}
           </div>
+          <a href={`/dashboard/turnos/${turno.id}`} style={{ marginTop: 16, alignSelf: "flex-start", padding: "10px 20px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</a>
         </div>
-
       </div>
+
     </div>
   );
 }
