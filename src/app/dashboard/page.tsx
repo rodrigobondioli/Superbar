@@ -42,6 +42,7 @@ const TOP_DRINKS_LIMIT = 5;
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
+const dataLongaFmt = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
 function VendasPorHoraChart({ pontos }: { pontos: PontoPico[] }) {
   if (pontos.length < 2) return null;
@@ -558,14 +559,54 @@ export default async function DashboardPage() {
 
   return (
     <div style={{
-      height: "100%",
       display: "flex",
       flexDirection: "column",
-      padding: "16px 32px 20px",
-      gap: 12,
-      overflow: "hidden",
+      padding: "24px 32px 48px",
+      gap: 24,
       boxSizing: "border-box",
     }}>
+
+      {/* ══ TOP BAR: data + saudação ═════════════════════════════════════ */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+        <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+          {capitalizarPrimeiraLetra(dataLongaFmt.format(agora))}
+        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Olá, {current.userNome}</span>
+          <div style={{ position: "relative", width: 48, height: 48, flexShrink: 0 }}>
+            {current.userAvatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={current.userAvatarUrl} alt="" width={48} height={48} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
+            ) : (
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 600, color: "var(--fg)" }}>
+                {current.userNome.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+            {inteligencia.stage === 2 && inteligencia.insightsNaoLidos > 0 && (
+              <span style={{ position: "absolute", top: -2, right: -2, minWidth: 20, height: 20, padding: "0 5px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bg)" }}>
+                {inteligencia.insightsNaoLidos > 99 ? "99+" : inteligencia.insightsNaoLidos}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* divisória */}
+      <div style={{ height: 1, background: "var(--border-strong)", marginTop: -8, marginBottom: -8 }} />
+
+      {/* ══ HEADER: Operação ao vivo + períodos ══════════════════════════ */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", fontSize: 13, color: "var(--fg-muted)" }}>vs. sem. passada ▾</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 500 }}>Hoje</span>
+          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>Ontem</span>
+          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>7 dias</span>
+          <a href="/dashboard/relatorios" style={{ padding: "8px 16px", fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>Ver relatório completo</a>
+        </div>
+      </div>
 
       {/* ══ ROW 1: KPI STRIP ══════════════════════════════════════════════ */}
       <LiveBar
