@@ -82,18 +82,8 @@ function StatusPill({ status }: { status: AssinaturaStatus | null }) {
   if (!status) return <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>—</span>;
   const cfg = STATUS_CONFIG[status];
   return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "3px 9px", borderRadius: 99,
-      border: `1px solid ${cfg.border}`,
-      background: cfg.bg,
-      fontSize: 11, fontWeight: 600, color: cfg.color,
-      letterSpacing: "0.02em", whiteSpace: "nowrap",
-    }}>
-      <span style={{
-        width: 5, height: 5, borderRadius: "50%", background: cfg.color, flexShrink: 0,
-        ...(status === "ativa" ? { boxShadow: `0 0 6px ${cfg.color}` } : {}),
-      }} />
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", whiteSpace: "nowrap" }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.color, flexShrink: 0 }} />
       {STATUS_LABEL[status]}
     </span>
   );
@@ -163,7 +153,6 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
           <thead>
             <tr>
               <th style={{ ...thStyle, paddingLeft: 0 }}>Bar</th>
-              <th style={thStyle}>Saúde</th>
               <th style={thStyle}>Último uso</th>
               <th style={{ ...thStyle, textAlign: "right" }}>Faturamento mês</th>
               <th style={{ ...thStyle, textAlign: "right" }}>Ticket médio</th>
@@ -208,21 +197,10 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                     </div>
                   </td>
 
-                  {/* Saúde */}
-                  <td style={{ padding: "12px 16px", borderBottom: "1px solid var(--border-strong)" }}>
-                    <HealthBadge score={bar.healthScore} alertas={bar.alertas} />
-                  </td>
-
                   {/* Último uso */}
                   <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      <span style={{
-                        fontSize: 13,
-                        color: bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "var(--warn)"
-                              : bar.dias_sem_uso !== null && bar.dias_sem_uso >= 3 ? "var(--fg-muted)"
-                              : "var(--fg)",
-                        fontFamily: "var(--font-mono)",
-                      }}>
+                      <span style={{ fontSize: 13, color: "var(--fg)" }}>
                         {relDate(bar.ultimo_turno_em)}
                       </span>
                       {bar.total_turnos > 0 && (
@@ -285,20 +263,11 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)", textAlign: "right" }}>
                     {bar.cmv_pct !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
-                        <span style={{
-                          fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em",
-                          color: bar.cmv_pct <= 30 ? "var(--ok)" : bar.cmv_pct <= 38 ? "var(--warn)" : "var(--danger)",
-                        }}>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>
                           CMV {bar.cmv_pct.toFixed(1)}%
                         </span>
                         {bar.margem_pct !== null && (
-                          <span style={{
-                            fontSize: 12, fontWeight: 600,
-                            color: bar.margem_confiavel
-                              ? (bar.margem_pct >= 65 ? "var(--ok)" : bar.margem_pct >= 55 ? "var(--warn)" : "var(--danger)")
-                              : "var(--fg-subtle)",
-                            display: "flex", alignItems: "center", gap: 3,
-                          }}>
+                          <span style={{ fontSize: 13, color: "var(--fg-muted)", display: "flex", alignItems: "center", gap: 3 }}>
                             {!bar.margem_confiavel && <span title="Cobertura de custo abaixo de 60% — dado estimado" style={{ opacity: 0.7 }}>⚠</span>}
                             Margem {bar.margem_pct.toFixed(1)}%
                           </span>

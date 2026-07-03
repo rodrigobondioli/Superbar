@@ -35,12 +35,10 @@ export default async function AdminLayout({
         style={{
           flex: 1,
           overflow: "auto",
-          padding: "36px 40px",
+          padding: "32px 40px",
         }}
       >
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );
