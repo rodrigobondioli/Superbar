@@ -239,7 +239,7 @@ function MembroItem({
       onDragEnter={onDragEnter}
       onDragEnd={onDragEnd}
       onDragOver={e => e.preventDefault()}
-      className="flex flex-row items-center gap-3 px-4 py-3.5 lg:grid lg:grid-cols-[20px_1fr_160px_80px_88px] lg:gap-3 lg:px-[18px] lg:py-[13px]"
+      className="flex flex-row items-center gap-3 px-4 py-3.5 lg:grid lg:grid-cols-[20px_1fr_160px_88px] lg:gap-3 lg:px-[18px] lg:py-[13px]"
       style={{
         opacity: isDragging ? 0.4 : m.ativo ? 1 : 0.5,
         cursor: isDono ? "grab" : "default",
@@ -321,18 +321,10 @@ function MembroItem({
           </button>
         </div>
       ) : (
-        <span style={{
-          fontSize: 10, fontWeight: 600, padding: "2px 10px", borderRadius: 20,
-          background: "color-mix(in srgb, var(--accent) 14%, transparent)", color: "var(--accent)", display: "inline-block",
-        }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--fg-muted)" }}>
           {ROLE_LABELS[m.role]}
         </span>
       )}
-
-      {/* Vendas — desktop only */}
-      <span className="hidden lg:block" style={{ fontSize: 12, color: "var(--fg-muted)", textAlign: "right", fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-mono)" }}>
-        {m.totalComandas > 0 ? fmt(m.totalVendas) : "—"}
-      </span>
 
       {/* Ações */}
       {canEdit ? (
@@ -427,17 +419,15 @@ export function EquipeMembros({
 
       {/* Membros ativos */}
       <div>
-        <p style={{ ...LABEL, marginBottom: 12 }}>Membros ativos</p>
-        <div style={{ ...CARD, overflow: "hidden" }}>
+        <div>
           {/* Col header — desktop only */}
           <div
-            className="hidden lg:grid lg:grid-cols-[20px_1fr_160px_80px_88px] gap-3 px-[18px] py-[10px] border-b"
-            style={{ borderColor: "var(--border)" }}
+            className="hidden lg:grid lg:grid-cols-[20px_1fr_160px_88px] gap-3 px-[18px] pb-4 border-b"
+            style={{ borderColor: "var(--border-strong)" }}
           >
             <span />
-            <span style={lbl}>Nome</span>
-            <span style={lbl}>Função</span>
-            <span style={{ ...lbl, textAlign: "right" }}>Vendas</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)" }}>Membro</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)" }}>Função</span>
             <span />
           </div>
 
@@ -448,7 +438,7 @@ export function EquipeMembros({
           )}
 
           {localAtivos.map((m, i) => (
-            <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+            <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border-strong)" : undefined }}>
               <MembroItem
                 m={m}
                 isDono={isDono}
@@ -470,7 +460,7 @@ export function EquipeMembros({
           <p style={{ ...LABEL, marginBottom: 12, color: "var(--fg-subtle)" }}>Sem acesso</p>
           <div style={{ ...CARD, overflow: "hidden" }}>
             {inativos.map((m, i) => (
-              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+              <div key={m.id} style={{ borderTop: i > 0 ? "1px solid var(--border-strong)" : undefined }}>
                 <MembroItem
                   m={m}
                   isDono={isDono}

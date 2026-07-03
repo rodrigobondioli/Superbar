@@ -46,24 +46,25 @@ export const CARD: CSSProperties = {
 };
 
 /* ── Botões ── */
+// Padrão SUPERBAR: botão é pill (rounded-full). Ver DESIGN.md.
 export const BTN_PRIMARY: CSSProperties = {
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: "var(--radius-md)",
-  padding: "9px 18px",
-  fontSize: 13,
-  fontWeight: 600,
+  borderRadius: 999,
+  padding: "10px 24px",
+  fontSize: 14,
+  fontWeight: 500,
   cursor: "pointer",
   whiteSpace: "nowrap",
 };
 export const BTN_SECONDARY: CSSProperties = {
   background: "transparent",
-  color: "var(--fg-muted)",
+  color: "var(--fg)",
   border: "1px solid var(--border-strong)",
-  borderRadius: "var(--radius-md)",
-  padding: "9px 18px",
-  fontSize: 13,
+  borderRadius: 999,
+  padding: "10px 24px",
+  fontSize: 14,
   fontWeight: 500,
   cursor: "pointer",
   whiteSpace: "nowrap",
