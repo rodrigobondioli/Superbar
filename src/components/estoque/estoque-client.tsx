@@ -345,52 +345,47 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                 </button>
               </div>
 
-              {/* Lista de compra */}
+              {/* Lista de compra — linhas estilo Figma */}
               <div style={{
-                background: "var(--bg-elevated)",
+                background: "var(--bg-card)",
                 border: "1px solid var(--border)",
-                borderRadius: 4, overflow: "hidden",
+                borderRadius: 16, overflow: "hidden",
               }}>
                 {alertas.map((item, i) => {
                   const sugerida = calcularSugerida(item);
+                  const critico = item.quantidadeAtual <= 0;
+                  const cor = critico ? "var(--danger)" : "var(--warn)";
                   return (
                     <div key={item.id} style={{
                       display: "flex", alignItems: "center", gap: 16,
-                      padding: "14px 20px",
-                      borderBottom: i < alertas.length - 1 ? "1px solid var(--border)" : "none",
+                      padding: "16px 24px",
+                      borderBottom: i < alertas.length - 1 ? "1px solid var(--border-strong)" : "none",
                     }}>
-                      {/* Esquerda: nome + info */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", display: "block" }}>
-                          {item.produtoNome}
-                        </span>
-                        <span style={{ fontSize: 11, color: "var(--fg-subtle)", display: "block", marginTop: 2 }}>
-                          atual {fmtQtd(item.quantidadeAtual)} · mín {fmtQtd(item.quantidadeMinima)}
-                        </span>
+                      {/* Esquerda: dot + nome + status */}
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0 }} />
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {item.produtoNome}
+                          </span>
+                          <span style={{ fontSize: 13, display: "block", marginTop: 2 }}>
+                            <span style={{ color: cor }}>{fmtQtd(item.quantidadeAtual)}</span>
+                            <span style={{ color: "var(--fg-muted)" }}> em estoque · mínimo {fmtQtd(item.quantidadeMinima)}</span>
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Direita: qtd sugerida + botão */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                        <span style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)", whiteSpace: "nowrap" }}>
-                          {fmtQtd(sugerida)}
-                          <span style={{ fontSize: 11, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>
-                            {item.unidade}
-                          </span>
-                        </span>
-                        <button
-                          onClick={() => setModalItem(item)}
-                          style={{
-                            background: "var(--accent-bright)",
-                            color: "#000",
-                            border: "none",
-                            borderRadius: 6, padding: "7px 14px",
-                            fontSize: 13, fontWeight: 600, cursor: "pointer",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Dar entrada
-                        </button>
-                      </div>
+                      {/* Direita: Comprar N un (abre modal) */}
+                      <button
+                        onClick={() => setModalItem(item)}
+                        style={{
+                          background: "none", border: "none", padding: 0, cursor: "pointer",
+                          fontSize: 15, fontWeight: 500, color: "var(--fg)", whiteSpace: "nowrap", flexShrink: 0,
+                        }}
+                        className="hover:!text-[var(--accent)]"
+                      >
+                        Comprar {fmtQtd(sugerida)} {item.unidade}
+                      </button>
                     </div>
                   );
                 })}
