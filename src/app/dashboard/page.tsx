@@ -542,34 +542,6 @@ export default async function DashboardPage() {
       boxSizing: "border-box",
     }}>
 
-      {/* ══ TOP BAR: data + saudação ═════════════════════════════════════ */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-        <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-          {capitalizarPrimeiraLetra(dataLongaFmt.format(agora))}
-        </span>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Olá, {current.userNome}</span>
-          <div style={{ position: "relative", width: 48, height: 48, flexShrink: 0 }}>
-            {current.userAvatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={current.userAvatarUrl} alt="" width={48} height={48} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
-            ) : (
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 600, color: "var(--fg)" }}>
-                {current.userNome.slice(0, 1).toUpperCase()}
-              </div>
-            )}
-            {inteligencia.stage === 2 && inteligencia.insightsNaoLidos > 0 && (
-              <span style={{ position: "absolute", top: -2, right: -2, minWidth: 20, height: 20, padding: "0 5px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bg)" }}>
-                {inteligencia.insightsNaoLidos > 99 ? "99+" : inteligencia.insightsNaoLidos}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* divisória */}
-      <div style={{ height: 1, background: "var(--border-strong)", marginTop: -8, marginBottom: -8 }} />
-
       {/* ══ HEADER: Operação ao vivo + períodos ══════════════════════════ */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -701,11 +673,11 @@ export default async function DashboardPage() {
               return (
                 <div key={p.produtoNome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-                    <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
+                    <span style={{ fontSize: 13, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
                       <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
                       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.produtoNome}</span>
                     </span>
-                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                    <span style={{ fontSize: 13, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
                   </div>
                   <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
                     <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%` }} />

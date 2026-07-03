@@ -192,6 +192,19 @@ export function DashboardSidebar({
         {/* Configurações / Suporte / Sugestão — só expandido */}
         {!collapsed && (
           <div style={{ padding: touchMode ? "8px 12px 16px" : "8px 10px 12px" }}>
+            {!touchMode && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 10px 10px" }}>
+                {userAvatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={userAvatarUrl} alt={userNome} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0, display: "block" }} />
+                ) : (
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "var(--fg)", flexShrink: 0 }}>
+                    {userNome.slice(0, 1).toUpperCase()}
+                  </div>
+                )}
+                <span style={{ fontSize: 13, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userNome}</span>
+              </div>
+            )}
             {!touchMode && bar && barId && userId && (
               <SettingsButton
                 linkMode
