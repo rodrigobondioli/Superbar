@@ -666,14 +666,12 @@ export default async function DashboardPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: 167 }}>
                 <span style={superLabel}>Impacto direto</span>
                 {impactoEstimado !== null && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                       <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
                       <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>reais</span>
                     </div>
-                    <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: "12px 16px" }}>
-                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
-                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                   </div>
                 )}
               </div>
