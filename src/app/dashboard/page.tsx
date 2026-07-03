@@ -1,5 +1,6 @@
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
+import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
 import {
   getCurrentBar,
   getTurnoAtual,
@@ -96,7 +97,10 @@ const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeig
 const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginBottom: 11 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ periodo?: string }> }) {
+  const sp = await searchParams;
+  const periodo: "hoje" | "ontem" | "7dias" = sp?.periodo === "ontem" ? "ontem" : sp?.periodo === "7dias" ? "7dias" : "hoje";
+
   const current = await getCurrentBar();
   if (!current) return null;
 
@@ -527,6 +531,19 @@ export default async function DashboardPage() {
   const impactoEstimado = insightsSorted[0]?.impactoReais ?? null;
   const horasTurno = Math.max((Date.now() - new Date(turno.aberto_em).getTime()) / 3_600_000, 0.5);
 
+  // ── Simulação de período (DEMO) — "hoje" usa dados reais; ontem/7 dias são fictícios ──
+  const drinksHoraBase = Math.max(1, Math.round(liveStats.drinks / horasTurno));
+  const SIM = {
+    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase,        petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)) },
+    ontem:  { fator: 0.86, ticketMul: 0.94, labelFat: "Faturado ontem",    drinksHora: 47, petiscosHora: 19, maiorComanda: 312 },
+    "7dias":{ fator: 6.3,  ticketMul: 1.05, labelFat: "Faturado (7 dias)", drinksHora: 52, petiscosHora: 22, maiorComanda: 548 },
+  }[periodo];
+
+  const faturamentoView = Math.round(kpis.faturamento * SIM.fator);
+  const ticketView = Math.round(kpis.ticketMedio * SIM.ticketMul);
+  const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturamentoView / meta) * 100)) : metaProgresso;
+  const impactoView = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
+
   return (
     <div style={{
       height: "100%",
@@ -540,19 +557,8 @@ export default async function DashboardPage() {
 
       {/* ══ HEADER: Operação ao vivo + períodos ══════════════════════════ */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 999, border: "1px solid var(--border)", fontSize: 13, fontWeight: 500, color: "var(--fg-muted)" }}>
-            vs. sem. passada
-            <svg width="10" height="6" viewBox="0 0 10 6" style={{ flexShrink: 0 }} aria-hidden><path d="M0 0.5 L10 0.5 L5 6 Z" fill="var(--accent)" /></svg>
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 500 }}>Hoje</span>
-          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>Ontem</span>
-          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>7 dias</span>
-          <a href="/dashboard/relatorios" style={{ padding: "8px 16px", fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>Ver relatório completo</a>
-        </div>
+        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
+        <PeriodoSelector periodo={periodo} />
       </div>
 
       {/* ══ ROW 1: KPI CARDS (Figma) ═════════════════════════════════════ */}
@@ -560,8 +566,8 @@ export default async function DashboardPage() {
 
         {/* Faturado no turno — spec exata do Figma (532×238, r24, pad32) */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>Faturado no turno</span>
-          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
+          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>{SIM.labelFat}</span>
+          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{faturamentoView.toLocaleString("pt-BR")}</span>
           {comparacao.faturamento !== null && comparacao.faturamento !== undefined && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
               <Tri up={comparacao.faturamento >= 0} color={comparacao.faturamento >= 0 ? "var(--accent)" : "var(--danger)"} />
@@ -572,11 +578,11 @@ export default async function DashboardPage() {
           )}
           {/* barra de progresso (linha fina — faz o papel de separador) */}
           <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
-            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgresso}%` }} />
+            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgressoView}%` }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
-            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{metaProgresso}%</span>
+            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{metaProgressoView}%</span>
           </div>
         </div>
 
@@ -608,7 +614,7 @@ export default async function DashboardPage() {
         <div style={kpiCard}>
           <div>
             <span style={kpiLabel}>Ticket Médio</span>
-            <span style={kpiMetric}><Cifrao />{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
+            <span style={kpiMetric}><Cifrao />{ticketView.toLocaleString("pt-BR")}</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -620,10 +626,10 @@ export default async function DashboardPage() {
       {/* ══ ROW 2: STAT PILLS ════════════════════════════════════════════ */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, flexShrink: 0 }}>
         {[
-          { label: "Drinks por hora", value: String(Math.round(liveStats.drinks / horasTurno)) },
-          { label: "Petiscos por hora", value: "—" },
+          { label: "Drinks por hora", value: String(SIM.drinksHora) },
+          { label: "Petiscos por hora", value: String(SIM.petiscosHora) },
           { label: "Mesas abertas agora", value: String(kpis.comandasAbertas) },
-          { label: "Maior valor de comanda", value: "—" },
+          { label: "Maior valor de comanda", value: `R$ ${SIM.maiorComanda.toLocaleString("pt-BR")}` },
         ].map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
@@ -673,7 +679,7 @@ export default async function DashboardPage() {
                 {impactoEstimado !== null && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
+                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{(impactoView ?? 0).toLocaleString("pt-BR")}</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                   </div>
