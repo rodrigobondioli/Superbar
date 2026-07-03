@@ -694,7 +694,7 @@ export default async function DashboardPage() {
         {/* RIGHT: Top drinks — spec exata do Figma (Frame 162: r24, pad 24/32/32/32) */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
           <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
-          <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1, minHeight: 0, overflowY: "auto" }}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, minHeight: 0, overflow: "hidden" }}>
             {produtosTop5.slice(0, 6).map((p, i) => {
               const max = produtosTop5[0]?.faturamento || 1;
               const pct = Math.max(4, Math.round((p.faturamento / max) * 100));

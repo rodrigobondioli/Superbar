@@ -97,15 +97,16 @@ export function AiHeroInput({
   return (
     <div style={{ width: '100%', ...(fill ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : {}) }}>
       <div style={{
-        background: 'var(--bg-card)',
+        background: 'linear-gradient(214deg, #282829 0%, #1C1C1E 100%)',
         border: '1px solid var(--border)',
-        borderRadius: 20,
+        borderRadius: 24,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         ...(fill ? { flex: 1, justifyContent: 'space-between' } : {}),
       }}>
 
+        <div>
         {/* Input (topo) */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, padding: '18px 20px 12px' }}>
           <textarea
@@ -122,7 +123,7 @@ export function AiHeroInput({
               outline: 'none',
               color: 'var(--fg)',
               fontFamily: 'var(--font-sans)',
-              fontSize: 14,
+              fontSize: 15,
               lineHeight: 1.6,
               resize: 'none',
               minHeight: 32,
@@ -134,9 +135,9 @@ export function AiHeroInput({
             onClick={() => ask(question)}
             disabled={loading || !question.trim()}
             style={{
-              background: 'var(--accent)',
+              background: 'var(--bg)',
               border: 'none',
-              borderRadius: 9999,
+              borderRadius: 8,
               width: 40,
               height: 40,
               display: 'flex',
@@ -144,14 +145,14 @@ export function AiHeroInput({
               justifyContent: 'center',
               cursor: question.trim() && !loading ? 'pointer' : 'default',
               flexShrink: 0,
-              transition: 'background 150ms',
+              transition: 'opacity 150ms',
             }}
           >
             {loading ? (
-              <span style={{ color: 'var(--accent-fg)', fontSize: 14, lineHeight: 1, fontWeight: 700 }}>·</span>
+              <span style={{ color: 'var(--accent)', fontSize: 14, lineHeight: 1, fontWeight: 700 }}>·</span>
             ) : (
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="var(--accent-fg)"
+                stroke="var(--accent)"
                 strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -160,24 +161,28 @@ export function AiHeroInput({
           </button>
         </div>
 
+          {/* divisória (Line 9 — full-width, cor canvas) */}
+          <div style={{ height: 1, background: 'var(--bg)' }} />
+        </div>
+
         {/* Populares (rodapé) */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '0 20px 18px' }}>
-          <span style={{ fontSize: 13, color: 'var(--fg-subtle)', flexShrink: 0 }}>Populares:</span>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '16px 20px 18px' }}>
+          <span style={{ fontSize: 15, color: 'var(--fg-muted)', flexShrink: 0 }}>Populares:</span>
           {suggestions.map(s => (
             <button
               key={s}
               onClick={() => { setQuestion(s); setTimeout(() => ask(s), 0) }}
               style={{
-                background: 'transparent',
+                background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
                 borderRadius: 9999,
-                padding: '6px 14px',
-                color: 'var(--fg-subtle)',
-                fontSize: 12,
+                padding: '8px 16px',
+                color: 'var(--fg-muted)',
+                fontSize: 13,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'border-color 120ms, color 120ms',
-                lineHeight: 1.5,
+                lineHeight: 1.4,
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
@@ -185,7 +190,7 @@ export function AiHeroInput({
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = 'var(--border)'
-                e.currentTarget.style.color = 'var(--fg-subtle)'
+                e.currentTarget.style.color = 'var(--fg-muted)'
               }}
             >
               {s}
