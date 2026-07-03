@@ -544,6 +544,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturamentoView / meta) * 100)) : metaProgresso;
   const impactoView = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
 
+  // Top drinks (DEMO) — total gerado por drink no turno (nome real, valor simulado com dispersão) escalando com o período
+  const topShares = [1, 0.83, 0.64, 0.47, 0.36, 0.28];
+  const topTopo = 1460; // R$ do 1º colocado (hoje)
+  const topDrinksView = produtosTop5.slice(0, 6).map((p, i) => ({
+    nome: p.produtoNome,
+    total: Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22)),
+  }));
+
   return (
     <div style={{
       height: "100%",
@@ -694,20 +702,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div>
           <span style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {produtosTop5.slice(0, 6).map((p, i) => {
-              const max = produtosTop5[0]?.faturamento || 1;
-              const pct = Math.max(4, Math.round((p.faturamento / max) * 100));
+            {topDrinksView.map((p, i) => {
+              const max = topDrinksView[0]?.total || 1;
+              const pct = Math.max(6, Math.round((p.total / max) * 100));
               return (
-                <div key={p.produtoNome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div key={p.nome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
                     <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
                       <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.produtoNome}</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
                     </span>
-                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
                   </div>
                   <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                    <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%` }} />
+                    <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transformOrigin: "left", animation: "barGrow 0.85s cubic-bezier(0.22,1,0.36,1) both", animationDelay: `${i * 90}ms` }} />
                   </div>
                 </div>
               );
