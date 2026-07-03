@@ -2,19 +2,19 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { listarClientes, getClientesStats, getAniversariantesDoMes, getClientesInativos } from "@/lib/clientes/queries";
-import { H1, SUBTITLE, CARD } from "@/lib/ui";
 import { ClientesTable } from "@/components/clientes/clientes-table";
 import { NovoClienteButton } from "@/components/clientes/novo-cliente-button";
 
 const fmt   = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const fmtN  = (v: number) => v.toLocaleString("pt-BR");
 // Remove prefixo "Mesa X - " / "Balcão - " gerado pelo seed antigo
 const nomeDisplay = (nome: string) => nome.replace(/^[^-]+ - /, "");
 
-const LABEL: React.CSSProperties = {
-  fontSize: 10, fontWeight: 700, letterSpacing: "0.10em",
-  textTransform: "uppercase", color: "var(--fg-subtle)", margin: 0,
+const insightCard: React.CSSProperties = {
+  background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 24,
+  display: "flex", flexDirection: "column", gap: 16,
 };
+const insightLabel: React.CSSProperties = { fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", margin: 0 };
+const insightMetric: React.CSSProperties = { fontSize: 32, fontWeight: 700, color: "var(--fg)", lineHeight: 1, margin: 0, fontVariantNumeric: "tabular-nums" };
 
 export default async function ClientesPage() {
   const current = await getCurrentBar();
@@ -30,56 +30,49 @@ export default async function ClientesPage() {
   const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8">
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
-        <div>
-          <h1 style={H1}>Clientes</h1>
-          <p style={SUBTITLE}>
-            {stats?.total ?? 0} cliente{(stats?.total ?? 0) !== 1 ? "s" : ""} cadastrado{(stats?.total ?? 0) !== 1 ? "s" : ""}
-          </p>
+    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
+      {/* Header — padrão Figma */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Clientes</h1>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>{stats?.total ?? 0} clientes cadastrados</p>
         </div>
         <NovoClienteButton />
       </div>
 
-      {/* Cards de inteligência */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 40 }}>
+      {/* Cards de insight */}
+      <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 24 }}>
 
         {/* Aniversariantes */}
-        <div style={{ ...CARD, padding: 24 }}>
-          <p style={{ ...LABEL, marginBottom: 8 }}>🎂 Aniversariantes</p>
-          <p style={{ fontSize: 36, fontWeight: 700, color: "var(--accent)", margin: "0 0 4px", lineHeight: 1 }}>
-            {stats?.aniversariantes ?? 0}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>em {mesAtual}</p>
+        <div style={insightCard}>
+          <p style={insightLabel}>Aniversariantes</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <p style={insightMetric}>{stats?.aniversariantes ?? 0}</p>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>em {mesAtual}</p>
+          </div>
           {aniversariantes.length > 0 && (
-            <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+            <div style={{ borderTop: "1px solid var(--border-strong)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               {aniversariantes.slice(0, 3).map(c => (
-                <p key={c.id} style={{ fontSize: 12, color: "var(--fg-muted)", margin: "0 0 2px" }}>
+                <p key={c.id} style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
                   {nomeDisplay(c.nome)}
                   {c.data_nascimento ? ` · ${new Date(c.data_nascimento + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}` : ""}
                 </p>
               ))}
-              {aniversariantes.length > 3 && (
-                <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "4px 0 0" }}>
-                  +{aniversariantes.length - 3} mais
-                </p>
-              )}
             </div>
           )}
         </div>
 
-        {/* VIPs inativos */}
-        <div style={{ ...CARD, padding: 24 }}>
-          <p style={{ ...LABEL, marginBottom: 8 }}>😴 Inativos há +30 dias</p>
-          <p style={{ fontSize: 36, fontWeight: 700, color: inativos.length > 0 ? "var(--warning, #f59e0b)" : "var(--fg)", margin: "0 0 4px", lineHeight: 1 }}>
-            {inativos.length}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>clientes para reconquistar</p>
+        {/* Inativos +30 dias */}
+        <div style={insightCard}>
+          <p style={insightLabel}>Inativos há +30 dias</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <p style={{ ...insightMetric, color: inativos.length > 0 ? "var(--warn)" : "var(--fg)" }}>{inativos.length}</p>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>clientes para reconquistar</p>
+          </div>
           {inativos.length > 0 && (
-            <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+            <div style={{ borderTop: "1px solid var(--border-strong)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               {inativos.slice(0, 3).map(c => (
-                <p key={c.id} style={{ fontSize: 12, color: "var(--fg-muted)", margin: "0 0 2px" }}>
+                <p key={c.id} style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
                   {nomeDisplay(c.nome)} · {fmt(c.total_gasto)}
                 </p>
               ))}
@@ -88,16 +81,16 @@ export default async function ClientesPage() {
         </div>
 
         {/* Ticket médio */}
-        <div style={{ ...CARD, padding: 24 }}>
-          <p style={{ ...LABEL, marginBottom: 8 }}>💳 Ticket médio</p>
-          <p style={{ fontSize: 36, fontWeight: 700, color: "var(--accent)", margin: "0 0 4px", lineHeight: 1 }}>
-            {fmt(stats?.ticketMedio ?? 0)}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>por visita por cliente</p>
+        <div style={insightCard}>
+          <p style={insightLabel}>Ticket médio</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <p style={insightMetric}>{fmt(stats?.ticketMedio ?? 0)}</p>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>por visita por cliente</p>
+          </div>
           {clientes.length > 0 && (
-            <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-              <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: 0 }}>
-                Top: {clientes[0]?.nome} · {fmt(clientes[0]?.total_gasto ?? 0)}
+            <div style={{ borderTop: "1px solid var(--border-strong)", paddingTop: 16 }}>
+              <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+                Top: {nomeDisplay(clientes[0]?.nome ?? "")} · {fmt(clientes[0]?.total_gasto ?? 0)}
               </p>
             </div>
           )}

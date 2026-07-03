@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { MessageCircle } from "lucide-react";
 import type { Cliente } from "@/types/database";
 import { atualizarCliente } from "@/lib/clientes/actions";
 
@@ -19,6 +20,16 @@ function fmtUltima(iso: string | null) {
   if (diff === 1) return "ontem";
   return `${diff}d atrás`;
 }
+
+function statusCliente(c: Cliente): { txt: string; cor: string } {
+  const inativo = c.ultima_visita ? (Date.now() - new Date(c.ultima_visita).getTime()) / 86400000 > 30 : true;
+  if ((c.total_gasto ?? 0) >= 1500) return { txt: "VIP", cor: "var(--accent)" };
+  if (inativo) return { txt: "Inativo", cor: "var(--fg-subtle)" };
+  return { txt: "Ativo", cor: "var(--ok)" };
+}
+
+// Colunas da tabela (Figma): Cliente · Status · Aniversário · Telefone · Visitas · Total · Última · WhatsApp
+const GRID = "minmax(0,2fr) 100px 110px 150px 72px 130px 90px 48px";
 
 interface Props { clientes: Cliente[] }
 
@@ -80,39 +91,41 @@ export function ClientesTable({ clientes }: Props) {
   }
 
   return (
-    <div style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+    <div>
       {/* Busca */}
-      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "var(--bg-elevated)" }}>
+      <div style={{ marginBottom: 20 }}>
         <input
           type="text"
           placeholder="Buscar por nome, telefone ou e-mail..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
           style={{
-            width: "100%", background: "var(--bg)", border: "1px solid var(--border)",
-            borderRadius: 8, padding: "8px 14px", fontSize: 14,
-            color: "var(--fg)", outline: "none",
+            width: "100%", maxWidth: 360, boxSizing: "border-box",
+            background: "var(--bg-card)", border: "1px solid var(--border)",
+            borderRadius: 999, padding: "10px 16px", fontSize: 13,
+            color: "var(--fg)", outline: "none", colorScheme: "dark",
           }}
         />
       </div>
 
+      <div className="overflow-x-auto">
+      <div className="lg:min-w-[820px]">
+
       {/* Header */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "2fr 120px 1fr 72px 120px 90px 44px",
+      <div className="hidden lg:grid" style={{
+        gridTemplateColumns: GRID,
         gap: "0 16px",
-        padding: "10px 20px",
-        borderBottom: "1px solid var(--border)",
-        background: "var(--bg-elevated)",
-        fontSize: 11, color: "var(--fg-subtle)", fontWeight: 600, letterSpacing: "0.05em",
-        textTransform: "uppercase",
+        padding: "0 0 16px",
+        borderBottom: "1px solid var(--border-strong)",
+        fontSize: 13, color: "var(--fg-muted)", fontWeight: 500,
       }}>
         <span>Cliente</span>
+        <span>Status</span>
         <span>Aniversário</span>
         <span>Telefone</span>
-        <span style={{ textAlign: "right" }}>Visitas</span>
-        <span style={{ textAlign: "right" }}>Total</span>
-        <span style={{ textAlign: "right" }}>Última</span>
+        <span>Visitas</span>
+        <span>Total</span>
+        <span>Última</span>
         <span />
       </div>
 
@@ -175,9 +188,9 @@ export function ClientesTable({ clientes }: Props) {
                   onClick={() => salvar(c.id)}
                   disabled={isPending || !form.nome?.trim()}
                   style={{
-                    background: "var(--accent)", color: "#000", border: "none",
-                    borderRadius: 6, padding: "6px 16px", fontSize: 13,
-                    fontWeight: 600, cursor: "pointer",
+                    background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+                    borderRadius: 999, padding: "10px 24px", fontSize: 14,
+                    fontWeight: 500, cursor: "pointer",
                   }}
                 >
                   {isPending ? "Salvando..." : "Salvar"}
@@ -185,9 +198,9 @@ export function ClientesTable({ clientes }: Props) {
                 <button
                   onClick={() => setEditando(null)}
                   style={{
-                    background: "transparent", color: "var(--fg-subtle)",
-                    border: "1px solid var(--border)", borderRadius: 6,
-                    padding: "6px 16px", fontSize: 13, cursor: "pointer",
+                    background: "transparent", color: "var(--fg)",
+                    border: "1px solid var(--border-strong)", borderRadius: 999,
+                    padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
                   }}
                 >
                   Cancelar
@@ -195,53 +208,43 @@ export function ClientesTable({ clientes }: Props) {
               </div>
             </div>
           ) : (
-            /* ── Linha normal ── */
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 120px 1fr 72px 120px 90px 44px",
-              gap: "0 16px",
-              padding: "14px 20px",
-              borderBottom: "1px solid var(--border)",
-              alignItems: "center",
-              fontSize: 14,
-            }}>
-              <div>
-                <p style={{ margin: 0, fontWeight: 600, color: "var(--fg)" }}>{c.nome}</p>
-                {c.notas && (
-                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-subtle)" }}>{c.notas}</p>
-                )}
-                {c.restricoes && (
-                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--warning, #f59e0b)" }}>
-                    ⚠️ {c.restricoes}
-                  </p>
-                )}
-              </div>
-              <div style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-                {c.data_nascimento ? `🎂 ${fmtData(c.data_nascimento)}` : "—"}
-                {c.drink_favorito && (
-                  <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)" }}>🍹 {c.drink_favorito}</p>
-                )}
-              </div>
-              <div style={{ fontSize: 12, color: "var(--fg-muted)" }}>
-                {c.telefone && <p style={{ margin: 0 }}>📱 {c.telefone}</p>}
-                {c.email && <p style={{ margin: "2px 0 0" }}>✉️ {c.email}</p>}
-                {!c.telefone && !c.email && <span>—</span>}
-              </div>
-              <p style={{ margin: 0, textAlign: "right", color: "var(--fg-muted)" }}>{c.total_visitas}</p>
-              <p style={{ margin: 0, textAlign: "right", fontWeight: 600, color: "var(--accent)" }}>{fmt(c.total_gasto)}</p>
-              <p style={{ margin: 0, textAlign: "right", fontSize: 12, color: "var(--fg-subtle)" }}>{fmtUltima(c.ultima_visita)}</p>
-              <button
-                onClick={() => iniciarEdicao(c)}
-                title="Editar"
-                style={{
-                  background: "transparent", border: "1px solid var(--border)",
-                  borderRadius: 6, padding: "4px 8px", cursor: "pointer",
-                  fontSize: 13, color: "var(--fg-subtle)",
-                }}
-              >
-                ✏️
-              </button>
-            </div>
+            /* ── Linha normal (colunas Figma) ── */
+            (() => {
+              const st = statusCliente(c);
+              const waNum = c.telefone?.replace(/\D/g, "");
+              const waHref = waNum ? `https://wa.me/55${waNum}` : null;
+              return (
+                <div className="grid" style={{
+                  gridTemplateColumns: GRID,
+                  gap: "0 16px",
+                  padding: "16px 0",
+                  borderBottom: "1px solid var(--border-strong)",
+                  alignItems: "center",
+                }}>
+                  <button
+                    onClick={() => iniciarEdicao(c)}
+                    title="Editar cliente"
+                    style={{ textAlign: "left", background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 15, fontWeight: 500, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    className="hover:!text-[var(--accent)]"
+                  >
+                    {c.nome}
+                  </button>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: st.cor }}>{st.txt}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>{fmtData(c.data_nascimento)}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.telefone ?? "—"}</span>
+                  <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{c.total_visitas}</span>
+                  <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{fmt(c.total_gasto)}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>{fmtUltima(c.ultima_visita)}</span>
+                  {waHref ? (
+                    <a href={waHref} target="_blank" rel="noopener noreferrer" title="WhatsApp"
+                      style={{ width: 32, height: 32, borderRadius: 999, background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg-muted)", flexShrink: 0 }}
+                      className="hover:!text-[var(--fg)]">
+                      <MessageCircle style={{ width: 16, height: 16 }} />
+                    </a>
+                  ) : <span />}
+                </div>
+              );
+            })()
           )}
         </div>
       ))}
@@ -251,6 +254,8 @@ export function ClientesTable({ clientes }: Props) {
           Nenhum cliente encontrado para "{busca}".
         </p>
       )}
+      </div>
+      </div>
     </div>
   );
 }
