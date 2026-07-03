@@ -1,3 +1,4 @@
+import { ArrowUp, ArrowDown, ArrowUpRight, ArrowRight } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import {
   getCurrentBar,
@@ -41,8 +42,10 @@ function DeltaRow({ value, invert = false }: { value: number | null | undefined;
   const up = value >= 0;
   const good = invert ? !up : up;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
-      <span style={{ color: good ? "var(--ok)" : "var(--danger)", fontSize: 11, lineHeight: 1 }}>{up ? "▲" : "▼"}</span>
+    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
+      {up
+        ? <ArrowUp size={14} strokeWidth={2.5} style={{ color: good ? "var(--ok)" : "var(--danger)", flexShrink: 0 }} />
+        : <ArrowDown size={14} strokeWidth={2.5} style={{ color: good ? "var(--ok)" : "var(--danger)", flexShrink: 0 }} />}
       <span style={{ color: "var(--fg-muted)" }}>
         {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
       </span>
@@ -87,7 +90,7 @@ const kpiCard: React.CSSProperties = {
   flexDirection: "column",
 };
 const kpiLabel: React.CSSProperties = { fontSize: 13, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { fontSize: 40, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 4 };
+const kpiMetric: React.CSSProperties = { fontSize: 54, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 4 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "12px 0 8px" };
 
 export default async function DashboardPage() {
@@ -519,6 +522,7 @@ export default async function DashboardPage() {
   const cortesiaTotal = mixPgto.find(m => m.metodo === "cortesia")?.valor ?? 0;
   const cortesiaPct = kpis.faturamento > 0 ? (cortesiaTotal / kpis.faturamento) * 100 : 0;
   const impactoEstimado = insightsSorted[0]?.impactoReais ?? null;
+  const horasTurno = Math.max((Date.now() - new Date(turno.aberto_em).getTime()) / 3_600_000, 0.5);
 
   return (
     <div style={{
@@ -594,15 +598,15 @@ export default async function DashboardPage() {
         {/* Margem */}
         <div style={kpiCard}>
           <span style={kpiLabel}>Margem</span>
-          <span style={kpiMetric}>{cmvAtual !== null ? `${100 - cmvAtual}%` : "—"}</span>
+          <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(100 - cmvAtual)}%` : "—"}</span>
           <div style={kpiDivider} />
-          <span style={{ fontSize: 15, fontWeight: 500, color: cmvCorVeredito }}>{cmvVeredito}</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: cmvCorVeredito }}>{cmvVeredito ? capitalizarPrimeiraLetra(cmvVeredito.replace(/^Margem /i, "")) : "—"}</span>
         </div>
 
         {/* Custo (CMV) */}
         <div style={kpiCard}>
           <span style={kpiLabel}>Custo (CMV)</span>
-          <span style={kpiMetric}>{cmvAtual !== null ? `${cmvAtual}%` : "—"}</span>
+          <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(cmvAtual)}%` : "—"}</span>
           <div style={kpiDivider} />
           <DeltaRow value={comparacao.cmv} invert />
         </div>
@@ -619,14 +623,17 @@ export default async function DashboardPage() {
       {/* ══ ROW 2: STAT PILLS ════════════════════════════════════════════ */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, flexShrink: 0 }}>
         {[
-          { label: "Drinks no turno", value: String(liveStats.drinks) },
-          { label: "Mesas abertas", value: String(kpis.comandasAbertas) },
-          { label: "Fila atual", value: `${filaAtual} ${filaAtual === 1 ? "pedido" : "pedidos"}` },
-          { label: "Ticket médio", value: currency.format(kpis.ticketMedio) },
+          { label: "Drinks por hora", value: String(Math.round(liveStats.drinks / horasTurno)) },
+          { label: "Petiscos por hora", value: "—" },
+          { label: "Mesas abertas agora", value: String(kpis.comandasAbertas) },
+          { label: "Maior valor de comanda", value: "—" },
         ].map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
+              <ArrowUpRight size={16} strokeWidth={2.5} style={{ color: "var(--accent)" }} />
+            </span>
           </div>
         ))}
       </div>
@@ -644,18 +651,22 @@ export default async function DashboardPage() {
               <div>
                 <span style={sectionLabel}>Super ação</span>
                 <p style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "6px 0 8px" }}>{produtosTop5[0].produtoNome}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
-                  <span style={{ color: "var(--ok)", fontSize: 11 }}>▲</span>
-                  <span style={{ color: "var(--fg-muted)" }}>{produtosTop5[0].margemPercentual}% de margem</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
+                  <ArrowUp size={14} strokeWidth={2.5} style={{ color: "var(--ok)", flexShrink: 0 }} />
+                  <span style={{ color: "var(--fg-muted)" }}>{Math.round(produtosTop5[0].margemPercentual)}% de margem</span>
                 </div>
               </div>
               <div>
                 <span style={sectionLabel}>Impacto direto</span>
                 <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "8px 0 16px", lineHeight: 1.5 }}>Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
                 {impactoEstimado !== null && (
-                  <div style={{ display: "inline-flex", alignItems: "baseline", gap: 6, background: "var(--bg-card-hi)", borderRadius: 12, padding: "12px 16px" }}>
-                    <span style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{Math.round(impactoEstimado).toLocaleString("pt-BR")}</span>
-                    <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>reais</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                    <div style={{ display: "inline-flex", alignItems: "baseline", gap: 6, background: "var(--bg-card-hi)", borderRadius: 12, padding: "10px 16px" }}>
+                      <span style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
+                      <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>reais</span>
+                    </div>
+                    <ArrowRight size={18} style={{ color: "var(--fg-muted)", flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: "var(--fg-muted)", padding: "6px 12px", borderRadius: 999, border: "1px solid var(--border)" }}>Risco: Baixo</span>
                   </div>
                 )}
               </div>

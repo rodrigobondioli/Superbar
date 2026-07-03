@@ -97,19 +97,69 @@ export function AiHeroInput({
       <div style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 20,
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}>
 
-        {/* Chips contextuais */}
-        <div style={{
-          display: 'flex',
-          gap: 6,
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          padding: '12px 18px',
-          borderBottom: '1px solid var(--border)',
-        }}>
+        {/* Input (topo) */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, padding: '18px 20px 12px' }}>
+          <textarea
+            ref={textareaRef}
+            value={question}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder="Ex: Qual foi a bebida mais vendida ontem?"
+            rows={1}
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              color: 'var(--fg)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 14,
+              lineHeight: 1.6,
+              resize: 'none',
+              minHeight: 32,
+              maxHeight: 120,
+              overflow: 'auto',
+            }}
+          />
+          <button
+            onClick={() => ask(question)}
+            disabled={loading || !question.trim()}
+            style={{
+              background: 'var(--accent)',
+              border: 'none',
+              borderRadius: 9999,
+              width: 40,
+              height: 40,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: question.trim() && !loading ? 'pointer' : 'default',
+              flexShrink: 0,
+              transition: 'background 150ms',
+            }}
+          >
+            {loading ? (
+              <span style={{ color: 'var(--accent-fg)', fontSize: 14, lineHeight: 1, fontWeight: 700 }}>·</span>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="var(--accent-fg)"
+                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Populares (rodapé) */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '0 20px 18px' }}>
+          <span style={{ fontSize: 13, color: 'var(--fg-subtle)', flexShrink: 0 }}>Populares:</span>
           {suggestions.map(s => (
             <button
               key={s}
@@ -118,7 +168,7 @@ export function AiHeroInput({
                 background: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: 9999,
-                padding: '5px 14px',
+                padding: '6px 14px',
                 color: 'var(--fg-subtle)',
                 fontSize: 12,
                 cursor: 'pointer',
@@ -138,60 +188,6 @@ export function AiHeroInput({
               {s}
             </button>
           ))}
-        </div>
-
-        {/* Textarea + send */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, padding: '14px 18px' }}>
-          <textarea
-            ref={textareaRef}
-            value={question}
-            onChange={handleInput}
-            onKeyDown={handleKeyDown}
-            placeholder="Pergunte sobre o turno…"
-            rows={1}
-            style={{
-              flex: 1,
-              background: 'none',
-              border: 'none',
-              outline: 'none',
-              color: 'var(--fg)',
-              fontFamily: 'var(--font-sans)',
-              fontSize: 14,
-              lineHeight: 1.6,
-              resize: 'none',
-              minHeight: 40,
-              maxHeight: 120,
-              overflow: 'auto',
-            }}
-          />
-          <button
-            onClick={() => ask(question)}
-            disabled={loading || !question.trim()}
-            style={{
-              background: 'var(--accent)',
-              border: 'none',
-              borderRadius: 9999,
-              width: 38,
-              height: 38,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: question.trim() && !loading ? 'pointer' : 'default',
-              flexShrink: 0,
-              transition: 'background 150ms',
-            }}
-          >
-            {loading ? (
-              <span style={{ color: 'var(--accent-fg)', fontSize: 14, lineHeight: 1, fontWeight: 700 }}>·</span>
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="var(--accent-fg)"
-                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            )}
-          </button>
         </div>
       </div>
 

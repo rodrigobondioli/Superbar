@@ -15,7 +15,7 @@ import type { AlertaEstoque } from "@/lib/dashboard/queries";
 import { ROLE_LABEL } from "@/lib/role-labels";
 
 const links = [
-  { href: "/dashboard",                    label: "Operação ao Vivo", icon: LayoutDashboard },
+  { href: "/dashboard",                    label: "Operação ao vivo", icon: LayoutDashboard },
   { href: "/dashboard/inteligencia",       label: "Inteligência",     icon: Sparkles, badge: true },
   { href: "/dashboard/relatorios",         label: "Relatórios",       icon: BarChart3 },
   { href: "/dashboard/turnos",             label: "Turnos",           icon: History },
@@ -87,12 +87,9 @@ export function DashboardSidebar({
         }}>
           {!collapsed && (
             <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0, display: "block" }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em" }}>SUPERBAR</span>
-                </div>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/favicon.svg" alt={barNome} style={{ width: 52, height: 52, borderRadius: "50%", flexShrink: 0, display: "block" }} />
                 {onToggleCollapse && (
                   <button onClick={onToggleCollapse} aria-label="Colapsar menu" style={{
                     display: "flex", alignItems: "center", justifyContent: "center",
@@ -104,19 +101,11 @@ export function DashboardSidebar({
                   </button>
                 )}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <span style={{ fontSize: 11, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {barNome}
                 </span>
-                <span style={{
-                  fontSize: 10, fontWeight: 600,
-                  padding: "2px 8px", borderRadius: 20,
-                  background: "color-mix(in srgb, var(--accent) 14%, transparent)",
-                  color: "var(--accent)",
-                  flexShrink: 0,
-                }}>
-                  {ROLE_LABEL[role] ?? role}
-                </span>
+                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Dashboard geral</span>
               </div>
             </>
           )}
