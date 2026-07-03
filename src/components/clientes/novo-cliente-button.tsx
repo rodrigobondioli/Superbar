@@ -4,9 +4,9 @@ import { useState, useTransition } from "react";
 import { criarCliente } from "@/lib/clientes/actions";
 
 const BTN_PRIMARY = {
-  background: "var(--accent)", color: "#000", border: "none",
-  borderRadius: 8, padding: "10px 20px", fontSize: 14,
-  fontWeight: 600, cursor: "pointer",
+  background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+  borderRadius: 999, padding: "10px 24px", fontSize: 14,
+  fontWeight: 500, cursor: "pointer",
 } as const;
 
 const INPUT = {
@@ -104,9 +104,9 @@ export function NovoClienteButton() {
               <button
                 onClick={() => setAberto(false)}
                 style={{
-                  background: "transparent", color: "var(--fg-subtle)",
-                  border: "1px solid var(--border)", borderRadius: 8,
-                  padding: "8px 18px", fontSize: 14, cursor: "pointer",
+                  background: "transparent", color: "var(--fg)",
+                  border: "1px solid var(--border-strong)", borderRadius: 999,
+                  padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
                 }}
               >
                 Cancelar
