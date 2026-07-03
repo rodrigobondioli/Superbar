@@ -161,14 +161,16 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
         WebkitTapHighlightColor: "transparent",
         transition: "border-color 120ms",
       }}>
-        <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", lineHeight: 1.2 }}>
-          {label}
-        </span>
-        {capacidade && (
-          <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-            {capacidade} lugares
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", lineHeight: 1.2 }}>
+            {label}
           </span>
-        )}
+          {capacidade && (
+            <span style={{ fontSize: 13, color: "var(--fg-muted)", flexShrink: 0 }}>
+              {capacidade} lugares
+            </span>
+          )}
+        </div>
         <span style={{ alignSelf: "flex-start", marginTop: 2, display: "inline-flex", padding: "7px 16px", borderRadius: 999, border: "1px solid var(--border-strong)", color: "var(--accent)", fontSize: 13, fontWeight: 500 }}>
           + Abrir comanda
         </span>
@@ -274,6 +276,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   const [balcao, setBalcao] = useState<Comanda | null>(initialBalcao);
   // mesaId → chamadaId (para mesas com chamada pendente)
   const [chamadas, setChamadas] = useState<Map<string, string>>(new Map());
+  const [filtro, setFiltro] = useState<"todas" | "aguardando" | "abertas" | "livres">("todas");
   // Tick a cada 60s para atualizar os tempos "há X min"
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -471,10 +474,37 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       {/* Topo fixo: busca + status */}
       <div style={{ padding: "16px 20px 0", flexShrink: 0 }}>
         <ScanCartao />
-        <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+        <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <h1 style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", margin: 0, letterSpacing: "-0.02em" }}>
             {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
           </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {([
+              { id: "todas", label: "Todas", n: mesas.length ? undefined : 0 },
+              { id: "aguardando", label: "Aguardando", n: aguardando.length },
+              { id: "abertas", label: "Abertas", n: abertas.length },
+              { id: "livres", label: "Livres", n: livres.length },
+            ] as const).map(f => {
+              const active = filtro === f.id;
+              return (
+                <button key={f.id} type="button" onClick={() => setFiltro(f.id)}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "8px 16px", borderRadius: 999, cursor: "pointer",
+                    fontSize: 13, fontWeight: 500,
+                    background: active ? "var(--accent)" : "var(--bg-card)",
+                    border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
+                    color: active ? "var(--accent-fg)" : "var(--fg-muted)",
+                    transition: "background 120ms, color 120ms",
+                  }}>
+                  {f.label}
+                  {f.n !== undefined && (
+                    <span style={{ fontVariantNumeric: "tabular-nums", opacity: active ? 1 : 0.7 }}>{f.n}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -493,7 +523,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          {aguardando.length > 0 && (
+          {(filtro === "todas" || filtro === "aguardando") && aguardando.length > 0 && (
             <section>
               <SecLabel label="Aguardando pagamento" count={aguardando.length} />
               <div style={GRID_OCUPADAS}>
@@ -501,7 +531,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               </div>
             </section>
           )}
-          {abertas.length > 0 && (
+          {(filtro === "todas" || filtro === "abertas") && abertas.length > 0 && (
             <section>
               <SecLabel label="Abertas" count={abertas.length} />
               <div style={GRID_OCUPADAS}>
@@ -509,7 +539,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               </div>
             </section>
           )}
-          {livres.length > 0 && (
+          {(filtro === "todas" || filtro === "livres") && livres.length > 0 && (
             <section>
               <SecLabel label="Livres" count={livres.length} />
               <div style={GRID_LIVRES}>

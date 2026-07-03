@@ -37,8 +37,8 @@ export function AppHeader({
         <span style={{
           fontSize: 12, fontWeight: 600,
           padding: "3px 10px", borderRadius: 999, flexShrink: 0,
-          background: "color-mix(in srgb, var(--accent) 16%, transparent)",
-          color: "var(--accent)",
+          background: "var(--bg-card-hi)",
+          color: "var(--fg-muted)",
         }}>
           {roleLabel}
         </span>
