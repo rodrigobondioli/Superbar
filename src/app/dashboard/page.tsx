@@ -692,11 +692,11 @@ export default async function DashboardPage() {
               return (
                 <div key={p.produtoNome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-                    <span style={{ fontSize: 13, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
+                    <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
                       <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
                       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.produtoNome}</span>
                     </span>
-                    <span style={{ fontSize: 13, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
                   </div>
                   <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
                     <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%` }} />
