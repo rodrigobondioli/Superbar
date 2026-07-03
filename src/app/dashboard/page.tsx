@@ -534,15 +534,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   // ── Simulação de período (DEMO) — "hoje" usa dados reais; ontem/7 dias são fictícios ──
   const drinksHoraBase = Math.max(1, Math.round(liveStats.drinks / horasTurno));
   const SIM = {
-    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase,        petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)) },
-    ontem:  { fator: 0.86, ticketMul: 0.94, labelFat: "Faturado ontem",    drinksHora: 47, petiscosHora: 19, maiorComanda: 312 },
-    "7dias":{ fator: 6.3,  ticketMul: 1.05, labelFat: "Faturado (7 dias)", drinksHora: 52, petiscosHora: 22, maiorComanda: 548 },
+    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase,        petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)), cmv: 34, deltaFat: -15.8, deltaCmv: 18,   deltaTicket: 26.3 },
+    ontem:  { fator: 0.86, ticketMul: 0.94, labelFat: "Faturado ontem",    drinksHora: 47, petiscosHora: 19, maiorComanda: 312, cmv: 37, deltaFat: 8.2,   deltaCmv: -3.5, deltaTicket: 11.5 },
+    "7dias":{ fator: 6.3,  ticketMul: 1.05, labelFat: "Faturado (7 dias)", drinksHora: 52, petiscosHora: 22, maiorComanda: 548, cmv: 33, deltaFat: 12.4,  deltaCmv: 5.2,  deltaTicket: 9.1 },
   }[periodo];
 
   const faturamentoView = Math.round(kpis.faturamento * SIM.fator);
   const ticketView = Math.round(kpis.ticketMedio * SIM.ticketMul);
   const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturamentoView / meta) * 100)) : metaProgresso;
   const impactoView = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
+  const cmvView = periodo === "hoje" && cmvAtual !== null ? Math.round(cmvAtual) : SIM.cmv;
+  const margemView = 100 - cmvView;
+  const vereditoView = margemView >= 60 ? { txt: "Saudável", cor: "var(--ok)" } : margemView >= 45 ? { txt: "Atenção", cor: "var(--warn)" } : { txt: "Baixa", cor: "var(--danger)" };
 
   // Top drinks (DEMO) — total gerado por drink no turno (nome real, valor simulado com dispersão) escalando com o período
   const topShares = [1, 0.83, 0.64, 0.47, 0.36, 0.28];
@@ -576,14 +579,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
           <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>{SIM.labelFat}</span>
           <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{faturamentoView.toLocaleString("pt-BR")}</span>
-          {comparacao.faturamento !== null && comparacao.faturamento !== undefined && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
-              <Tri up={comparacao.faturamento >= 0} color={comparacao.faturamento >= 0 ? "var(--accent)" : "var(--danger)"} />
-              <span style={{ color: "var(--fg)" }}>
-                {Math.abs(comparacao.faturamento).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {comparacao.faturamento >= 0 ? "maior" : "menor"} vs. sem. passada
-              </span>
-            </div>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
+            <Tri up={SIM.deltaFat >= 0} color={SIM.deltaFat >= 0 ? "var(--accent)" : "var(--danger)"} />
+            <span style={{ color: "var(--fg)" }}>
+              {Math.abs(SIM.deltaFat).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {SIM.deltaFat >= 0 ? "maior" : "menor"} vs. sem. passada
+            </span>
+          </div>
           {/* barra de progresso (linha fina — faz o papel de separador) */}
           <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
             <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgressoView}%` }} />
@@ -598,11 +599,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div style={kpiCard}>
           <div>
             <span style={kpiLabel}>Margem</span>
-            <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(100 - cmvAtual)}%` : "—"}</span>
+            <span style={kpiMetric}>{margemView}%</span>
           </div>
           <div>
             <div style={kpiDivider} />
-            <span style={{ fontSize: 15, fontWeight: 400, color: cmvCorVeredito }}>{cmvVeredito ? capitalizarPrimeiraLetra(cmvVeredito.replace(/^Margem /i, "")) : "—"}</span>
+            <span style={{ fontSize: 15, fontWeight: 400, color: vereditoView.cor }}>{vereditoView.txt}</span>
           </div>
         </div>
 
@@ -610,11 +611,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div style={kpiCard}>
           <div>
             <span style={kpiLabel}>Custo (CMV)</span>
-            <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(cmvAtual)}%` : "—"}</span>
+            <span style={kpiMetric}>{cmvView}%</span>
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={comparacao.cmv} invert />
+            <DeltaRow value={SIM.deltaCmv} invert />
           </div>
         </div>
 
@@ -626,7 +627,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={comparacao.ticketMedio} />
+            <DeltaRow value={SIM.deltaTicket} />
           </div>
         </div>
       </div>
