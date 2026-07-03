@@ -26,7 +26,7 @@ const td: React.CSSProperties = {
   fontSize: 15,
   fontWeight: 500,
   color: "var(--fg-muted)",
-  padding: "27px 24px 27px 0",
+  padding: "24px 24px 24px 0",
   borderBottom: "1px solid var(--border-strong)",
   whiteSpace: "nowrap",
   verticalAlign: "middle",
@@ -61,6 +61,9 @@ export default async function TurnosPage() {
           <a href="/dashboard/relatorios" style={{ padding: "8px 16px", fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>Ver relatório completo</a>
         </div>
       </div>
+
+      {/* divisória abaixo do cabeçalho (Line 16 do Figma) */}
+      <div style={{ height: 1, background: "var(--border-strong)" }} />
 
       {/* Tabela (sem card — direto no canvas, igual ao Figma) */}
       <div className="overflow-x-auto">
@@ -106,7 +109,7 @@ export default async function TurnosPage() {
                   <td style={{ ...td, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
                     {currency.format(turno.totalVendas)}
                   </td>
-                  <td style={{ ...td, padding: "27px 0", textAlign: "right", width: 40 }}>
+                  <td style={{ ...td, padding: "24px 0", textAlign: "right", width: 40 }}>
                     <Link href={`/dashboard/turnos/${turno.id}`} aria-label="Ver turno" style={{ display: "inline-flex", color: "var(--accent)" }}>
                       <ChevronsRight size={20} strokeWidth={2.25} />
                     </Link>
