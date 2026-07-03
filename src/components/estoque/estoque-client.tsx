@@ -362,17 +362,13 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                       borderBottom: i < alertas.length - 1 ? "1px solid var(--border-strong)" : "none",
                     }}>
                       {/* Esquerda: dot + nome + status */}
-                      <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0 }} />
-                        <div style={{ minWidth: 0 }}>
-                          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {item.produtoNome}
-                          </span>
-                          <span style={{ fontSize: 13, display: "block", marginTop: 2 }}>
-                            <span style={{ color: cor }}>{fmtQtd(item.quantidadeAtual)}</span>
-                            <span style={{ color: "var(--fg-muted)" }}> em estoque · mínimo {fmtQtd(item.quantidadeMinima)}</span>
-                          </span>
-                        </div>
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0, alignSelf: "center" }} />
+                        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>{item.produtoNome}</span>
+                        <span style={{ fontSize: 13 }}>
+                          <span style={{ color: cor }}>{fmtQtd(item.quantidadeAtual)}</span>
+                          <span style={{ color: "var(--fg-muted)" }}> em estoque · mínimo {fmtQtd(item.quantidadeMinima)}</span>
+                        </span>
                       </div>
 
                       {/* Direita: Comprar N un (abre modal) */}
