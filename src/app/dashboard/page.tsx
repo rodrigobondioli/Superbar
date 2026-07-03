@@ -644,7 +644,7 @@ export default async function DashboardPage() {
         {/* LEFT column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
 
-          <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
+          <AiHeroInput fill barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
 
           {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
             <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center", flexShrink: 0 }}>

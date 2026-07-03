@@ -44,12 +44,14 @@ export function AiHeroInput({
   cmvAlto,
   ticketCaindo,
   produtoSugerido,
+  fill = false,
 }: {
   barId: string
   alertCount?: number
   cmvAlto?: boolean
   ticketCaindo?: boolean
   produtoSugerido?: string | null
+  fill?: boolean
 }) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
@@ -93,7 +95,7 @@ export function AiHeroInput({
   }
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', ...(fill ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : {}) }}>
       <div style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
@@ -101,6 +103,7 @@ export function AiHeroInput({
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
+        ...(fill ? { flex: 1, justifyContent: 'space-between' } : {}),
       }}>
 
         {/* Input (topo) */}
