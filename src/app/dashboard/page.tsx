@@ -52,8 +52,8 @@ function DeltaRow({ value, invert = false }: { value: number | null | undefined;
   const good = invert ? !up : up;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-      <Tri up={up} color={good ? "var(--ok)" : "var(--danger)"} />
-      <span style={{ color: "var(--fg-muted)" }}>
+      <Tri up={up} color={good ? "var(--accent)" : "var(--danger)"} />
+      <span style={{ color: "var(--fg)" }}>
         {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
       </span>
     </div>
@@ -574,7 +574,10 @@ export default async function DashboardPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", fontSize: 13, color: "var(--fg-muted)" }}>vs. sem. passada ▾</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 999, border: "1px solid var(--border)", fontSize: 13, fontWeight: 500, color: "var(--fg-muted)" }}>
+            vs. sem. passada
+            <svg width="10" height="6" viewBox="0 0 10 6" style={{ flexShrink: 0 }} aria-hidden><path d="M0 0.5 L10 0.5 L5 6 Z" fill="var(--accent)" /></svg>
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 500 }}>Hoje</span>
@@ -587,18 +590,25 @@ export default async function DashboardPage() {
       {/* ══ ROW 1: KPI CARDS (Figma) ═════════════════════════════════════ */}
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 16, flexShrink: 0 }}>
 
-        {/* Faturado no turno */}
-        <div style={kpiCard}>
-          <span style={kpiLabel}>Faturado no turno</span>
-          <span style={kpiMetric}>{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
-          <div style={{ marginTop: 10 }}><DeltaRow value={comparacao.faturamento} /></div>
-          <div style={kpiDivider} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <span style={kpiLabel}>Meta Mensal - {Math.round(meta).toLocaleString("pt-BR")}</span>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--accent)" }}>{metaProgresso}%</span>
+        {/* Faturado no turno — spec exata do Figma (532×238, r24, pad32) */}
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>Faturado no turno</span>
+          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}>{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
+          {comparacao.faturamento !== null && comparacao.faturamento !== undefined && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
+              <Tri up={comparacao.faturamento >= 0} color={comparacao.faturamento >= 0 ? "var(--accent)" : "var(--danger)"} />
+              <span style={{ color: "var(--fg)" }}>
+                {Math.abs(comparacao.faturamento).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {comparacao.faturamento >= 0 ? "maior" : "menor"} vs. sem. passada
+              </span>
+            </div>
+          )}
+          {/* barra de progresso (linha fina — faz o papel de separador) */}
+          <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
+            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgresso}%` }} />
           </div>
-          <div style={{ height: 4, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 8 }}>
-            <div style={{ height: 4, borderRadius: 999, background: "var(--accent)", width: `${metaProgresso}%` }} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
+            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - {Math.round(meta).toLocaleString("pt-BR")}</span>
+            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{metaProgresso}%</span>
           </div>
         </div>
 
