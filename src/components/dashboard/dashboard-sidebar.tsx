@@ -205,6 +205,7 @@ export function DashboardSidebar({
                 <span style={{ fontSize: 13, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userNome}</span>
               </div>
             )}
+            {!touchMode && <div style={{ height: 1, background: "var(--border)", margin: "0 -10px 8px" }} />}
             {!touchMode && bar && barId && userId && (
               <SettingsButton
                 linkMode

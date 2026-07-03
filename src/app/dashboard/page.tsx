@@ -1,4 +1,4 @@
-import { TrendingUp, ArrowRight } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import {
   getCurrentBar,
@@ -51,7 +51,7 @@ function DeltaRow({ value, invert = false }: { value: number | null | undefined;
   const up = value >= 0;
   const good = invert ? !up : up;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
       <Tri up={up} color={good ? "var(--accent)" : "var(--danger)"} />
       <span style={{ color: "var(--fg)" }}>
         {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
@@ -60,17 +60,7 @@ function DeltaRow({ value, invert = false }: { value: number | null | undefined;
   );
 }
 
-const sectionLabel: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.62rem",
-  fontFamily: "var(--font-mono)",
-  fontWeight: 500,
-  textTransform: "uppercase",
-  letterSpacing: "0.16em",
-  color: "var(--fg-subtle)",
-  marginBottom: 0,
-  opacity: 0.7,
-};
+const superLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
 
 const overline: React.CSSProperties = {
   fontSize: "0.7rem",
@@ -91,14 +81,15 @@ const card: React.CSSProperties = {
 const kpiCard: React.CSSProperties = {
   background: "var(--bg-card)",
   border: "1px solid var(--border)",
-  borderRadius: 20,
-  padding: "22px 26px 24px",
+  borderRadius: 24,
+  padding: 32,
   display: "flex",
   flexDirection: "column",
+  justifyContent: "space-between",
 };
-const kpiLabel: React.CSSProperties = { fontSize: 15, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { fontSize: 60, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 8 };
-const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "12px 0 8px" };
+const kpiLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
+const kpiMetric: React.CSSProperties = { fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
+const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginBottom: 11 };
 
 export default async function DashboardPage() {
   const current = await getCurrentBar();
@@ -586,26 +577,38 @@ export default async function DashboardPage() {
 
         {/* Margem */}
         <div style={kpiCard}>
-          <span style={kpiLabel}>Margem</span>
-          <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(100 - cmvAtual)}%` : "—"}</span>
-          <div style={kpiDivider} />
-          <span style={{ fontSize: 13, fontWeight: 500, color: cmvCorVeredito }}>{cmvVeredito ? capitalizarPrimeiraLetra(cmvVeredito.replace(/^Margem /i, "")) : "—"}</span>
+          <div>
+            <span style={kpiLabel}>Margem</span>
+            <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(100 - cmvAtual)}%` : "—"}</span>
+          </div>
+          <div>
+            <div style={kpiDivider} />
+            <span style={{ fontSize: 15, fontWeight: 400, color: cmvCorVeredito }}>{cmvVeredito ? capitalizarPrimeiraLetra(cmvVeredito.replace(/^Margem /i, "")) : "—"}</span>
+          </div>
         </div>
 
         {/* Custo (CMV) */}
         <div style={kpiCard}>
-          <span style={kpiLabel}>Custo (CMV)</span>
-          <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(cmvAtual)}%` : "—"}</span>
-          <div style={kpiDivider} />
-          <DeltaRow value={comparacao.cmv} invert />
+          <div>
+            <span style={kpiLabel}>Custo (CMV)</span>
+            <span style={kpiMetric}>{cmvAtual !== null ? `${Math.round(cmvAtual)}%` : "—"}</span>
+          </div>
+          <div>
+            <div style={kpiDivider} />
+            <DeltaRow value={comparacao.cmv} invert />
+          </div>
         </div>
 
         {/* Ticket Médio */}
         <div style={kpiCard}>
-          <span style={kpiLabel}>Ticket Médio</span>
-          <span style={kpiMetric}>{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
-          <div style={kpiDivider} />
-          <DeltaRow value={comparacao.ticketMedio} />
+          <div>
+            <span style={kpiLabel}>Ticket Médio</span>
+            <span style={kpiMetric}>{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
+          </div>
+          <div>
+            <div style={kpiDivider} />
+            <DeltaRow value={comparacao.ticketMedio} />
+          </div>
         </div>
       </div>
 
@@ -621,7 +624,7 @@ export default async function DashboardPage() {
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
               <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
-              <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--accent)" }} />
+              <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--warn)" }} />
             </span>
           </div>
         ))}
@@ -631,31 +634,46 @@ export default async function DashboardPage() {
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
 
         {/* LEFT column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12, minHeight: 0 }}>
 
-          <AiHeroInput fill barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
+          <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
 
           {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: "20px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center", flexShrink: 0 }}>
-              <div>
-                <span style={sectionLabel}>Super ação</span>
-                <p style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "6px 0 8px" }}>{produtosTop5[0].produtoNome}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-                  <Tri up color="var(--ok)" />
-                  <span style={{ color: "var(--fg-muted)" }}>{Math.round(produtosTop5[0].margemPercentual)}% de margem</span>
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, display: "flex", alignItems: "stretch", gap: 32, flexShrink: 0 }}>
+
+              {/* Seção 1 — Super ação */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: "0 0 auto", minWidth: 150 }}>
+                <span style={superLabel}>Super ação</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{produtosTop5[0].produtoNome}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
+                    <Tri up color="var(--ok)" />
+                    <span style={{ color: "var(--fg-muted)" }}>{Math.round(produtosTop5[0].margemPercentual)}% de margem</span>
+                  </div>
                 </div>
               </div>
-              <div>
-                <span style={sectionLabel}>Impacto direto</span>
-                <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "8px 0 16px", lineHeight: 1.5 }}>Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
+
+              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
+
+              {/* Seção 2 — texto do meio */}
+              <div style={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
+                <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>Apareceu pouco hoje. Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
+              </div>
+
+              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
+
+              {/* Seção 3 — Impacto direto */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: 167 }}>
+                <span style={superLabel}>Impacto direto</span>
                 {impactoEstimado !== null && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                    <div style={{ display: "inline-flex", alignItems: "baseline", gap: 6, background: "var(--bg-card-hi)", borderRadius: 12, padding: "10px 16px" }}>
-                      <span style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
-                      <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>reais</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, background: "var(--border-strong)", borderRadius: 8, padding: 16 }}>
+                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
+                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>reais</span>
                     </div>
-                    <ArrowRight size={18} style={{ color: "var(--fg-muted)", flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, color: "var(--fg-muted)", padding: "6px 12px", borderRadius: 999, border: "1px solid var(--border)" }}>Risco: Baixo</span>
+                    <div style={{ background: "var(--border-strong)", borderRadius: 8, padding: "12px 16px" }}>
+                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -664,9 +682,10 @@ export default async function DashboardPage() {
         </div>
 
         {/* RIGHT: Top drinks — spec exata do Figma (Frame 162: r24, pad 24/32/32/32) */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
-          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, minHeight: 0, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0, overflow: "hidden" }}>
+          <div>
+          <span style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {produtosTop5.slice(0, 6).map((p, i) => {
               const max = produtosTop5[0]?.faturamento || 1;
               const pct = Math.max(4, Math.round((p.faturamento / max) * 100));
@@ -688,6 +707,7 @@ export default async function DashboardPage() {
             {produtosTop5.length === 0 && (
               <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>Sem vendas registradas ainda.</p>
             )}
+          </div>
           </div>
           <a href={`/dashboard/turnos/${turno.id}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</a>
         </div>
