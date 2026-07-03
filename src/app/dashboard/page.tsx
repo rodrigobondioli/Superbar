@@ -691,21 +691,24 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* RIGHT: Top drinks */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: "16px 20px 18px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
-          <span style={{ fontSize: 14, color: "var(--fg)", fontWeight: 600, marginBottom: 10 }}>Top drinks do turno</span>
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflowY: "auto" }}>
+        {/* RIGHT: Top drinks — spec exata do Figma (Frame 162: r24, pad 24/32/32/32) */}
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1, minHeight: 0, overflowY: "auto" }}>
             {produtosTop5.slice(0, 6).map((p, i) => {
               const max = produtosTop5[0]?.faturamento || 1;
-              const last = i >= Math.min(produtosTop5.length, 6) - 1;
+              const pct = Math.max(4, Math.round((p.faturamento / max) * 100));
               return (
-                <div key={p.produtoNome + i} style={{ padding: "8px 0", borderBottom: last ? "none" : "1px solid var(--border)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 6 }}>
-                    <span style={{ fontSize: 14, color: "var(--fg)" }}><span style={{ color: "var(--fg-subtle)", marginRight: 10 }}>{i + 1}</span>{p.produtoNome}</span>
-                    <span style={{ fontSize: 14, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
+                <div key={p.produtoNome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                    <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
+                      <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.produtoNome}</span>
+                    </span>
+                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.faturamento)}</span>
                   </div>
-                  <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                    <div style={{ height: 3, borderRadius: 999, background: "var(--accent)", width: `${Math.max(4, Math.round((p.faturamento / max) * 100))}%` }} />
+                  <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
+                    <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -714,7 +717,7 @@ export default async function DashboardPage() {
               <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>Sem vendas registradas ainda.</p>
             )}
           </div>
-          <a href={`/dashboard/turnos/${turno.id}`} style={{ marginTop: 16, alignSelf: "flex-start", padding: "10px 20px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</a>
+          <a href={`/dashboard/turnos/${turno.id}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</a>
         </div>
       </div>
 
