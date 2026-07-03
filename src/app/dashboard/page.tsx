@@ -87,8 +87,8 @@ const kpiCard: React.CSSProperties = {
   flexDirection: "column",
   justifyContent: "space-between",
 };
-const kpiLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
+const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
+const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginBottom: 11 };
 
 export default async function DashboardPage() {
