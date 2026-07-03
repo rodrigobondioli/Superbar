@@ -37,7 +37,7 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
   ];
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
       {allOptions.map((opcao) => {
         const isActive = opcao.isCustom ? isCustomAtivo : presetAtivo === opcao.value;
         return (
@@ -46,15 +46,15 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             type="button"
             onClick={() => opcao.isCustom ? setMostrarCustom(v => !v) : aplicarPreset(opcao.value)}
             style={{
-              fontSize: "14px",
-              fontWeight: isActive ? 500 : 400,
-              padding: "5px 14px",
-              borderRadius: "4px",
+              fontSize: 13,
+              fontWeight: 600,
+              padding: "8px 16px",
+              borderRadius: 999,
               border: "none",
               cursor: "pointer",
               transition: "all 0.15s",
-              background: isActive ? "var(--accent)" : "transparent",
-              color: isActive ? "var(--accent-fg)" : "var(--fg-subtle)",
+              background: isActive ? "var(--accent)" : "var(--bg-card)",
+              color: isActive ? "var(--accent-fg)" : "var(--fg-muted)",
             }}
           >
             {opcao.label}
