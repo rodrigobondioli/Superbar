@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import { SettingsPanel } from "./settings-panel";
 import type { Bar } from "@/types/database";
 
@@ -15,16 +15,32 @@ interface SettingsButtonProps {
   autoPedido?: boolean;
   taxaServicoPct?: number;
   alertCount?: number;
+  linkMode?: boolean;
 }
 
 export function SettingsButton({
-  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10, alertCount = 0,
+  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10, alertCount = 0, linkMode = false,
 }: SettingsButtonProps) {
   const [open, setOpen] = useState(false);
   const inicial = userNome.split(" ")[0].charAt(0).toUpperCase();
 
   return (
     <>
+      {linkMode ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          style={{
+            display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left",
+            padding: "7px 10px", background: "none", border: "none", cursor: "pointer",
+            fontSize: 12, color: "var(--fg-subtle)", borderRadius: 6,
+          }}
+          className="hover:!text-[var(--fg-muted)]"
+        >
+          <Settings style={{ width: 13, height: 13, flexShrink: 0 }} strokeWidth={1.75} />
+          Configurações
+        </button>
+      ) : (
       <button
         type="button"
         title="Configurações"
@@ -69,6 +85,7 @@ export function SettingsButton({
         </div>
         <ChevronDown style={{ width: 13, height: 13, color: "var(--fg-subtle)", flexShrink: 0 }} strokeWidth={2} />
       </button>
+      )}
 
       <SettingsPanel
         open={open}

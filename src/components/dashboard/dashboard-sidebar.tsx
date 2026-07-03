@@ -69,7 +69,7 @@ export function DashboardSidebar({
         width: touchMode ? "100%" : collapsed ? 52 : 220,
         height: touchMode ? "100%" : "100dvh",
         overflow: "hidden",
-        background: "var(--bg-elevated)",
+        background: "var(--bg)",
         borderRight: "1px solid var(--border)",
         transition: "width 200ms ease",
       }}
@@ -78,35 +78,34 @@ export function DashboardSidebar({
       {/* ── Logo + toggle ── */}
       {!hideHeader && (
         <div style={{
-          padding: collapsed ? "14px 0" : "18px 20px 16px",
+          padding: collapsed ? "14px 0" : "28px 20px 24px",
+          background: "var(--bg-card)",
           borderBottom: "1px solid var(--border)",
           display: "flex",
-          flexDirection: collapsed ? "column" : "column",
-          alignItems: collapsed ? "center" : "stretch",
+          flexDirection: "column",
+          alignItems: "center",
           gap: collapsed ? 8 : 0,
+          position: "relative",
         }}>
           {!collapsed && (
             <>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/favicon.svg" alt={barNome} style={{ width: 52, height: 52, borderRadius: "50%", flexShrink: 0, display: "block" }} />
-                {onToggleCollapse && (
-                  <button onClick={onToggleCollapse} aria-label="Colapsar menu" style={{
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    width: 28, height: 28, borderRadius: 6,
-                    background: "none", border: "none", cursor: "pointer",
-                    color: "var(--fg-subtle)", flexShrink: 0,
-                  }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
-                    <PanelLeft style={{ width: 15, height: 15 }} strokeWidth={1.75} />
-                  </button>
-                )}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {barNome}
-                </span>
-                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>Dashboard geral</span>
-              </div>
+              {onToggleCollapse && (
+                <button onClick={onToggleCollapse} aria-label="Colapsar menu" style={{
+                  position: "absolute", top: 14, right: 14,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 28, height: 28, borderRadius: 6,
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "var(--fg-subtle)", flexShrink: 0,
+                }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
+                  <PanelLeft style={{ width: 15, height: 15 }} strokeWidth={1.75} />
+                </button>
+              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/favicon.svg" alt={barNome} style={{ width: 72, height: 72, borderRadius: "50%", display: "block", marginBottom: 12 }} />
+              <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", textAlign: "center", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {barNome}
+              </span>
+              <span style={{ fontSize: 13, color: "var(--fg-subtle)", marginTop: 2 }}>Dashboard geral</span>
             </>
           )}
           {collapsed && (
@@ -147,9 +146,9 @@ export function DashboardSidebar({
                 borderRadius: 8,
                 marginBottom: 2,
                 fontSize: touchMode ? "15px" : "13px",
-                fontWeight: active ? 500 : 400,
-                color: active ? "var(--fg)" : "var(--fg-muted)",
-                background: active ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+                fontWeight: active ? 600 : 400,
+                color: active ? "var(--accent)" : "var(--fg)",
+                background: "transparent",
                 textDecoration: "none",
                 transition: "background 120ms, color 120ms",
               }}
@@ -158,7 +157,7 @@ export function DashboardSidebar({
               <link.icon
                 className={`${iconSize} shrink-0`}
                 strokeWidth={1.75}
-                style={{ color: active ? "var(--accent-bright)" : "var(--fg-subtle)" }}
+                style={{ color: active ? "var(--accent)" : "var(--fg-subtle)" }}
               />
               {!collapsed && <span style={{ flex: 1 }}>{link.label}</span>}
               {!collapsed && "badge" in link && link.badge && insightCount > 0 && (
@@ -190,24 +189,18 @@ export function DashboardSidebar({
       {/* ── Footer ── */}
       <div style={{ borderTop: "1px solid var(--border)" }}>
 
-        {/* User + settings — só expandido */}
-        {!touchMode && !collapsed && bar && barId && userId && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
-            <span style={{ fontSize: 12, color: "var(--fg-muted)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {userNome.split(" ")[0]}
-            </span>
-            <SettingsButton
-              bar={bar} barId={barId} userId={userId} userNome={userNome}
-              userEmail={userEmail} userAvatarUrl={userAvatarUrl ?? null}
-              autoPedido={autoPedido} taxaServicoPct={taxaServicoPct}
-              alertCount={alertas.length}
-            />
-          </div>
-        )}
-
-        {/* Support links — só expandido */}
+        {/* Configurações / Suporte / Sugestão — só expandido */}
         {!collapsed && (
-          <div style={{ padding: touchMode ? "8px 12px 16px" : "4px 10px 12px" }}>
+          <div style={{ padding: touchMode ? "8px 12px 16px" : "8px 10px 12px" }}>
+            {!touchMode && bar && barId && userId && (
+              <SettingsButton
+                linkMode
+                bar={bar} barId={barId} userId={userId} userNome={userNome}
+                userEmail={userEmail} userAvatarUrl={userAvatarUrl ?? null}
+                autoPedido={autoPedido} taxaServicoPct={taxaServicoPct}
+                alertCount={alertas.length}
+              />
+            )}
             {([
               { label: "Suporte",   type: "suporte",   Icon: HeadphonesIcon },
               { label: "Sugestão",  type: "sugestao",  Icon: Lightbulb },
