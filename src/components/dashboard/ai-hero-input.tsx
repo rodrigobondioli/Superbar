@@ -103,12 +103,12 @@ export function AiHeroInput({
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        ...(fill ? { flex: 1, justifyContent: 'space-between' } : {}),
+        ...(fill ? { flex: 1 } : {}),
       }}>
 
-        <div>
-        {/* Input (topo) */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, padding: '18px 20px 12px' }}>
+        <div style={fill ? { flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 } : undefined}>
+        {/* Input (topo) — cresce pela área de digitação quando fill */}
+        <div style={{ display: 'flex', alignItems: fill ? 'flex-start' : 'flex-end', gap: 12, padding: '18px 20px 12px', ...(fill ? { flex: 1 } : {}) }}>
           <textarea
             ref={textareaRef}
             value={question}

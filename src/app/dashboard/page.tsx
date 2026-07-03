@@ -634,9 +634,9 @@ export default async function DashboardPage() {
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
 
         {/* LEFT column */}
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12, minHeight: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
 
-          <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
+          <AiHeroInput fill barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
 
           {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
             <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, display: "flex", alignItems: "stretch", gap: 32, flexShrink: 0 }}>
@@ -667,11 +667,11 @@ export default async function DashboardPage() {
                 <span style={superLabel}>Impacto direto</span>
                 {impactoEstimado !== null && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, background: "var(--border-strong)", borderRadius: 8, padding: 16 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
                       <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
                       <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>reais</span>
                     </div>
-                    <div style={{ background: "var(--border-strong)", borderRadius: 8, padding: "12px 16px" }}>
+                    <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: "12px 16px" }}>
                       <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                     </div>
                   </div>
