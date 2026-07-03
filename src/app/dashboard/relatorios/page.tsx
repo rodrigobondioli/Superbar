@@ -11,8 +11,6 @@ import {
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
-const dataLonga = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
-const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const kpiCard: React.CSSProperties = {
   background: "var(--bg-card)",
@@ -64,8 +62,7 @@ export default async function RelatoriosPage({
   return (
     <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
 
-      {/* Header: data + título + subtítulo + período */}
-      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>{capitalizar(dataLonga.format(new Date()))}</p>
+      {/* Header: título + subtítulo + período */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Relatórios</h1>
