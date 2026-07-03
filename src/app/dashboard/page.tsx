@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, ArrowUpRight, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import {
   getCurrentBar,
@@ -36,16 +36,23 @@ function capitalizarPrimeiraLetra(texto: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
+// Triângulo preenchido (estilo material arrow-drop-up), igual ao Figma.
+function Tri({ up, color }: { up: boolean; color: string }) {
+  return (
+    <svg width="11" height="9" viewBox="0 0 11 9" style={{ flexShrink: 0 }} aria-hidden>
+      <path d={up ? "M5.5 0 L11 9 L0 9 Z" : "M5.5 9 L11 0 L0 0 Z"} fill={color} />
+    </svg>
+  );
+}
+
 // Delta vs. período anterior (▲/▼ + cor semântica). invert=true → subir é ruim (ex: CMV).
 function DeltaRow({ value, invert = false }: { value: number | null | undefined; invert?: boolean }) {
   if (value === null || value === undefined) return null;
   const up = value >= 0;
   const good = invert ? !up : up;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
-      {up
-        ? <ArrowUp size={14} strokeWidth={2.5} style={{ color: good ? "var(--ok)" : "var(--danger)", flexShrink: 0 }} />
-        : <ArrowDown size={14} strokeWidth={2.5} style={{ color: good ? "var(--ok)" : "var(--danger)", flexShrink: 0 }} />}
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+      <Tri up={up} color={good ? "var(--ok)" : "var(--danger)"} />
       <span style={{ color: "var(--fg-muted)" }}>
         {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
       </span>
@@ -85,12 +92,12 @@ const kpiCard: React.CSSProperties = {
   background: "var(--bg-card)",
   border: "1px solid var(--border)",
   borderRadius: 20,
-  padding: "16px 20px 18px",
+  padding: "22px 26px 24px",
   display: "flex",
   flexDirection: "column",
 };
-const kpiLabel: React.CSSProperties = { fontSize: 13, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { fontSize: 54, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 4 };
+const kpiLabel: React.CSSProperties = { fontSize: 15, color: "var(--fg-muted)" };
+const kpiMetric: React.CSSProperties = { fontSize: 60, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 8 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", margin: "12px 0 8px" };
 
 export default async function DashboardPage() {
@@ -632,7 +639,7 @@ export default async function DashboardPage() {
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
               <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
-              <ArrowUpRight size={16} strokeWidth={2.5} style={{ color: "var(--accent)" }} />
+              <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--accent)" }} />
             </span>
           </div>
         ))}
@@ -651,8 +658,8 @@ export default async function DashboardPage() {
               <div>
                 <span style={sectionLabel}>Super ação</span>
                 <p style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1.1, margin: "6px 0 8px" }}>{produtosTop5[0].produtoNome}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
-                  <ArrowUp size={14} strokeWidth={2.5} style={{ color: "var(--ok)", flexShrink: 0 }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                  <Tri up color="var(--ok)" />
                   <span style={{ color: "var(--fg-muted)" }}>{Math.round(produtosTop5[0].margemPercentual)}% de margem</span>
                 </div>
               </div>
