@@ -379,7 +379,7 @@ function ProdutoRow({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          padding: "10px 12px",
+          padding: "14px 12px",
           borderRadius: variantesOpen ? "4px 4px 0 0" : 4,
           background: hovered || variantesOpen
             ? "color-mix(in srgb, var(--fg) 4%, transparent)"
@@ -393,22 +393,22 @@ function ProdutoRow({
           onClick={!produto.imagem_url ? () => setEditing(true) : undefined}
           title={!produto.imagem_url ? "Adicionar imagem" : undefined}
           style={{
-            width: 56, height: 56, borderRadius: 4, flexShrink: 0,
+            width: 80, height: 80, borderRadius: 8, flexShrink: 0,
             background: produto.imagem_url
               ? `url(${produto.imagem_url}) center/cover`
-              : "var(--bg-inset)",
+              : "var(--bg-card)",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: produto.imagem_url ? "default" : "pointer",
           }}>
-          {!produto.imagem_url && <ImageIcon style={{ width: 22, height: 22, color: "var(--fg-subtle)" }} />}
+          {!produto.imagem_url && <ImageIcon style={{ width: 24, height: 24, color: "var(--fg-subtle)" }} />}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {produto.nome}
           </p>
           {produto.descricao && (
-            <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "4px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {produto.descricao}
             </p>
           )}
@@ -423,9 +423,9 @@ function ProdutoRow({
             background: variantesOpen
               ? "color-mix(in srgb, var(--accent-bright) 16%, transparent)"
               : "color-mix(in srgb, var(--fg) 6%, transparent)",
-            border: "none", borderRadius: 4, padding: "3px 8px",
-            color: variantesOpen ? "var(--accent-bright)" : "var(--fg-muted)",
-            fontSize: 11, fontWeight: 500, cursor: "pointer",
+            border: "none", borderRadius: 999, padding: "8px 16px",
+            color: variantesOpen ? "var(--accent-bright)" : "var(--fg)",
+            fontSize: 13, fontWeight: 600, cursor: "pointer",
             flexShrink: 0,
           }}
         >
@@ -442,7 +442,7 @@ function ProdutoRow({
             : <ChevronDown style={{ width: 11, height: 11 }} />}
         </button>
 
-        <span style={{ fontSize: 13, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+        <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
           {currency.format(produto.preco)}
         </span>
 
@@ -623,43 +623,30 @@ export function CardapioClient({
   return (
     <div className="flex flex-col lg:h-full lg:overflow-hidden">
 
-      {/* Page header */}
-      <div className="flex items-start justify-between gap-3 flex-wrap mb-5 shrink-0">
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: 0 }}>
-            Cardápio
-          </h1>
-          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "4px 0 0" }}>
-            Gerencie categorias e produtos do seu bar.
-          </p>
+      {/* Page header — padrão Figma */}
+      <div className="shrink-0" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, marginBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Gerencie categorias e produtos do seu bar.</p>
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-          <button
-            onClick={() => setImportPanelOpen(true)}
-            style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "7px 16px",
-              background: "transparent",
-              border: "1px solid var(--border-strong)",
-              borderRadius: "var(--radius-lg)",
-              color: "var(--fg)",
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            <FileSpreadsheet style={{ width: 14, height: 14 }} />
-            Importar planilha
-          </button>
           {selectedGrupo && (
             <button
               onClick={() => setAddingProduto(p => !p)}
-              style={{ ...btnPrimary, display: "flex", alignItems: "center", gap: 6, padding: "8px 16px" }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer" }}
+              className="hover:brightness-110"
             >
-              <Plus style={{ width: 14, height: 14 }} />
+              <Plus style={{ width: 15, height: 15 }} />
               Novo produto
             </button>
           )}
+          <button
+            onClick={() => setImportPanelOpen(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "12px 24px", color: "var(--fg)", fontSize: 15, fontWeight: 500, cursor: "pointer" }}
+          >
+            <FileSpreadsheet style={{ width: 15, height: 15 }} />
+            Importar planilha
+          </button>
         </div>
       </div>
 
@@ -723,7 +710,7 @@ export function CardapioClient({
           className="flex flex-row overflow-x-auto gap-1 pb-3 border-b lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:w-[240px] lg:border-b-0 lg:border-r lg:pr-4 lg:pb-4 shrink-0"
           style={{ borderColor: "var(--border)" }}
         >
-          <p className="hidden lg:block shrink-0" style={{ ...lbl, marginBottom: 12 }}>Categorias</p>
+          <p className="hidden lg:block shrink-0" style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 16 }}>Categorias</p>
 
           {cardapio.map(grupo => (
             <CategoriaItem
@@ -776,7 +763,7 @@ export function CardapioClient({
           {!selectedGrupo ? null : (
             <>
               <div style={{ marginBottom: 16 }}>
-                <h2 style={{ fontSize: 14, fontWeight: 500, color: "var(--fg-muted)", margin: 0, fontFamily: "var(--font-mono)" }}>
+                <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
                   {selectedGrupo.categoria.nome}
                 </h2>
               </div>

@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getCardapioAdmin } from "@/lib/cardapio/queries";
 import { CardapioClient } from "@/components/cardapio/cardapio-client";
-import { LABEL, H1, SUBTITLE } from "@/lib/ui";
 
 export default async function CardapioPage() {
   const current = await getCurrentBar();
