@@ -20,32 +20,33 @@ export interface ButtonProps extends React.ComponentPropsWithoutRef<"button"> {
   size?: ButtonSize;
 }
 
+// Padrão SUPERBAR: TODO botão é pill (rounded-full), conforme DESIGN.md.
 const base =
-  "inline-flex items-center justify-center gap-2 font-semibold transition-[background,opacity,transform] duration-150 " +
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-[background,opacity,transform] duration-150 " +
   "active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 " +
   "select-none whitespace-nowrap [-webkit-tap-highlight-color:transparent]";
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "rounded-lg bg-accent text-accent-fg hover:brightness-105",
+    "bg-accent text-accent-fg hover:brightness-105",
   secondary:
-    "rounded-lg border border-border-strong bg-transparent text-fg " +
+    "border border-border-strong bg-transparent text-fg " +
     "hover:bg-bg-hover hover:border-fg-subtle",
   ghost:
-    "rounded-lg bg-transparent text-fg-muted " +
+    "bg-transparent text-fg-muted " +
     "hover:bg-bg-hover hover:text-fg",
   danger:
-    "rounded-lg bg-danger text-white hover:brightness-105",
+    "bg-danger text-white hover:brightness-105",
   op:
-    "rounded-[10px] bg-accent text-accent-fg hover:brightness-105",
+    "bg-accent text-accent-fg hover:brightness-105",
   "op-secondary":
-    "rounded-[10px] border border-border bg-transparent text-fg-muted " +
+    "border border-border bg-transparent text-fg-muted " +
     "hover:bg-bg-hover hover:border-fg-subtle",
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm:      "h-7 px-3 text-xs",
-  default: "h-9 px-[18px] text-[13px]",
+  sm:      "h-8 px-4 text-[13px]",
+  default: "h-10 px-6 text-[15px]",
   lg:      "h-11 px-6 text-[15px]",
 };
 

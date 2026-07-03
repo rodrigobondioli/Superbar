@@ -205,14 +205,16 @@ Breakpoints:
 
 ## Botões
 
-| Variante       | Background   | Texto      | Borda  | Border-radius | Uso                        |
-|---------------|-------------|-----------|--------|---------------|----------------------------|
-| Primary        | `#FF3500`   | `#000000` | none   | 9999px        | CTA principal em todas as telas |
-| Dark           | `#000000`   | `#ffffff` | none   | 9999px        | CTA sobre fundo laranja (modal, CTA section) |
-| Subtle         | `var(--bg-card)` | `var(--fg)` | `1px solid #2C2C2E` | 9999px | Ações secundárias |
-| Destructive    | `var(--danger-bg)` | `var(--danger)` | none | 8px | Ações destrutivas |
+**Regra dura:** TODO botão é **pill** (`border-radius: 9999px`). Nunca use raios diferentes (4/8/12) em botões — isso quebra o padrão. Sempre que possível use o componente `<Button>` (`src/components/ui/button.tsx`), não botão na mão.
 
-Padding padrão: `14px 32px`. Min-height: `44px` (touch target).
+| Variante (componente) | Background   | Texto      | Borda  | Border-radius | Uso                        |
+|-----------------------|-------------|-----------|--------|---------------|----------------------------|
+| `primary`             | `#FF3500`   | `#111113` | none   | 9999px        | CTA principal em todas as telas |
+| `secondary`           | transparente | `var(--fg)` | `1px solid var(--border-strong)` | 9999px | Ações secundárias (Cancelar, etc.) |
+| `ghost`               | transparente | `var(--fg-muted)` | none | 9999px | Ações terciárias |
+| `danger`              | `var(--danger)` | `#fff` | none | 9999px | Ações destrutivas |
+
+Tamanhos (componente): `sm` = h-8 / px-4 / 13px · `default` = h-10 / px-6 / 15px · `lg` = h-11 / px-6 / 15px. Altura mínima operacional (iPad) via variantes `op` (≥52px).
 
 ---
 

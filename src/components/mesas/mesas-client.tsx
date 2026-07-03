@@ -76,8 +76,8 @@ function MesaPanel({ mode, mesa, nextNumero, open, onClose }: {
               <input name="capacidade" defaultValue={mesa?.capacidade ?? ""} placeholder="Ex: 4" type="number" min={1} style={inp} />
             </div>
             <div style={{ display: "flex", gap: 8, paddingTop: 8 }}>
-              <button type="submit" style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px", fontSize: 14, fontWeight: 500, cursor: "pointer" }} className="hover:brightness-110">Salvar</button>
-              <button type="button" onClick={onClose} style={{ background: "transparent", color: "var(--fg-muted)", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "12px 16px", fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+              <button type="submit" style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }} className="hover:brightness-110">Salvar</button>
+              <button type="button" onClick={onClose} style={{ background: "transparent", color: "var(--fg)", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Cancelar</button>
             </div>
           </form>
         </div>
@@ -248,7 +248,7 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
         </div>
-        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
+        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
           <Plus style={{ width: 15, height: 15 }} /> Nova mesa
         </button>
       </div>

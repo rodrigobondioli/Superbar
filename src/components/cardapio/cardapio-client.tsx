@@ -51,20 +51,20 @@ const btnPrimary: React.CSSProperties = {
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: "var(--radius-lg)",
-  padding: "7px 16px",
-  fontSize: 13,
-  fontWeight: 600,
+  borderRadius: 999,
+  padding: "10px 24px",
+  fontSize: 14,
+  fontWeight: 500,
   cursor: "pointer",
 };
 
 const btnSecondary: React.CSSProperties = {
   background: "transparent",
-  color: "var(--fg-muted)",
+  color: "var(--fg)",
   border: "1px solid var(--border-strong)",
-  borderRadius: 4,
-  padding: "9px 18px",
-  fontSize: 13,
+  borderRadius: 999,
+  padding: "10px 24px",
+  fontSize: 14,
   fontWeight: 500,
   cursor: "pointer",
   whiteSpace: "nowrap",
@@ -633,7 +633,7 @@ export function CardapioClient({
           {selectedGrupo && (
             <button
               onClick={() => setAddingProduto(p => !p)}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
               className="hover:brightness-110"
             >
               <Plus style={{ width: 15, height: 15 }} />
@@ -642,7 +642,7 @@ export function CardapioClient({
           )}
           <button
             onClick={() => setImportPanelOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "12px 24px", color: "var(--fg)", fontSize: 15, fontWeight: 500, cursor: "pointer" }}
+            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
           >
             <FileSpreadsheet style={{ width: 15, height: 15 }} />
             Importar planilha
