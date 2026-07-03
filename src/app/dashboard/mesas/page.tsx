@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { MesasClient } from "@/components/mesas/mesas-client";
 import { createClient } from "@/lib/supabase/server";
-import { LABEL, H1, SUBTITLE } from "@/lib/ui";
 import type { Mesa } from "@/types/database";
+
+const dataLonga = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default async function MesasPage() {
   const current = await getCurrentBar();
@@ -44,10 +46,13 @@ export default async function MesasPage() {
 
   return (
     <div className="py-6 lg:px-10 lg:py-8">
-      {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={H1}>Mesas</h1>
-        <p style={SUBTITLE}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
+      {/* Header — data + título + subtítulo (Figma) */}
+      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 24px" }}>
+        {capitalizar(dataLonga.format(new Date()))}
+      </p>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", marginBottom: 12, paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
+        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
       </div>
 
       <MesasClient
