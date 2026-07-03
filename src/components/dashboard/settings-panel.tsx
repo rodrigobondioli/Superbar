@@ -12,15 +12,14 @@ import type { Bar } from "@/types/database";
 // ─── Shared inline styles ────────────────────────────────────────────────────
 
 const lbl: React.CSSProperties = {
-  fontSize: 11, fontWeight: 500, textTransform: "uppercase",
-  letterSpacing: "0.1em", color: "var(--fg-subtle)",
-  display: "block", marginBottom: 6,
+  fontSize: 13, fontWeight: 500, color: "var(--fg-muted)",
+  display: "block", marginBottom: 8,
 };
 
 const inp: React.CSSProperties = {
   width: "100%", background: "var(--bg-inset)",
-  border: "1px solid var(--border)", borderRadius: 4,
-  padding: "10px 12px", fontSize: 13, color: "var(--fg)",
+  border: "1px solid var(--border)", borderRadius: 8,
+  padding: "12px", fontSize: 14, color: "var(--fg)",
   outline: "none",
   colorScheme: "dark" as React.CSSProperties["colorScheme"],
   boxSizing: "border-box" as React.CSSProperties["boxSizing"],
@@ -41,7 +40,7 @@ function Feedback({ result }: { result: ActionResult }) {
   const isOk = "ok" in result && result.ok;
   return (
     <div style={{
-      padding: "10px 14px", borderRadius: 4, fontSize: 13,
+      padding: "10px 14px", borderRadius: 8, fontSize: 13,
       background: isOk ? "var(--ok-bg)" : "var(--danger-bg)",
       border: `1px solid color-mix(in srgb, ${isOk ? "var(--ok)" : "var(--danger)"} 30%, transparent)`,
       color: isOk ? "var(--ok)" : "var(--danger)",
@@ -214,8 +213,8 @@ function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
           style={{
             alignSelf: "flex-start",
             background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: 4,
-            padding: "10px 20px", fontSize: 13, fontWeight: 600,
+            border: "none", borderRadius: 999,
+            padding: "10px 24px", fontSize: 14, fontWeight: 500,
             cursor: pending ? "default" : "pointer",
             opacity: pending ? 0.7 : 1,
             transition: "filter 150ms, opacity 150ms",
@@ -308,8 +307,8 @@ function MinhaConta({
           style={{
             alignSelf: "flex-start",
             background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: 4,
-            padding: "10px 20px", fontSize: 13, fontWeight: 600,
+            border: "none", borderRadius: 999,
+            padding: "10px 24px", fontSize: 14, fontWeight: 500,
             cursor: pending ? "default" : "pointer",
             opacity: pending ? 0.7 : 1,
             transition: "filter 150ms, opacity 150ms",
@@ -448,9 +447,9 @@ function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string;
             onClick={handleTaxaSave}
             disabled={taxaSaving}
             style={{
-              padding: "8px 14px", borderRadius: 4, border: "none",
+              padding: "10px 20px", borderRadius: 999, border: "none",
               background: "var(--accent)", color: "var(--accent-fg)",
-              fontSize: 12, fontWeight: 700, cursor: taxaSaving ? "default" : "pointer",
+              fontSize: 14, fontWeight: 500, cursor: taxaSaving ? "default" : "pointer",
               opacity: taxaSaving ? 0.6 : 1,
               whiteSpace: "nowrap",
             }}
