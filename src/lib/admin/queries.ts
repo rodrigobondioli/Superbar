@@ -701,3 +701,75 @@ export async function getLeads(): Promise<Lead[]> {
   if (error) return [];
   return data ?? [];
 }
+
+// ─── Evolução mensal por bar (prova de valor pra retenção/upsell) ──────────────
+export interface EvolucaoMes {
+  mes: string;          // "2026-03"
+  label: string;        // "mar/26"
+  faturamento: number;
+  ticket: number | null;
+  cmv: number | null;    // %
+  margem: number | null; // %
+}
+
+/**
+ * Série mensal de faturamento, ticket médio, CMV e margem de um bar.
+ * Base da prova de valor: "seu ticket subiu X% desde que entrou no SUPERBAR".
+ * Service role — só admin da plataforma.
+ */
+export async function getBarEvolucaoMensal(barId: string, meses = 6): Promise<EvolucaoMes[]> {
+  const admin = createAdminClient();
+
+  const inicio = new Date();
+  inicio.setMonth(inicio.getMonth() - (meses - 1));
+  inicio.setDate(1);
+  inicio.setHours(0, 0, 0, 0);
+
+  const [{ data: pagamentos }, { data: itens }] = await Promise.all([
+    admin.from("pagamentos")
+      .select("valor, comanda_id, processado_em")
+      .eq("bar_id", barId).eq("status", "confirmado")
+      .gte("processado_em", inicio.toISOString())
+      .returns<{ valor: number; comanda_id: string; processado_em: string }[]>(),
+    admin.from("comanda_items")
+      .select("quantidade, preco_total, adicionado_em, produtos(custo)")
+      .eq("bar_id", barId).eq("status", "ativo")
+      .gte("adicionado_em", inicio.toISOString())
+      .returns<{ quantidade: number; preco_total: number; adicionado_em: string; produtos: { custo: number | null } | null }[]>(),
+  ]);
+
+  const mesKey = (iso: string) => iso.slice(0, 7); // YYYY-MM
+
+  type Bucket = { fat: number; comandas: Set<string>; custo: number; receitaComCusto: number };
+  const buckets = new Map<string, Bucket>();
+  for (let i = 0; i < meses; i++) {
+    const d = new Date(inicio); d.setMonth(inicio.getMonth() + i);
+    buckets.set(mesKey(d.toISOString()), { fat: 0, comandas: new Set(), custo: 0, receitaComCusto: 0 });
+  }
+
+  for (const p of pagamentos ?? []) {
+    const b = buckets.get(mesKey(p.processado_em)); if (!b) continue;
+    b.fat += Number(p.valor); b.comandas.add(p.comanda_id);
+  }
+  for (const it of itens ?? []) {
+    const b = buckets.get(mesKey(it.adicionado_em)); if (!b) continue;
+    if (it.produtos?.custo != null) {
+      b.custo += Number(it.produtos.custo) * Number(it.quantidade);
+      b.receitaComCusto += Number(it.preco_total);
+    }
+  }
+
+  const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  return [...buckets.entries()].map(([mes, b]) => {
+    const [ano, m] = mes.split("-");
+    const cmv = b.receitaComCusto > 0 ? Math.round((b.custo / b.receitaComCusto) * 100) : null;
+    return {
+      mes,
+      label: `${nomes[Number(m) - 1]}/${ano.slice(2)}`,
+      faturamento: Math.round(b.fat),
+      ticket: b.comandas.size > 0 ? Math.round(b.fat / b.comandas.size) : null,
+      cmv,
+      margem: cmv !== null ? 100 - cmv : null,
+    };
+  });
+}

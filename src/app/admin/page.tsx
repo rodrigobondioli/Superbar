@@ -41,6 +41,18 @@ export default async function AdminPage() {
     .sort((a, b) => (b.plano_preco ?? 0) - (a.plano_preco ?? 0));
   const mrrEmRisco = emRisco.reduce((s, b) => s + (b.plano_preco ?? 0), 0);
 
+  // Potencial de conversão (trials) — pipeline de receita
+  const potencialTrial = trials.reduce((s, b) => s + (b.plano_preco ?? 0), 0);
+
+  // Distribuição por plano (só pagantes) — de onde vem o MRR
+  const porPlano = new Map<string, { count: number; mrr: number }>();
+  for (const b of pagantes) {
+    if (!b.plano_nome || !b.plano_preco) continue;
+    const cur = porPlano.get(b.plano_nome) ?? { count: 0, mrr: 0 };
+    porPlano.set(b.plano_nome, { count: cur.count + 1, mrr: cur.mrr + b.plano_preco });
+  }
+  const planos = [...porPlano.entries()].sort(([, a], [, b]) => b.mrr - a.mrr);
+
   const motivoRisco = (b: (typeof bares)[number]) => {
     if (b.assinatura_status === "inadimplente") return { txt: "Inadimplente — pagamento em atraso", cor: "var(--danger)" };
     const d = b.dias_sem_uso ?? 0;
@@ -72,6 +84,7 @@ export default async function AdminPage() {
           <p style={{ ...cardMetric, color: "var(--accent)" }}><Cifrao />{mrr.toLocaleString("pt-BR")}</p>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
             {pagantes.length} {pagantes.length === 1 ? "assinatura ativa" : "assinaturas ativas"}
+            {potencialTrial > 0 && ` · +${currency.format(potencialTrial)} em ${trials.length} trial${trials.length !== 1 ? "s" : ""}`}
           </p>
         </div>
 
@@ -96,6 +109,38 @@ export default async function AdminPage() {
           </p>
         </div>
       </div>
+
+      {/* Distribuição por plano */}
+      {planos.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16, paddingTop: 8 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0 }}>Distribuição por plano</h2>
+            <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>de onde vem a receita recorrente</span>
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                {(["Plano", "Clientes", "MRR", "% do total"] as const).map((h, i) => (
+                  <th key={h} style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", padding: "0 0 12px", textAlign: i === 0 ? "left" : "right", borderBottom: "1px solid var(--border-strong)" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {planos.map(([nome, d]) => {
+                const tdNum: React.CSSProperties = { fontSize: 15, color: "var(--fg)", padding: "14px 0", textAlign: "right", fontVariantNumeric: "tabular-nums", borderTop: "1px solid var(--border-strong)" };
+                return (
+                  <tr key={nome}>
+                    <td style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", padding: "14px 0", borderTop: "1px solid var(--border-strong)" }}>{nome}</td>
+                    <td style={{ ...tdNum, color: "var(--fg-muted)" }}>{d.count}</td>
+                    <td style={{ ...tdNum, fontWeight: 600 }}>{currency.format(d.mrr)}</td>
+                    <td style={{ ...tdNum, color: "var(--fg-muted)" }}>{mrr > 0 ? `${Math.round((d.mrr / mrr) * 100)}%` : "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Lista: receita em risco */}
       <div>

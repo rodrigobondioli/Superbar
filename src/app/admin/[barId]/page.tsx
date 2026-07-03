@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getAdminBarDetalhe } from "@/lib/admin/queries";
-import type { BarDetalhe, HealthScore, ImplantacaoScore } from "@/lib/admin/queries";
+import { getAdminBarDetalhe, getBarEvolucaoMensal } from "@/lib/admin/queries";
+import type { BarDetalhe, HealthScore, ImplantacaoScore, EvolucaoMes } from "@/lib/admin/queries";
 import type { AssinaturaStatus } from "@/types/database";
 import { suspenderBar, reativarBar, alterarStatusAssinatura } from "@/lib/admin/actions";
 
@@ -113,6 +113,67 @@ function StatBlock({ label, value, sub, color }: { label: string; value: string 
   );
 }
 
+// ── Evolução mensal (prova de valor) ──
+function EvolucaoSection({ meses }: { meses: EvolucaoMes[] }) {
+  const comDado = meses.filter(m => m.faturamento > 0 || m.ticket !== null);
+  if (comDado.length < 2) return null;
+
+  const c0 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+  function delta(vals: (number | null)[], mode: "pct" | "pp", upGood: boolean): { txt: string; cor: string } | null {
+    const nn = vals.filter((v): v is number => v !== null);
+    if (nn.length < 2) return null;
+    const first = nn[0], last = nn[nn.length - 1];
+    let raw: number;
+    if (mode === "pct") { if (first === 0) return null; raw = ((last - first) / first) * 100; }
+    else raw = last - first;
+    const melhora = upGood ? raw >= 0 : raw <= 0;
+    return { txt: `${raw > 0 ? "+" : ""}${Math.round(raw)}${mode === "pct" ? "%" : "pp"}`, cor: raw === 0 ? "var(--fg-muted)" : melhora ? "var(--ok)" : "var(--danger)" };
+  }
+
+  const th: React.CSSProperties = { fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", padding: "0 0 12px", textAlign: "right", whiteSpace: "nowrap", borderBottom: "1px solid var(--border-strong)" };
+  const td: React.CSSProperties = { fontSize: 15, color: "var(--fg)", padding: "14px 0", textAlign: "right", fontVariantNumeric: "tabular-nums", borderTop: "1px solid var(--border-strong)", whiteSpace: "nowrap" };
+
+  const linhas: { label: string; fmt: (v: number | null) => string; vals: (number | null)[]; mode: "pct" | "pp"; upGood: boolean }[] = [
+    { label: "Faturamento",  fmt: v => v && v > 0 ? c0.format(v) : "—", vals: comDado.map(m => m.faturamento || null), mode: "pct", upGood: true },
+    { label: "Ticket médio", fmt: v => v !== null ? c0.format(v) : "—", vals: comDado.map(m => m.ticket), mode: "pct", upGood: true },
+    { label: "CMV",          fmt: v => v !== null ? `${v}%` : "—",       vals: comDado.map(m => m.cmv),    mode: "pp",  upGood: false },
+    { label: "Margem",       fmt: v => v !== null ? `${v}%` : "—",       vals: comDado.map(m => m.margem), mode: "pp",  upGood: true },
+  ];
+
+  return (
+    <section>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0 }}>Evolução</h2>
+        <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>prova de valor pra renovação — 1º ao último mês com dado</span>
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+          <thead>
+            <tr>
+              <th style={{ ...th, textAlign: "left" }}>Métrica</th>
+              {comDado.map(m => <th key={m.mes} style={th}>{m.label}</th>)}
+              <th style={th}>Variação</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map(l => {
+              const d = delta(l.vals, l.mode, l.upGood);
+              return (
+                <tr key={l.label}>
+                  <td style={{ ...td, textAlign: "left", color: "var(--fg-muted)", fontSize: 13 }}>{l.label}</td>
+                  {l.vals.map((v, i) => <td key={i} style={td}>{l.fmt(v)}</td>)}
+                  <td style={{ ...td, fontWeight: 600, color: d ? d.cor : "var(--fg-subtle)" }}>{d ? d.txt : "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function AdminBarPage({
@@ -121,7 +182,10 @@ export default async function AdminBarPage({
   params: Promise<{ barId: string }>;
 }) {
   const { barId } = await params;
-  const bar: BarDetalhe | null = await getAdminBarDetalhe(barId);
+  const [bar, evolucao] = await Promise.all([
+    getAdminBarDetalhe(barId),
+    getBarEvolucaoMensal(barId),
+  ]);
   if (!bar) notFound();
 
   const health = HEALTH_CONFIG[bar.healthScore];
