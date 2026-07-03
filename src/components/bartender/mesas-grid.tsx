@@ -169,7 +169,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
             {capacidade} lugares
           </span>
         )}
-        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--accent)" }}>
+        <span style={{ alignSelf: "flex-start", marginTop: 2, display: "inline-flex", padding: "7px 16px", borderRadius: 999, border: "1px solid var(--border-strong)", color: "var(--accent)", fontSize: 13, fontWeight: 500 }}>
           + Abrir comanda
         </span>
       </button>
@@ -182,7 +182,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
   const borderColor = hasChamada
     ? "var(--danger)"
     : hasAguardando
-      ? "var(--accent)"
+      ? "var(--warn)"
       : "var(--border)";
 
   return (
