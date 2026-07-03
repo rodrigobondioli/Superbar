@@ -93,7 +93,7 @@ export default async function AdminPage() {
           <p style={cardLabel}>Clientes</p>
           <p style={cardMetric}>{bares.length}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
-            <span style={{ fontSize: 13, color: "var(--ok)" }}>● {pagantes.length} pagantes</span>
+            <span style={{ fontSize: 13, color: "var(--ok)" }}>● {pagantes.length} pagante{pagantes.length !== 1 ? "s" : ""}</span>
             {trials.length > 0 && <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>● {trials.length} em trial</span>}
             {inadimplentes.length > 0 && <span style={{ fontSize: 13, color: "var(--danger)" }}>● {inadimplentes.length} inadimplente{inadimplentes.length !== 1 ? "s" : ""}</span>}
             {cancelados.length > 0 && <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>● {cancelados.length} cancelado{cancelados.length !== 1 ? "s" : ""}</span>}
@@ -151,7 +151,7 @@ export default async function AdminPage() {
 
         {emRisco.length === 0 ? (
           <p style={{ fontSize: 14, color: "var(--fg-muted)", padding: "24px 0" }}>
-            Nenhum cliente pagante em risco. Toda a receita recorrente está ativa e sendo usada. ✅
+            Nenhum cliente pagante em risco — toda a receita recorrente está ativa e sendo usada.
           </p>
         ) : (
           <div>
