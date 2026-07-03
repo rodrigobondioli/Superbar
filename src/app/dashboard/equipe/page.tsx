@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getMembrosEquipe } from "@/lib/equipe/queries";
-import { LABEL, H1, SUBTITLE, CARD } from "@/lib/ui";
+import { LABEL, CARD } from "@/lib/ui";
 import { EquipeMembros } from "@/components/equipe/equipe-membros";
 import { ConvidarForm } from "@/components/equipe/convidar-form";
 
@@ -24,11 +24,11 @@ export default async function EquipePage() {
   return (
     <div className="py-6 lg:px-10 lg:py-8">
 
-      {/* ── Header ── */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={H1}>Equipe</h1>
-        <p style={SUBTITLE}>
-          {ativos.length} membro{ativos.length !== 1 ? "s" : ""} ativo{ativos.length !== 1 ? "s" : ""}
+      {/* ── Header — padrão Figma ── */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, marginBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Equipe</h1>
+        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+          {ativos.length} {ativos.length === 1 ? "membro ativo" : "membros ativos"}
         </p>
       </div>
 

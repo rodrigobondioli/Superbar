@@ -258,7 +258,7 @@ function MembroItem({
 
       {/* Info */}
       <div className="flex-1 min-w-0" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <MemberAvatar memberId={m.id} nome={nome} fotoUrl={m.fotoUrl} size={34} canUpload={isDono} />
+        <MemberAvatar memberId={m.id} nome={nome} fotoUrl={m.fotoUrl} size={36} canUpload={isDono} />
         {isDono && editingNome ? (
           <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, minWidth: 0 }}>
             <input
@@ -284,7 +284,7 @@ function MembroItem({
             onClick={() => isDono && setEditingNome(true)}
             title={isDono ? "Clique para editar o nome" : undefined}
             style={{
-              fontSize: 14, fontWeight: 500, color: "var(--fg)", margin: 0,
+              fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               cursor: isDono ? "text" : "default",
             }}
