@@ -547,13 +547,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const margemView = 100 - cmvView;
   const vereditoView = margemView >= 60 ? { txt: "Saudável", cor: "var(--ok)" } : margemView >= 45 ? { txt: "Atenção", cor: "var(--warn)" } : { txt: "Baixa", cor: "var(--danger)" };
 
-  // Top drinks (DEMO) — total gerado por drink no turno (nome real, valor simulado com dispersão) escalando com o período
+  // Top drinks (DEMO) — total gerado por drink no turno + quantidade vendida.
+  // Nome e preço unitário são reais; volume é simulado com dispersão e escala com o período.
+  // Quando o bar for real, trocar por getProdutosVendidosPeriodo (já traz quantidadeVendida real).
   const topShares = [1, 0.83, 0.64, 0.47, 0.36, 0.28];
-  const topTopo = 1460; // R$ do 1º colocado (hoje)
-  const topDrinksView = produtosTop5.slice(0, 6).map((p, i) => ({
-    nome: p.produtoNome,
-    total: Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22)),
-  }));
+  const topTopo = 720; // R$ do 1º colocado (hoje)
+  const topDrinksView = produtosTop5.slice(0, 6).map((p, i) => {
+    const total = Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22));
+    const precoUnit = p.quantidadeVendida > 0 ? p.faturamento / p.quantidadeVendida : (p.faturamento || 25);
+    const qtd = Math.max(1, Math.round(total / Math.max(precoUnit, 5)));
+    return { nome: p.produtoNome, total, qtd };
+  });
 
   return (
     <div style={{
@@ -711,7 +715,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
                     <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
                       <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome} <span style={{ color: "var(--fg-muted)" }}>({p.qtd})</span></span>
                     </span>
                     <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
                   </div>
