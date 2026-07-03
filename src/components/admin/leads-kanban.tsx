@@ -4,15 +4,16 @@ import { useState, useTransition, useRef, useEffect } from "react";
 import type { Lead } from "@/lib/admin/queries";
 import { updateLead, deleteLead } from "@/lib/admin/actions";
 import { createClient } from "@/lib/supabase/client";
+import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
 const STAGES = [
-  { id: "novo",       label: "Novo",       color: "#3b82f6" },
-  { id: "contatado",  label: "Contatado",  color: "var(--accent)" },
-  { id: "demo",       label: "Demo",       color: "#8b5cf6" },
-  { id: "convertido", label: "Convertido", color: "var(--ok)" },
-  { id: "perdido",    label: "Perdido",    color: "var(--fg-subtle)" },
+  { id: "novo",       label: "Novo" },
+  { id: "contatado",  label: "Contatado" },
+  { id: "demo",       label: "Demo" },
+  { id: "convertido", label: "Convertido" },
+  { id: "perdido",    label: "Perdido" },
 ] as const;
 
 type StageId = typeof STAGES[number]["id"];
@@ -22,20 +23,15 @@ const TIPO_OPTIONS   = ["Coquetelaria", "Wine Bar", "Speakeasy", "Gastrobar", "O
 
 const inputStyle: React.CSSProperties = {
   width: "100%", background: "var(--bg)", border: "1px solid var(--border)",
-  borderRadius: 6, padding: "8px 10px", fontSize: 13, color: "var(--fg)",
+  borderRadius: 8, padding: "10px 12px", fontSize: 14, color: "var(--fg)",
   outline: "none", fontFamily: "var(--font-sans)", boxSizing: "border-box",
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
-  textTransform: "uppercase", color: "var(--fg-subtle)", display: "block", marginBottom: 5,
+  fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", display: "block", marginBottom: 6,
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function stageColor(id: string) {
-  return STAGES.find(s => s.id === id)?.color ?? "var(--fg-subtle)";
-}
 
 function toDateInput(iso: string | null): string {
   if (!iso) return "";
@@ -58,8 +54,8 @@ function FollowUpChip({ date }: { date: string }) {
     : diffDays === 1 ? "Amanhã"
     : `${diffDays}d`;
   return (
-    <span style={{ fontSize: 10, color, fontWeight: diffDays <= 0 ? 700 : 400 }}>
-      ⏰ {label}
+    <span style={{ fontSize: 12, color, fontWeight: diffDays <= 0 ? 600 : 400 }}>
+      {label}
     </span>
   );
 }
@@ -80,56 +76,55 @@ function LeadCard({
       onDragStart={onDragStart}
       onClick={onClick}
       style={{
-        background: "var(--bg-elevated)",
+        background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderRadius: 8,
-        padding: "12px 12px 10px",
+        borderRadius: 12,
+        padding: "14px 14px 12px",
         cursor: "grab",
         userSelect: "none",
         opacity: isDragging ? 0.4 : 1,
-        transition: "opacity 150ms, box-shadow 150ms",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+        transition: "opacity 150ms, border-color 150ms",
       }}
     >
-      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", margin: "0 0 1px", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: "0 0 2px", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {lead.nome_bar}
       </p>
-      <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {[lead.cidade, lead.tipo_bar].filter(Boolean).join(" · ")}
       </p>
 
       {lead.nome_responsavel && (
-        <p style={{ fontSize: 11, color: "var(--fg-muted)", margin: "0 0 4px" }}>{lead.nome_responsavel}</p>
+        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 6px" }}>{lead.nome_responsavel}</p>
       )}
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
         {lead.whatsapp && (
           <a href={`https://wa.me/${lead.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer"
             onClick={e => e.stopPropagation()}
-            style={{ fontSize: 11, color: "var(--ok)", textDecoration: "none" }}>
+            style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>
             {lead.whatsapp}
           </a>
         )}
         {lead.email && (
           <a href={`mailto:${lead.email}`} onClick={e => e.stopPropagation()}
-            style={{ fontSize: 11, color: "var(--fg-muted)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 140 }}>
+            style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 140 }}>
             {lead.email}
           </a>
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         {lead.follow_up_at && <FollowUpChip date={lead.follow_up_at} />}
         {lead.origem && (
           <span style={{
-            fontSize: 10, color: "var(--fg-subtle)",
+            fontSize: 12, color: "var(--fg-muted)",
             background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-            borderRadius: 4, padding: "1px 6px",
+            borderRadius: 999, padding: "2px 8px",
           }}>
             {lead.origem}
           </span>
         )}
-        <span style={{ marginLeft: "auto", fontSize: 10, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
+        <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
           {new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
         </span>
       </div>
@@ -241,8 +236,8 @@ function LeadPanel({
         <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 2px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Lead</p>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: 0, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 2px" }}>Lead</p>
+              <h2 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, lineHeight: 1.3, letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {lead.nome_bar}
               </h2>
             </div>
@@ -261,10 +256,10 @@ function LeadPanel({
                   key={s.id}
                   onClick={() => handleStageClick(s.id)}
                   style={{
-                    padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, cursor: "pointer",
-                    border: active ? `1.5px solid ${s.color}` : "1.5px solid var(--border)",
-                    background: active ? `color-mix(in srgb, ${s.color} 15%, transparent)` : "transparent",
-                    color: active ? s.color : "var(--fg-subtle)",
+                    padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    border: active ? "1px solid var(--accent)" : "1px solid var(--border-strong)",
+                    background: active ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "transparent",
+                    color: active ? "var(--accent)" : "var(--fg-muted)",
                     transition: "all 120ms",
                   }}
                 >
@@ -364,7 +359,7 @@ function LeadPanel({
             </div>
 
             {/* Data de criação (read-only) */}
-            <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: 0, fontFamily: "var(--font-mono)" }}>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>
               Lead desde {new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
             </p>
 
@@ -390,8 +385,8 @@ function LeadPanel({
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>Confirmar?</span>
               <button onClick={handleDelete} style={{
-                background: "var(--danger)", border: "none", borderRadius: 5,
-                padding: "4px 10px", fontSize: 12, color: "#fff", cursor: "pointer", fontWeight: 600,
+                background: "var(--danger)", border: "none", borderRadius: 999,
+                padding: "6px 14px", fontSize: 13, color: "#fff", cursor: "pointer", fontWeight: 500,
               }}>Excluir</button>
               <button onClick={() => setDeleteConfirm(false)} style={{
                 background: "none", border: "none", fontSize: 12,
@@ -400,17 +395,10 @@ function LeadPanel({
             </div>
           )}
           <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-            <button onClick={handleClose} style={{
-              background: "none", border: "1px solid var(--border)", borderRadius: 6,
-              padding: "7px 14px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
-            }}>
+            <button onClick={handleClose} style={BTN_SECONDARY}>
               Fechar
             </button>
-            <button onClick={handleSave} disabled={saving} style={{
-              background: "var(--accent)", border: "none", borderRadius: 6,
-              padding: "7px 18px", fontSize: 13, fontWeight: 700, color: "#000",
-              cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1,
-            }}>
+            <button onClick={handleSave} disabled={saving} style={{ ...BTN_PRIMARY, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}>
               {saving ? "Salvando…" : "Salvar"}
             </button>
           </div>
@@ -482,11 +470,6 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
 
   return (
     <>
-      {/* Total */}
-      <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 16px", fontFamily: "var(--font-mono)" }}>
-        {leads.length} lead{leads.length !== 1 ? "s" : ""} no pipeline
-      </p>
-
       {/* Board */}
       <div style={{
         display: "flex", gap: 10, alignItems: "flex-start",
@@ -505,14 +488,14 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
               }}
               onDrop={e => handleDrop(e, stage.id)}
               style={{
-                flex: "0 0 230px",
+                flex: "0 0 240px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
-                background: isOver ? "color-mix(in srgb, var(--fg) 3%, transparent)" : "color-mix(in srgb, var(--fg) 1.5%, transparent)",
-                border: isOver ? `1px dashed ${stage.color}` : "1px solid var(--border)",
-                borderRadius: 10,
-                padding: "0 8px 8px",
+                gap: 8,
+                background: isOver ? "color-mix(in srgb, var(--accent) 6%, transparent)" : "color-mix(in srgb, var(--fg) 2%, transparent)",
+                border: isOver ? "1px dashed var(--accent)" : "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "0 10px 10px",
                 transition: "background 120ms, border-color 120ms",
                 minHeight: 120,
               }}
@@ -520,21 +503,20 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
               {/* Column header */}
               <div style={{
                 position: "sticky", top: 0,
-                background: "var(--bg)", borderRadius: "10px 10px 0 0",
-                padding: "12px 4px 10px", zIndex: 1,
-                borderBottom: `2px solid ${stage.color}`,
+                background: "var(--bg)", borderRadius: "12px 12px 0 0",
+                padding: "14px 4px 10px", zIndex: 1,
+                borderBottom: "1px solid var(--border-strong)",
                 marginBottom: 4,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: stage.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--fg)", flex: 1, letterSpacing: "-0.01em" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", flex: 1 }}>
                     {stage.label}
                   </span>
                   <span style={{
-                    fontSize: 10, color: "#fff",
-                    background: stage.color === "var(--fg-subtle)" ? "var(--fg-subtle)" : stage.color,
-                    borderRadius: 99, padding: "1px 7px", fontFamily: "var(--font-mono)", fontWeight: 700,
-                    opacity: stageLeads.length === 0 ? 0.3 : 1,
+                    fontSize: 12, color: "var(--fg-muted)",
+                    background: "color-mix(in srgb, var(--fg) 8%, transparent)",
+                    borderRadius: 999, padding: "1px 8px", fontVariantNumeric: "tabular-nums",
+                    opacity: stageLeads.length === 0 ? 0.45 : 1,
                   }}>
                     {stageLeads.length}
                   </span>

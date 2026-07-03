@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createLeadAdmin } from "@/lib/admin/actions";
+import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui";
 
 const TIPO_OPTIONS = ["Coquetelaria", "Wine Bar", "Speakeasy", "Gastrobar", "Outro"];
 
@@ -14,9 +15,9 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "var(--bg)",
   border: "1px solid var(--border)",
-  borderRadius: 6,
-  padding: "9px 12px",
-  fontSize: 13,
+  borderRadius: 8,
+  padding: "10px 12px",
+  fontSize: 14,
   color: "var(--fg)",
   outline: "none",
   fontFamily: "var(--font-sans)",
@@ -24,11 +25,9 @@ const inputStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  color: "var(--fg-subtle)",
+  fontSize: 13,
+  fontWeight: 500,
+  color: "var(--fg-muted)",
   display: "block",
   marginBottom: 6,
 };
@@ -66,20 +65,7 @@ export function LeadsAddForm() {
       {/* Botão */}
       <button
         onClick={() => setOpen(true)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          background: "var(--accent)",
-          color: "#000",
-          border: "none",
-          borderRadius: 6,
-          padding: "7px 14px",
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: "pointer",
-          letterSpacing: "-0.01em",
-        }}
+        style={{ ...BTN_PRIMARY, display: "inline-flex", alignItems: "center", gap: 6 }}
       >
         + Adicionar lead
       </button>
@@ -105,7 +91,7 @@ export function LeadsAddForm() {
             overflowY: "auto",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: 0 }}>Novo lead</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Novo lead</h2>
               <button
                 onClick={() => setOpen(false)}
                 style={{ background: "none", border: "none", color: "var(--fg-subtle)", cursor: "pointer", fontSize: 20, lineHeight: 1, padding: "0 4px" }}
@@ -184,34 +170,10 @@ export function LeadsAddForm() {
               )}
 
               <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  style={{
-                    background: "none",
-                    border: "1px solid var(--border)",
-                    borderRadius: 6,
-                    padding: "7px 14px",
-                    fontSize: 13,
-                    color: "var(--fg-muted)",
-                    cursor: "pointer",
-                  }}
-                >
+                <button type="button" onClick={() => setOpen(false)} style={BTN_SECONDARY}>
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  style={{
-                    background: "var(--accent)",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "7px 18px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "#000",
-                    cursor: "pointer",
-                  }}
-                >
+                <button type="submit" style={BTN_PRIMARY}>
                   Salvar lead
                 </button>
               </div>
