@@ -136,14 +136,14 @@ function MesaCard({ mesa, ocupada, selected, onClick }: { mesa: Mesa; ocupada: b
       onMouseLeave={() => setHover(false)}
       style={{
         position: "relative", minWidth: 150, height: 114, borderRadius: 16,
-        background: "var(--bg-card)",
-        border: selected ? "1px solid var(--accent)" : hover ? "1px solid var(--border-strong)" : "1px solid transparent",
+        background: selected ? "#FFFFFF" : "var(--bg-card)",
+        border: !selected && hover ? "1px solid var(--border-strong)" : "1px solid transparent",
         display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 40px",
-        cursor: "pointer", transition: "border-color 120ms", textAlign: "center",
+        cursor: "pointer", transition: "background 120ms, border-color 120ms", textAlign: "center",
       }}
     >
       <span style={{ position: "absolute", top: 16, right: 16, width: 8, height: 8, borderRadius: "50%", background: ocupada ? "var(--ok)" : "var(--border-strong)" }} />
-      <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", whiteSpace: "nowrap" }}>{label}</span>
+      <span style={{ fontSize: 18, fontWeight: 500, color: selected ? "#111113" : "var(--fg)", whiteSpace: "nowrap" }}>{label}</span>
     </button>
   );
 }
@@ -216,10 +216,10 @@ function DetailPanel({ mesa, ocupada, ranking, total, onEdit, onQR, onDelete }: 
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 interface MesasClientProps {
-  mesas: Mesa[]; barId: string; mesasOcupadas: string[]; nextNumero: number;
+  mesas: Mesa[]; barId: string; mesasOcupadas: string[]; nextNumero: number; dataLabel: string;
 }
 
-export function MesasClient({ mesas, mesasOcupadas, nextNumero }: MesasClientProps) {
+export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: MesasClientProps) {
   const [panelMode, setPanelMode] = useState<"create" | "edit" | null>(null);
   const [editingMesa, setEditingMesa] = useState<Mesa | null>(null);
   const [qrMesa, setQrMesa] = useState<Mesa | null>(null);
@@ -241,14 +241,23 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero }: MesasClientPro
 
   return (
     <>
-      {/* Contagem + Nova mesa */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 24 }}>
+      {/* Cabeçalho: data + título + subtítulo + Nova mesa */}
+      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 24px" }}>{dataLabel}</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
+        </div>
+        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
+          <Plus style={{ width: 15, height: 15 }} /> Nova mesa
+        </button>
+      </div>
+
+      {/* Contagem */}
+      <div style={{ margin: "24px 0" }}>
         <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>
           ({mesas.length}) {mesas.length === 1 ? "mesa cadastrada" : "mesas cadastradas"}
         </span>
-        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer" }} className="hover:brightness-110">
-          <Plus style={{ width: 15, height: 15 }} /> Nova mesa
-        </button>
       </div>
 
       {mesas.length === 0 ? (

@@ -46,20 +46,12 @@ export default async function MesasPage() {
 
   return (
     <div className="py-6 lg:px-10 lg:py-8">
-      {/* Header — data + título + subtítulo (Figma) */}
-      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 24px" }}>
-        {capitalizar(dataLonga.format(new Date()))}
-      </p>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", marginBottom: 12, paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
-        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
-        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
-      </div>
-
       <MesasClient
         mesas={mesaList}
         barId={current.bar.id}
         mesasOcupadas={mesasOcupadas}
         nextNumero={nextNumero}
+        dataLabel={capitalizar(dataLonga.format(new Date()))}
       />
     </div>
   );
