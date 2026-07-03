@@ -130,15 +130,14 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
     );
 
   const thStyle: React.CSSProperties = {
-    padding: "10px 16px",
-    fontSize: 9, fontWeight: 700, letterSpacing: "0.12em",
-    textTransform: "uppercase", color: "var(--fg-subtle)",
-    textAlign: "left", borderBottom: "1px solid var(--border)",
-    background: "var(--bg)", whiteSpace: "nowrap", userSelect: "none",
+    padding: "12px 16px",
+    fontSize: 13, fontWeight: 500, color: "var(--fg-muted)",
+    textAlign: "left", borderBottom: "1px solid var(--border-strong)",
+    background: "var(--bg-card)", whiteSpace: "nowrap", userSelect: "none",
   };
 
   return (
-    <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+    <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
 
       {/* Toolbar */}
       <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -150,7 +149,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
           <input
             value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder="Filtrar bares…"
-            style={{ width: "100%", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 6, padding: "6px 10px 6px 30px", fontSize: 12, color: "var(--fg)", outline: "none" }}
+            style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 14px 10px 34px", fontSize: 14, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
           />
         </div>
         <span style={{ fontSize: 12, color: "var(--fg-subtle)", marginLeft: "auto" }}>
@@ -251,7 +250,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
                     {bar.faturamento_mes_atual > 0 || bar.faturamento_mes_anterior > 0 ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em", color: "var(--fg)" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)" }}>
                           {currency.format(bar.faturamento_mes_atual)}
                         </span>
                         {bar.crescimento_fat_mes_pct !== null ? (
@@ -273,7 +272,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
                     {bar.ticket_medio_30d !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em", color: "var(--fg)" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)" }}>
                           {currency.format(bar.ticket_medio_30d)}
                         </span>
                         <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>30 dias</span>
@@ -285,7 +284,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                       </div>
                     ) : bar.ticket_medio_total !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)" }}>
                           {currency.format(bar.ticket_medio_total)}
                         </span>
                         <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>histórico</span>
@@ -300,14 +299,14 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                     {bar.cmv_pct !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
                         <span style={{
-                          fontSize: 13, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em",
+                          fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em",
                           color: bar.cmv_pct <= 30 ? "var(--ok)" : bar.cmv_pct <= 38 ? "var(--warn)" : "var(--danger)",
                         }}>
                           CMV {bar.cmv_pct.toFixed(1)}%
                         </span>
                         {bar.margem_pct !== null && (
                           <span style={{
-                            fontSize: 12, fontWeight: 600, fontFamily: "var(--font-mono)",
+                            fontSize: 12, fontWeight: 600,
                             color: bar.margem_confiavel
                               ? (bar.margem_pct >= 65 ? "var(--ok)" : bar.margem_pct >= 55 ? "var(--warn)" : "var(--danger)")
                               : "var(--fg-subtle)",

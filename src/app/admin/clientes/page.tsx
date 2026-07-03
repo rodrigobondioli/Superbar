@@ -5,19 +5,18 @@ export default async function AdminClientesPage() {
   const { bares, stats } = await getAdminBares();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px", letterSpacing: "-0.03em", fontFamily: "var(--font-mono)" }}>
-            Clientes
-          </h1>
+      {/* Header — padrão */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Clientes</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
-            {stats.total_bares} bar{stats.total_bares !== 1 ? "es" : ""} na plataforma
+            {stats.total_bares} {stats.total_bares === 1 ? "bar" : "bares"} na plataforma
           </p>
         </div>
-        <time style={{ fontSize: 11, color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>
-          {new Date().toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}
+        <time style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+          {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
         </time>
       </div>
 
