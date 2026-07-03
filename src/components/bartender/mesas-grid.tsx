@@ -153,33 +153,25 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
   if (livre) {
     return (
       <button type="button" onClick={onAbrir} style={{
-        display: "flex", flexDirection: "column", alignItems: "stretch",
-        borderRadius: "var(--radius-lg)", padding: 0,
+        display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8,
+        borderRadius: 12, padding: 16,
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         cursor: "pointer", width: "100%", textAlign: "left",
-        WebkitTapHighlightColor: "transparent", overflow: "hidden",
+        WebkitTapHighlightColor: "transparent",
         transition: "border-color 120ms",
       }}>
-        <div style={{ padding: "14px 14px 12px", display: "flex", flexDirection: "column", gap: 5 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", lineHeight: 1.2 }}>
-            {label}
+        <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", lineHeight: 1.2 }}>
+          {label}
+        </span>
+        {capacidade && (
+          <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+            {capacidade} lugares
           </span>
-          {capacidade && (
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
-              <IconPessoas />{capacidade} lugares
-            </span>
-          )}
-        </div>
-        <div style={{
-          borderTop: "1px solid var(--border)",
-          padding: "8px 14px",
-          fontSize: 11, fontWeight: 600,
-          color: "var(--fg-subtle)",
-          letterSpacing: "0.02em",
-        }}>
+        )}
+        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--accent)" }}>
           + Abrir comanda
-        </div>
+        </span>
       </button>
     );
   }
@@ -199,7 +191,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
       style={{
         background: bg,
         border: `1.5px solid ${borderColor}`,
-        borderRadius: "var(--radius-lg)", overflow: "hidden",
+        borderRadius: 14, overflow: "hidden",
       }}
     >
       {/* Banner de chamada */}
@@ -459,18 +451,17 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
 
   const GRID_LIVRES: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: 10,
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+    gap: 12,
   };
 
   const SecLabel = ({ label, count }: { label: string; count: number }) => (
     <p style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: "0.10em",
-      textTransform: "uppercase", margin: "0 0 12px",
-      color: "var(--fg-subtle)",
+      fontSize: 13, fontWeight: 600, margin: "0 0 16px",
+      color: "var(--fg-muted)",
     }}>
       {label}
-      <span style={{ marginLeft: 8, fontVariantNumeric: "tabular-nums", opacity: 0.7 }}>{count}</span>
+      <span style={{ marginLeft: 8, fontVariantNumeric: "tabular-nums", color: "var(--fg-subtle)" }}>{count}</span>
     </p>
   );
 
@@ -481,7 +472,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       <div style={{ padding: "16px 20px 0", flexShrink: 0 }}>
         <ScanCartao />
         <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>
+          <h1 style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", margin: 0, letterSpacing: "-0.02em" }}>
             {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
           </h1>
         </div>
