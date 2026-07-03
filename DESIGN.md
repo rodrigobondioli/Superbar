@@ -72,11 +72,16 @@ Fonte: **Inter** em todos os contextos.
 
 ## Radii
 
-| Token          | Valor | Uso                          |
-|----------------|-------|------------------------------|
-| `--radius-sm`  | 4px   | Badges, botões, inputs       |
-| `--radius-md`  | 8px   | Modais, dropdowns            |
-| `--radius-lg`  | 12px  | Cards do dashboard (DashCard)|
+Escala em uso no dashboard (alinhada ao Figma):
+
+| Valor   | Uso                                                        |
+|---------|------------------------------------------------------------|
+| `8px`   | Inputs, thumbnails de produto, caixas pequenas             |
+| `16px`  | **Cards padrão** — KPI, insight, status, semáforo          |
+| `24px`  | **Cards grandes / hero** — Faturado, AI, Top drinks, auth  |
+| `9999px`| **Botões (pill)**, chips, badges de status, avatares       |
+
+Não use 4/12/20 em card ou botão — são resíduos do sistema antigo.
 
 ---
 
@@ -118,8 +123,8 @@ Breakpoints:
 ```tsx
 // background: var(--bg-card)
 // border: 1px solid var(--border)
-// borderRadius: var(--radius-lg) = 12px
-// padding: 20px 24px (padrão) | 16px 18px (compact KPI strip)
+// borderRadius: 16px (padrão) | 24px (card grande/hero)
+// padding: 24px | 32px (hero)
 
 <DashCard>...</DashCard>
 <DashCard style={{ padding: "16px 18px" }}>...</DashCard>
@@ -256,7 +261,7 @@ A landing page (`/`) usa o **mesmo sistema de design** que o dashboard. Não exi
 
 ### Cards na landing
 
-Todo card usa `border: "1px solid #2C2C2E"`, `borderRadius: 20px`.
+Todo card da landing usa `border: "1px solid #2C2C2E"`, `borderRadius: 16px` (`rounded-2xl`).
 
 Os 3 cards do Processo criam profundidade com tons progressivos: `#1C1C1E` → `#232325` → `#2A2A2C`. Divider interno: `rgba(255,255,255,0.1)`.
 
@@ -327,5 +332,11 @@ O DS vive no Figma (arquivo **Superbar - Design System**) e é a fonte dos compo
 Dense: 4 · 8 · 12 · 16 · 24 · 32. Comfortable: 4 · 8 · 16 · 24 · 32 · 48. Nunca usar valores fora da escala.
 
 ### Pendências de reconciliação (Figma ↔ código)
-- **`text/subtle` no Figma (`#c7c7c7`)** está mais claro que `text/muted` — invertido. No código mantivemos `#6B6B75` (mais escuro). Corrigir no Figma.
-- **Radius:** Figma tem `sm 8 / md 16 / pill 999`; código usa `4/8/12/16/20`. Unificar numa próxima rodada.
+- **`--fg-subtle` (`#6B6B75`)** ainda diverge do Figma `text/subtle #C7C7C7` (o Figma é mais claro que o muted; o código é mais escuro). **Decisão pendente**: alinhar o código ao Figma ou corrigir o Figma.
+- **Tema claro (`:root`)** ainda com valores antigos (`--accent-bright #FF5A2C`, `--danger #DC2626`, `--ok #16A34A`) — só relevante se o tema claro for usado.
+
+### Padrões já unificados (não regredir)
+- **Header de tela** (dashboard): título **18px Medium** + subtítulo inline 13px muted + divisória `1px var(--border-strong)`. Vale para todas as telas do dono.
+- **Cards**: `var(--border)` + radius **16** (padrão) ou **24** (grande/hero). Nunca `#2C2C2E`/20 no dashboard.
+- **Botões**: sempre pill (9999) — componente `<Button>` ou `BTN_PRIMARY/SECONDARY` de `@/lib/ui`.
+- **Fonte**: Inter em tudo. Não usar `var(--font-mono)` (é alias de Inter, mas polui) — usar `var(--font-sans)`.

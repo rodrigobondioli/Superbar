@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getInsightsPendentes } from "@/lib/inteligencia/queries";
 import { InsightCards } from "@/components/inteligencia/insight-cards";
-import { H1, SUBTITLE } from "@/lib/ui";
 
 export default async function InteligenciaPage() {
   const current = await getCurrentBar();
@@ -13,10 +12,12 @@ export default async function InteligenciaPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 
-      {/* ── Header — mesmo padrão das outras páginas ── */}
+      {/* ── Header — padrão Figma ── */}
       <div className="py-6 lg:px-10 lg:py-8">
-        <h1 style={H1}>Inteligência</h1>
-        <p style={SUBTITLE}>O que precisa da sua atenção</p>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Inteligência</h1>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>O que precisa da sua atenção</p>
+        </div>
       </div>
 
       {/* ── Cards — centralizados vertical e horizontalmente ── */}

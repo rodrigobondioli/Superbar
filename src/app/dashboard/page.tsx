@@ -70,7 +70,6 @@ const superLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: 
 
 const overline: React.CSSProperties = {
   fontSize: "0.7rem",
-  fontFamily: "var(--font-mono)",
   fontWeight: 500,
   textTransform: "uppercase",
   letterSpacing: "0.12em",
@@ -132,7 +131,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       return (
         <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "70vh" }}>
           <div style={{ width: "100%", maxWidth: 440 }}>
-            <h2 style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
               Vamos configurar seu bar
             </h2>
             <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 28px", textAlign: "center", lineHeight: 1.6 }}>
@@ -214,7 +213,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>
                       {inteligencia.comandas >= 30 ? "✓" : "○"} 30 comandas
                     </span>
-                    <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
+                    <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
                   </div>
                   <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
                     <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
@@ -225,7 +224,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>
                       {inteligencia.diasAtivo >= 7 ? "✓" : "○"} 7 dias de operação
                     </span>
-                    <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>{inteligencia.diasAtivo} / 7</span>
+                    <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.diasAtivo} / 7</span>
                   </div>
                   <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
                     <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: `${Math.min(Math.round((inteligencia.diasAtivo / 7) * 100), 100)}%`, transition: "width 0.6s ease" }} />
@@ -285,7 +284,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
                 <div style={{ ...card }}>
                   <p style={overline}>Faturamento</p>
-                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
                     {currency.format(ultimoTurno.faturamento)}
                   </p>
                   <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
@@ -295,14 +294,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
                 <div style={{ ...card }}>
                   <p style={overline}>Ticket médio</p>
-                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
                     {currency.format(ultimoTurno.ticketMedio)}
                   </p>
                 </div>
 
                 <div style={{ ...card }}>
                   <p style={overline}>CMV</p>
-                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
                     {ultimoTurno.cmv !== null ? `${ultimoTurno.cmv}%` : "—"}
                   </p>
                   <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
@@ -312,7 +311,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
                 <div style={{ ...card }}>
                   <p style={overline}>Top drink</p>
-                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {ultimoTurno.topDrink ?? "—"}
                   </p>
                   <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>mais vendido</p>
@@ -326,12 +325,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                     <div>
                       <p style={overline}>Meta do mês</p>
-                      <p style={{ fontSize: 20, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
+                      <p style={{ fontSize: 20, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums", marginTop: 4 }}>
                         {currency.format(metaAtualFechado)}
                         <span style={{ fontSize: 13, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 6 }}>de {currency.format(metaFechado)}</span>
                       </p>
                     </div>
-                    <span style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--font-mono)", color: "white", marginTop: 18 }}>
+                    <span style={{ fontSize: 22, fontWeight: 700, color: "white", marginTop: 18 }}>
                       {metaProgressoFechado}%
                     </span>
                   </div>
@@ -369,7 +368,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 <p style={overline}>Estoque</p>
                 {alertas.length > 0 ? (
                   <>
-                    <p style={{ fontSize: "3rem", fontWeight: 700, color: "white", fontFamily: "var(--font-mono)", marginTop: 4 }}>
+                    <p style={{ fontSize: "3rem", fontWeight: 700, color: "white", marginTop: 4 }}>
                       {alertas.length}
                     </p>
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
@@ -378,7 +377,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   </>
                 ) : (
                   <>
-                    <p style={{ fontSize: "3rem", fontWeight: 700, color: "white", fontFamily: "var(--font-mono)", marginTop: 4 }}>
+                    <p style={{ fontSize: "3rem", fontWeight: 700, color: "white", marginTop: 4 }}>
                       OK
                     </p>
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>nenhum alerta</p>
@@ -393,7 +392,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               {/* Relatórios */}
               <div style={card}>
                 <p style={overline}>Relatórios</p>
-                <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", marginTop: 4 }}>
+                <p style={{ fontSize: "3rem", fontWeight: 700, color: "var(--fg)", marginTop: 4 }}>
                   →
                 </p>
                 <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>análise por período</p>
