@@ -30,7 +30,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
         width: "100%", padding: "14px",
         background: "var(--ok-bg)",
         border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
-        borderRadius: 8, textAlign: "center",
+        borderRadius: 12, textAlign: "center",
         color: "var(--ok)", fontSize: 15, fontWeight: 700,
       }}>
         ✓ Enviado para o caixa
@@ -44,7 +44,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
         width: "100%", padding: "14px",
         background: "var(--danger-bg)",
         border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
-        borderRadius: 8, textAlign: "center",
+        borderRadius: 12, textAlign: "center",
         color: "var(--danger)", fontSize: 14, fontWeight: 600,
       }}>
         Erro ao fechar. Tente novamente.
@@ -62,8 +62,8 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
           ? "color-mix(in srgb, var(--accent) 60%, transparent)"
           : "var(--accent)",
         color: "var(--accent-fg)",
-        border: "none", borderRadius: 8,
-        fontSize: 15, fontWeight: 700,
+        border: "none", borderRadius: 999,
+        fontSize: 15, fontWeight: 500,
         cursor: estado === "enviando" ? "not-allowed" : "pointer",
         opacity: estado === "enviando" ? 0.7 : 1,
         transition: "opacity 150ms, background 150ms",

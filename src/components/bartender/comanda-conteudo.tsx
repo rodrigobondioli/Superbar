@@ -153,14 +153,14 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
       <div style={{ borderTop: "1px solid var(--border)", padding: "16px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Subtotal</span>
-          <span style={{ fontSize: 22, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>{currency.format(subtotal)}</span>
+          <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{currency.format(subtotal)}</span>
         </div>
         {comanda?.status === "aguardando_pagamento" ? (
           <div style={{
             width: "100%", padding: "14px",
             background: "color-mix(in srgb, var(--danger) 10%, transparent)",
             border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
-            borderRadius: 8, textAlign: "center",
+            borderRadius: 12, textAlign: "center",
             color: "var(--danger)", fontSize: 14, fontWeight: 700,
           }}>
             Aguardando pagamento no caixa
@@ -174,8 +174,8 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
               width: "100%", padding: "14px",
               background: "color-mix(in srgb, var(--fg) 5%, transparent)",
               color: cancelando ? "var(--fg-subtle)" : "var(--fg-muted)",
-              border: "1px solid var(--border)",
-              borderRadius: 8, fontSize: 15, fontWeight: 600,
+              border: "1px solid var(--border-strong)",
+              borderRadius: 999, fontSize: 15, fontWeight: 500,
               cursor: cancelando ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               opacity: cancelando ? 0.7 : 1, transition: "opacity 150ms",

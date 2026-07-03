@@ -144,13 +144,13 @@ function ProdutoCard({
         border: qtdNoCarrinho > 0
           ? "1px solid color-mix(in srgb, var(--accent-bright) 40%, transparent)"
           : "none",
-        borderRadius: 8, padding: 12, textAlign: "left", cursor: "pointer",
+        borderRadius: 12, padding: 12, textAlign: "left", cursor: "pointer",
         transition: "background 0.15s, border-color 0.15s", position: "relative",
       }}
     >
       <div style={{
         aspectRatio: "1", width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-        borderRadius: 4, background: "var(--bg-inset)", overflow: "hidden", marginBottom: 4,
+        borderRadius: 8, background: "var(--bg-card-hi)", overflow: "hidden", marginBottom: 8,
       }}>
         {produto.imagem_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -176,7 +176,7 @@ function ProdutoCard({
         <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {produto.nome}
         </p>
-        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "3px 0 0", fontFamily: "var(--font-mono)" }}>
+        <p style={{ fontSize: 15, fontWeight: 500, color: temVariantes ? "var(--accent)" : "var(--fg)", margin: "3px 0 0" }}>
           {temVariantes ? "→ escolher" : currency.format(produto.preco)}
         </p>
       </div>
@@ -286,7 +286,7 @@ function CartBar({
             type="button"
             onClick={() => { onClear(); setExpanded(false); }}
             disabled={pending}
-            style={{ background: "none", border: "none", color: "var(--fg-subtle)", cursor: "pointer", fontSize: 12, padding: "0 4px" }}
+            style={{ background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, color: "var(--fg)", cursor: "pointer", fontSize: 15, fontWeight: 500, padding: "12px 24px", flexShrink: 0 }}
           >
             Limpar
           </button>
@@ -298,8 +298,8 @@ function CartBar({
             style={{
               background: resultado?.startsWith("✓") ? "var(--ok)" : "var(--accent)",
               color: resultado?.startsWith("✓") ? "#fff" : "var(--accent-fg)",
-              border: "none", borderRadius: 8, padding: "12px 20px", minHeight: 44,
-              fontSize: 14, fontWeight: 900, cursor: pending ? "wait" : "pointer",
+              border: "none", borderRadius: 999, padding: "12px 24px", minHeight: 44,
+              fontSize: 15, fontWeight: 500, cursor: pending ? "wait" : "pointer",
               opacity: pending ? 0.7 : 1, transition: "background 0.2s", flexShrink: 0,
             }}
           >
@@ -382,7 +382,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
                     <button
                       key={grupo.categoria.id}
                       onClick={() => setCategoriaAtiva(grupo.categoria.id)}
-                      style={{ fontSize: 13, fontWeight: active ? 500 : 400, padding: "6px 14px", minHeight: 44, borderRadius: 4, border: "none", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all 0.15s", background: active ? "var(--accent)" : "transparent", color: active ? "var(--accent-fg)" : "var(--fg-muted)" }}
+                      style={{ fontSize: 13, fontWeight: active ? 600 : 500, padding: "8px 16px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all 0.15s", background: active ? "var(--accent)" : "var(--bg-card)", border: active ? "1px solid var(--accent)" : "1px solid var(--border)", color: active ? "var(--accent-fg)" : "var(--fg-muted)" }}
                     >
                       {grupo.categoria.nome}
                     </button>
