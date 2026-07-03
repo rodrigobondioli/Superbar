@@ -21,7 +21,7 @@ export default function LoginPage({
     background: "#1C1C1E",
     border: focused ? "1px solid rgba(255,53,0,0.6)" : "1px solid transparent",
     borderRadius: 8,
-    padding: "20px 16px",
+    padding: "16px",
     color: "#FAFAFA",
     fontSize: 15,
     outline: "none",
