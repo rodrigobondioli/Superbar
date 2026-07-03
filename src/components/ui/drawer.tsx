@@ -37,14 +37,14 @@ export function Drawer({ open, type, onClose }: DrawerProps) {
       }}>
         <div style={{ padding: '24px 24px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--fg)', marginBottom: '2px', fontFamily: 'var(--font-mono)' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--fg)', marginBottom: '4px' }}>
               {type === 'suporte' ? 'Suporte' : 'Enviar sugestão'}
             </h2>
-            <p style={{ fontSize: '12px', color: 'var(--fg-subtle)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--fg-muted)' }}>
               {type === 'suporte' ? 'Como podemos ajudar?' : 'Sua ideia pode virar feature'}
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '4px', width: '32px', height: '32px', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={onClose} style={{ background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '8px', width: '32px', height: '32px', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ✕
           </button>
         </div>
@@ -66,12 +66,12 @@ function SuporteContent() {
         { title: 'Central de ajuda', desc: 'Documentação e tutoriais', action: 'Acessar' },
         { title: 'Agendar chamada', desc: '30 min com nossa equipe', action: 'Agendar' },
       ].map(item => (
-        <div key={item.title} style={{ background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '4px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+        <div key={item.title} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
           <div>
-            <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--fg)', marginBottom: '2px' }}>{item.title}</p>
-            <p style={{ fontSize: '12px', color: 'var(--fg-subtle)' }}>{item.desc}</p>
+            <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--fg)', marginBottom: '2px' }}>{item.title}</p>
+            <p style={{ fontSize: '13px', color: 'var(--fg-muted)' }}>{item.desc}</p>
           </div>
-          <span style={{ fontSize: '12px', color: 'var(--fg-subtle)' }}>{item.action} →</span>
+          <span style={{ fontSize: '13px', color: 'var(--accent)' }}>{item.action} →</span>
         </div>
       ))}
     </div>
@@ -82,8 +82,8 @@ function SugestaoContent({ onClose }: { onClose: () => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
-        <label style={{ fontSize: '11px', color: 'var(--fg-subtle)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Categoria</label>
-        <select style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '4px', padding: '10px 14px', color: 'var(--fg)', fontSize: '13px', outline: 'none', colorScheme: 'dark' }}>
+        <label style={{ fontSize: '13px', color: 'var(--fg-muted)', display: 'block', marginBottom: '8px' }}>Categoria</label>
+        <select style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 14px', color: 'var(--fg)', fontSize: '14px', outline: 'none', colorScheme: 'dark' }}>
           <option value="">Selecione...</option>
           <option>Nova funcionalidade</option>
           <option>Melhoria existente</option>
@@ -93,12 +93,12 @@ function SugestaoContent({ onClose }: { onClose: () => void }) {
         </select>
       </div>
       <div>
-        <label style={{ fontSize: '11px', color: 'var(--fg-subtle)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Sua sugestão</label>
-        <textarea rows={5} placeholder="Descreva sua ideia..." style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '4px', padding: '12px 14px', color: 'var(--fg)', fontSize: '13px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', colorScheme: 'dark' } as React.CSSProperties} />
+        <label style={{ fontSize: '13px', color: 'var(--fg-muted)', display: 'block', marginBottom: '8px' }}>Sua sugestão</label>
+        <textarea rows={5} placeholder="Descreva sua ideia..." style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 14px', color: 'var(--fg)', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', colorScheme: 'dark' } as React.CSSProperties} />
       </div>
       <button
         onClick={onClose}
-        style={{ background: 'var(--accent)', border: 'none', borderRadius: '4px', padding: '12px 20px', color: 'var(--accent-fg)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+        style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none', borderRadius: 999, padding: '10px 24px', color: 'var(--accent-fg)', fontWeight: 500, fontSize: '14px', cursor: 'pointer' }}>
         Enviar sugestão
       </button>
     </div>
