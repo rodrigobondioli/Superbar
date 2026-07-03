@@ -29,8 +29,8 @@ function QuemEVoce({
       padding: "40px 24px",
     }}>
       <p style={{
-        fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)",
-        textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 32px",
+        fontSize: 15, fontWeight: 500, color: "var(--fg-muted)",
+        margin: "0 0 32px",
       }}>
         Quem está operando agora?
       </p>
@@ -44,10 +44,10 @@ function QuemEVoce({
             onClick={() => onSelect(m)}
             className="[-webkit-tap-highlight-color:transparent] hover:bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] transition-[background,border-color] duration-150"
             style={{
-              background: "color-mix(in srgb, var(--fg) 4%, transparent)",
-              border: "1px solid var(--border)", borderRadius: 8,
-              padding: "20px 16px", cursor: "pointer",
-              textAlign: "center", width: 140, flexShrink: 0,
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)", borderRadius: 16,
+              padding: "24px 20px", cursor: "pointer",
+              textAlign: "center", width: 160, flexShrink: 0,
             }}
           >
             {m.fotoUrl && !fotoErros.has(m.id) ? (
@@ -74,10 +74,10 @@ function QuemEVoce({
                 {m.nome[0]?.toUpperCase()}
               </div>
             )}
-            <p style={{ fontSize: 17, fontWeight: 600, color: "var(--fg)", margin: "0 0 6px" }}>
+            <p style={{ fontSize: 18, fontWeight: 600, color: "var(--fg)", margin: "0 0 6px" }}>
               {m.nome}
             </p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
               {ROLE_LABEL[m.role] ?? m.role}
             </p>
             {m.temPin && (

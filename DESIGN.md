@@ -340,3 +340,22 @@ Dense: 4 · 8 · 12 · 16 · 24 · 32. Comfortable: 4 · 8 · 16 · 24 · 32 · 
 - **Cards**: `var(--border)` + radius **16** (padrão) ou **24** (grande/hero). Nunca `#2C2C2E`/20 no dashboard.
 - **Botões**: sempre pill (9999) — componente `<Button>` ou `BTN_PRIMARY/SECONDARY` de `@/lib/ui`.
 - **Fonte**: Inter em tudo. Não usar `var(--font-mono)` (é alias de Inter, mas polui) — usar `var(--font-sans)`.
+
+---
+
+## Superfície operacional (iPad — Garçom / Bartender / Caixa)
+
+Mesma paleta e tokens do dashboard; layout otimizado para toque em iPad (targets ≥ 44px, idealmente 52px via variantes `op` do `<Button>`). Fundo `var(--bg)`.
+
+### TopBar (67px)
+Logo (círculo laranja 34px) + `SUPERBAR` (15px Semi Bold) à esquerda · nome do bar (18px Medium) ao centro · **User menu** (pill: nome + "· Trocar") e **Sair** (Button `ghost sm`) à direita. Divisória inferior `1px var(--border-strong)`.
+
+### Seleção de operador ("Quem está operando agora?")
+- Título: **15px Medium `--fg-muted`, normal-case** (nunca caixa-alta).
+- Card de operador: `var(--bg-card)`, borda `var(--border)`, **radius 16**, largura 160, centralizado. Avatar 64px circular com anel laranja sutil. Nome **18px Semi Bold `--fg`**, função **13px `--fg-muted`**. Hover: tinte de accent na borda/fundo.
+
+### Grid de mesas (Garçom)
+- Heading de contagem: **32px Bold** ("N ocupadas" / "Todas livres").
+- Label de seção: **13px Semi Bold `--fg-muted`, normal-case** + contagem em `--fg-subtle`.
+- **Card livre** (r12, pad 16): título 18px Medium · "N lugares" 13px muted · **"+ Abrir comanda"** como pill pequeno (contorno `--border-strong`, texto `--accent`).
+- **Card ocupado** (r14): nome + preço (15px Semi Bold) / divisória / status (15px Medium). Borda por estado — **chamada = `--danger`**, **aguardando pagamento = `--warn` (âmbar)**, aberta = `--border`.
