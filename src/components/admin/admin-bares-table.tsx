@@ -133,14 +133,14 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
     padding: "12px 16px",
     fontSize: 13, fontWeight: 500, color: "var(--fg-muted)",
     textAlign: "left", borderBottom: "1px solid var(--border-strong)",
-    background: "var(--bg-card)", whiteSpace: "nowrap", userSelect: "none",
+    background: "transparent", whiteSpace: "nowrap", userSelect: "none",
   };
 
   return (
-    <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
+    <div>
 
       {/* Toolbar */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ padding: "0 0 20px", display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ position: "relative", flex: 1, maxWidth: 280 }}>
           <svg style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
             width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fg-subtle)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -162,7 +162,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 960 }}>
           <thead>
             <tr>
-              <th style={{ ...thStyle, paddingLeft: 20 }}>Bar</th>
+              <th style={{ ...thStyle, paddingLeft: 0 }}>Bar</th>
               <th style={thStyle}>Saúde</th>
               <th style={thStyle}>Último uso</th>
               <th style={{ ...thStyle, textAlign: "right" }}>Faturamento mês</th>
@@ -174,31 +174,18 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
           <tbody>
             {filtered.map((bar) => {
               const isHovered = hover === bar.id;
-              const isRed     = bar.healthScore === "red";
-              const isYellow  = bar.healthScore === "yellow";
-
-              const rowBg = isHovered
-                ? "color-mix(in srgb, var(--fg) 4%, transparent)"
-                : isRed
-                ? "color-mix(in srgb, var(--danger) 3%, transparent)"
-                : "transparent";
-
-              const leftBorder = isRed && !isHovered
-                ? "2px solid color-mix(in srgb, var(--danger) 35%, transparent)"
-                : isYellow && !isHovered
-                ? "2px solid color-mix(in srgb, var(--warn) 25%, transparent)"
-                : "2px solid transparent";
+              const rowBg = isHovered ? "color-mix(in srgb, var(--fg) 3%, transparent)" : "transparent";
 
               return (
                 <tr key={bar.id}
                   onClick={() => router.push(`/admin/${bar.id}`)}
                   onMouseEnter={() => setHover(bar.id)}
                   onMouseLeave={() => setHover(null)}
-                  style={{ cursor: "pointer", background: rowBg, borderLeft: leftBorder, transition: "background 100ms" }}
+                  style={{ cursor: "pointer", background: rowBg, transition: "background 100ms" }}
                 >
 
                   {/* Bar */}
-                  <td style={{ padding: "14px 16px 14px 18px", borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "16px 16px 16px 0", borderBottom: "1px solid var(--border-strong)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{
                         width: 34, height: 34, borderRadius: 6,
@@ -222,12 +209,12 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   </td>
 
                   {/* Saúde */}
-                  <td style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "12px 16px", borderBottom: "1px solid var(--border-strong)" }}>
                     <HealthBadge score={bar.healthScore} alertas={bar.alertas} />
                   </td>
 
                   {/* Último uso */}
-                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)" }}>
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span style={{
                         fontSize: 13,
@@ -247,7 +234,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   </td>
 
                   {/* Faturamento mês */}
-                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)", textAlign: "right" }}>
                     {bar.faturamento_mes_atual > 0 || bar.faturamento_mes_anterior > 0 ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)" }}>
@@ -269,7 +256,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   </td>
 
                   {/* Ticket médio */}
-                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)", textAlign: "right" }}>
                     {bar.ticket_medio_30d !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--fg)" }}>
@@ -295,7 +282,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   </td>
 
                   {/* CMV + Margem */}
-                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                  <td style={{ padding: "14px 16px", borderBottom: "1px solid var(--border-strong)", textAlign: "right" }}>
                     {bar.cmv_pct !== null ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
                         <span style={{
@@ -326,7 +313,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   </td>
 
                   {/* Plano */}
-                  <td style={{ padding: "14px 20px 14px 16px", borderBottom: "1px solid var(--border)", textAlign: "right" }}>
+                  <td style={{ padding: "14px 20px 14px 16px", borderBottom: "1px solid var(--border-strong)", textAlign: "right" }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                       <StatusPill status={bar.assinatura_status} />
                       {bar.plano_nome && (
