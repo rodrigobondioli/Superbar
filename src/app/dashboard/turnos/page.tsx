@@ -45,13 +45,21 @@ export default async function TurnosPage() {
     <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>
-          Turnos
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
-          Registro de todos os turnos abertos e fechados.
-        </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>
+            Turnos
+          </h1>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+            Registro de todos os turnos abertos e fechados.
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 500 }}>Hoje</span>
+          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>Ontem</span>
+          <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>7 dias</span>
+          <a href="/dashboard/relatorios" style={{ padding: "8px 16px", fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>Ver relatório completo</a>
+        </div>
       </div>
 
       {/* Tabela (sem card — direto no canvas, igual ao Figma) */}

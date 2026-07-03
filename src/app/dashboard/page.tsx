@@ -45,6 +45,11 @@ function Tri({ up, color }: { up: boolean; color: string }) {
   );
 }
 
+// Prefixo "R$" menor que o número (dimensiona com a fonte do valor).
+function Cifrao() {
+  return <span style={{ fontSize: "0.42em", fontWeight: 600, color: "var(--fg-muted)", marginRight: "0.16em", letterSpacing: 0, verticalAlign: "baseline" }}>R$</span>;
+}
+
 // Delta vs. período anterior (▲/▼ + cor semântica). invert=true → subir é ruim (ex: CMV).
 function DeltaRow({ value, invert = false }: { value: number | null | undefined; invert?: boolean }) {
   if (value === null || value === undefined) return null;
@@ -556,7 +561,7 @@ export default async function DashboardPage() {
         {/* Faturado no turno — spec exata do Figma (532×238, r24, pad32) */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
           <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>Faturado no turno</span>
-          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}>{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
+          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{Math.round(kpis.faturamento).toLocaleString("pt-BR")}</span>
           {comparacao.faturamento !== null && comparacao.faturamento !== undefined && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
               <Tri up={comparacao.faturamento >= 0} color={comparacao.faturamento >= 0 ? "var(--accent)" : "var(--danger)"} />
@@ -570,7 +575,7 @@ export default async function DashboardPage() {
             <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgresso}%` }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
-            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - {Math.round(meta).toLocaleString("pt-BR")}</span>
+            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{metaProgresso}%</span>
           </div>
         </div>
@@ -603,7 +608,7 @@ export default async function DashboardPage() {
         <div style={kpiCard}>
           <div>
             <span style={kpiLabel}>Ticket Médio</span>
-            <span style={kpiMetric}>{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
+            <span style={kpiMetric}><Cifrao />{Math.round(kpis.ticketMedio).toLocaleString("pt-BR")}</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -668,8 +673,7 @@ export default async function DashboardPage() {
                 {impactoEstimado !== null && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
-                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>reais</span>
+                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{Math.round(Math.abs(impactoEstimado)).toLocaleString("pt-BR")}</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                   </div>
