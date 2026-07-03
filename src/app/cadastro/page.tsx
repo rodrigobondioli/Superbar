@@ -117,12 +117,12 @@ export default function CadastroPage() {
           <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
             {/* Card */}
             <div
+              className="p-6 md:p-12"
               style={{
                 width: "100%",
                 background: "transparent",
                 border: "1px solid #383839",
                 borderRadius: 24,
-                padding: 48,
               }}
             >
               {sucesso ? (
