@@ -28,11 +28,11 @@ const mesa: Mesa = {
 };
 
 function cat(id: string, nome: string, ordem: number): Categoria {
-  return { id, bar_id: "demo", nome, ordem, ativo: true, created_at: "" };
+  return { id, bar_id: "demo", nome, ordem, ativo: true, imagem_url: null, created_at: "" };
 }
 
 function prod(id: string, cat_id: string, nome: string, preco: number, descricao: string | null, imagem_url: string | null): Produto {
-  return { id, bar_id: "demo", categoria_id: cat_id, nome, preco, descricao, custo: null, custo_status: "sem", imagem_url, ativo: true, controla_estoque: false, created_at: "", updated_at: "" };
+  return { id, bar_id: "demo", categoria_id: cat_id, nome, preco, descricao, custo: null, custo_status: "sem", imagem_url, destaque: false, ativo: true, controla_estoque: false, created_at: "", updated_at: "" };
 }
 
 const IMG = {

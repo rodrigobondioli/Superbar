@@ -39,7 +39,7 @@ export async function getCardapioAdmin(barId: string): Promise<CategoriaComProdu
     const chave = p.categoria_id ?? "__sem__";
     if (!map.has(chave) && p.categoria_id) continue;
     if (!map.has(chave)) map.set(chave, {
-      categoria: { id: "__sem__", bar_id: barId, nome: "Sem categoria", ordem: 999, ativo: true, created_at: "" },
+      categoria: { id: "__sem__", bar_id: barId, nome: "Sem categoria", ordem: 999, ativo: true, imagem_url: null, created_at: "" },
       produtos: [],
     });
     map.get(chave)!.produtos.push(p);

@@ -1004,7 +1004,10 @@ function HomeScreen({
   const ativos = allProdutos.filter((p) => p.ativo);
   const pool = ativos.slice(0, 12);
   const sugestoes = ativos.filter((p) => p.id !== ultimoProduto?.id);
-  const featBase = sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes;
+  const destaques = ativos.filter((p) => p.destaque);
+  const featBase = destaques.length > 0
+    ? destaques
+    : (sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes);
   const featured = featBase.slice(0, 6);
   const N = pool.length;
   const rowH = 64;
@@ -1020,6 +1023,14 @@ function HomeScreen({
   const [chamando, setChamando] = useState(false);
   const [chamado, setChamado] = useState(false);
   const [chamarErro, setChamarErro] = useState<string | null>(null);
+  const [heroIdx, setHeroIdx] = useState(0);
+
+  // Carrossel automático do destaque quando o dono marca 2+ (rota a cada 4.5s)
+  useEffect(() => {
+    if (featured.length <= 1) return;
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % featured.length), 4500);
+    return () => clearInterval(t);
+  }, [featured.length]);
 
   useEffect(() => {
     if (reelRef.current && N > 0) {
@@ -1096,36 +1107,33 @@ function HomeScreen({
           </div>
         )}
 
-        {/* Em destaque (primeiro) — hero + fileira */}
-        {featured.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-            <button onClick={() => onSelectProduto(featured[0])} style={{ position: "relative", width: "100%", height: 232, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", marginBottom: 12, background: featured[0].imagem_url ? `url(${featured[0].imagem_url}) center/cover` : CARD }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 6%, color-mix(in srgb, var(--bg) 30%, transparent) 48%, transparent 80%)" }} />
-              <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Assinatura da casa</span>
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, textAlign: "left" }}>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{featured[0].nome}</p>
-                  {featured[0].descricao && <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{featured[0].descricao}</p>}
+        {/* Em destaque — hero (carrossel automático quando o dono marca 2+) */}
+        {featured.length > 0 && (() => {
+          const hero = featured[heroIdx % featured.length];
+          return (
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{destaques.length === 0 && ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
+              <button onClick={() => onSelectProduto(hero)} style={{ position: "relative", width: "100%", height: 232, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD }}>
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 6%, color-mix(in srgb, var(--bg) 30%, transparent) 48%, transparent 80%)" }} />
+                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Assinatura da casa</span>
+                <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, textAlign: "left" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.nome}</p>
+                    {hero.descricao && <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hero.descricao}</p>}
+                  </div>
+                  <span style={{ fontSize: 17, fontWeight: 900, color: ACCENT, flexShrink: 0 }}>{fmt(hero.preco)}</span>
                 </div>
-                <span style={{ fontSize: 17, fontWeight: 900, color: ACCENT, flexShrink: 0 }}>{fmt(featured[0].preco)}</span>
-              </div>
-            </button>
-            {featured.length > 1 && (
-              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-                {featured.slice(1).map((p) => (
-                  <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 150px", background: CARD2, borderRadius: 18, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
-                    <div style={{ height: 168, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>{p.imagem_url ? "" : "🍸"}</div>
-                    <div style={{ padding: "12px 13px 15px" }}>
-                      <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
-                      <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+              </button>
+              {featured.length > 1 && (
+                <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+                  {featured.map((_, i) => (
+                    <button key={i} onClick={() => setHeroIdx(i)} aria-label={`Destaque ${i + 1}`} style={{ width: i === heroIdx % featured.length ? 20 : 6, height: 6, borderRadius: 999, background: i === heroIdx % featured.length ? ACCENT : "var(--border-strong)", border: "none", cursor: "pointer", transition: "all 200ms", padding: 0 }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Categorias */}
         {cardapio.length > 0 && (
@@ -1133,7 +1141,7 @@ function HomeScreen({
             <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {cardapio.map((cat) => {
-                const cover = cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+                const cover = cat.imagem_url ?? cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
                 return (
                   <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />

@@ -46,10 +46,13 @@ export default async function MenuPage({ params }: Props) {
       .returns<Produto[]>(),
   ]);
 
-  const cardapio = (categorias ?? []).map((cat) => ({
-    ...cat,
-    produtos: (produtos ?? []).filter((p) => p.categoria_id === cat.id),
-  }));
+  // Cliente só vê categorias com produto — nada de categoria vazia/lixo do admin.
+  const cardapio = (categorias ?? [])
+    .map((cat) => ({
+      ...cat,
+      produtos: (produtos ?? []).filter((p) => p.categoria_id === cat.id),
+    }))
+    .filter((cat) => cat.produtos.length > 0);
 
   return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} />;
 }

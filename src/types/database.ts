@@ -121,6 +121,7 @@ export interface Categoria {
   nome: string;
   ordem: number;
   ativo: boolean;
+  imagem_url: string | null;
   created_at: string;
 }
 
@@ -139,6 +140,7 @@ export interface Produto {
   custo: number | null;
   custo_status: CustoStatus;
   imagem_url: string | null;
+  destaque: boolean;
   ativo: boolean;
   controla_estoque: boolean;
   created_at: string;

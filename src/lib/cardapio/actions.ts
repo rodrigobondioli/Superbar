@@ -40,7 +40,18 @@ export async function editarCategoria(id: string, formData: FormData) {
   if (!nome) return;
 
   const supabase = await createClient();
-  await supabase.from("categorias").update({ nome }).eq("id", id);
+  const update: { nome: string; imagem_url?: string | null } = { nome };
+  if (formData.has("imagem_url")) {
+    update.imagem_url = String(formData.get("imagem_url") ?? "").trim() || null;
+  }
+  await supabase.from("categorias").update(update).eq("id", id);
+  revalidatePath("/dashboard/cardapio");
+}
+
+/** Liga/desliga o "destaque" de um produto (vira Assinatura da casa no app do cliente). */
+export async function toggleDestaque(id: string, destaque: boolean) {
+  const supabase = await createClient();
+  await supabase.from("produtos").update({ destaque: !destaque }).eq("id", id);
   revalidatePath("/dashboard/cardapio");
 }
 

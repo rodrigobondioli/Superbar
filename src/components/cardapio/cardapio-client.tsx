@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Star } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
@@ -19,6 +19,7 @@ import {
   criarVariante,
   editarVariante,
   deletarVariante,
+  toggleDestaque,
 } from "@/lib/cardapio/actions";
 import { getImagemAutomatica } from "@/lib/cardapio/drink-images";
 import { ImageUpload } from "./image-upload";
@@ -392,8 +393,22 @@ function ProdutoRow({
   const [toggling, setToggling] = useState(false);
   const [deletando, setDeletando] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
+  const [destacando, setDestacando] = useState(false);
 
   const variantes = produto.produto_variantes ?? [];
+
+  async function handleDestaque() {
+    if (destacando) return;
+    setDestacando(true);
+    try {
+      await toggleDestaque(produto.id, produto.destaque);
+      toast(produto.destaque ? "Saiu dos destaques." : `"${produto.nome}" em destaque.`, "ok");
+    } catch {
+      toast("Erro ao destacar.", "error");
+    } finally {
+      setDestacando(false);
+    }
+  }
 
   async function handleToggle() {
     if (toggling) return;
@@ -516,6 +531,18 @@ function ProdutoRow({
           <span className="hidden sm:inline">Ficha</span>
         </button>
 
+        {/* Estrela de destaque — sempre visível quando ativo (feature do dono) */}
+        <button
+          type="button"
+          disabled={destacando}
+          onClick={handleDestaque}
+          className={produto.destaque ? "" : "opacity-100 lg:opacity-40 lg:group-hover:opacity-100 transition-opacity"}
+          style={{ ...iconBtn, flexShrink: 0, color: produto.destaque ? "var(--accent)" : "var(--fg-subtle)", opacity: destacando ? 0.5 : undefined }}
+          title={produto.destaque ? "Tirar dos destaques" : "Destacar (Assinatura da casa)"}
+        >
+          <Star style={{ width: 15, height: 15, fill: produto.destaque ? "var(--accent)" : "none" }} />
+        </button>
+
         {/* Actions — always visible on mobile, hover-only on desktop */}
         <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
           <button onClick={() => setEditing(true)} style={iconBtn} title="Editar">
@@ -613,6 +640,7 @@ function CategoriaItem({
   onSelect: () => void;
 }) {
   const [editingNome, setEditingNome] = useState(false);
+  const [imagemUrl, setImagemUrl] = useState<string | null>(grupo.categoria.imagem_url ?? null);
 
   if (editingNome) {
     return (
@@ -620,6 +648,11 @@ function CategoriaItem({
         action={async (fd) => { await editarCategoria(grupo.categoria.id, fd); setEditingNome(false); }}
         className="shrink-0 lg:shrink px-2 py-1"
       >
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ ...lbl, marginBottom: 6 }}>Foto da categoria</span>
+          <ImageUpload currentUrl={grupo.categoria.imagem_url} onUpload={setImagemUrl} />
+        </div>
+        <input type="hidden" name="imagem_url" value={imagemUrl ?? ""} />
         <input
           name="nome"
           defaultValue={grupo.categoria.nome}

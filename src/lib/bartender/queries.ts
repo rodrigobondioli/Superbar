@@ -12,6 +12,7 @@ const SEM_CATEGORIA: Categoria = {
   nome: "Outros",
   ordem: Number.MAX_SAFE_INTEGER,
   ativo: true,
+  imagem_url: null,
   created_at: "",
 };
 
