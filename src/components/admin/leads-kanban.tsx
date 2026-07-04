@@ -431,21 +431,37 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
 
   const selectedLead = selectedId ? (leads.find(l => l.id === selectedId) ?? null) : null;
 
-  // Realtime: captura novos leads (form do site ou adição manual)
+  // Mantém a lista em dia quando o servidor revalida (ex.: após adicionar lead
+  // manualmente, o createLeadAdmin revalida a rota → chega uma nova prop aqui).
+  // Isso garante o "aparecer sem refresh" mesmo se o realtime falhar.
+  useEffect(() => { setLeads(initial); }, [initial]);
+
+  // Realtime: leads que chegam pelo form da landing aparecem sem refresh.
+  // O socket precisa da sessão do admin para passar pela RLS de SELECT de leads.
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel("leads-realtime")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "leads" },
-        (payload) => {
-          const newLead = payload.new as Lead;
-          setLeads(prev => prev.some(l => l.id === newLead.id) ? prev : [newLead, ...prev]);
-        }
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (token) supabase.realtime.setAuth(token);
+      if (cancelled) return;
+      channel = supabase
+        .channel("leads-realtime")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "leads" },
+          (payload) => {
+            const newLead = payload.new as Lead;
+            setLeads(prev => prev.some(l => l.id === newLead.id) ? prev : [newLead, ...prev]);
+          }
+        )
+        .subscribe();
+    })();
+
+    return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
   }, []);
 
   function handleDragStart(e: React.DragEvent, id: string) {
