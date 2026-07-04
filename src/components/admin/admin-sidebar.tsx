@@ -34,10 +34,10 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
       }}
     >
       {/* Header */}
-      <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+      <div style={{ padding: "28px 20px 24px", background: "var(--bg-card)", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 72, height: 72, borderRadius: 18, display: "block", marginBottom: 12 }} />
-        <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", marginBottom: 8 }}>
+        <span style={{ display: "block", fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", marginBottom: 8 }}>
           SUPERBAR
         </span>
         <span style={{
@@ -51,7 +51,7 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
       </div>
 
       {/* Nav */}
-      <nav style={{ padding: "12px 12px", display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+      <nav style={{ padding: "10px 10px 0", display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
         {links.map((link) => {
           const active = link.exact
             ? pathname === link.href
@@ -61,18 +61,19 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
             <Link
               key={link.href}
               href={link.href}
+              className={!active ? "hover:!bg-white/[0.05] hover:!text-[var(--fg)]" : ""}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                padding: "7px 10px",
-                borderRadius: 4,
+                gap: 9,
+                padding: "8px 10px",
+                borderRadius: 8,
                 fontSize: 13,
-                fontWeight: active ? 500 : 400,
-                color: active ? "var(--fg)" : "var(--fg-muted)",
-                background: active ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+                fontWeight: active ? 600 : 400,
+                color: active ? "var(--accent)" : "var(--fg)",
+                background: "transparent",
                 textDecoration: "none",
-                transition: "background 150ms, color 150ms",
+                transition: "background 120ms, color 120ms",
               }}
             >
               <link.icon
