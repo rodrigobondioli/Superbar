@@ -381,6 +381,31 @@ export interface Insight {
   criado_em: string;
 }
 
+/** Insumo do bar (SKU real). custo_atual = custo por unidade base. */
+export interface Ingrediente {
+  id: string;
+  bar_id: string;
+  nome: string;
+  unidade: "un" | "ml" | "l" | "g" | "kg";
+  estoque_atual: number;
+  estoque_minimo: number;
+  custo_atual: number;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+}
+
+/** Ficha técnica: um insumo de um produto/variante. */
+export interface Receita {
+  id: string;
+  bar_id: string;
+  produto_id: string;
+  variante_id: string | null;
+  ingrediente_id: string;
+  quantidade: number;
+  criado_em: string;
+}
+
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row & Record<string, unknown>;
   Insert: Insert & Record<string, unknown>;
@@ -400,6 +425,8 @@ export interface Database {
       categorias: TableDef<Categoria>;
       produtos: TableDef<Produto>;
       produto_variantes: TableDef<ProdutoVariante>;
+      ingredientes: TableDef<Ingrediente>;
+      receitas: TableDef<Receita>;
       fornecedores: TableDef<Fornecedor>;
       estoque: TableDef<Estoque>;
       compras: TableDef<Compra>;

@@ -101,23 +101,26 @@ Retorne APENAS JSON, sem explicação:
   const supabase = await createClient();
   const { data: ingData } = await supabase
     .from("ingredientes")
-    .select("id, nome")
+    .select("id, nome, custo_atual")
     .eq("bar_id", current.bar.id)
     .eq("ativo", true)
-    .returns<IngredienteRef[]>();
+    .returns<(IngredienteRef & { custo_atual: number })[]>();
   const ingredientes = ingData ?? [];
+  const custoPorId = new Map(ingredientes.map((i) => [i.id, Number(i.custo_atual)]));
 
   const insumos: InsumoSugerido[] = sugeridos.map((s) => {
     const unidade: UnidadeInsumo = (UNIDADES as string[]).includes(s.unidade)
       ? (s.unidade as UnidadeInsumo)
       : "un";
     const match = casarIngrediente(s.papel, ingredientes);
+    const custo = match ? custoPorId.get(match.id) ?? null : null;
     return {
       papel: s.papel,
       quantidade: s.quantidade,
       unidade,
       ingredienteId: match?.id ?? null,
       ingredienteNome: match?.nome ?? null,
+      custoUnitario: custo != null && custo > 0 ? custo : null,
     };
   });
 

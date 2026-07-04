@@ -14,6 +14,8 @@ export interface InsumoSugerido {
   ingredienteId: string | null;
   /** nome do ingrediente casado (ex: "Vodka Smirnoff 998ml"), ou null. */
   ingredienteNome: string | null;
+  /** custo por unidade base do insumo casado (já conhecido), ou null. */
+  custoUnitario: number | null;
 }
 
 export interface SugerirFichaResponse {

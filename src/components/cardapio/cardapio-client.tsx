@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
+import { FichaEditor } from "./ficha-editor";
 import {
   criarCategoria,
   editarCategoria,
@@ -153,9 +154,10 @@ function VarianteForm({
 }
 
 // ─── Variante Row ─────────────────────────────────────────────────────────────
-function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produtoId: string }) {
+function VarianteRow({ variante, produtoId, produtoNome }: { variante: ProdutoVariante; produtoId: string; produtoNome: string }) {
   const [editing, setEditing] = useState(false);
   const [deletando, setDeletando] = useState(false);
+  const [fichaOpen, setFichaOpen] = useState(false);
 
   async function handleDeletar() {
     if (!window.confirm(`Deletar variante "${variante.nome}"?`)) return;
@@ -199,6 +201,9 @@ function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produ
         {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(variante.preco)}
       </span>
       <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
+        <button type="button" onClick={() => setFichaOpen(true)} style={iconBtn} title="Ficha técnica">
+          <FlaskConical style={{ width: 12, height: 12 }} />
+        </button>
         <button type="button" onClick={() => setEditing(true)} style={iconBtn} title="Editar">
           <Pencil style={{ width: 12, height: 12 }} />
         </button>
@@ -214,6 +219,17 @@ function VarianteRow({ variante, produtoId }: { variante: ProdutoVariante; produ
             : <Trash2 style={{ width: 12, height: 12 }} />}
         </button>
       </div>
+
+      <FichaEditor
+        open={fichaOpen}
+        onClose={() => setFichaOpen(false)}
+        produtoId={produtoId}
+        produtoNome={produtoNome}
+        preco={variante.preco}
+        varianteId={variante.id}
+        varianteNome={variante.nome}
+        sabor={variante.nome}
+      />
     </div>
   );
 }
@@ -334,6 +350,7 @@ function ProdutoRow({
   const [addingVariante, setAddingVariante] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [deletando, setDeletando] = useState(false);
+  const [fichaOpen, setFichaOpen] = useState(false);
 
   const variantes = produto.produto_variantes ?? [];
 
@@ -448,6 +465,11 @@ function ProdutoRow({
 
         {/* Actions — always visible on mobile, hover-only on desktop */}
         <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
+          {variantes.length === 0 && (
+            <button onClick={() => setFichaOpen(true)} style={iconBtn} title="Ficha técnica">
+              <FlaskConical style={{ width: 13, height: 13 }} />
+            </button>
+          )}
           <button onClick={() => setEditing(true)} style={iconBtn} title="Editar">
             <Pencil style={{ width: 13, height: 13 }} />
           </button>
@@ -493,7 +515,7 @@ function ProdutoRow({
           )}
 
           {variantes.map(v => (
-            <VarianteRow key={v.id} variante={v} produtoId={produto.id} />
+            <VarianteRow key={v.id} variante={v} produtoId={produto.id} produtoNome={produto.nome} />
           ))}
 
           {addingVariante ? (
@@ -517,6 +539,16 @@ function ProdutoRow({
             </button>
           )}
         </div>
+      )}
+
+      {variantes.length === 0 && (
+        <FichaEditor
+          open={fichaOpen}
+          onClose={() => setFichaOpen(false)}
+          produtoId={produto.id}
+          produtoNome={produto.nome}
+          preco={produto.preco}
+        />
       )}
     </div>
   );
