@@ -1,0 +1,125 @@
+import { NextRequest, NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import {
+  casarIngrediente,
+  type InsumoSugerido,
+  type SugerirFichaResponse,
+  type UnidadeInsumo,
+  type IngredienteRef,
+} from "@/lib/ficha/sugestao-types";
+
+const UNIDADES: UnidadeInsumo[] = ["un", "ml", "l", "g", "kg"];
+
+interface Body {
+  nome?: string;
+  base?: string; // destilado, ex: "vodka" (para variantes de base)
+  sabor?: string; // fruta/sabor, ex: "morango"
+}
+
+/**
+ * IA sugere a ESTRUTURA da ficha (insumos + quantidade padrão) a partir do
+ * nome do drink. Nunca inventa marca nem preço — isso é do dono (Princípio 10).
+ * O servidor casa cada papel com o estoque (ingredientes) já cadastrado.
+ *
+ * Read-only: NÃO persiste nada. Persistir é no confirmar (ficha editor / wizard).
+ */
+export async function POST(req: NextRequest) {
+  const current = await getCurrentBar();
+  if (!current) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
+  let body: Body;
+  try {
+    body = (await req.json()) as Body;
+  } catch {
+    return NextResponse.json({ error: "Corpo inválido" }, { status: 400 });
+  }
+
+  const nome = (body.nome ?? "").trim();
+  if (!nome) return NextResponse.json({ error: "Nome do drink é obrigatório" }, { status: 400 });
+
+  const contexto = [
+    body.base ? `Base/destilado: ${body.base.trim()}` : null,
+    body.sabor ? `Sabor/fruta: ${body.sabor.trim()}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  // 1. IA sugere a estrutura da receita
+  let sugeridos: { papel: string; quantidade: number; unidade: string }[] = [];
+  try {
+    const anthropic = new Anthropic();
+    const msg = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 700,
+      messages: [
+        {
+          role: "user",
+          content: `Você é um bartender profissional brasileiro. Monte a ficha técnica (receita) padrão do drink abaixo.
+
+Drink: ${nome}
+${contexto}
+
+Liste os insumos com quantidade padrão e unidade. Regras:
+- Unidade DEVE ser uma de: un, ml, l, g, kg.
+- Use o nome GENÉRICO do insumo ("vodka", "limão", "açúcar", "gelo") — NUNCA marca comercial.
+- Quantidades por 1 dose/porção servida.
+- Se o drink tiver base específica informada, use-a como o destilado.
+- Não invente insumo que não pertence ao drink.
+
+Retorne APENAS JSON, sem explicação:
+{"insumos":[{"papel":"vodka","quantidade":50,"unidade":"ml"},{"papel":"limão","quantidade":1,"unidade":"un"}]}`,
+        },
+      ],
+    });
+
+    const text = msg.content[0].type === "text" ? msg.content[0].text.trim() : "";
+    const jsonStr = text.startsWith("{") ? text : text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+    const parsed = JSON.parse(jsonStr) as {
+      insumos?: { papel?: string; quantidade?: number; unidade?: string }[];
+    };
+    sugeridos = (parsed.insumos ?? [])
+      .filter((i) => i.papel && typeof i.quantidade === "number")
+      .map((i) => ({
+        papel: String(i.papel).trim(),
+        quantidade: Number(i.quantidade),
+        unidade: String(i.unidade ?? "un"),
+      }));
+  } catch {
+    return NextResponse.json(
+      { error: "Não consegui sugerir a ficha agora. Tente de novo ou cadastre manual." },
+      { status: 502 },
+    );
+  }
+
+  if (sugeridos.length === 0) {
+    return NextResponse.json({ insumos: [] } satisfies SugerirFichaResponse);
+  }
+
+  // 2. Casa cada papel com o estoque (ingredientes) do bar
+  const supabase = await createClient();
+  const { data: ingData } = await supabase
+    .from("ingredientes")
+    .select("id, nome")
+    .eq("bar_id", current.bar.id)
+    .eq("ativo", true)
+    .returns<IngredienteRef[]>();
+  const ingredientes = ingData ?? [];
+
+  const insumos: InsumoSugerido[] = sugeridos.map((s) => {
+    const unidade: UnidadeInsumo = (UNIDADES as string[]).includes(s.unidade)
+      ? (s.unidade as UnidadeInsumo)
+      : "un";
+    const match = casarIngrediente(s.papel, ingredientes);
+    return {
+      papel: s.papel,
+      quantidade: s.quantidade,
+      unidade,
+      ingredienteId: match?.id ?? null,
+      ingredienteNome: match?.nome ?? null,
+    };
+  });
+
+  return NextResponse.json({ insumos } satisfies SugerirFichaResponse);
+}
