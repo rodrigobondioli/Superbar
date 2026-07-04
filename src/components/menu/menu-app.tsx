@@ -1033,8 +1033,9 @@ function HomeScreen({
   const copies = 24;
   const MAX_GIROS = 2;
 
-  const [mode, setMode] = useState<"surp" | "guia">("surp");
+  const [mode, setMode] = useState<"surp" | "guia">("guia");
   const reelRef = useRef<HTMLDivElement>(null);
+  const heroDragRef = useRef({ x: 0, moved: false });
   const idxRef = useRef(N * Math.floor(copies / 2));
   const [spinning, setSpinning] = useState(false);
   const [resultado, setResultado] = useState<Produto | null>(null);
@@ -1132,7 +1133,16 @@ function HomeScreen({
           return (
             <div style={{ marginBottom: 24 }}>
               <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{destaques.length === 0 && ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-              <button onClick={() => onSelectProduto(hero)} style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } onSelectProduto(hero); }}
+                onTouchStart={(e) => { heroDragRef.current = { x: e.touches[0].clientX, moved: false }; }}
+                onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - heroDragRef.current.x) > 10) heroDragRef.current.moved = true; }}
+                onTouchEnd={(e) => {
+                  if (featured.length <= 1) return;
+                  const dx = e.changedTouches[0].clientX - heroDragRef.current.x;
+                  if (Math.abs(dx) > 40) setHeroIdx((i) => (i + (dx < 0 ? 1 : featured.length - 1)) % featured.length);
+                }}
+                style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
                 <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{badgeDrink(hero)}</span>
                 <div style={{ position: "relative", padding: 16, textAlign: "left" }}>
@@ -1179,8 +1189,8 @@ function HomeScreen({
             <p style={{ margin: "0 0 3px", fontSize: 18, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", textAlign: "center" }}>Não sabe o que beber?</p>
             <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>{mode === "surp" ? "Dois giros e a casa decide por você." : "Três perguntas. A casa acha o seu drink."}</p>
             <div style={{ display: "flex", gap: 4, background: "var(--bg)", borderRadius: 999, padding: 4, marginBottom: 16 }}>
-              {seg("Surpreenda-me", mode === "surp", () => setMode("surp"))}
               {seg("Me guie", mode === "guia", () => setMode("guia"))}
+              {seg("Surpreenda-me", mode === "surp", () => setMode("surp"))}
             </div>
 
             {mode === "surp" ? (
@@ -1195,9 +1205,9 @@ function HomeScreen({
                   </span>
                 </div>
                 <div style={{ position: "relative", height: 192 }}>
-                  <div style={{ position: "absolute", left: 0, right: 0, top: 64, height: 64, borderTop: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", borderBottom: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", pointerEvents: "none", zIndex: 2 }}>
-                    <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderLeft: `7px solid ${ACCENT}` }} />
-                    <div style={{ position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderRight: `7px solid ${ACCENT}` }} />
+                  <div style={{ position: "absolute", left: 0, right: 0, top: 64, height: 64, borderTop: "1px solid var(--border-strong)", borderBottom: "1px solid var(--border-strong)", pointerEvents: "none", zIndex: 2 }}>
+                    <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderLeft: "7px solid var(--fg-subtle)" }} />
+                    <div style={{ position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderRight: "7px solid var(--fg-subtle)" }} />
                   </div>
                   <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--bg)", borderRadius: 14, border: "1px solid var(--border)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)" }}>
                     <div ref={reelRef} style={{ position: "absolute", left: 0, right: 0, top: 0 }}>
@@ -1297,7 +1307,7 @@ function HomeScreen({
             });
           }}
           disabled={chamando}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, borderRadius: 8, border: "none", background: chamado ? "color-mix(in srgb, var(--ok) 14%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 700, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, borderRadius: 999, border: "none", background: chamado ? "color-mix(in srgb, var(--ok) 14%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 700, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
         >
           {chamado ? (
             <><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Garçom a caminho</>

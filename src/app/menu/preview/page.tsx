@@ -91,5 +91,5 @@ const cardapio = [
 ];
 
 export default function MenuPreviewPage() {
-  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} />;
+  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} topPedidos={["p8", "p1", "p6", "p2", "p3"]} />;
 }
