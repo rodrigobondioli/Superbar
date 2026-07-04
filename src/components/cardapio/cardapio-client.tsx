@@ -21,9 +21,42 @@ import {
 import { getImagemAutomatica } from "@/lib/cardapio/drink-images";
 import { ImageUpload } from "./image-upload";
 import type { CategoriaComProdutosAdmin } from "@/lib/cardapio/queries";
-import type { ProdutoComVariantes, ProdutoVariante } from "@/types/database";
+import type { ProdutoComVariantes, ProdutoVariante, CustoStatus } from "@/types/database";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+// ─── Status da ficha (custo) ────────────────────────────────────────────────────
+// verde = confirmada (margem real) · âmbar = estimativa (falta custo) · cinza = sem ficha
+function statusFicha(p: ProdutoComVariantes): CustoStatus {
+  const vs = (p.produto_variantes ?? []).filter(v => v.ativo);
+  if (vs.length > 0) {
+    if (vs.every(v => v.custo_status === "confirmada")) return "confirmada";
+    if (vs.every(v => v.custo_status === "sem")) return "sem";
+    return "sugerida"; // parcial/misto conta como estimativa
+  }
+  return p.custo_status;
+}
+
+const TITULO_FICHA: Record<CustoStatus, string> = {
+  confirmada: "Custo confirmado — margem real",
+  sugerida: "Custo estimado — falta preencher",
+  sem: "Sem ficha — clique para preencher",
+};
+
+function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
+  const cor: Record<CustoStatus, { bg: string; fg: string }> = {
+    confirmada: { bg: "color-mix(in srgb, var(--ok) 15%, transparent)", fg: "var(--ok)" },
+    sugerida:   { bg: "color-mix(in srgb, var(--warn) 15%, transparent)", fg: "var(--warn)" },
+    sem:        { bg: "var(--bg-card-hi)", fg: "var(--fg-muted)" },
+  };
+  const c = cor[status];
+  return {
+    display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+    background: c.bg, border: "none", borderRadius: 999,
+    padding: compact ? "5px 12px" : "7px 14px",
+    color: c.fg, fontSize: compact ? 12 : 13, fontWeight: 500, cursor: "pointer",
+  };
+}
 
 const input: React.CSSProperties = {
   background: "var(--bg-inset)",
@@ -203,13 +236,8 @@ function VarianteRow({ variante, produtoId, produtoNome }: { variante: ProdutoVa
       <button
         type="button"
         onClick={() => setFichaOpen(true)}
-        style={{
-          display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-          background: "var(--bg-card-hi)", border: "none", borderRadius: 999,
-          padding: "5px 12px", color: "var(--fg-muted)", fontSize: 12, fontWeight: 500,
-          cursor: "pointer",
-        }}
-        title="Ficha técnica / custo"
+        style={fichaPill(variante.custo_status, true)}
+        title={TITULO_FICHA[variante.custo_status]}
       >
         <FlaskConical style={{ width: 12, height: 12 }} />
         <span className="hidden sm:inline">Ficha</span>
@@ -479,13 +507,8 @@ function ProdutoRow({
         <button
           type="button"
           onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
-          style={{
-            display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-            background: "var(--bg-card-hi)", border: "none", borderRadius: 999,
-            padding: "7px 14px", color: "var(--fg-muted)", fontSize: 13, fontWeight: 500,
-            cursor: "pointer",
-          }}
-          title="Ficha técnica / custo"
+          style={fichaPill(statusFicha(produto))}
+          title={TITULO_FICHA[statusFicha(produto)]}
         >
           <FlaskConical style={{ width: 13, height: 13 }} />
           <span className="hidden sm:inline">Ficha</span>
