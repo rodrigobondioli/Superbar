@@ -236,138 +236,6 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
   );
 }
 
-// ─── WELCOME BACK ─────────────────────────────────────────────────────────────
-function WelcomeBackScreen({
-  cliente,
-  ultimoProduto,
-  allProdutos,
-  onContinue,
-  onRepeat,
-}: {
-  cliente: ClienteLocal;
-  ultimoProduto: Produto | null;
-  allProdutos: Produto[];
-  onContinue: () => void;
-  onRepeat: (produto: Produto) => void;
-}) {
-  const sugestoes = allProdutos
-    .filter((p) => p.ativo && p.imagem_url && p.id !== ultimoProduto?.id)
-    .slice(0, 4);
-
-  return (
-    <div style={{
-      height: "100%", background: BG,
-      display: "flex", flexDirection: "column",
-      overflow: "auto", fontFamily: FONT,
-    }}>
-      {/* Greeting */}
-      <div style={{ padding: "68px 28px 32px" }}>
-        <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 18px" }}>
-          De volta!
-        </p>
-        <h1 style={{ fontSize: 36, fontWeight: 900, color: "var(--fg)", margin: "0 0 10px", lineHeight: 1.0, letterSpacing: "-0.8px" }}>
-          Boa noite,<br />{cliente.nome} 🥃
-        </h1>
-        <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
-          {cliente.visitas <= 1
-            ? "Primeira vez aqui. Que bom ter você!"
-            : `${ordinal(cliente.visitas)} visita — você faz parte da família.`}
-        </p>
-      </div>
-
-      {/* Last order */}
-      {ultimoProduto && (
-        <div style={{ padding: "0 20px 20px" }}>
-          <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
-            Da última vez
-          </p>
-          <div style={{
-            background: CARD, borderRadius: 8, overflow: "hidden",
-            display: "flex", alignItems: "stretch",
-            border: "1px solid var(--border)",
-          }}>
-            <div style={{ flex: 1, padding: "18px 16px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <p style={{ fontSize: 16, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px", lineHeight: 1.2 }}>{ultimoProduto.nome}</p>
-              <p style={{ fontSize: 15, color: ACCENT, margin: "0 0 16px", fontWeight: 800 }}>{fmt(ultimoProduto.preco)}</p>
-              <button
-                onClick={() => onRepeat(ultimoProduto)}
-                style={{
-                  background: ACCENT, color: "var(--accent-fg)", border: "none",
-                  borderRadius: 8, padding: "9px 16px",
-                  fontSize: 13, fontWeight: 800, cursor: "pointer",
-                  alignSelf: "flex-start", fontFamily: FONT,
-                }}
-              >
-                De novo →
-              </button>
-            </div>
-            {ultimoProduto.imagem_url && (
-              <div style={{ width: 110, flexShrink: 0 }}>
-                <img
-                  src={ultimoProduto.imagem_url}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  alt={ultimoProduto.nome}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Sugestões */}
-      {sugestoes.length > 0 && (
-        <div style={{ padding: "0 20px 20px" }}>
-          <p style={{ fontSize: 10, color: "var(--fg-subtle)", margin: "0 0 10px 2px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>
-            Você pode gostar
-          </p>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-            {sugestoes.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => onRepeat(p)}
-                style={{
-                  flexShrink: 0, width: 130,
-                  background: CARD, border: "none",
-                  borderRadius: 8, overflow: "hidden",
-                  cursor: "pointer", textAlign: "left", padding: 0,
-                }}
-              >
-                {p.imagem_url && (
-                  <img
-                    src={p.imagem_url}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                    style={{ width: "100%", height: 88, objectFit: "cover", display: "block" }}
-                    alt={p.nome}
-                  />
-                )}
-                <div style={{ padding: "10px 12px 13px" }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)", margin: "0 0 3px", lineHeight: 1.3, fontFamily: FONT }}>{p.nome}</p>
-                  <p style={{ fontSize: 13, fontWeight: 800, color: ACCENT, margin: 0, fontFamily: FONT }}>{fmt(p.preco)}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* CTA */}
-      <div style={{ padding: "8px 20px 52px", marginTop: "auto" }}>
-        <button
-          onClick={onContinue}
-          style={{
-            width: "100%", background: ACCENT, color: "var(--accent-fg)",
-            border: "none", borderRadius: 8, padding: "20px",
-            fontSize: 16, fontWeight: 800, cursor: "pointer",
-            letterSpacing: "-0.3px", fontFamily: FONT,
-          }}
-        >
-          Ver cardápio completo →
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────────────
 function CategoriesScreen({
@@ -1118,12 +986,13 @@ function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaC
 }
 
 function HomeScreen({
-  cliente, mesaLabel, cardapio, allProdutos, cartCount, onCart, onSelectCategoria, onSelectProduto,
+  cliente, mesaLabel, cardapio, allProdutos, ultimoProduto, cartCount, onCart, onSelectCategoria, onSelectProduto,
 }: {
   cliente: ClienteLocal | null;
   mesaLabel: string;
   cardapio: CategoriaComProdutos[];
   allProdutos: Produto[];
+  ultimoProduto: Produto | null;
   cartCount: number;
   onCart: () => void;
   onSelectCategoria: (cat: CategoriaComProdutos) => void;
@@ -1131,7 +1000,9 @@ function HomeScreen({
 }) {
   const ativos = allProdutos.filter((p) => p.ativo);
   const pool = ativos.slice(0, 12);
-  const featured = (ativos.filter((p) => p.imagem_url).length >= 2 ? ativos.filter((p) => p.imagem_url) : ativos).slice(0, 6);
+  const sugestoes = ativos.filter((p) => p.id !== ultimoProduto?.id);
+  const featBase = sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes;
+  const featured = featBase.slice(0, 6);
   const N = pool.length;
   const rowH = 64;
   const copies = 24;
@@ -1203,6 +1074,21 @@ function HomeScreen({
             ? <button onClick={onCart} style={{ background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "9px 15px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>🛒 {cartCount}</button>
             : <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p><p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p></div>}
         </div>
+
+        {/* Pedir de novo (último pedido) */}
+        {ultimoProduto && (
+          <div style={{ marginBottom: 22 }}>
+            <p style={{ margin: "0 0 10px", fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 600 }}>Da última vez</p>
+            <button onClick={() => onSelectProduto(ultimoProduto)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: CARD2, borderRadius: 16, padding: 12, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
+              <div style={{ width: 52, height: 52, borderRadius: 12, background: ultimoProduto.imagem_url ? `url(${ultimoProduto.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>{ultimoProduto.imagem_url ? "" : "🍸"}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ultimoProduto.nome}</p>
+                <p style={{ margin: "2px 0 0", fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(ultimoProduto.preco)}</p>
+              </div>
+              <span style={{ background: ACCENT, color: "var(--accent-fg)", borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 800, flexShrink: 0 }}>De novo →</span>
+            </button>
+          </div>
+        )}
 
         {/* Hub de decisão */}
         {N > 0 && (
@@ -1302,7 +1188,7 @@ function HomeScreen({
         {featured.length > 0 && (
           <>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Em destaque</p>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
             </div>
             <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none", marginBottom: 26 }}>
               {featured.map((p) => (
@@ -1373,7 +1259,7 @@ export function MenuApp({
       const updated = { ...cliente, visitas: cliente.visitas + 1, ultimaVisita: new Date().toISOString() };
       setCliente(updated);
       writeCliente(bar.slug, updated);
-      setScreen("welcome-back");
+      setScreen("home");
     } else {
       setScreen("welcome-new");
     }
@@ -1417,26 +1303,13 @@ export function MenuApp({
       {screen === "welcome-new" && (
         <WelcomeNewScreen bar={bar} onConfirm={handleNomeConfirm} />
       )}
-      {screen === "welcome-back" && cliente && (
-        <WelcomeBackScreen
-          cliente={cliente}
-          ultimoProduto={ultimoProduto}
-          allProdutos={allProdutos}
-          onContinue={() => setScreen("home")}
-          onRepeat={(p) => {
-            setSelectedProduto(p);
-            const cat = cardapio.find((c) => c.id === p.categoria_id);
-            if (cat) setSelectedCategoria(cat);
-            setScreen("product-detail");
-          }}
-        />
-      )}
       {screen === "home" && (
         <HomeScreen
           cliente={cliente}
           mesaLabel={mesa.nome ?? `Mesa ${mesa.numero}`}
           cardapio={cardapio}
           allProdutos={allProdutos}
+          ultimoProduto={ultimoProduto}
           cartCount={cartCount}
           onCart={() => setScreen("cart")}
           onSelectCategoria={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}
