@@ -313,7 +313,7 @@ export interface ItemPedidoCliente {
 
 // ─── Fila de produção (bartender-created orders) ────────────────────────────
 
-export type PedidoStatus = "recebido" | "preparando" | "entregue";
+export type PedidoStatus = "recebido" | "preparando" | "pronto" | "entregue";
 
 export interface Pedido {
   id: string;
@@ -323,6 +323,7 @@ export interface Pedido {
   status: PedidoStatus;
   criado_em: string;
   iniciado_em: string | null;
+  pronto_em: string | null;
   entregue_em: string | null;
 }
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { iniciarPedido, entregarPedido } from "@/lib/bartender/actions";
+import { iniciarPedido, marcarPronto } from "@/lib/bartender/actions";
 
 // ─── Alerta sonoro / háptico ──────────────────────────────────────────────────
 
@@ -21,22 +21,22 @@ function playAlertSound() {
       osc.start(ctx.currentTime + start);
       osc.stop(ctx.currentTime + start + duration);
     };
-    play(880, 0,    0.08);
+    play(880, 0, 0.08);
     play(660, 0.12, 0.10);
     setTimeout(() => ctx.close(), 500);
   } catch {
-    // AudioContext não disponível (sem interação prévia no iOS) — silently skip
+    /* AudioContext indisponível — ignora */
   }
   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
     navigator.vibrate([80, 40, 120]);
   }
 }
 
-// ─── Tipos locais ─────────────────────────────────────────────────────────────
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface ItemDoPedido {
+  produto_id: string;
   quantidade: number;
-  variante_nome: string | null;
   produto_nome: string;
 }
 
@@ -45,9 +45,11 @@ interface PedidoCard {
   status: "recebido" | "preparando";
   criado_em: string;
   mesa_label: string;
-  nome_cliente: string | null;
+  pessoa: string;
   itens: ItemDoPedido[];
 }
+
+interface InsumoLinha { nome: string; quantidade: number; unidade: string; }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -58,260 +60,272 @@ function tempo(iso: string): string {
   return `${Math.floor(diff / 60)}h${diff % 60 > 0 ? ` ${diff % 60}min` : ""}`;
 }
 
-// ─── Fetch completo de pedidos ativos ─────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function comandaInfo(p: any): { pessoa: string; mesa_label: string } {
+  const c = p?.comandas as {
+    nome_cliente: string | null;
+    identificador: string | null;
+    mesas: { numero: number; nome: string | null } | null;
+  } | null;
+  const mesa = c?.mesas;
+  const mesa_label = mesa ? (mesa.nome ?? `Mesa ${mesa.numero}`) : "Balcão";
+  const pessoa = c?.nome_cliente
+    ?? (c?.identificador ? `Comanda ${c.identificador.slice(-4)}` : "Comanda");
+  return { pessoa, mesa_label };
+}
+
+function agregarItens(raw: ItemDoPedido[]): ItemDoPedido[] {
+  const map = new Map<string, ItemDoPedido>();
+  for (const it of raw) {
+    const ex = map.get(it.produto_nome);
+    if (ex) ex.quantidade += it.quantidade;
+    else map.set(it.produto_nome, { ...it });
+  }
+  return [...map.values()];
+}
+
+// ─── Fetch ──────────────────────────────────────────────────────────────────
+
+const SELECT_PEDIDO = `
+  id, status, criado_em,
+  comandas ( nome_cliente, identificador, mesas ( numero, nome ) )
+`;
+
+async function itensDoPedido(ids: string[]): Promise<Map<string, ItemDoPedido[]>> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("comanda_items")
+    .select("pedido_id, quantidade, produto_id, produtos ( nome )")
+    .in("pedido_id", ids)
+    .eq("status", "ativo");
+  const byPedido = new Map<string, ItemDoPedido[]>();
+  for (const it of data ?? []) {
+    const pid = it.pedido_id as string;
+    const lista = byPedido.get(pid) ?? [];
+    lista.push({
+      produto_id: it.produto_id as string,
+      quantidade: it.quantidade as number,
+      produto_nome: (it.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
+    });
+    byPedido.set(pid, lista);
+  }
+  for (const [k, v] of byPedido) byPedido.set(k, agregarItens(v));
+  return byPedido;
+}
 
 async function fetchPedidos(barId: string, turnoId: string): Promise<PedidoCard[]> {
   const supabase = createClient();
-
-  // 1. Pedidos com comanda + mesa
-  const { data: pedidosRaw } = await supabase
+  const { data: pedidos } = await supabase
     .from("pedidos")
-    .select(`
-      id, status, criado_em,
-      comanda_id,
-      comandas (
-        nome_cliente,
-        mesa_id,
-        mesas ( numero, nome )
-      )
-    `)
+    .select(SELECT_PEDIDO)
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
     .in("status", ["recebido", "preparando"])
     .order("criado_em", { ascending: true });
-
-  if (!pedidosRaw?.length) return [];
-
-  const ids = pedidosRaw.map(p => p.id);
-
-  // 2. Itens com nome do produto
-  const { data: itemsRaw } = await supabase
-    .from("comanda_items")
-    .select(`
-      pedido_id, quantidade, variante_nome,
-      produtos ( nome )
-    `)
-    .in("pedido_id", ids)
-    .eq("status", "ativo");
-
-  // Agrupa itens por pedido_id
-  const itensPorPedido = new Map<string, ItemDoPedido[]>();
-  for (const item of itemsRaw ?? []) {
-    const pid = item.pedido_id as string;
-    const lista = itensPorPedido.get(pid) ?? [];
-    lista.push({
-      quantidade:   item.quantidade as number,
-      variante_nome: item.variante_nome as string | null,
-      produto_nome: (item.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
-    });
-    itensPorPedido.set(pid, lista);
-  }
-
-  // Agrega itens iguais (mesmo nome) dentro do mesmo pedido
-  function agregar(itens: ItemDoPedido[]): ItemDoPedido[] {
-    const map = new Map<string, ItemDoPedido>();
-    for (const item of itens) {
-      const label = item.variante_nome ? `${item.produto_nome} — ${item.variante_nome}` : item.produto_nome;
-      const existing = map.get(label);
-      if (existing) existing.quantidade += item.quantidade;
-      else map.set(label, { ...item, produto_nome: label, variante_nome: null });
-    }
-    return [...map.values()];
-  }
-
-  return pedidosRaw.map(p => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const comanda = (p as any).comandas as {
-      nome_cliente: string | null;
-      mesa_id: string | null;
-      mesas: { numero: number; nome: string | null } | null;
-    } | null;
-
-    const mesa = comanda?.mesas;
-    const mesa_label = mesa ? (mesa.nome ?? `Mesa ${mesa.numero}`) : "Balcão";
-
-    return {
-      id:           p.id,
-      status:       p.status as "recebido" | "preparando",
-      criado_em:    p.criado_em,
-      mesa_label,
-      nome_cliente: comanda?.nome_cliente ?? null,
-      itens:        agregar(itensPorPedido.get(p.id) ?? []),
-    };
+  if (!pedidos?.length) return [];
+  const itensMap = await itensDoPedido(pedidos.map(p => p.id));
+  return pedidos.map(p => {
+    const { pessoa, mesa_label } = comandaInfo(p);
+    return { id: p.id, status: p.status as "recebido" | "preparando", criado_em: p.criado_em, mesa_label, pessoa, itens: itensMap.get(p.id) ?? [] };
   });
 }
 
 async function fetchPedidoById(pedidoId: string): Promise<PedidoCard | null> {
   const supabase = createClient();
-
-  const { data: p } = await supabase
-    .from("pedidos")
-    .select(`
-      id, status, criado_em,
-      comanda_id,
-      comandas (
-        nome_cliente,
-        mesa_id,
-        mesas ( numero, nome )
-      )
-    `)
-    .eq("id", pedidoId)
-    .single();
-
+  const { data: p } = await supabase.from("pedidos").select(SELECT_PEDIDO).eq("id", pedidoId).single();
   if (!p) return null;
-
-  const { data: itemsRaw } = await supabase
-    .from("comanda_items")
-    .select("quantidade, variante_nome, produtos(nome)")
-    .eq("pedido_id", pedidoId)
-    .eq("status", "ativo");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const comanda = (p as any).comandas as {
-    nome_cliente: string | null;
-    mesa_id: string | null;
-    mesas: { numero: number; nome: string | null } | null;
-  } | null;
-
-  const mesa = comanda?.mesas;
-  const mesa_label = mesa ? (mesa.nome ?? `Mesa ${mesa.numero}`) : "Balcão";
-
-  const itensRaw: ItemDoPedido[] = (itemsRaw ?? []).map(i => ({
-    quantidade:   i.quantidade as number,
-    variante_nome: i.variante_nome as string | null,
-    produto_nome: (i.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
-  }));
-
-  const map = new Map<string, ItemDoPedido>();
-  for (const item of itensRaw) {
-    const label = item.variante_nome ? `${item.produto_nome} — ${item.variante_nome}` : item.produto_nome;
-    const existing = map.get(label);
-    if (existing) existing.quantidade += item.quantidade;
-    else map.set(label, { ...item, produto_nome: label, variante_nome: null });
-  }
-
-  return {
-    id:           p.id,
-    status:       p.status as "recebido" | "preparando",
-    criado_em:    p.criado_em,
-    mesa_label,
-    nome_cliente: comanda?.nome_cliente ?? null,
-    itens:        [...map.values()],
-  };
+  const itensMap = await itensDoPedido([pedidoId]);
+  const { pessoa, mesa_label } = comandaInfo(p);
+  return { id: p.id, status: p.status as "recebido" | "preparando", criado_em: p.criado_em, mesa_label, pessoa, itens: itensMap.get(pedidoId) ?? [] };
 }
 
-// ─── Card de pedido ───────────────────────────────────────────────────────────
+async function fetchFicha(barId: string, produtoId: string): Promise<InsumoLinha[] | null> {
+  const supabase = createClient();
+  const res = await supabase
+    .from("receitas")
+    .select("quantidade, ingredientes ( nome, unidade )")
+    .eq("bar_id", barId)
+    .eq("produto_id", produtoId);
+  const data = res.data as unknown as { quantidade: number; ingredientes: { nome: string; unidade: string } | null }[] | null;
+  if (!data?.length) return null;
+  const linhas = data
+    .filter(r => r.ingredientes)
+    .map(r => ({ nome: r.ingredientes!.nome, quantidade: r.quantidade, unidade: r.ingredientes!.unidade }));
+  return linhas.length ? linhas : null;
+}
 
-function PedidoCardView({
-  pedido,
-  isNew,
-  onAtualizar,
-}: {
-  pedido: PedidoCard;
-  isNew: boolean;
-  onAtualizar: (id: string, status: "preparando" | "entregue") => void;
+// ─── Card da fila ─────────────────────────────────────────────────────────────
+
+function FilaCard({ pedido, isNew, active, onClick }: {
+  pedido: PedidoCard; isNew: boolean; active: boolean; onClick: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
-  const [localStatus, setLocalStatus] = useState(pedido.status);
-
-  // Keep in sync if parent pushes update
-  useEffect(() => { setLocalStatus(pedido.status); }, [pedido.status]);
-
-  function avancar() {
-    if (localStatus === "recebido") {
-      setLocalStatus("preparando");
-      startTransition(async () => {
-        await iniciarPedido(pedido.id);
-        onAtualizar(pedido.id, "preparando");
-      });
-    } else if (localStatus === "preparando") {
-      startTransition(async () => {
-        await entregarPedido(pedido.id);
-        onAtualizar(pedido.id, "entregue");
-      });
-    }
-  }
-
-  const recebido = localStatus === "recebido";
-
+  const estado = pedido.status === "recebido" ? "Novo" : "Preparando";
   return (
-    <div style={{
-      background: isNew
-        ? "color-mix(in srgb, var(--ok) 6%, transparent)"
-        : "color-mix(in srgb, var(--fg) 4%, transparent)",
-      border: `1px solid ${isNew ? "color-mix(in srgb, var(--ok) 22%, transparent)" : "var(--border)"}`,
-      borderRadius: 8, padding: "16px 18px",
-      transition: "background 0.5s, border-color 0.5s",
-    }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-        <div>
-          <p style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", margin: 0, letterSpacing: "-0.3px" }}>
-            {pedido.mesa_label}
-            {pedido.nome_cliente && (
-              <span style={{ fontWeight: 500, color: "var(--fg-muted)" }}> · {pedido.nome_cliente}</span>
-            )}
-          </p>
-          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "3px 0 0" }}>
-            há {tempo(pedido.criado_em)}
-          </p>
-        </div>
-        <span style={{
-          fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
-          padding: "3px 9px", borderRadius: 4,
-          background: recebido
-            ? "color-mix(in srgb, var(--warn) 15%, transparent)"
-            : "color-mix(in srgb, var(--accent-bright) 15%, transparent)",
-          color: recebido ? "var(--warn)" : "var(--accent-bright)",
-        }}>
-          {recebido ? "Novo" : "Preparando"}
-        </span>
+    <div
+      onClick={onClick}
+      style={{
+        background: "var(--bg-card)",
+        border: `1px solid ${active ? "var(--accent)" : isNew ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
+        borderRadius: 16, padding: 16, cursor: "pointer",
+        display: "flex", flexDirection: "column", gap: 12,
+        transition: "border-color 200ms",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pedido.pessoa}</span>
+        <span style={{ fontSize: 12, fontWeight: 500, color: pedido.status === "recebido" ? "var(--fg-muted)" : "var(--accent)" }}>{estado}</span>
       </div>
-
-      {/* Itens */}
-      <div style={{ marginBottom: 14 }}>
-        {pedido.itens.map((item, i) => (
-          <p
-            key={i}
-            style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 4px", lineHeight: 1.4 }}
-          >
-            <span style={{ fontWeight: 800, color: "var(--fg)", marginRight: 6 }}>
-              {item.quantidade}×
-            </span>
-            {item.produto_nome}
-          </p>
+      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{pedido.mesa_label} · há {tempo(pedido.criado_em)}</span>
+      <div style={{ height: 1, background: "var(--border-strong)" }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {pedido.itens.map((it, i) => (
+          <span key={i} style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+            <span style={{ fontWeight: 700, color: "var(--fg)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
+          </span>
         ))}
       </div>
-
-      {/* Botão */}
-      <button
-        type="button"
-        onClick={avancar}
-        disabled={isPending}
-        style={{
-          width: "100%", padding: "12px", minHeight: 48, borderRadius: 8, border: "none",
-          background: recebido ? "var(--accent)" : "color-mix(in srgb, var(--ok) 80%, transparent)",
-          color: recebido ? "var(--accent-fg)" : "#fff",
-          fontSize: 14, fontWeight: 900,
-          cursor: isPending ? "not-allowed" : "pointer",
-          letterSpacing: "-0.2px",
-          opacity: isPending ? 0.6 : 1,
-          transition: "background 0.15s, opacity 0.15s",
-        }}
-      >
-        {isPending ? "..." : recebido ? "Iniciar →" : "✓ Entregue"}
-      </button>
     </div>
   );
 }
 
+// ─── Painel do pedido ativo ───────────────────────────────────────────────────
+
+function PainelAtivo({ barId, pedido, onIniciar, onPronto }: {
+  barId: string; pedido: PedidoCard;
+  onIniciar: (id: string) => void;
+  onPronto: (id: string) => void;
+}) {
+  const [checked, setChecked] = useState<Set<number>>(new Set());
+  const [fichas, setFichas] = useState<Record<string, InsumoLinha[] | null>>({});
+  const [isPending, startTransition] = useTransition();
+
+  // reset ao trocar de pedido
+  useEffect(() => { setChecked(new Set()); }, [pedido.id]);
+
+  // carrega fichas dos produtos do pedido
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      const out: Record<string, InsumoLinha[] | null> = {};
+      for (const it of pedido.itens) {
+        if (out[it.produto_id] !== undefined) continue;
+        out[it.produto_id] = await fetchFicha(barId, it.produto_id);
+      }
+      if (!cancel) setFichas(out);
+    })();
+    return () => { cancel = true; };
+  }, [barId, pedido.id, pedido.itens]);
+
+  const total = pedido.itens.length;
+  const todosFeitos = total > 0 && checked.size === total;
+  const emPreparo = pedido.status === "preparando";
+
+  function toggle(i: number) {
+    setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+      {/* contexto */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+        <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+          {emPreparo ? "Preparando" : "Pedido"} · {pedido.pessoa} · {pedido.mesa_label}
+        </span>
+        <span style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)" }}>
+          {total} {total === 1 ? "drink" : "drinks"} · há {tempo(pedido.criado_em)}
+        </span>
+      </div>
+
+      {/* checklist de drinks */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+        {pedido.itens.map((it, i) => {
+          const done = checked.has(i);
+          const ficha = fichas[it.produto_id];
+          return (
+            <div
+              key={i}
+              onClick={() => emPreparo && toggle(i)}
+              style={{
+                background: "var(--bg-card)", border: `1px solid ${done ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
+                borderRadius: 14, padding: 16, cursor: emPreparo ? "pointer" : "default",
+                opacity: done ? 0.55 : 1, transition: "opacity 150ms, border-color 150ms",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: 8, flexShrink: 0,
+                  border: `1.5px solid ${done ? "var(--accent)" : "var(--border-strong)"}`,
+                  background: done ? "var(--accent)" : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "var(--accent-fg)", fontSize: 14, fontWeight: 800,
+                }}>{done ? "✓" : ""}</div>
+                <span style={{ flex: 1, fontSize: 16, fontWeight: 600, color: "var(--fg)", textDecoration: done ? "line-through" : "none" }}>
+                  <span style={{ color: "var(--fg-muted)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
+                </span>
+              </div>
+              {/* ficha técnica */}
+              {ficha === undefined ? null : ficha === null ? (
+                <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "10px 0 0 36px" }}>Sem ficha técnica cadastrada.</p>
+              ) : (
+                <div style={{ margin: "10px 0 0 36px", display: "flex", flexDirection: "column", gap: 4 }}>
+                  {ficha.map((ins, k) => (
+                    <div key={k} style={{ display: "flex", gap: 8, fontSize: 13 }}>
+                      <span style={{ flex: 1, color: "var(--fg-muted)" }}>{ins.nome}</span>
+                      <span style={{ color: "var(--fg)" }}>{ins.quantidade} {ins.unidade}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ação */}
+      <div style={{ paddingTop: 16 }}>
+        {pedido.status === "recebido" ? (
+          <button
+            onClick={() => startTransition(async () => { await iniciarPedido(pedido.id); onIniciar(pedido.id); })}
+            disabled={isPending}
+            style={btnPrimary(true)}
+          >
+            {isPending ? "…" : "Iniciar preparo →"}
+          </button>
+        ) : (
+          <button
+            onClick={() => { if (todosFeitos) startTransition(async () => { await marcarPronto(pedido.id); onPronto(pedido.id); }); }}
+            disabled={!todosFeitos || isPending}
+            style={btnPrimary(todosFeitos)}
+          >
+            {isPending ? "…" : todosFeitos ? "Pedido pronto →" : `Tique os ${total} drinks para liberar`}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function btnPrimary(enabled: boolean): React.CSSProperties {
+  return {
+    width: "100%", padding: "16px", borderRadius: 999, border: "none",
+    background: enabled ? "var(--accent)" : "color-mix(in srgb, var(--fg) 8%, transparent)",
+    color: enabled ? "var(--accent-fg)" : "var(--fg-subtle)",
+    fontSize: 15, fontWeight: 700, cursor: enabled ? "pointer" : "not-allowed",
+    transition: "background 150ms, color 150ms",
+  };
+}
+
 // ─── Tab de produção ──────────────────────────────────────────────────────────
+
+type Filtro = "todos" | "preparo";
 
 export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string }) {
   const [pedidos, setPedidos] = useState<PedidoCard[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [tick, setTick] = useState(0); // força re-render a cada minuto para atualizar "há X min"
+  const [, setTick] = useState(0);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [filtro, setFiltro] = useState<Filtro>("todos");
 
   const carregar = useCallback(async () => {
     const lista = await fetchPedidos(barId, turnoId);
@@ -321,125 +335,99 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
 
   useEffect(() => {
     carregar();
-
-    // Atualiza timestamps a cada minuto
     const timer = setInterval(() => setTick(t => t + 1), 60_000);
-
     const supabase = createClient();
     const channel = supabase
       .channel(`producao_${barId}`)
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "pedidos",
-        filter: `bar_id=eq.${barId}`,
-      }, async (payload) => {
-        const novo = payload.new as { id: string; turno_id: string; status: string };
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pedidos", filter: `bar_id=eq.${barId}` }, async (payload) => {
+        const novo = payload.new as { id: string; turno_id: string };
         if (novo.turno_id !== turnoId) return;
         const card = await fetchPedidoById(novo.id);
         if (!card) return;
-        setPedidos(prev => [...prev, card]);
+        setPedidos(prev => prev.some(p => p.id === card.id) ? prev : [...prev, card]);
         setNewIds(prev => new Set([...prev, card.id]));
         playAlertSound();
-        setTimeout(() => {
-          setNewIds(prev => { const n = new Set(prev); n.delete(card.id); return n; });
-        }, 6000);
+        setTimeout(() => setNewIds(prev => { const n = new Set(prev); n.delete(card.id); return n; }), 6000);
       })
-      .on("postgres_changes", {
-        event: "UPDATE",
-        schema: "public",
-        table: "pedidos",
-        filter: `bar_id=eq.${barId}`,
-      }, (payload) => {
-        const atualizado = payload.new as { id: string; status: string };
-        setPedidos(prev =>
-          atualizado.status === "entregue"
-            ? prev.filter(p => p.id !== atualizado.id)
-            : prev.map(p =>
-                p.id === atualizado.id
-                  ? { ...p, status: atualizado.status as "recebido" | "preparando" }
-                  : p
-              )
-        );
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pedidos", filter: `bar_id=eq.${barId}` }, (payload) => {
+        const up = payload.new as { id: string; status: string };
+        if (up.status === "pronto" || up.status === "entregue") {
+          setPedidos(prev => prev.filter(p => p.id !== up.id));
+          setActiveId(a => (a === up.id ? null : a));
+        } else {
+          setPedidos(prev => prev.map(p => p.id === up.id ? { ...p, status: up.status as "recebido" | "preparando" } : p));
+        }
       })
       .subscribe();
-
-    return () => {
-      clearInterval(timer);
-      supabase.removeChannel(channel);
-    };
+    return () => { clearInterval(timer); supabase.removeChannel(channel); };
   }, [barId, turnoId, carregar]);
 
-  // Suprime warning do ESLint sobre tick não usado no JSX
-  void tick;
-
-  function handleAtualizar(id: string, status: "preparando" | "entregue") {
-    if (status === "entregue") {
-      setPedidos(prev => prev.filter(p => p.id !== id));
-    } else {
-      setPedidos(prev => prev.map(p => p.id === id ? { ...p, status } : p));
-    }
+  function localIniciar(id: string) {
+    setPedidos(prev => prev.map(p => p.id === id ? { ...p, status: "preparando" } : p));
+    setActiveId(id);
+  }
+  function localPronto(id: string) {
+    setPedidos(prev => prev.filter(p => p.id !== id));
+    setActiveId(a => (a === id ? null : a));
   }
 
-  const recebidos  = pedidos.filter(p => p.status === "recebido");
   const preparando = pedidos.filter(p => p.status === "preparando");
+  const visiveis = filtro === "preparo" ? preparando : pedidos;
+  const active = activeId ? pedidos.find(p => p.id === activeId) ?? null : null;
+
+  const chips: { id: Filtro; label: string; n: number }[] = [
+    { id: "todos", label: "Todos", n: pedidos.length },
+    { id: "preparo", label: "Em preparo", n: preparando.length },
+  ];
 
   if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200, color: "var(--fg-subtle)", fontSize: 13 }}>
-        Carregando fila...
-      </div>
-    );
-  }
-
-  if (pedidos.length === 0) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 8, paddingTop: 60 }}>
-        <p style={{ fontSize: 28 }}>🍹</p>
-        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg-muted)", margin: 0 }}>Nenhum pedido em aberto</p>
-        <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>Confirme pedidos na tela de comandas para vê-los aqui.</p>
-      </div>
-    );
+    return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200, color: "var(--fg-subtle)", fontSize: 13 }}>Carregando fila…</div>;
   }
 
   return (
-    <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", flex: 1 }}>
+    <div style={{ height: "100%", display: "flex", gap: 24, padding: "24px", overflow: "hidden", boxSizing: "border-box" }}>
 
-      {recebidos.length > 0 && (
-        <section>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "var(--warn)", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 10px" }}>
-            Recebidos ({recebidos.length})
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {recebidos.map(p => (
-              <PedidoCardView
-                key={p.id}
-                pedido={p}
-                isNew={newIds.has(p.id)}
-                onAtualizar={handleAtualizar}
-              />
-            ))}
+      {/* ESQUERDA: fila */}
+      <div style={{ flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", gap: 16, minHeight: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0 }}>Fila de produção</h1>
+          <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+            {chips.map(c => {
+              const on = filtro === c.id;
+              return (
+                <button key={c.id} onClick={() => setFiltro(c.id)} style={{
+                  display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 999, border: "none", cursor: "pointer",
+                  background: on ? "var(--accent)" : "var(--bg-card-hi)",
+                  color: on ? "var(--accent-fg)" : "var(--fg-muted)", fontSize: 13, fontWeight: on ? 500 : 400,
+                }}>
+                  {c.label}<span style={{ color: on ? "var(--accent-fg)" : "var(--fg-subtle)" }}>{c.n}</span>
+                </button>
+              );
+            })}
           </div>
-        </section>
-      )}
+        </div>
 
-      {preparando.length > 0 && (
-        <section>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "var(--accent-bright)", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 10px" }}>
-            Em preparo ({preparando.length})
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {preparando.map(p => (
-              <PedidoCardView
-                key={p.id}
-                pedido={p}
-                isNew={false}
-                onAtualizar={handleAtualizar}
-              />
-            ))}
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, alignContent: "start" }}>
+          {visiveis.map(p => (
+            <FilaCard key={p.id} pedido={p} isNew={newIds.has(p.id)} active={p.id === activeId} onClick={() => setActiveId(p.id)} />
+          ))}
+          {visiveis.length === 0 && (
+            <p style={{ gridColumn: "1 / -1", fontSize: 13, color: "var(--fg-subtle)", padding: "40px 0", textAlign: "center" }}>Nada na fila.</p>
+          )}
+        </div>
+      </div>
+
+      {/* DIREITA: pedido ativo */}
+      <div style={{ flex: "0 0 460px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 24, minHeight: 0, display: "flex", flexDirection: "column" }}>
+        {active ? (
+          <PainelAtivo barId={barId} pedido={active} onIniciar={localIniciar} onPronto={localPronto} />
+        ) : (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center" }}>
+            <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>Nenhum pedido ativo</p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Toque num pedido da fila para ver os drinks e a ficha técnica.</p>
           </div>
-        </section>
-      )}
+        )}
+      </div>
     </div>
   );
 }

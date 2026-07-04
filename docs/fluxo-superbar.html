@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUPERBAR — Fluxo completo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{
+    --bg:#111113; --card:#1C1C1E; --card-hi:#242426;
+    --border:#222226; --border-strong:#383839;
+    --fg:#FFFFFF; --muted:#898989; --subtle:#6B6B75;
+    --accent:#FF3500; --accent-fg:#111113;
+    --ok:#22C55E; --warn:#F59E0B; --danger:#FF3B30;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding:48px 24px 80px;
+  }
+  .wrap{max-width:1080px; margin:0 auto;}
+
+  /* Header */
+  header{margin-bottom:40px;}
+  .logo-row{display:flex; align-items:center; gap:12px; margin-bottom:20px;}
+  .logo{width:40px; height:40px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent-fg); font-size:15px;}
+  .logo-row b{font-size:15px; font-weight:700; letter-spacing:-0.01em;}
+  h1{font-size:34px; font-weight:800; letter-spacing:-0.03em; margin:0 0 8px;}
+  .slogan{font-size:16px; color:var(--muted); margin:0 0 22px;}
+  .hierarchy{display:flex; gap:12px; flex-wrap:wrap;}
+  .hierarchy .h-card{flex:1; min-width:220px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px 20px;}
+  .hierarchy .h-card b{display:block; font-size:14px; margin-bottom:2px;}
+  .hierarchy .h-card span{font-size:13px; color:var(--muted);}
+  .hierarchy .h-card.accent{border-color:color-mix(in srgb, var(--accent) 45%, transparent);}
+  .hierarchy .h-card.accent b{color:var(--accent);}
+
+  /* Stage */
+  .stage{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; margin-top:6px;}
+  .stage-head{display:flex; align-items:baseline; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
+  .num{flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--card-hi); border:1px solid var(--border-strong); display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--muted);}
+  .stage-head h2{font-size:18px; font-weight:600; margin:0; letter-spacing:-0.01em;}
+  .stage-head .sub{font-size:13px; color:var(--muted);}
+
+  .flow{display:flex; align-items:stretch; gap:10px; flex-wrap:wrap;}
+  .node{background:var(--card-hi); border:1px solid var(--border-strong); border-radius:12px; padding:12px 14px; min-width:130px; display:flex; flex-direction:column; justify-content:center;}
+  .node .t{font-size:14px; font-weight:600; letter-spacing:-0.01em;}
+  .node .d{font-size:12px; color:var(--muted); margin-top:3px;}
+  .node.accent{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent);}
+  .node.accent .t{color:var(--accent);}
+  .node.warn{border-color:color-mix(in srgb, var(--warn) 55%, transparent);}
+  .node.ok{border-color:color-mix(in srgb, var(--ok) 55%, transparent);}
+  .node.proposed{border-style:dashed; border-color:var(--subtle); background:transparent;}
+  .node.proposed .t{color:var(--muted);}
+
+  .arrow{align-self:center; color:var(--subtle); font-size:18px; flex-shrink:0;}
+  .down{text-align:center; color:var(--border-strong); font-size:22px; line-height:1; margin:4px 0;}
+
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; margin-top:8px; width:fit-content;}
+  .badge.rt{background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent);}
+  .badge.rule{background:color-mix(in srgb, var(--danger) 16%, transparent); color:var(--danger);}
+  .badge.opt{background:color-mix(in srgb, var(--fg) 8%, transparent); color:var(--muted);}
+
+  .note{font-size:12px; color:var(--subtle); margin-top:14px;}
+  .sub-flow-label{font-size:12px; font-weight:600; color:var(--muted); margin:16px 0 8px; text-transform:none;}
+
+  /* Moat loop */
+  .moat{margin-top:24px; background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, var(--card)) 0%, var(--card) 100%); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius:20px; padding:24px;}
+  .moat h2{font-size:18px; font-weight:700; margin:0 0 4px;}
+  .moat p{font-size:13px; color:var(--muted); margin:0 0 18px;}
+  .loop{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .loop .node{background:var(--card); }
+
+  /* Legend */
+  .legend{display:flex; gap:20px; flex-wrap:wrap; margin-top:28px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--muted);}
+  .legend span{display:inline-flex; align-items:center; gap:7px;}
+  .dot{width:12px; height:12px; border-radius:4px; flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo-row"><div class="logo">S</div><b>SUPERBAR</b></div>
+    <h1>Fluxo completo</h1>
+    <p class="slogan">Do lead ao lucro — como o SUPERBAR captura, opera e transforma cada noite em decisão.</p>
+    <div class="hierarchy">
+      <div class="h-card accent"><b>A inteligência é o fim</b><span>O que ajuda o dono a decidir dinheiro tem prioridade.</span></div>
+      <div class="h-card"><b>A operação é o meio</b><span>Cada pedido/comanda/pagamento vira dado limpo — o combustível.</span></div>
+      <div class="h-card"><b>O dado é o moat</b><span>Lock-in por valor (histórico acumulado), nunca por contrato.</span></div>
+    </div>
+  </header>
+
+  <!-- 0. CAPTAÇÃO -->
+  <div class="stage">
+    <div class="stage-head"><span class="num">0</span><h2>Captação</h2><span class="sub">crescimento do SUPERBAR — o dono do produto vende pra bares</span></div>
+    <div class="flow">
+      <div class="node"><span class="t">Landing</span><span class="d">superbar.com.br</span></div>
+      <span class="arrow">→</span>
+      <div class="node accent"><span class="t">Formulário</span><span class="d">"Quero meu Superbar"</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Lead no CRM</span><span class="d">entra na coluna "Novo"</span>
+        <span class="badge rt">● tempo real</span>
+      </div>
+    </div>
+    <div class="note">Ao entrar o lead: <b>e-mail de aviso</b> (Resend) + <b>enriquecimento por @ do Instagram</b> (Firecrawl) preenche cidade, tipo, WhatsApp, site.</div>
+
+    <div class="sub-flow-label">Pipeline (kanban editável · arrasta pra reordenar)</div>
+    <div class="flow">
+      <div class="node"><span class="t">Novo</span><span class="d">inbound (site) · ativo (prospecção)</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Contatado</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Demo</span></div>
+      <span class="arrow">→</span>
+      <div class="node ok"><span class="t">Convertido</span><span class="d">vira bar cliente ↓</span></div>
+      <div class="node"><span class="t">Perdido</span></div>
+    </div>
+    <div class="note">Admin do dono do SUPERBAR: <b>Visão Geral</b> (MRR, receita em risco) · <b>Clientes</b> · <b>Implantação</b> · <b>Leads</b>.</div>
+  </div>
+
+  <div class="down">↓</div>
+
+  <!-- 1. IMPLANTAÇÃO -->
+  <div class="stage">
+    <div class="stage-head"><span class="num">1</span><h2>Implantação</h2><span class="sub">setup do bar antes de operar</span></div>
+    <div class="flow">
+      <div class="node accent"><span class="t">Cardápio</span><span class="d">produtos + CUSTO (ficha técnica)</span></div>
+      <span class="arrow">+</span>
+      <div class="node"><span class="t">Mesas</span></div>
+      <span class="arrow">+</span>
+      <div class="node"><span class="t">Equipe</span></div>
+      <span class="arrow">→</span>
+      <div class="node ok"><span class="t">Pronto pra operar</span><span class="d">cardápio ✓ custos ✓ equipe ✓</span></div>
+    </div>
+    <div class="note"><b>Custo cadastrado = inteligência real</b> (Princípio 10): sem custo, margem e CMV são ficção.</div>
+  </div>
+
+  <div class="down">↓</div>
+
+  <!-- 2. OPERAÇÃO -->
+  <div class="stage">
+    <div class="stage-head"><span class="num">2</span><h2>Operação — a noite</h2><span class="sub">o núcleo staff-side (garçom → produção → caixa)</span></div>
+
+    <div class="flow">
+      <div class="node"><span class="t">Caixa abre o turno</span><span class="d">começa a captura de dados</span></div>
+    </div>
+
+    <div class="sub-flow-label">Garçom · /garcom</div>
+    <div class="flow">
+      <div class="node"><span class="t">Abre comanda</span><span class="d">mesa ou balcão</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Escolhe os drinks</span><span class="d">cardápio + variantes</span></div>
+      <span class="arrow">→</span>
+      <div class="node accent"><span class="t">Envia o pedido</span><span class="d">cria "pedido" · status recebido</span></div>
+    </div>
+
+    <div class="sub-flow-label">Produção — o tablet do bartender · /producao</div>
+    <div class="flow">
+      <div class="node warn"><span class="t">Recebido</span><span class="d">novo na fila</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Preparando</span><span class="d">botão "Iniciar"</span></div>
+      <span class="arrow">→</span>
+      <div class="node proposed"><span class="t">Pronto</span><span class="d">retirada pelo garçom</span><span class="badge opt">opcional por bar</span></div>
+      <span class="arrow">→</span>
+      <div class="node ok"><span class="t">Entregue</span><span class="d">sai da fila</span></div>
+    </div>
+    <div class="note"><span class="badge rt" style="margin-top:0">● tempo real</span> &nbsp; A fila é a peça mais importante do produto (Princípio 11): rápida, robusta, sem travar no pico. O nó <b>Pronto</b> é tracejado = proposto, ligável só nos bares onde o garçom leva o drink.</div>
+
+    <div class="sub-flow-label">Caixa · fechamento</div>
+    <div class="flow">
+      <div class="node"><span class="t">Fecha a comanda</span><span class="d">aguardando pagamento</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Registra o método</span><span class="d">Pix · Dinheiro · Débito · Crédito · Cortesia</span>
+        <span class="badge rule">⚠ NÃO transaciona</span>
+      </div>
+    </div>
+    <div class="note">O sistema <b>registra o método</b>, nunca move o dinheiro do bar (Princípio 8 — regra dura). Sem gateway, split ou settlement.</div>
+  </div>
+
+  <div class="down">↓</div>
+
+  <!-- 3. INTELIGÊNCIA -->
+  <div class="stage">
+    <div class="stage-head"><span class="num">3</span><h2>Inteligência — o fim</h2><span class="sub">a operação vira decisão</span></div>
+    <div class="flow">
+      <div class="node accent"><span class="t">Dado limpo</span><span class="d">cada pedido/comanda/pagamento</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Estágio 1</span><span class="d">aprende: 30 comandas / 7 dias</span></div>
+      <span class="arrow">→</span>
+      <div class="node ok"><span class="t">Estágio 2</span><span class="d">análises automáticas</span></div>
+    </div>
+
+    <div class="sub-flow-label">Dashboard do dono</div>
+    <div class="flow">
+      <div class="node"><span class="t">Operação ao vivo</span><span class="d">Faturado · Margem · CMV · Ticket · Top drinks · Hoje/Ontem/7d</span></div>
+      <div class="node"><span class="t">Turnos</span></div>
+      <div class="node"><span class="t">Relatórios</span></div>
+      <div class="node"><span class="t">Estoque</span></div>
+      <div class="node"><span class="t">Clientes</span></div>
+      <div class="node"><span class="t">Equipe</span></div>
+    </div>
+  </div>
+
+  <!-- MOAT LOOP -->
+  <div class="moat">
+    <h2>O ciclo que vira moat</h2>
+    <p>Quanto mais o bar opera, mais dado limpo entra, melhor a inteligência, melhores as decisões — e mais caro é sair.</p>
+    <div class="loop">
+      <div class="node"><span class="t">Operação</span><span class="d">a noite acontece</span></div>
+      <span class="arrow">→</span>
+      <div class="node accent"><span class="t">Dado limpo</span></div>
+      <span class="arrow">→</span>
+      <div class="node"><span class="t">Inteligência</span><span class="d">margem, CMV, gargalo</span></div>
+      <span class="arrow">→</span>
+      <div class="node ok"><span class="t">Decisão do dono</span><span class="d">preço · cardápio · operação</span></div>
+      <span class="arrow">↺</span>
+      <div class="node"><span class="t">Volta pra operação</span></div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span><span class="dot" style="background:var(--accent)"></span>Momento-chave / captura de dado</span>
+    <span><span class="dot" style="background:var(--ok)"></span>Estado concluído / saudável</span>
+    <span><span class="dot" style="background:var(--warn)"></span>Entrada na fila</span>
+    <span><span class="dot" style="background:transparent;border:1.5px dashed var(--subtle)"></span>Proposto / opcional</span>
+    <span><span class="dot" style="background:var(--danger)"></span>Regra dura (não fazer)</span>
+  </div>
+
+</div>
+</body>
+</html>

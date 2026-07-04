@@ -211,3 +211,32 @@ export function agruparItens(itens: ItemComanda[]): ItemAgrupado[] {
   }
   return [...porProduto.values()];
 }
+
+// ─── Ficha técnica (receita) ────────────────────────────────────────────────────
+
+export interface InsumoLinha { nome: string; quantidade: number; unidade: string; }
+export interface FichaTecnica { insumos: InsumoLinha[]; custo: number; }
+
+/** Insumos + custo de um produto a partir da receita cadastrada.
+ *  Retorna null quando o produto não tem ficha técnica — a tela nunca inventa. */
+export async function getFichaTecnica(barId: string, produtoId: string): Promise<FichaTecnica | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("receitas")
+    .select("quantidade, ingredientes(nome, unidade, custo_atual)")
+    .eq("bar_id", barId)
+    .eq("produto_id", produtoId)
+    .returns<{ quantidade: number; ingredientes: { nome: string; unidade: string; custo_atual: number } | null }[]>();
+
+  if (error || !data || data.length === 0) return null;
+
+  const linhas = data.filter((r) => r.ingredientes);
+  if (linhas.length === 0) return null;
+  const insumos: InsumoLinha[] = linhas.map((r) => ({
+    nome:       r.ingredientes!.nome,
+    quantidade: r.quantidade,
+    unidade:    r.ingredientes!.unidade,
+  }));
+  const custo = linhas.reduce((s, r) => s + r.quantidade * (r.ingredientes!.custo_atual ?? 0), 0);
+  return { insumos, custo };
+}

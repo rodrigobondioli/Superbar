@@ -383,6 +383,24 @@ export async function iniciarPedido(pedidoId: string) {
     .eq("status", "recebido");
 }
 
+/** Bartender marca o pedido como pronto — aguarda retirada pelo garçom.
+ *  Sem baixa de estoque aqui: o consumo é registrado na entrega (fn_entregar_pedido). */
+export async function marcarPronto(pedidoId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("pedidos")
+    .update({
+      status:    "pronto",
+      pronto_em: new Date().toISOString(),
+    })
+    .eq("id", pedidoId)
+    .eq("bar_id", current.bar.id)
+    .eq("status", "preparando");
+}
+
 /** Bartender entrega o pedido — estado final.
  *
  * Chama fn_entregar_pedido() que, numa única transação:

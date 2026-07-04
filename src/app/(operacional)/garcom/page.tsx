@@ -3,6 +3,7 @@ import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getOuCriarTurno } from "@/lib/dashboard/turno-actions";
 import { getMesasComStatus, getComandaBalcao } from "@/lib/bartender/queries";
 import { MesasGrid } from "@/components/bartender/mesas-grid";
+import { ProntosRetirar } from "@/components/bartender/prontos-retirar";
 
 export default async function GarcomPage() {
   const current = await getCurrentBar();
@@ -27,10 +28,15 @@ export default async function GarcomPage() {
   ]);
 
   return (
-    <MesasGrid
-      barId={current.bar.id}
-      initialMesas={mesas}
-      initialBalcao={comandaBalcao}
-    />
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+      <ProntosRetirar barId={current.bar.id} turnoId={turno.id} />
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <MesasGrid
+          barId={current.bar.id}
+          initialMesas={mesas}
+          initialBalcao={comandaBalcao}
+        />
+      </div>
+    </div>
   );
 }

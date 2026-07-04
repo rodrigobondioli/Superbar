@@ -1074,6 +1074,7 @@ export type Database = {
           id: string
           iniciado_em: string | null
           iniciado_por_member_id: string | null
+          pronto_em: string | null
           status: string
           turno_id: string
         }
@@ -1087,6 +1088,7 @@ export type Database = {
           id?: string
           iniciado_em?: string | null
           iniciado_por_member_id?: string | null
+          pronto_em?: string | null
           status?: string
           turno_id: string
         }
@@ -1100,6 +1102,7 @@ export type Database = {
           id?: string
           iniciado_em?: string | null
           iniciado_por_member_id?: string | null
+          pronto_em?: string | null
           status?: string
           turno_id?: string
         }
