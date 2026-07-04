@@ -136,14 +136,14 @@ function MesaCard({ mesa, ocupada, selected, onClick }: { mesa: Mesa; ocupada: b
       onMouseLeave={() => setHover(false)}
       style={{
         position: "relative", minWidth: 150, height: 114, borderRadius: 16,
-        background: selected ? "#FFFFFF" : "var(--bg-card)",
-        border: !selected && hover ? "1px solid var(--border-strong)" : "1px solid transparent",
+        background: "var(--bg-card)",
+        border: (selected || hover) ? "1px solid var(--border-strong)" : "1px solid transparent",
         display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 40px",
         cursor: "pointer", transition: "background 120ms, border-color 120ms", textAlign: "center",
       }}
     >
       <span style={{ position: "absolute", top: 16, right: 16, width: 8, height: 8, borderRadius: "50%", background: ocupada ? "var(--ok)" : "var(--border-strong)" }} />
-      <span style={{ fontSize: 18, fontWeight: 500, color: selected ? "#111113" : "var(--fg)", whiteSpace: "nowrap" }}>{label}</span>
+      <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", whiteSpace: "nowrap" }}>{label}</span>
     </button>
   );
 }

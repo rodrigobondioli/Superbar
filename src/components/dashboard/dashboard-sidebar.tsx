@@ -105,7 +105,13 @@ export function DashboardSidebar({
               <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", textAlign: "center", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {barNome}
               </span>
-              <span style={{ fontSize: 13, color: "var(--fg-subtle)", marginTop: 2 }}>Dashboard geral</span>
+              <span style={{
+                fontSize: 12, fontWeight: 600, marginTop: 6,
+                padding: "3px 10px", borderRadius: 999,
+                background: "var(--bg-card-hi)", color: "var(--fg-muted)",
+              }}>
+                Dono
+              </span>
             </>
           )}
           {collapsed && (

@@ -107,8 +107,7 @@ function MesaCard({ group, selected, pago, onSelect }: {
   return (
     <button onClick={onSelect} className="[-webkit-tap-highlight-color:transparent]" style={{
       aspectRatio: "1", borderRadius: 12,
-      border: "1px solid var(--border)",
-      boxShadow: selected ? "0 0 0 2px var(--accent)" : "none",
+      border: `1px solid ${selected ? "var(--border-strong)" : "var(--border)"}`,
       background: "var(--bg-elevated)",
       display: "flex", flexDirection: "column",
       padding: "14px 14px 12px",
@@ -117,7 +116,7 @@ function MesaCard({ group, selected, pago, onSelect }: {
     }}>
       <span style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", lineHeight: 1.2, flex: 1 }}>{group.mesa}</span>
       <span style={{ fontSize: 11, fontWeight: 600, color: urgente ? "var(--danger)" : "var(--fg-subtle)", marginBottom: 6 }}>{texto}</span>
-      <span style={{ fontSize: 17, fontWeight: 900, color: selected ? "var(--accent)" : "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1, display: "block", marginBottom: 6 }}>{currency.format(group.total)}</span>
+      <span style={{ fontSize: 17, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1, display: "block", marginBottom: 6 }}>{currency.format(group.total)}</span>
       <span style={{ fontSize: 10, color: "var(--fg-subtle)" }}>{group.comandas.length} {group.comandas.length === 1 ? "pessoa" : "pessoas"}</span>
     </button>
   );

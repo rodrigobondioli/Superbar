@@ -41,12 +41,10 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
           SUPERBAR
         </span>
         <span style={{
-          display: "inline-block",
-          fontSize: 10, fontWeight: 600,
-          padding: "3px 12px", borderRadius: 20,
-          background: "color-mix(in srgb, var(--accent) 14%, transparent)",
-          color: "var(--accent)",
-          letterSpacing: "0.06em", textTransform: "uppercase",
+          fontSize: 12, fontWeight: 600,
+          padding: "3px 10px", borderRadius: 999,
+          background: "var(--bg-card-hi)",
+          color: "var(--fg-muted)",
         }}>
           Admin
         </span>

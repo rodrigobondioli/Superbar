@@ -143,7 +143,6 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
   onAtender?: () => void;
 }) {
   const livre         = comandas.length === 0;
-  const hasAguardando = comandas.some(c => c.status === "aguardando_pagamento");
   const totalValor    = comandas.reduce((sum, c) => sum + c.total, 0);
   const maisAntiga    = comandas.length > 0
     ? comandas.reduce((a, b) => a.aberta_em < b.aberta_em ? a : b)
@@ -181,18 +180,14 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
   // ── Ocupada ──
   const hasChamada = !!chamadaId;
   const bg = hasChamada ? "var(--danger-bg)" : "var(--bg-card)";
-  const borderColor = hasChamada
-    ? "var(--danger)"
-    : hasAguardando
-      ? "var(--warn)"
-      : "var(--border)";
+  const borderColor = hasChamada ? "var(--danger)" : "var(--border)";
 
   return (
     <div
       className={hasChamada ? "mesa-chamada" : undefined}
       style={{
         background: bg,
-        border: `1.5px solid ${borderColor}`,
+        border: `1px solid ${borderColor}`,
         borderRadius: 14, overflow: "hidden",
       }}
     >

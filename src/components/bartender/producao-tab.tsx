@@ -187,7 +187,7 @@ function FilaCard({ pedido, isNew, active, onClick }: {
       onClick={onClick}
       style={{
         background: "var(--bg-card)",
-        border: `1px solid ${active ? "var(--accent)" : isNew ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
+        border: `1px solid ${active ? "var(--border-strong)" : isNew ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
         borderRadius: 16, padding: 16, cursor: "pointer",
         display: "flex", flexDirection: "column", gap: 12,
         transition: "border-color 200ms",
