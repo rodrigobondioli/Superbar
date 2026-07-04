@@ -10,6 +10,7 @@ type Screen =
   | "splash"
   | "welcome-new"
   | "welcome-back"
+  | "home"
   | "categories"
   | "products"
   | "product-detail"
@@ -1080,6 +1081,247 @@ function Toast({ visible }: { visible: boolean }) {
   );
 }
 
+// ─── HOME ─────────────────────────────────────────────────────────────────────
+function norm(s: string) {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+const VIBE_STEPS: { q: string; o: string[] }[] = [
+  { q: "Qual o clima da noite?", o: ["Abrir a noite", "Comemorar em grande", "Impressionar a companhia", "Sem álcool, no capricho"] },
+  { q: "Que paladar te agrada?", o: ["Doce", "Amargo", "Cítrico e refrescante", "Herbal"] },
+  { q: "Intensidade?", o: ["Leve", "Equilibrado", "Encorpado"] },
+];
+
+const VIBE_KW: Record<string, string[]> = {
+  "doce": ["doce", "morango", "maracuja", "fruta", "licor", "mel", "chocolate", "cassis", "pina"],
+  "amargo": ["negroni", "campari", "aperol", "amaro", "bitter", "boulevardier", "americano", "fernet"],
+  "citrico e refrescante": ["limao", "citric", "gin", "tonica", "mule", "margarita", "lima", "laranja", "refrescante", "spritz", "mojito"],
+  "herbal": ["gin", "manjericao", "basil", "hortela", "mint", "southside", "botanic", "tomilho", "alecrim"],
+};
+
+function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaComProdutos[]): Produto[] {
+  let pool = ativos;
+  if (norm(picks[0] ?? "").includes("sem alcool")) {
+    const semAlc = cardapio.filter((c) => norm(c.nome).includes("nao alco") || norm(c.nome).includes("sem alco"));
+    const ids = new Set(semAlc.flatMap((c) => c.produtos.map((p) => p.id)));
+    if (ids.size > 0) pool = ativos.filter((p) => ids.has(p.id));
+  }
+  const kw = VIBE_KW[norm(picks[1] ?? "")] ?? [];
+  const scored = pool.map((p) => {
+    const hay = norm(`${p.nome} ${p.descricao ?? ""}`);
+    const score = kw.reduce((acc, k) => acc + (hay.includes(k) ? 1 : 0), 0);
+    return { p, score };
+  });
+  const comMatch = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score).map((s) => s.p);
+  const resto = pool.filter((p) => !comMatch.includes(p));
+  return [...comMatch, ...resto].slice(0, 2);
+}
+
+function HomeScreen({
+  cliente, mesaLabel, cardapio, allProdutos, cartCount, onCart, onSelectCategoria, onSelectProduto,
+}: {
+  cliente: ClienteLocal | null;
+  mesaLabel: string;
+  cardapio: CategoriaComProdutos[];
+  allProdutos: Produto[];
+  cartCount: number;
+  onCart: () => void;
+  onSelectCategoria: (cat: CategoriaComProdutos) => void;
+  onSelectProduto: (p: Produto) => void;
+}) {
+  const ativos = allProdutos.filter((p) => p.ativo);
+  const pool = ativos.slice(0, 12);
+  const featured = (ativos.filter((p) => p.imagem_url).length >= 2 ? ativos.filter((p) => p.imagem_url) : ativos).slice(0, 6);
+  const N = pool.length;
+  const rowH = 60;
+  const copies = 24;
+
+  const [mode, setMode] = useState<"surp" | "guia">("surp");
+  const reelRef = useRef<HTMLDivElement>(null);
+  const idxRef = useRef(N * Math.floor(copies / 2));
+  const [spinning, setSpinning] = useState(false);
+  const [resultado, setResultado] = useState<Produto | null>(null);
+
+  useEffect(() => {
+    if (reelRef.current && N > 0) {
+      idxRef.current = N * Math.floor(copies / 2);
+      reelRef.current.style.transform = `translateY(${rowH * (1 - idxRef.current)}px)`;
+    }
+  }, [N]);
+
+  function spin() {
+    if (spinning || N === 0 || !reelRef.current) return;
+    setSpinning(true); setResultado(null);
+    const k = Math.floor(Math.random() * N);
+    const delta = N * 5 + ((((k - (idxRef.current % N)) % N) + N) % N);
+    const ni = idxRef.current + delta;
+    reelRef.current.style.transition = "transform 3.2s cubic-bezier(.12,.7,.2,1)";
+    reelRef.current.style.transform = `translateY(${rowH * (1 - ni)}px)`;
+    setTimeout(() => {
+      setResultado(pool[k]);
+      const safe = (ni % N) + N * Math.floor(copies / 2);
+      if (reelRef.current) {
+        reelRef.current.style.transition = "none";
+        reelRef.current.style.transform = `translateY(${rowH * (1 - safe)}px)`;
+        void reelRef.current.offsetWidth;
+      }
+      idxRef.current = safe;
+      setSpinning(false);
+    }, 3300);
+  }
+
+  const [step, setStep] = useState(0);
+  const [picks, setPicks] = useState<string[]>([]);
+  const recs = step >= VIBE_STEPS.length ? sugerirPorVibe(picks, ativos, cardapio) : [];
+
+  const seg = (label: string, on: boolean, onClick: () => void) => (
+    <div onClick={onClick} style={{
+      flex: 1, textAlign: "center", padding: "9px", borderRadius: 999,
+      fontSize: 13, fontWeight: 700, cursor: "pointer",
+      color: on ? "var(--accent-fg)" : "var(--fg-subtle)",
+      background: on ? ACCENT : "transparent", transition: "all 150ms",
+    }}>{label}</div>
+  );
+
+  return (
+    <div style={{ height: "100%", background: BG, overflow: "auto", fontFamily: FONT }}>
+      <div style={{ padding: "56px 18px 40px" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 22 }}>
+          <div style={{ width: 42, height: 42, borderRadius: "50%", background: CARD2, display: "flex", alignItems: "center", justifyContent: "center", color: ACCENT, fontWeight: 800, fontSize: 17 }}>
+            {cliente?.nome?.[0]?.toUpperCase() ?? "?"}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>Boa noite,</p>
+            <p style={{ margin: "1px 0 0", fontSize: 17, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px" }}>{cliente?.nome ?? "você"}</p>
+          </div>
+          {cartCount > 0
+            ? <button onClick={onCart} style={{ background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "9px 15px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>🛒 {cartCount}</button>
+            : <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p><p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p></div>}
+        </div>
+
+        {/* Hub de decisão */}
+        {N > 0 && (
+          <div style={{ background: CARD2, borderRadius: 22, padding: "18px 16px", marginBottom: 24 }}>
+            <p style={{ margin: "0 0 3px", fontSize: 18, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", textAlign: "center" }}>Não sabe o que beber?</p>
+            <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>Deixa a casa resolver.</p>
+            <div style={{ display: "flex", gap: 4, background: "var(--bg)", borderRadius: 999, padding: 4, marginBottom: 16 }}>
+              {seg("Surpreenda-me", mode === "surp", () => setMode("surp"))}
+              {seg("Me guie", mode === "guia", () => setMode("guia"))}
+            </div>
+
+            {mode === "surp" ? (
+              <>
+                <div style={{ position: "relative", height: 180, borderRadius: 14, background: "var(--bg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 60, left: 8, right: 8, height: 60, background: CARD2, borderTop: `1.5px solid ${ACCENT}`, borderBottom: `1.5px solid ${ACCENT}`, borderRadius: 8, zIndex: 0 }} />
+                  <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 46, background: "var(--bg)", zIndex: 2, pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 46, background: "var(--bg)", zIndex: 2, pointerEvents: "none" }} />
+                  <div ref={reelRef} style={{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 1 }}>
+                    {Array.from({ length: N * copies }).map((_, i) => {
+                      const p = pool[i % N];
+                      return (
+                        <div key={i} style={{ height: rowH, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "0 16px" }}>
+                          <span style={{ fontSize: 20 }}>🍸</span>
+                          <span style={{ fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--fg-subtle)" }}>{fmt(p.preco)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div style={{ minHeight: 20, margin: "12px 0 14px", textAlign: "center" }}>
+                  {resultado
+                    ? <><p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a casa serve</p><p style={{ margin: "2px 0 0", fontSize: 19, fontWeight: 900, color: ACCENT, letterSpacing: "-0.3px" }}>{resultado.nome} · {fmt(resultado.preco)}</p></>
+                    : <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a linha do meio manda</p>}
+                </div>
+                <button onClick={spin} disabled={spinning} style={{ width: "100%", padding: 14, border: "none", borderRadius: 999, background: ACCENT, color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: spinning ? "wait" : "pointer", fontFamily: FONT, letterSpacing: "-0.2px" }}>
+                  {spinning ? "Rolando…" : resultado ? "Puxar de novo" : "Puxar a alavanca"}
+                </button>
+                {resultado && !spinning && (
+                  <button onClick={() => onSelectProduto(resultado)} style={{ width: "100%", marginTop: 9, padding: 12, border: "1px solid var(--border-strong)", borderRadius: 999, background: "transparent", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>
+                    Pedir {resultado.nome} →
+                  </button>
+                )}
+              </>
+            ) : (
+              <div>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 5, marginBottom: 10 }}>
+                  {[0, 1, 2].map((d) => <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: d <= step ? ACCENT : "var(--border-strong)" }} />)}
+                </div>
+                {step < VIBE_STEPS.length ? (
+                  <>
+                    <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{VIBE_STEPS[step].q}</p>
+                    {VIBE_STEPS[step].o.map((o) => (
+                      <button key={o} onClick={() => { setPicks((prev) => { const n = [...prev]; n[step] = o; return n; }); setStep(step + 1); }}
+                        style={{ width: "100%", textAlign: "left", padding: "13px 15px", border: "1px solid var(--border)", borderRadius: 13, background: "var(--bg)", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT, marginBottom: 8 }}>
+                        {o}
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: "0 0 4px", fontSize: 12, color: "var(--fg-subtle)" }}>Pra {(picks[0] ?? "").toLowerCase()}, {(picks[1] ?? "").toLowerCase()}:</p>
+                    <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)" }}>A casa recomenda</p>
+                    {recs.map((p) => (
+                      <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", gap: 11, alignItems: "center", background: "var(--bg)", borderRadius: 13, padding: 12, marginBottom: 8, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
+                        <div style={{ width: 42, height: 42, borderRadius: 11, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--fg)" }}>{p.nome}</p>
+                          <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.descricao ?? "sugestão da casa"}</p>
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg-muted)", flexShrink: 0 }}>{fmt(p.preco)}</span>
+                      </button>
+                    ))}
+                    <button onClick={() => { setStep(0); setPicks([]); }} style={{ width: "100%", textAlign: "center", padding: 10, background: "none", border: "none", color: ACCENT, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>Recomeçar</button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Em destaque */}
+        {featured.length > 0 && (
+          <>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Em destaque</p>
+            </div>
+            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none", marginBottom: 26 }}>
+              {featured.map((p) => (
+                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 148px", background: CARD2, borderRadius: 16, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
+                  <div style={{ height: 92, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34 }}>{p.imagem_url ? "" : "🍸"}</div>
+                  <div style={{ padding: "11px 12px 13px" }}>
+                    <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
+                    <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Categorias */}
+        {cardapio.length > 0 && (
+          <>
+            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {cardapio.map((cat) => (
+                <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ background: CARD2, borderRadius: 14, padding: "14px 12px", cursor: "pointer", textAlign: "left", border: "none" }}>
+                  <span style={{ fontSize: 22 }}>🍸</span>
+                  <p style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 700, color: "var(--fg)" }}>{cat.nome}</p>
+                  <p style={{ margin: "1px 0 0", fontSize: 11, color: "var(--fg-subtle)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export function MenuApp({
   bar,
@@ -1124,7 +1366,7 @@ export function MenuApp({
     const novo: ClienteLocal = { nome, visitas: 1, ultimaVisita: new Date().toISOString() };
     setCliente(novo);
     writeCliente(bar.slug, novo);
-    setScreen("categories");
+    setScreen("home");
   };
 
   const handleAddToCart = (produto: Produto, qty: number) => {
@@ -1163,8 +1405,25 @@ export function MenuApp({
           cliente={cliente}
           ultimoProduto={ultimoProduto}
           allProdutos={allProdutos}
-          onContinue={() => setScreen("categories")}
+          onContinue={() => setScreen("home")}
           onRepeat={(p) => {
+            setSelectedProduto(p);
+            const cat = cardapio.find((c) => c.id === p.categoria_id);
+            if (cat) setSelectedCategoria(cat);
+            setScreen("product-detail");
+          }}
+        />
+      )}
+      {screen === "home" && (
+        <HomeScreen
+          cliente={cliente}
+          mesaLabel={mesa.nome ?? `Mesa ${mesa.numero}`}
+          cardapio={cardapio}
+          allProdutos={allProdutos}
+          cartCount={cartCount}
+          onCart={() => setScreen("cart")}
+          onSelectCategoria={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}
+          onSelectProduto={(p) => {
             setSelectedProduto(p);
             const cat = cardapio.find((c) => c.id === p.categoria_id);
             if (cat) setSelectedCategoria(cat);
@@ -1186,7 +1445,7 @@ export function MenuApp({
           categoria={selectedCategoria}
           allCategorias={cardapio}
           onSelect={(p) => { setSelectedProduto(p); setScreen("product-detail"); }}
-          onBack={() => setScreen("categories")}
+          onBack={() => setScreen("home")}
           onSwitchCategoria={(cat) => setSelectedCategoria(cat)}
           cartCount={cartCount}
           onCart={() => setScreen("cart")}
@@ -1210,7 +1469,7 @@ export function MenuApp({
           onBack={() => setScreen(selectedCategoria ? "products" : "categories")}
           onPedidoEnviado={() => {
             setCart([]);
-            setScreen("categories");
+            setScreen("home");
           }}
         />
       )}
@@ -1219,7 +1478,7 @@ export function MenuApp({
           bar={bar}
           mesa={mesa}
           onConfirm={() => setScreen("conta-solicitada")}
-          onBack={() => setScreen("categories")}
+          onBack={() => setScreen("home")}
         />
       )}
       {screen === "conta-solicitada" && (
