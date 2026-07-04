@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { submeterPedido, pedirConta } from "@/lib/menu/actions";
+import { chamarAtendimento } from "@/lib/mesa/actions";
 import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
 
 type CategoriaComProdutos = Categoria & { produtos: Produto[] };
@@ -986,10 +987,12 @@ function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaC
 }
 
 function HomeScreen({
-  cliente, mesaLabel, cardapio, allProdutos, ultimoProduto, cartCount, onCart, onSelectCategoria, onSelectProduto,
+  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, cartCount, onCart, onSelectCategoria, onSelectProduto,
 }: {
   cliente: ClienteLocal | null;
   mesaLabel: string;
+  barId: string;
+  mesaId: string;
   cardapio: CategoriaComProdutos[];
   allProdutos: Produto[];
   ultimoProduto: Produto | null;
@@ -1014,6 +1017,9 @@ function HomeScreen({
   const [spinning, setSpinning] = useState(false);
   const [resultado, setResultado] = useState<Produto | null>(null);
   const [spinsUsed, setSpinsUsed] = useState(0);
+  const [chamando, setChamando] = useState(false);
+  const [chamado, setChamado] = useState(false);
+  const [chamarErro, setChamarErro] = useState<string | null>(null);
 
   useEffect(() => {
     if (reelRef.current && N > 0) {
@@ -1075,24 +1081,6 @@ function HomeScreen({
             : <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p><p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p></div>}
         </div>
 
-        {/* Em destaque (primeiro) */}
-        {featured.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-              {featured.map((p) => (
-                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 150px", background: CARD2, borderRadius: 18, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
-                  <div style={{ height: 190, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>{p.imagem_url ? "" : "🍸"}</div>
-                  <div style={{ padding: "12px 13px 15px" }}>
-                    <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
-                    <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Pedir de novo (último pedido) */}
         {ultimoProduto && (
           <div style={{ marginBottom: 22 }}>
@@ -1106,6 +1094,59 @@ function HomeScreen({
               <span style={{ background: ACCENT, color: "var(--accent-fg)", borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 800, flexShrink: 0 }}>De novo →</span>
             </button>
           </div>
+        )}
+
+        {/* Em destaque (primeiro) — hero + fileira */}
+        {featured.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
+            <button onClick={() => onSelectProduto(featured[0])} style={{ position: "relative", width: "100%", height: 232, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", marginBottom: 12, background: featured[0].imagem_url ? `url(${featured[0].imagem_url}) center/cover` : CARD }}>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 6%, color-mix(in srgb, var(--bg) 30%, transparent) 48%, transparent 80%)" }} />
+              <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Assinatura da casa</span>
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, textAlign: "left" }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{featured[0].nome}</p>
+                  {featured[0].descricao && <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{featured[0].descricao}</p>}
+                </div>
+                <span style={{ fontSize: 17, fontWeight: 900, color: ACCENT, flexShrink: 0 }}>{fmt(featured[0].preco)}</span>
+              </div>
+            </button>
+            {featured.length > 1 && (
+              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
+                {featured.slice(1).map((p) => (
+                  <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 150px", background: CARD2, borderRadius: 18, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
+                    <div style={{ height: 168, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>{p.imagem_url ? "" : "🍸"}</div>
+                    <div style={{ padding: "12px 13px 15px" }}>
+                      <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
+                      <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Categorias */}
+        {cardapio.length > 0 && (
+          <>
+            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {cardapio.map((cat) => {
+                const cover = cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+                return (
+                  <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
+                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ height: 24 }} />
+          </>
         )}
 
         {/* Hub de decisão */}
@@ -1202,26 +1243,23 @@ function HomeScreen({
           </div>
         )}
 
-        {/* Categorias */}
-        {cardapio.length > 0 && (
-          <>
-            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {cardapio.map((cat) => {
-                const cover = cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
-                return (
-                  <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
-                      <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
+        {/* Chamar o garçom (ação real → chamadas) */}
+        <button
+          onClick={() => {
+            if (chamando || chamado) return;
+            setChamando(true); setChamarErro(null);
+            chamarAtendimento(mesaId, barId).then((r) => {
+              setChamando(false);
+              if ("ok" in r) setChamado(true);
+              else setChamarErro(r.error);
+            });
+          }}
+          disabled={chamando}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 15, borderRadius: 16, border: chamado ? "1px solid color-mix(in srgb, var(--ok) 40%, transparent)" : "1px solid var(--border-strong)", background: chamado ? "color-mix(in srgb, var(--ok) 12%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 800, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
+        >
+          {chamado ? "✓ Garçom a caminho" : chamando ? "Chamando…" : "🛎  Chamar o garçom"}
+        </button>
+        {chamarErro && <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>{chamarErro}</p>}
 
       </div>
     </div>
@@ -1310,6 +1348,8 @@ export function MenuApp({
         <HomeScreen
           cliente={cliente}
           mesaLabel={mesa.nome ?? `Mesa ${mesa.numero}`}
+          barId={bar.id}
+          mesaId={mesa.id}
           cardapio={cardapio}
           allProdutos={allProdutos}
           ultimoProduto={ultimoProduto}
