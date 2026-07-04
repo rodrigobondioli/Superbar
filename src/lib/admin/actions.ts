@@ -83,6 +83,7 @@ export async function createLeadAdmin(payload: {
     email: payload.email?.trim() || null,
     notas: payload.notas?.trim() || null,
     status: "novo",
+    origem: "Prospecção ativa", // ativo — você foi atrás
   });
   if (error) return { error: error.message };
   revalidatePath("/admin/leads");

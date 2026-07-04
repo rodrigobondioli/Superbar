@@ -22,6 +22,7 @@ export async function submitLead(
     tipo_bar: payload.tipo_bar,
     whatsapp: payload.whatsapp.trim(),
     instagram: payload.instagram?.trim() || null,
+    origem: "Site", // passivo — chegou sozinho pelo formulário da landing
   });
 
   if (error) return { error: "Erro ao enviar pedido. Tente novamente." };

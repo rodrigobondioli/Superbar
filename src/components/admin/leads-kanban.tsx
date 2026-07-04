@@ -60,6 +60,26 @@ function FollowUpChip({ date }: { date: string }) {
   );
 }
 
+// ─── Origem: inbound (veio sozinho) vs ativo (você foi atrás) ──────────────────
+
+function OrigemChip({ origem }: { origem: string | null }) {
+  if (!origem) return null;
+  const inbound = origem === "Site";
+  const label = inbound ? "Inbound" : origem === "Prospecção ativa" ? "Ativo" : origem;
+  return (
+    <span style={{
+      fontSize: 12,
+      color: inbound ? "var(--accent)" : "var(--fg-muted)",
+      background: inbound
+        ? "color-mix(in srgb, var(--accent) 14%, transparent)"
+        : "color-mix(in srgb, var(--fg) 6%, transparent)",
+      borderRadius: 999, padding: "2px 8px",
+    }}>
+      {label}
+    </span>
+  );
+}
+
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 function LeadCard({
@@ -115,15 +135,7 @@ function LeadCard({
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         {lead.follow_up_at && <FollowUpChip date={lead.follow_up_at} />}
-        {lead.origem && (
-          <span style={{
-            fontSize: 12, color: "var(--fg-muted)",
-            background: "color-mix(in srgb, var(--fg) 6%, transparent)",
-            borderRadius: 999, padding: "2px 8px",
-          }}>
-            {lead.origem}
-          </span>
-        )}
+        <OrigemChip origem={lead.origem} />
         <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
           {new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
         </span>
