@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
 import { FichaEditor } from "./ficha-editor";
+import { ClassicosPicker } from "./classicos-picker";
 import {
   criarCategoria,
   editarCategoria,
@@ -689,12 +691,19 @@ export function CardapioClient({
   cardapio: CategoriaComProdutosAdmin[];
   barId: string;
 }) {
+  const router = useRouter();
   const [selectedId, setSelectedId] = useState(cardapio[0]?.categoria.id ?? "");
   const [addingProduto, setAddingProduto] = useState(false);
   const [addingCategoria, setAddingCategoria] = useState(false);
   const [importPanelOpen, setImportPanelOpen] = useState(false);
+  const [classicosOpen, setClassicosOpen] = useState(false);
 
   const nomesExistentes = cardapio.flatMap((g) => g.produtos.map((p) => p.nome));
+
+  // Drinks sem variante e sem custo confirmado — alvos do lote de fichas
+  const pendentesFicha = cardapio
+    .flatMap((g) => g.produtos)
+    .filter((p) => p.ativo && (p.produto_variantes ?? []).filter((v) => v.ativo).length === 0 && p.custo_status !== "confirmada").length;
 
   const selectedGrupo = cardapio.find(g => g.categoria.id === selectedId);
 
@@ -718,6 +727,23 @@ export function CardapioClient({
               Novo produto
             </button>
           )}
+          {pendentesFicha > 0 && (
+            <button
+              onClick={() => router.push("/dashboard/cardapio/fichas")}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
+              title="Gerar fichas dos drinks sem custo, em lote, com IA"
+            >
+              <FlaskConical style={{ width: 15, height: 15 }} />
+              Fichas ({pendentesFicha})
+            </button>
+          )}
+          <button
+            onClick={() => setClassicosOpen(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
+          >
+            <Sparkles style={{ width: 15, height: 15 }} />
+            Clássicos
+          </button>
           <button
             onClick={() => setImportPanelOpen(true)}
             style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
@@ -882,6 +908,32 @@ export function CardapioClient({
         open={importPanelOpen}
         onClose={() => setImportPanelOpen(false)}
       />
+
+      {classicosOpen && (
+        <>
+          <div onClick={() => setClassicosOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.5)" }} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Adicionar clássicos"
+            style={{
+              position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              zIndex: 100, width: "min(94vw, 600px)", maxHeight: "88vh", overflowY: "auto",
+              background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12,
+              padding: 28,
+            }}
+          >
+            <ClassicosPicker
+              onDone={(criados) => {
+                setClassicosOpen(false);
+                toast(`${criados} clássico${criados !== 1 ? "s" : ""} adicionado${criados !== 1 ? "s" : ""}.`, "ok");
+                router.refresh();
+              }}
+              onSkip={() => setClassicosOpen(false)}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

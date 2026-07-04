@@ -2,6 +2,30 @@ import { createClient } from "@/lib/supabase/server";
 import type { UnidadeInsumo } from "@/lib/ficha/sugestao-types";
 import type { CustoStatus } from "@/types/database";
 
+/** Drink (produto sem variante) que ainda não tem ficha/custo confirmado.
+ *  Alvos do lote-guiado. Produtos com variante ficam de fora (ficha é por variante). */
+export interface DrinkParaFicha {
+  id: string;
+  nome: string;
+  preco: number;
+}
+
+export async function getDrinksParaFicha(barId: string): Promise<DrinkParaFicha[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("produtos")
+    .select("id, nome, preco, produto_variantes ( id, ativo )")
+    .eq("bar_id", barId)
+    .eq("ativo", true)
+    .neq("custo_status", "confirmada")
+    .order("nome", { ascending: true })
+    .returns<{ id: string; nome: string; preco: number; produto_variantes: { id: string; ativo: boolean }[] | null }[]>();
+
+  return (data ?? [])
+    .filter((p) => !(p.produto_variantes ?? []).some((v) => v.ativo))
+    .map((p) => ({ id: p.id, nome: p.nome, preco: Number(p.preco) }));
+}
+
 /** Uma linha da ficha, do jeito que o editor precisa. */
 export interface FichaLinha {
   ingredienteId: string | null; // insumo existente no estoque, ou null se novo

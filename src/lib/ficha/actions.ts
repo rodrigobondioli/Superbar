@@ -18,6 +18,37 @@ export async function carregarFicha(
   return getFicha(current.bar.id, produtoId, varianteId);
 }
 
+export interface FichaLoteInput {
+  produtoId: string;
+  nome: string;
+  preco: number;
+  linhas: LinhaFichaInput[];
+}
+export interface FichaLoteResult {
+  produtoId: string;
+  nome: string;
+  preco: number;
+  custo: number | null;
+  status: CustoStatus;
+}
+
+/** Salva várias fichas de uma vez (lote-guiado). Reusa salvarFicha por drink,
+ *  então insumos compartilhados são deduplicados e precificados uma vez só. */
+export async function salvarFichasLote(fichas: FichaLoteInput[]): Promise<FichaLoteResult[]> {
+  const out: FichaLoteResult[] = [];
+  for (const f of fichas) {
+    const r = await salvarFicha(f.produtoId, null, f.linhas);
+    out.push({
+      produtoId: f.produtoId,
+      nome: f.nome,
+      preco: f.preco,
+      custo: "ok" in r ? r.custo : null,
+      status: "ok" in r ? r.status : "sem",
+    });
+  }
+  return out;
+}
+
 export interface LinhaFichaInput {
   ingredienteId: string | null;
   nome: string;
