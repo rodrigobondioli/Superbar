@@ -723,7 +723,7 @@ export function CardapioClient({
             style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
           >
             <FileSpreadsheet style={{ width: 15, height: 15 }} />
-            Importar planilha
+            Importar cardápio
           </button>
         </div>
       </div>
@@ -750,7 +750,7 @@ export function CardapioClient({
                   textDecoration: "underline", textUnderlineOffset: 3,
                 }}
               >
-                ou importe de uma planilha
+                ou importe de um PDF/planilha
               </button>
             </div>
           }

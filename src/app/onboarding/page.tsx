@@ -351,7 +351,7 @@ export default function OnboardingPage() {
                 Importe seu cardápio
               </h1>
               <p style={{ fontSize: "14px", color: "var(--fg-subtle)", margin: 0 }}>
-                Tem uma planilha? A IA interpreta as colunas automaticamente.
+                Tem o cardápio em PDF ou planilha? A IA lê e monta tudo.
               </p>
             </div>
 
@@ -424,7 +424,7 @@ export default function OnboardingPage() {
                       Arraste o arquivo ou clique para selecionar
                     </p>
                     <p style={{ fontSize: "12px", color: "var(--fg-subtle)", margin: 0 }}>
-                      .xlsx, .xls ou .csv
+                      PDF, .xlsx ou .csv
                     </p>
                   </div>
                 </button>
@@ -433,7 +433,7 @@ export default function OnboardingPage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".pdf,.xlsx,.xls,.csv"
                 style={{ display: "none" }}
                 onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
               />

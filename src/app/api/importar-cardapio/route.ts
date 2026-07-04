@@ -51,6 +51,56 @@ function fallbackMapping(headers: string[]): Record<string, CampoSuperbar> {
   return mapping;
 }
 
+/** Extrai itens de cardápio de um PDF usando o Claude (leitura nativa de documento).
+ *  Menus só têm nome/preço — custo nunca vem no PDF (fica null, o dono cadastra depois). */
+async function extrairProdutosDePdf(bytes: ArrayBuffer): Promise<ProdutoPreview[]> {
+  const base64 = Buffer.from(bytes).toString("base64");
+  const anthropic = new Anthropic();
+
+  const msg = await anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 4096,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "document",
+            source: { type: "base64", media_type: "application/pdf", data: base64 },
+          },
+          {
+            type: "text",
+            text: `Este PDF é um cardápio de bar/restaurante brasileiro. Extraia cada ITEM VENDÁVEL.
+
+Para cada item: nome, categoria (a seção do cardápio, se houver), preço de venda (número) e descrição (se houver).
+Ignore o que não é item: endereço, telefone, horário, títulos decorativos, textos institucionais.
+Preço: número em reais (ex: "R$ 28,00" → 28). Se não houver preço claro, use null.
+
+Retorne APENAS JSON, sem explicação:
+{"produtos":[{"nome":"Caipirinha","categoria":"Drinks","preco_venda":28,"descricao":null}]}`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const text = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
+  const jsonStr = text.startsWith("{") ? text : text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+  const parsed = JSON.parse(jsonStr) as {
+    produtos?: { nome?: string; categoria?: string | null; preco_venda?: number | null; descricao?: string | null }[];
+  };
+
+  return (parsed.produtos ?? [])
+    .filter((p) => p.nome && String(p.nome).trim())
+    .map((p) => ({
+      nome: String(p.nome).trim(),
+      categoria: p.categoria ? String(p.categoria).trim() : null,
+      preco_venda: typeof p.preco_venda === "number" ? p.preco_venda : parseNumero(p.preco_venda),
+      custo: null,
+      descricao: p.descricao ? String(p.descricao).trim() : null,
+    }));
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -68,17 +118,40 @@ export async function POST(req: NextRequest) {
   const file = formData.get("arquivo") as File | null;
   if (!file) return NextResponse.json({ error: "Arquivo não enviado" }, { status: 400 });
 
-  const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "Arquivo muito grande. Limite: 5 MB." }, { status: 413 });
-  }
-
   const ext = file.name.split(".").pop()?.toLowerCase();
-  if (!["xlsx", "csv"].includes(ext ?? "")) {
+  if (!["xlsx", "csv", "pdf"].includes(ext ?? "")) {
     return NextResponse.json(
-      { error: "Formato não suportado. Use .xlsx ou .csv" },
+      { error: "Formato não suportado. Use .pdf, .xlsx ou .csv" },
       { status: 400 }
     );
+  }
+
+  // PDF pode ser maior (cardápio digitalizado); planilha é enxuta.
+  const MAX_SIZE = (ext === "pdf" ? 10 : 5) * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json(
+      { error: `Arquivo muito grande. Limite: ${ext === "pdf" ? 10 : 5} MB.` },
+      { status: 413 }
+    );
+  }
+
+  // ── PDF: o Claude lê o documento nativamente e extrai os itens ──
+  if (ext === "pdf") {
+    try {
+      const produtos = await extrairProdutosDePdf(await file.arrayBuffer());
+      if (produtos.length === 0) {
+        return NextResponse.json(
+          { error: "Não reconheci itens de cardápio nesse PDF. Tente uma planilha ou cadastre manual." },
+          { status: 422 }
+        );
+      }
+      return NextResponse.json({ produtos, colunasNaoReconhecidas: [] } satisfies ImportarResponse);
+    } catch {
+      return NextResponse.json(
+        { error: "Erro ao ler o PDF. Verifique se não está protegido/corrompido." },
+        { status: 400 }
+      );
+    }
   }
 
   // Parse — exceljs para xlsx, parser manual para csv

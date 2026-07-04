@@ -145,7 +145,7 @@ export function ImportarCardapioPanel({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Importar produtos via planilha"
+        aria-label="Importar cardápio (PDF ou planilha)"
         style={{
           position: "fixed",
           top: 0,
@@ -181,7 +181,7 @@ export function ImportarCardapioPanel({
               margin: 0,
             }}
           >
-            Importar via planilha
+            Importar cardápio
           </h2>
           <button
             onClick={handleClose}
@@ -269,7 +269,7 @@ export function ImportarCardapioPanel({
                       Clique para selecionar
                     </p>
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>
-                      .xlsx, .xls ou .csv
+                      PDF, .xlsx ou .csv
                     </p>
                   </div>
                 </button>
@@ -278,7 +278,7 @@ export function ImportarCardapioPanel({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".pdf,.xlsx,.xls,.csv"
                 style={{ display: "none" }}
                 onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
               />
