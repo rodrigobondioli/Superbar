@@ -71,7 +71,7 @@ function comandaInfo(p: any): { pessoa: string; mesa_label: string } {
   const mesa = c?.mesas;
   const mesa_label = mesa ? (mesa.nome ?? `Mesa ${mesa.numero}`) : "Balcão";
   const pessoa = c?.nome_cliente
-    ?? (c?.identificador ? `Comanda ${c.identificador.slice(-4)}` : "Comanda");
+    ?? (c?.identificador && c.identificador.trim() ? `Comanda ${c.identificador.slice(-4)}` : mesa_label);
   return { pessoa, mesa_label };
 }
 
@@ -181,7 +181,7 @@ async function fetchFeitos(barId: string, turnoId: string): Promise<FeitoCard[]>
 function FilaCard({ pedido, isNew, active, onClick }: {
   pedido: PedidoCard; isNew: boolean; active: boolean; onClick: () => void;
 }) {
-  const estado = pedido.status === "recebido" ? "Novo" : "Preparando";
+  const semNome = pedido.pessoa === pedido.mesa_label;
   return (
     <div
       onClick={onClick}
@@ -193,11 +193,8 @@ function FilaCard({ pedido, isNew, active, onClick }: {
         transition: "border-color 200ms",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pedido.pessoa}</span>
-        <span style={{ fontSize: 12, fontWeight: 500, color: pedido.status === "recebido" ? "var(--fg-muted)" : "var(--accent)" }}>{estado}</span>
-      </div>
-      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{pedido.mesa_label} · há {tempo(pedido.criado_em)}</span>
+      <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pedido.pessoa}</span>
+      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{semNome ? `há ${tempo(pedido.criado_em)}` : `${pedido.mesa_label} · há ${tempo(pedido.criado_em)}`}</span>
       <div style={{ height: 1, background: "var(--border-strong)" }} />
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {pedido.itens.map((it, i) => (
@@ -254,7 +251,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
       {/* contexto */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
         <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-          {emPreparo ? "Preparando" : "Pedido"} · {pedido.pessoa} · {pedido.mesa_label}
+          {emPreparo ? "Preparando" : "Pedido"} · {pedido.pessoa}{pedido.pessoa !== pedido.mesa_label ? ` · ${pedido.mesa_label}` : ""}
         </span>
         <span style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)" }}>
           {total} {total === 1 ? "drink" : "drinks"} · há {tempo(pedido.criado_em)}
@@ -449,7 +446,7 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
                   <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.pessoa}</span>
                   <span style={{ fontSize: 12, fontWeight: 500, color: "var(--fg-muted)" }}>{f.estado === "pronto" ? "Pronto" : "Entregue"}</span>
                 </div>
-                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{f.mesa_label}</span>
+                {f.pessoa !== f.mesa_label && <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{f.mesa_label}</span>}
                 <div style={{ height: 1, background: "var(--border-strong)" }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {f.itens.map((it, i) => (

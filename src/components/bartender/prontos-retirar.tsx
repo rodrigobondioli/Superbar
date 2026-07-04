@@ -54,7 +54,7 @@ async function fetchProntos(barId: string, turnoId: string): Promise<Pronto[]> {
     const c = (p as any).comandas as { nome_cliente: string | null; identificador: string | null; mesas: { numero: number; nome: string | null } | null } | null;
     const mesa = c?.mesas;
     const mesa_label = mesa ? (mesa.nome ?? `Mesa ${mesa.numero}`) : "Balcão";
-    const pessoa = c?.nome_cliente ?? (c?.identificador ? `Comanda ${c.identificador.slice(-4)}` : "Comanda");
+    const pessoa = c?.nome_cliente ?? (c?.identificador && c.identificador.trim() ? `Comanda ${c.identificador.slice(-4)}` : mesa_label);
     const map = new Map<string, Item>();
     for (const it of byPedido.get(p.id) ?? []) {
       const e = map.get(it.nome); if (e) e.quantidade += it.quantidade; else map.set(it.nome, { ...it });
@@ -109,7 +109,7 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
           }}>
             <div>
               <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{p.pessoa}</p>
-              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>{p.mesa_label}</p>
+              {p.pessoa !== p.mesa_label && <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>{p.mesa_label}</p>}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {p.itens.map((it, i) => (
