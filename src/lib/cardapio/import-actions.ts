@@ -6,6 +6,7 @@ import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getImagemAutomatica } from "./drink-images";
 import { normalizarNome } from "./import-types";
 import type { ProdutoPreview, ProdutoSalvo } from "./import-types";
+import type { CustoStatus } from "@/types/database";
 
 // ─── Salvar produtos importados ───────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ export async function salvarProdutosImportados(
     nome: p.nome,
     preco: p.preco_venda ?? 0,
     custo: p.custo ?? null,
+    custo_status: (p.custo != null ? "confirmada" : "sem") as CustoStatus,
     descricao: p.descricao ?? null,
     categoria_id: p.categoria ? (catMap[p.categoria] ?? null) : null,
     imagem_url: getImagemAutomatica(p.nome),
@@ -102,7 +104,7 @@ export async function salvarCustosProdutos(
 
   await Promise.all(
     custos.map(({ id, custo }) =>
-      supabase.from("produtos").update({ custo }).eq("id", id)
+      supabase.from("produtos").update({ custo, custo_status: "confirmada" }).eq("id", id)
     )
   );
 
@@ -162,7 +164,7 @@ export async function mergeImportacao(
   for (const { id, produto } of atualizacoes) {
     const campos: Record<string, unknown> = {};
     if (produto.preco_venda !== null) campos.preco = produto.preco_venda;
-    if (produto.custo !== null) campos.custo = produto.custo;
+    if (produto.custo !== null) { campos.custo = produto.custo; campos.custo_status = "confirmada"; }
     if (Object.keys(campos).length > 0) {
       await supabase.from("produtos").update(campos).eq("id", id);
       atualizados++;

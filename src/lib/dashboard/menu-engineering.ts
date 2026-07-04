@@ -62,6 +62,8 @@ export interface CoberturaReceita {
 
 /**
  * Cobertura ponderada por receita — não conta produtos, pesa pela receita.
+ * Só custo CONFIRMADO conta: um custo sugerido pela IA é estimativa, não pode
+ * inflar a confiança do CMV (Princípio 9 — não prometer o que não existe).
  * Regra:   < 50% → indisponivel | 50–79% → estimado | 80%+ → confiavel
  */
 export function calcularCoberturaReceita(produtos: TopDrink[]): CoberturaReceita {
@@ -69,7 +71,7 @@ export function calcularCoberturaReceita(produtos: TopDrink[]): CoberturaReceita
   if (faturamentoTotal === 0) return { cobertura: 0, status: "indisponivel" };
 
   const faturamentoComCusto = produtos
-    .filter((p) => p.custo != null)
+    .filter((p) => p.custo != null && p.custoStatus === "confirmada")
     .reduce((acc, p) => acc + p.faturamento, 0);
 
   const cobertura = Math.round((faturamentoComCusto / faturamentoTotal) * 100);
@@ -83,12 +85,12 @@ export function calcularCoberturaReceita(produtos: TopDrink[]): CoberturaReceita
 
 /**
  * CMV (Custo de Mercadoria Vendida) % = custo total dos itens vendidos /
- * faturamento desses mesmos itens. Só entram produtos com `custo`
- * cadastrado — incluir um item sem custo no faturamento mas não no custo
- * sub-estimaria o CMV artificialmente.
+ * faturamento desses mesmos itens. Só entram produtos com custo CONFIRMADO —
+ * custo estimado (IA) ou ausente ficaria de fora para não fabricar um CMV
+ * que parece real sem ser (prefere silêncio a número incorreto).
  */
 export function calcularCmv(produtos: TopDrink[]): number | null {
-  const comCusto = produtos.filter((p) => p.custo != null);
+  const comCusto = produtos.filter((p) => p.custo != null && p.custoStatus === "confirmada");
   if (comCusto.length === 0) return null;
 
   const custoTotal = comCusto.reduce((acc, p) => acc + (p.custo as number) * p.quantidadeVendida, 0);

@@ -77,6 +77,7 @@ export async function criarProduto(formData: FormData) {
     nome,
     preco:        parseFloat(precoStr),
     custo,
+    custo_status: custo != null ? "confirmada" : "sem",
     descricao,
     imagem_url:   imagemUrl,
     ativo:        true,
@@ -105,6 +106,7 @@ export async function editarProduto(id: string, formData: FormData) {
     nome,
     preco:        parseFloat(precoStr),
     custo,
+    custo_status: custo != null ? "confirmada" : "sem",
     categoria_id: categoriaId,
     descricao,
     imagem_url:   imagemUrl,
@@ -141,6 +143,7 @@ export async function criarVariante(produtoId: string, formData: FormData) {
     nome,
     preco:       parseFloat(precoStr),
     custo,
+    custo_status: custo != null ? "confirmada" : "sem",
     imagem_url:  imagemUrl,
     ativo:       true,
     ordem:       (ultima?.ordem ?? 0) + 1,
@@ -164,6 +167,7 @@ export async function editarVariante(varianteId: string, formData: FormData) {
     nome,
     preco:      parseFloat(precoStr),
     custo,
+    custo_status: custo != null ? "confirmada" : "sem",
     imagem_url: imagemUrl,
   }).eq("id", varianteId);
 

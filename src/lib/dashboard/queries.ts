@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
-import type { Bar, BarRole, Turno } from "@/types/database";
+import type { Bar, BarRole, Turno, CustoStatus } from "@/types/database";
 import { percentChange } from "@/lib/dashboard/percent-change";
 import { calcularCmv } from "@/lib/dashboard/menu-engineering";
 import { getBarByKioskToken } from "@/lib/kiosk/queries";
@@ -138,6 +138,7 @@ export interface TopDrink {
   faturamento: number;
   preco: number;
   custo: number | null;
+  custoStatus: CustoStatus;
 }
 
 // Lista completa, sem limite — quem só precisa exibir um "top N" (a tabela
@@ -147,7 +148,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
   const supabase = await createClient();
   const { data } = await supabase
     .from("comanda_items")
-    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo), comandas!inner(turno_id)")
+    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo, custo_status), comandas!inner(turno_id)")
     .eq("bar_id", barId)
     .eq("status", "ativo")
     .eq("comandas.turno_id", turnoId)
@@ -156,7 +157,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
         quantidade: number;
         preco_total: number;
         produto_id: string;
-        produtos: { nome: string; preco: number; custo: number | null } | null;
+        produtos: { nome: string; preco: number; custo: number | null; custo_status: CustoStatus } | null;
       }[]
     >();
 
@@ -173,6 +174,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
         faturamento: 0,
         preco: item.produtos.preco,
         custo: item.produtos.custo,
+        custoStatus: item.produtos.custo_status,
       } satisfies TopDrink);
 
     atual.quantidadeVendida += Number(item.quantidade);

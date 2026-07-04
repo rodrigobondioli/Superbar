@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { percentChange } from "@/lib/dashboard/percent-change";
 import { gerarDiasDoPeriodo, inicioDoDia, periodoAnterior, type PeriodoRange } from "@/lib/dashboard/periodo";
 import type { TopDrink } from "@/lib/dashboard/queries";
+import type { CustoStatus } from "@/types/database";
 import { calcularCmv } from "@/lib/dashboard/menu-engineering";
 
 export interface PontoFaturamento {
@@ -146,7 +147,8 @@ export async function getKpisFinanceirosPeriodo(
   const produtos = await getProdutosVendidosPeriodo(barId, periodo);
   const cmv = calcularCmv(produtos);
   const margemBruta = cmv !== null ? Math.round(100 - cmv) : null;
-  const cmvParcial = produtos.some(p => p.custo === null);
+  // Parcial se algum produto vendido não tem custo confirmado (estimado ou sem).
+  const cmvParcial = produtos.some(p => p.custoStatus !== "confirmada");
 
   return { cmv, margemBruta, ticketMedio, cmvParcial };
 }
@@ -158,7 +160,7 @@ export async function getProdutosVendidosPeriodo(barId: string, periodo: Periodo
   const supabase = await createClient();
   const { data } = await supabase
     .from("comanda_items")
-    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo)")
+    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo, custo_status)")
     .eq("bar_id", barId)
     .eq("status", "ativo")
     .gte("adicionado_em", periodo.inicio.toISOString())
@@ -168,7 +170,7 @@ export async function getProdutosVendidosPeriodo(barId: string, periodo: Periodo
         quantidade: number;
         preco_total: number;
         produto_id: string;
-        produtos: { nome: string; preco: number; custo: number | null } | null;
+        produtos: { nome: string; preco: number; custo: number | null; custo_status: CustoStatus } | null;
       }[]
     >();
 
@@ -185,6 +187,7 @@ export async function getProdutosVendidosPeriodo(barId: string, periodo: Periodo
         faturamento: 0,
         preco: item.produtos.preco,
         custo: item.produtos.custo,
+        custoStatus: item.produtos.custo_status,
       } satisfies TopDrink);
 
     atual.quantidadeVendida += Number(item.quantidade);
