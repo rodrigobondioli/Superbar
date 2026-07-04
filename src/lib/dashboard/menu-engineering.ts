@@ -1,4 +1,5 @@
 import type { TopDrink } from "@/lib/dashboard/queries";
+import { margemPercentual } from "@/lib/custo";
 
 export type CategoriaMenu = "star" | "cash_cow" | "slow" | "problema" | "sem_dados";
 
@@ -22,8 +23,7 @@ export interface ProdutoCategorizado extends TopDrink {
 export function categorizarProdutos(produtos: TopDrink[]): ProdutoCategorizado[] {
   const comMargem = produtos.map((produto) => ({
     ...produto,
-    margemPercentual:
-      produto.custo != null ? ((produto.preco - produto.custo) / produto.preco) * 100 : null,
+    margemPercentual: margemPercentual(produto.preco, produto.custo),
   }));
 
   if (produtos.length === 0) return [];

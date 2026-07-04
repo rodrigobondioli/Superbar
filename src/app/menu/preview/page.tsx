@@ -32,7 +32,7 @@ function cat(id: string, nome: string, ordem: number): Categoria {
 }
 
 function prod(id: string, cat_id: string, nome: string, preco: number, descricao: string | null, imagem_url: string | null): Produto {
-  return { id, bar_id: "demo", categoria_id: cat_id, nome, preco, descricao, custo: null, imagem_url, ativo: true, controla_estoque: false, created_at: "", updated_at: "" };
+  return { id, bar_id: "demo", categoria_id: cat_id, nome, preco, descricao, custo: null, custo_status: "sem", imagem_url, ativo: true, controla_estoque: false, created_at: "", updated_at: "" };
 }
 
 const IMG = {

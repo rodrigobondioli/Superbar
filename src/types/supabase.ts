@@ -1240,6 +1240,7 @@ export type Database = {
           ativo: boolean
           created_at: string
           custo: number | null
+          custo_status: string
           id: string
           imagem_url: string | null
           nome: string
@@ -1251,6 +1252,7 @@ export type Database = {
           ativo?: boolean
           created_at?: string
           custo?: number | null
+          custo_status?: string
           id?: string
           imagem_url?: string | null
           nome: string
@@ -1262,6 +1264,7 @@ export type Database = {
           ativo?: boolean
           created_at?: string
           custo?: number | null
+          custo_status?: string
           id?: string
           imagem_url?: string | null
           nome?: string
@@ -1287,6 +1290,7 @@ export type Database = {
           controla_estoque: boolean
           created_at: string
           custo: number | null
+          custo_status: string
           descricao: string | null
           id: string
           imagem_url: string | null
@@ -1301,6 +1305,7 @@ export type Database = {
           controla_estoque?: boolean
           created_at?: string
           custo?: number | null
+          custo_status?: string
           descricao?: string | null
           id?: string
           imagem_url?: string | null
@@ -1315,6 +1320,7 @@ export type Database = {
           controla_estoque?: boolean
           created_at?: string
           custo?: number | null
+          custo_status?: string
           descricao?: string | null
           id?: string
           imagem_url?: string | null
@@ -1377,6 +1383,7 @@ export type Database = {
           ingrediente_id: string
           produto_id: string
           quantidade: number
+          variante_id: string | null
         }
         Insert: {
           bar_id: string
@@ -1385,6 +1392,7 @@ export type Database = {
           ingrediente_id: string
           produto_id: string
           quantidade: number
+          variante_id?: string | null
         }
         Update: {
           bar_id?: string
@@ -1393,6 +1401,7 @@ export type Database = {
           ingrediente_id?: string
           produto_id?: string
           quantidade?: number
+          variante_id?: string | null
         }
         Relationships: [
           {

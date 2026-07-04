@@ -124,6 +124,11 @@ export interface Categoria {
   created_at: string;
 }
 
+/** Confiança do custo/margem de um produto ou variante.
+ *  sem = sem custo (margem cega) | sugerida = IA, não confirmada (estimativa)
+ *  | confirmada = dono confirmou (ficha ou custo direto). */
+export type CustoStatus = "sem" | "sugerida" | "confirmada";
+
 export interface Produto {
   id: string;
   bar_id: string;
@@ -132,6 +137,7 @@ export interface Produto {
   descricao: string | null;
   preco: number;
   custo: number | null;
+  custo_status: CustoStatus;
   imagem_url: string | null;
   ativo: boolean;
   controla_estoque: boolean;
@@ -145,6 +151,7 @@ export interface ProdutoVariante {
   nome: string;
   preco: number;
   custo: number | null;
+  custo_status: CustoStatus;
   imagem_url: string | null;
   ativo: boolean;
   ordem: number;
