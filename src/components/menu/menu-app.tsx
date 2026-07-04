@@ -1087,16 +1087,16 @@ function norm(s: string) {
 }
 
 const VIBE_STEPS: { q: string; o: string[] }[] = [
-  { q: "Qual o clima da noite?", o: ["Abrir a noite", "Comemorar em grande", "Impressionar a companhia", "Sem álcool, no capricho"] },
-  { q: "Que paladar te agrada?", o: ["Doce", "Amargo", "Cítrico e refrescante", "Herbal"] },
-  { q: "Intensidade?", o: ["Leve", "Equilibrado", "Encorpado"] },
+  { q: "O que a noite pede?", o: ["Algo pra abrir", "Meu clássico de confiança", "Quero descobrir algo novo", "Sem álcool, no capricho"] },
+  { q: "Que perfil combina com você?", o: ["Cítrico e refrescante", "Amargo e sofisticado", "Doce e aveludado", "Seco e direto"] },
+  { q: "Quão forte você quer?", o: ["Leve, pra conversar", "No ponto", "Encorpado, pra sentir"] },
 ];
 
 const VIBE_KW: Record<string, string[]> = {
-  "doce": ["doce", "morango", "maracuja", "fruta", "licor", "mel", "chocolate", "cassis", "pina"],
-  "amargo": ["negroni", "campari", "aperol", "amaro", "bitter", "boulevardier", "americano", "fernet"],
-  "citrico e refrescante": ["limao", "citric", "gin", "tonica", "mule", "margarita", "lima", "laranja", "refrescante", "spritz", "mojito"],
-  "herbal": ["gin", "manjericao", "basil", "hortela", "mint", "southside", "botanic", "tomilho", "alecrim"],
+  "citrico e refrescante": ["limao", "citric", "gin", "tonica", "mule", "margarita", "lima", "laranja", "refrescante", "spritz", "mojito", "aperol"],
+  "amargo e sofisticado": ["negroni", "campari", "aperol", "amaro", "bitter", "boulevardier", "americano", "fernet"],
+  "doce e aveludado": ["doce", "morango", "maracuja", "fruta", "licor", "mel", "chocolate", "cassis", "pina", "espresso"],
+  "seco e direto": ["martini", "seco", "dry", "negroni", "whisky", "gin", "old fashioned", "manhattan"],
 };
 
 function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaComProdutos[]): Produto[] {
@@ -1133,14 +1133,16 @@ function HomeScreen({
   const pool = ativos.slice(0, 12);
   const featured = (ativos.filter((p) => p.imagem_url).length >= 2 ? ativos.filter((p) => p.imagem_url) : ativos).slice(0, 6);
   const N = pool.length;
-  const rowH = 60;
+  const rowH = 64;
   const copies = 24;
+  const MAX_GIROS = 2;
 
   const [mode, setMode] = useState<"surp" | "guia">("surp");
   const reelRef = useRef<HTMLDivElement>(null);
   const idxRef = useRef(N * Math.floor(copies / 2));
   const [spinning, setSpinning] = useState(false);
   const [resultado, setResultado] = useState<Produto | null>(null);
+  const [spinsUsed, setSpinsUsed] = useState(0);
 
   useEffect(() => {
     if (reelRef.current && N > 0) {
@@ -1150,7 +1152,7 @@ function HomeScreen({
   }, [N]);
 
   function spin() {
-    if (spinning || N === 0 || !reelRef.current) return;
+    if (spinning || spinsUsed >= MAX_GIROS || N === 0 || !reelRef.current) return;
     setSpinning(true); setResultado(null);
     const k = Math.floor(Math.random() * N);
     const delta = N * 5 + ((((k - (idxRef.current % N)) % N) + N) % N);
@@ -1159,6 +1161,7 @@ function HomeScreen({
     reelRef.current.style.transform = `translateY(${rowH * (1 - ni)}px)`;
     setTimeout(() => {
       setResultado(pool[k]);
+      setSpinsUsed((s) => s + 1);
       const safe = (ni % N) + N * Math.floor(copies / 2);
       if (reelRef.current) {
         reelRef.current.style.transition = "none";
@@ -1205,7 +1208,7 @@ function HomeScreen({
         {N > 0 && (
           <div style={{ background: CARD2, borderRadius: 22, padding: "18px 16px", marginBottom: 24 }}>
             <p style={{ margin: "0 0 3px", fontSize: 18, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", textAlign: "center" }}>Não sabe o que beber?</p>
-            <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>Deixa a casa resolver.</p>
+            <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>{mode === "surp" ? "Dois giros e a casa decide por você." : "Três perguntas. A casa acha o seu drink."}</p>
             <div style={{ display: "flex", gap: 4, background: "var(--bg)", borderRadius: 999, padding: 4, marginBottom: 16 }}>
               {seg("Surpreenda-me", mode === "surp", () => setMode("surp"))}
               {seg("Me guie", mode === "guia", () => setMode("guia"))}
@@ -1213,33 +1216,47 @@ function HomeScreen({
 
             {mode === "surp" ? (
               <>
-                <div style={{ position: "relative", height: 180, borderRadius: 14, background: "var(--bg)", border: "1px solid var(--border)", overflow: "hidden" }}>
-                  <div style={{ position: "absolute", top: 60, left: 8, right: 8, height: 60, background: CARD2, borderTop: `1.5px solid ${ACCENT}`, borderBottom: `1.5px solid ${ACCENT}`, borderRadius: 8, zIndex: 0 }} />
-                  <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 46, background: "var(--bg)", zIndex: 2, pointerEvents: "none" }} />
-                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 46, background: "var(--bg)", zIndex: 2, pointerEvents: "none" }} />
-                  <div ref={reelRef} style={{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 1 }}>
-                    {Array.from({ length: N * copies }).map((_, i) => {
-                      const p = pool[i % N];
-                      return (
-                        <div key={i} style={{ height: rowH, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "0 16px" }}>
-                          <span style={{ fontSize: 20 }}>🍸</span>
-                          <span style={{ fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--fg-subtle)" }}>{fmt(p.preco)}</span>
-                        </div>
-                      );
-                    })}
+                {/* fichas de giro */}
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  {Array.from({ length: MAX_GIROS }).map((_, i) => (
+                    <span key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i < spinsUsed ? "var(--border-strong)" : ACCENT }} />
+                  ))}
+                  <span style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginLeft: 2 }}>
+                    {MAX_GIROS - spinsUsed > 0 ? `${MAX_GIROS - spinsUsed} ${MAX_GIROS - spinsUsed === 1 ? "giro" : "giros"}` : "sem giros"}
+                  </span>
+                </div>
+                <div style={{ position: "relative", height: 192 }}>
+                  <div style={{ position: "absolute", left: 0, right: 0, top: 64, height: 64, borderTop: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", borderBottom: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", pointerEvents: "none", zIndex: 2 }}>
+                    <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderLeft: `7px solid ${ACCENT}` }} />
+                    <div style={{ position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderRight: `7px solid ${ACCENT}` }} />
+                  </div>
+                  <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--bg)", borderRadius: 14, border: "1px solid var(--border)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)" }}>
+                    <div ref={reelRef} style={{ position: "absolute", left: 0, right: 0, top: 0 }}>
+                      {Array.from({ length: N * copies }).map((_, i) => {
+                        const p = pool[i % N];
+                        return (
+                          <div key={i} style={{ height: rowH, display: "flex", alignItems: "center", gap: 13, padding: "0 12px" }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                            <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg-subtle)" }}>{fmt(p.preco)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-                <div style={{ minHeight: 20, margin: "12px 0 14px", textAlign: "center" }}>
+                <div style={{ minHeight: 22, margin: "14px 0 14px", textAlign: "center" }}>
                   {resultado
-                    ? <><p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a casa serve</p><p style={{ margin: "2px 0 0", fontSize: 19, fontWeight: 900, color: ACCENT, letterSpacing: "-0.3px" }}>{resultado.nome} · {fmt(resultado.preco)}</p></>
-                    : <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a linha do meio manda</p>}
+                    ? <><p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a casa arriscou</p><p style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 900, color: ACCENT, letterSpacing: "-0.3px" }}>{resultado.nome} · {fmt(resultado.preco)}</p></>
+                    : <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a linha laranja é a sua sorte</p>}
                 </div>
-                <button onClick={spin} disabled={spinning} style={{ width: "100%", padding: 14, border: "none", borderRadius: 999, background: ACCENT, color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: spinning ? "wait" : "pointer", fontFamily: FONT, letterSpacing: "-0.2px" }}>
-                  {spinning ? "Rolando…" : resultado ? "Puxar de novo" : "Puxar a alavanca"}
-                </button>
+                {spinsUsed < MAX_GIROS && (
+                  <button onClick={spin} disabled={spinning} style={{ width: "100%", padding: 14, border: "none", borderRadius: 999, background: ACCENT, color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: spinning ? "wait" : "pointer", fontFamily: FONT, letterSpacing: "-0.2px" }}>
+                    {spinning ? "Girando…" : spinsUsed === 0 ? "Girar" : "Usar o último giro"}
+                  </button>
+                )}
                 {resultado && !spinning && (
-                  <button onClick={() => onSelectProduto(resultado)} style={{ width: "100%", marginTop: 9, padding: 12, border: "1px solid var(--border-strong)", borderRadius: 999, background: "transparent", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>
+                  <button onClick={() => onSelectProduto(resultado)} style={{ width: "100%", marginTop: 9, padding: 13, border: "1px solid var(--border-strong)", borderRadius: 999, background: "transparent", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>
                     Pedir {resultado.nome} →
                   </button>
                 )}
