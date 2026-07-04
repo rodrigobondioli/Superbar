@@ -9,6 +9,7 @@ import {
   salvarProdutosImportados,
   salvarCustosProdutos,
 } from "@/lib/cardapio/import-actions";
+import { ClassicosPicker } from "@/components/cardapio/classicos-picker";
 import type { ProdutoPreview, ProdutoSalvo, ImportarResponse } from "@/lib/cardapio/import-types";
 
 // ─── Estilos compartilhados ───────────────────────────────────────────────────
@@ -64,7 +65,7 @@ const currency = new Intl.NumberFormat("pt-BR", {
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-type Step = "criar-bar" | "importar" | "preview" | "custos";
+type Step = "criar-bar" | "importar" | "classicos" | "preview" | "custos";
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
@@ -466,17 +467,38 @@ export default function OnboardingPage() {
 
               <button
                 type="button"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => setStep("classicos")}
                 style={{
                   ...btnGhost,
                   textAlign: "center",
                   fontSize: "13px",
+                  color: "var(--fg)",
                 }}
               >
-                Pular — vou cadastrar manual →
+                Não tenho arquivo — escolher dos clássicos →
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard")}
+                style={{
+                  ...btnGhost,
+                  textAlign: "center",
+                  fontSize: "12px",
+                }}
+              >
+                Pular — cadastrar manual
               </button>
             </div>
           </>
+        )}
+
+        {/* ── STEP B: Clássicos ─────────────────────────────────────────────── */}
+        {step === "classicos" && (
+          <ClassicosPicker
+            onDone={() => router.push("/dashboard")}
+            onSkip={() => setStep("importar")}
+          />
         )}
 
         {/* ── STEP 3: Preview ───────────────────────────────────────────────── */}
