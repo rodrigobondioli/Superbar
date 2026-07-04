@@ -200,10 +200,21 @@ function VarianteRow({ variante, produtoId, produtoNome }: { variante: ProdutoVa
       <span style={{ fontSize: 12, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums" }}>
         {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(variante.preco)}
       </span>
+      <button
+        type="button"
+        onClick={() => setFichaOpen(true)}
+        style={{
+          display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+          background: "var(--bg-card-hi)", border: "none", borderRadius: 999,
+          padding: "5px 12px", color: "var(--fg-muted)", fontSize: 12, fontWeight: 500,
+          cursor: "pointer",
+        }}
+        title="Ficha técnica / custo"
+      >
+        <FlaskConical style={{ width: 12, height: 12 }} />
+        <span className="hidden sm:inline">Ficha</span>
+      </button>
       <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
-        <button type="button" onClick={() => setFichaOpen(true)} style={iconBtn} title="Ficha técnica">
-          <FlaskConical style={{ width: 12, height: 12 }} />
-        </button>
         <button type="button" onClick={() => setEditing(true)} style={iconBtn} title="Editar">
           <Pencil style={{ width: 12, height: 12 }} />
         </button>
@@ -463,13 +474,25 @@ function ProdutoRow({
           {currency.format(produto.preco)}
         </span>
 
+        {/* Ficha — sempre visível (feature-chave). Com variantes, abre o painel
+            (a ficha é por variante); sem variantes, abre o editor do produto. */}
+        <button
+          type="button"
+          onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
+          style={{
+            display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+            background: "var(--bg-card-hi)", border: "none", borderRadius: 999,
+            padding: "7px 14px", color: "var(--fg-muted)", fontSize: 13, fontWeight: 500,
+            cursor: "pointer",
+          }}
+          title="Ficha técnica / custo"
+        >
+          <FlaskConical style={{ width: 13, height: 13 }} />
+          <span className="hidden sm:inline">Ficha</span>
+        </button>
+
         {/* Actions — always visible on mobile, hover-only on desktop */}
         <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
-          {variantes.length === 0 && (
-            <button onClick={() => setFichaOpen(true)} style={iconBtn} title="Ficha técnica">
-              <FlaskConical style={{ width: 13, height: 13 }} />
-            </button>
-          )}
           <button onClick={() => setEditing(true)} style={iconBtn} title="Editar">
             <Pencil style={{ width: 13, height: 13 }} />
           </button>
