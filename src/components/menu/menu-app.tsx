@@ -969,12 +969,15 @@ const VIBE_KW: Record<string, string[]> = {
 };
 
 function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaComProdutos[]): Produto[] {
-  let pool = ativos;
-  if (norm(picks[0] ?? "").includes("sem alcool")) {
-    const semAlc = cardapio.filter((c) => norm(c.nome).includes("nao alco") || norm(c.nome).includes("sem alco"));
-    const ids = new Set(semAlc.flatMap((c) => c.produtos.map((p) => p.id)));
-    if (ids.size > 0) pool = ativos.filter((p) => ids.has(p.id));
-  }
+  const catN = new Map(cardapio.map((c) => [c.id, norm(c.nome)]));
+  const semAlcool = norm(picks[0] ?? "").includes("sem alcool");
+  let pool = ativos.filter((p) => {
+    const n = catN.get(p.categoria_id ?? "") ?? "";
+    if (n.includes("petisco") || n.includes("comida") || n.includes("porcao")) return false; // nunca comida
+    const naoAlc = n.includes("nao alco") || n.includes("sem alco");
+    return semAlcool ? naoAlc : !naoAlc;
+  });
+  if (pool.length === 0) pool = ativos;
   const kw = VIBE_KW[norm(picks[1] ?? "")] ?? [];
   const scored = pool.map((p) => {
     const hay = norm(`${p.nome} ${p.descricao ?? ""}`);
@@ -987,7 +990,7 @@ function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaC
 }
 
 function HomeScreen({
-  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, cartCount, onCart, onSelectCategoria, onSelectProduto,
+  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, topPedidos, cartCount, onCart, onSelectCategoria, onSelectProduto,
 }: {
   cliente: ClienteLocal | null;
   mesaLabel: string;
@@ -996,19 +999,35 @@ function HomeScreen({
   cardapio: CategoriaComProdutos[];
   allProdutos: Produto[];
   ultimoProduto: Produto | null;
+  topPedidos: string[];
   cartCount: number;
   onCart: () => void;
   onSelectCategoria: (cat: CategoriaComProdutos) => void;
   onSelectProduto: (p: Produto) => void;
 }) {
   const ativos = allProdutos.filter((p) => p.ativo);
-  const pool = ativos.slice(0, 12);
+  const catNome = new Map(cardapio.map((c) => [c.id, norm(c.nome)]));
+  const badgeDrink = (p: Produto): string => {
+    const n = catNome.get(p.categoria_id ?? "") ?? "";
+    return n.includes("autoral") ? "Autoral" : n.includes("classic") ? "Clássico" : "Assinatura da casa";
+  };
+  const ehAlcoolico = (p: Produto): boolean => {
+    const n = catNome.get(p.categoria_id ?? "") ?? "";
+    if (n.includes("petisco") || n.includes("comida") || n.includes("porcao")) return false;
+    if (n.includes("nao alco") || n.includes("sem alco")) return false;
+    return true;
+  };
+  const pool = ativos.filter(ehAlcoolico).slice(0, 12);
   const sugestoes = ativos.filter((p) => p.id !== ultimoProduto?.id);
   const destaques = ativos.filter((p) => p.destaque);
   const featBase = destaques.length > 0
     ? destaques
     : (sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes);
   const featured = featBase.slice(0, 6);
+  const topDrinks = topPedidos
+    .map((id) => ativos.find((p) => p.id === id))
+    .filter((p): p is Produto => !!p)
+    .slice(0, 5);
   const N = pool.length;
   const rowH = 64;
   const copies = 24;
@@ -1100,7 +1119,7 @@ function HomeScreen({
               <div style={{ width: 52, height: 52, borderRadius: 12, background: ultimoProduto.imagem_url ? `url(${ultimoProduto.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>{ultimoProduto.imagem_url ? "" : "🍸"}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ultimoProduto.nome}</p>
-                <p style={{ margin: "2px 0 0", fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(ultimoProduto.preco)}</p>
+                {ultimoProduto.descricao && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ultimoProduto.descricao}</p>}
               </div>
               <span style={{ background: ACCENT, color: "var(--accent-fg)", borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 800, flexShrink: 0 }}>De novo →</span>
             </button>
@@ -1113,15 +1132,12 @@ function HomeScreen({
           return (
             <div style={{ marginBottom: 24 }}>
               <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{destaques.length === 0 && ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-              <button onClick={() => onSelectProduto(hero)} style={{ position: "relative", width: "100%", height: 232, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD }}>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 6%, color-mix(in srgb, var(--bg) 30%, transparent) 48%, transparent 80%)" }} />
-                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Assinatura da casa</span>
-                <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, textAlign: "left" }}>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.nome}</p>
-                    {hero.descricao && <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--fg-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hero.descricao}</p>}
-                  </div>
-                  <span style={{ fontSize: 17, fontWeight: 900, color: ACCENT, flexShrink: 0 }}>{fmt(hero.preco)}</span>
+              <button onClick={() => onSelectProduto(hero)} style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
+                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{badgeDrink(hero)}</span>
+                <div style={{ position: "relative", padding: 16, textAlign: "left" }}>
+                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.nome}</p>
+                  {hero.descricao && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.45 }}>{hero.descricao}</p>}
                 </div>
               </button>
               {featured.length > 1 && (
@@ -1200,7 +1216,7 @@ function HomeScreen({
                 </div>
                 <div style={{ minHeight: 22, margin: "14px 0 14px", textAlign: "center" }}>
                   {resultado
-                    ? <><p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a casa arriscou</p><p style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 900, color: ACCENT, letterSpacing: "-0.3px" }}>{resultado.nome} · {fmt(resultado.preco)}</p></>
+                    ? <><p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a casa arriscou</p><p style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 900, color: ACCENT, letterSpacing: "-0.3px" }}>{resultado.nome}</p></>
                     : <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>a linha laranja é a sua sorte</p>}
                 </div>
                 {spinsUsed < MAX_GIROS && (
@@ -1240,7 +1256,6 @@ function HomeScreen({
                           <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--fg)" }}>{p.nome}</p>
                           <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.descricao ?? "sugestão da casa"}</p>
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg-muted)", flexShrink: 0 }}>{fmt(p.preco)}</span>
                       </button>
                     ))}
                     <button onClick={() => { setStep(0); setPicks([]); }} style={{ width: "100%", textAlign: "center", padding: 10, background: "none", border: "none", color: ACCENT, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>Recomeçar</button>
@@ -1248,6 +1263,25 @@ function HomeScreen({
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Top 5 mais pedidos (dado real das vendas) */}
+        {topDrinks.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Os mais pedidos</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {topDrinks.map((p, i) => (
+                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: CARD2, borderRadius: 14, padding: 12, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: ACCENT, width: 22, flexShrink: 0, textAlign: "center" }}>{i + 1}</span>
+                  <div style={{ width: 44, height: 44, borderRadius: 11, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
+                    {p.descricao && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.descricao}</p>}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -1263,9 +1297,13 @@ function HomeScreen({
             });
           }}
           disabled={chamando}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: 15, borderRadius: 16, border: chamado ? "1px solid color-mix(in srgb, var(--ok) 40%, transparent)" : "1px solid var(--border-strong)", background: chamado ? "color-mix(in srgb, var(--ok) 12%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 800, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, borderRadius: 8, border: "none", background: chamado ? "color-mix(in srgb, var(--ok) 14%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 700, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
         >
-          {chamado ? "✓ Garçom a caminho" : chamando ? "Chamando…" : "🛎  Chamar o garçom"}
+          {chamado ? (
+            <><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Garçom a caminho</>
+          ) : chamando ? "Chamando…" : (
+            <><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg> Chamar o garçom</>
+          )}
         </button>
         {chamarErro && <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>{chamarErro}</p>}
 
@@ -1279,10 +1317,12 @@ export function MenuApp({
   bar,
   mesa,
   cardapio,
+  topPedidos = [],
 }: {
   bar: Bar;
   mesa: Mesa;
   cardapio: CategoriaComProdutos[];
+  topPedidos?: string[];
 }) {
   const [screen, setScreen] = useState<Screen>("splash");
   const [cliente, setCliente] = useState<ClienteLocal | null>(null);
@@ -1361,6 +1401,7 @@ export function MenuApp({
           cardapio={cardapio}
           allProdutos={allProdutos}
           ultimoProduto={ultimoProduto}
+          topPedidos={topPedidos}
           cartCount={cartCount}
           onCart={() => setScreen("cart")}
           onSelectCategoria={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}

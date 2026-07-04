@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { MenuApp } from "@/components/menu/menu-app";
+import { getTopPedidos } from "@/lib/menu/queries";
 import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
 
 interface Props {
@@ -54,5 +55,7 @@ export default async function MenuPage({ params }: Props) {
     }))
     .filter((cat) => cat.produtos.length > 0);
 
-  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} />;
+  const topPedidos = await getTopPedidos(bar.id);
+
+  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} />;
 }
