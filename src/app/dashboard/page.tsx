@@ -1,6 +1,5 @@
-import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
-import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
+import { OperacaoAoVivo, type Periodo, type PeriodView } from "@/components/dashboard/operacao-ao-vivo";
 import {
   getCurrentBar,
   getTurnoAtual,
@@ -37,37 +36,6 @@ function capitalizarPrimeiraLetra(texto: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-// Triângulo preenchido (estilo material arrow-drop-up), igual ao Figma.
-function Tri({ up, color }: { up: boolean; color: string }) {
-  return (
-    <svg width="11" height="9" viewBox="0 0 11 9" style={{ flexShrink: 0 }} aria-hidden>
-      <path d={up ? "M5.5 0 L11 9 L0 9 Z" : "M5.5 9 L11 0 L0 0 Z"} fill={color} />
-    </svg>
-  );
-}
-
-// Prefixo "R$" menor que o número (dimensiona com a fonte do valor).
-function Cifrao() {
-  return <span style={{ fontSize: "0.42em", fontWeight: 600, color: "var(--fg-muted)", marginRight: "0.16em", letterSpacing: 0, verticalAlign: "baseline" }}>R$</span>;
-}
-
-// Delta vs. período anterior (▲/▼ + cor semântica). invert=true → subir é ruim (ex: CMV).
-function DeltaRow({ value, invert = false }: { value: number | null | undefined; invert?: boolean }) {
-  if (value === null || value === undefined) return null;
-  const up = value >= 0;
-  const good = invert ? !up : up;
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
-      <Tri up={up} color={good ? "var(--accent)" : "var(--danger)"} />
-      <span style={{ color: "var(--fg)" }}>
-        {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
-      </span>
-    </div>
-  );
-}
-
-const superLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
-
 const overline: React.CSSProperties = {
   fontSize: "0.7rem",
   fontWeight: 500,
@@ -83,23 +51,7 @@ const card: React.CSSProperties = {
   padding: "20px 24px",
 };
 
-const kpiCard: React.CSSProperties = {
-  background: "var(--bg-card)",
-  border: "1px solid var(--border)",
-  borderRadius: 24,
-  padding: 32,
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-};
-const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
-const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
-const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginBottom: 11 };
-
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ periodo?: string }> }) {
-  const sp = await searchParams;
-  const periodo: "hoje" | "ontem" | "7dias" = sp?.periodo === "ontem" ? "ontem" : sp?.periodo === "7dias" ? "7dias" : "hoje";
-
+export default async function DashboardPage() {
   const current = await getCurrentBar();
   if (!current) return null;
 
@@ -530,209 +482,49 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const impactoEstimado = insightsSorted[0]?.impactoReais ?? null;
   const horasTurno = Math.max((Date.now() - new Date(turno.aberto_em).getTime()) / 3_600_000, 0.5);
 
-  // ── Simulação de período (DEMO) — "hoje" usa dados reais; ontem/7 dias são fictícios ──
+  // ── Períodos (DEMO): "hoje" usa dados reais; ontem/7 dias são simulados. ──
+  // Os 3 são pré-calculados aqui no servidor; o cliente troca sem ida ao servidor.
   const drinksHoraBase = Math.max(1, Math.round(liveStats.drinks / horasTurno));
-  const SIM = {
-    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase,        petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)), cmv: 34, deltaFat: -15.8, deltaCmv: 18,   deltaTicket: 26.3 },
+  const SIM_MAP = {
+    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase, petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)), cmv: 34, deltaFat: -15.8, deltaCmv: 18,   deltaTicket: 26.3 },
     ontem:  { fator: 0.86, ticketMul: 0.94, labelFat: "Faturado ontem",    drinksHora: 47, petiscosHora: 19, maiorComanda: 312, cmv: 37, deltaFat: 8.2,   deltaCmv: -3.5, deltaTicket: 11.5 },
     "7dias":{ fator: 6.3,  ticketMul: 1.05, labelFat: "Faturado (7 dias)", drinksHora: 52, petiscosHora: 22, maiorComanda: 548, cmv: 33, deltaFat: 12.4,  deltaCmv: 5.2,  deltaTicket: 9.1 },
-  }[periodo];
+  } as const;
 
-  const faturamentoView = Math.round(kpis.faturamento * SIM.fator);
-  const ticketView = Math.round(kpis.ticketMedio * SIM.ticketMul);
-  const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturamentoView / meta) * 100)) : metaProgresso;
-  const impactoView = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
-  const cmvView = periodo === "hoje" && cmvAtual !== null ? Math.round(cmvAtual) : SIM.cmv;
-  const margemView = 100 - cmvView;
-  const vereditoView = margemView >= 60 ? { txt: "Saudável", cor: "var(--ok)" } : margemView >= 45 ? { txt: "Atenção", cor: "var(--warn)" } : { txt: "Baixa", cor: "var(--danger)" };
-
-  // Top drinks (DEMO) — total gerado por drink no turno + quantidade vendida.
-  // Nome e preço unitário são reais; volume é simulado com dispersão e escala com o período.
-  // Quando o bar for real, trocar por getProdutosVendidosPeriodo (já traz quantidadeVendida real).
   const topShares = [1, 0.83, 0.64, 0.47, 0.36, 0.28];
   const topTopo = 720; // R$ do 1º colocado (hoje)
-  const topDrinksView = produtosTop5.slice(0, 6).map((p, i) => {
-    const total = Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22));
-    const precoUnit = p.quantidadeVendida > 0 ? p.faturamento / p.quantidadeVendida : (p.faturamento || 25);
-    const qtd = Math.max(1, Math.round(total / Math.max(precoUnit, 5)));
-    return { nome: p.produtoNome, total, qtd };
-  });
+
+  function buildView(p: Periodo): PeriodView {
+    const SIM = SIM_MAP[p];
+    const faturado = Math.round(kpis.faturamento * SIM.fator);
+    const ticket = Math.round(kpis.ticketMedio * SIM.ticketMul);
+    const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturado / meta) * 100)) : metaProgresso;
+    const impacto = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
+    const cmv = p === "hoje" && cmvAtual !== null ? Math.round(cmvAtual) : SIM.cmv;
+    const margem = 100 - cmv;
+    const veredito = margem >= 60 ? { txt: "Saudável", cor: "var(--ok)" } : margem >= 45 ? { txt: "Atenção", cor: "var(--warn)" } : { txt: "Baixa", cor: "var(--danger)" };
+    const topDrinks = produtosTop5.slice(0, 6).map((prod, i) => {
+      const total = Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22));
+      const precoUnit = prod.quantidadeVendida > 0 ? prod.faturamento / prod.quantidadeVendida : (prod.faturamento || 25);
+      const qtd = Math.max(1, Math.round(total / Math.max(precoUnit, 5)));
+      return { nome: prod.produtoNome, total, qtd };
+    });
+    return { labelFat: SIM.labelFat, faturado, deltaFat: SIM.deltaFat, metaProgresso: metaProgressoView, margem, veredito, cmv, deltaCmv: SIM.deltaCmv, ticket, deltaTicket: SIM.deltaTicket, drinksHora: SIM.drinksHora, petiscosHora: SIM.petiscosHora, maiorComanda: SIM.maiorComanda, impacto, topDrinks };
+  }
+
+  const views: Record<Periodo, PeriodView> = { hoje: buildView("hoje"), ontem: buildView("ontem"), "7dias": buildView("7dias") };
+  const superPrimeiro = produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? produtosTop5[0] : null;
 
   return (
-    <div style={{
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      padding: "14px 32px 16px",
-      gap: 12,
-      overflow: "hidden",
-      boxSizing: "border-box",
-    }}>
-
-      {/* ══ HEADER: Operação ao vivo + períodos ══════════════════════════ */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
-        <PeriodoSelector periodo={periodo} />
-      </div>
-
-      {/* ══ ROW 1: KPI CARDS (Figma) ═════════════════════════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 16, flexShrink: 0 }}>
-
-        {/* Faturado no turno — spec exata do Figma (532×238, r24, pad32) */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>{SIM.labelFat}</span>
-          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{faturamentoView.toLocaleString("pt-BR")}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
-            <Tri up={SIM.deltaFat >= 0} color={SIM.deltaFat >= 0 ? "var(--accent)" : "var(--danger)"} />
-            <span style={{ color: "var(--fg)" }}>
-              {Math.abs(SIM.deltaFat).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {SIM.deltaFat >= 0 ? "maior" : "menor"} vs. sem. passada
-            </span>
-          </div>
-          {/* barra de progresso (linha fina — faz o papel de separador) */}
-          <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
-            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${metaProgressoView}%` }} />
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
-            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
-            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{metaProgressoView}%</span>
-          </div>
-        </div>
-
-        {/* Margem */}
-        <div style={kpiCard}>
-          <div>
-            <span style={kpiLabel}>Margem</span>
-            <span style={kpiMetric}>{margemView}%</span>
-          </div>
-          <div>
-            <div style={kpiDivider} />
-            <span style={{ fontSize: 15, fontWeight: 400, color: vereditoView.cor }}>{vereditoView.txt}</span>
-          </div>
-        </div>
-
-        {/* Custo (CMV) */}
-        <div style={kpiCard}>
-          <div>
-            <span style={kpiLabel}>Custo (CMV)</span>
-            <span style={kpiMetric}>{cmvView}%</span>
-          </div>
-          <div>
-            <div style={kpiDivider} />
-            <DeltaRow value={SIM.deltaCmv} invert />
-          </div>
-        </div>
-
-        {/* Ticket Médio */}
-        <div style={kpiCard}>
-          <div>
-            <span style={kpiLabel}>Ticket Médio</span>
-            <span style={kpiMetric}><Cifrao />{ticketView.toLocaleString("pt-BR")}</span>
-          </div>
-          <div>
-            <div style={kpiDivider} />
-            <DeltaRow value={SIM.deltaTicket} />
-          </div>
-        </div>
-      </div>
-
-      {/* ══ ROW 2: STAT PILLS ════════════════════════════════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, flexShrink: 0 }}>
-        {[
-          { label: "Drinks por hora", value: String(SIM.drinksHora) },
-          { label: "Petiscos por hora", value: String(SIM.petiscosHora) },
-          { label: "Mesas abertas agora", value: String(kpis.comandasAbertas) },
-          { label: "Maior valor de comanda", value: `R$ ${SIM.maiorComanda.toLocaleString("pt-BR")}` },
-        ].map((s) => (
-          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
-              <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--warn)" }} />
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* ══ ROW 3: AI + SUPER AÇÃO (esq) · TOP DRINKS (dir) ═══════════════ */}
-      <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
-
-        {/* LEFT column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
-
-          <AiHeroInput fill barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
-
-          {produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, display: "flex", alignItems: "stretch", gap: 32, flexShrink: 0 }}>
-
-              {/* Seção 1 — Super ação */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: "0 0 auto", minWidth: 150 }}>
-                <span style={superLabel}>Super ação</span>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{produtosTop5[0].produtoNome}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
-                    <Tri up color="var(--ok)" />
-                    <span style={{ color: "var(--fg-muted)" }}>{Math.round(produtosTop5[0].margemPercentual)}% de margem</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
-
-              {/* Seção 2 — texto do meio */}
-              <div style={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
-                <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>Apareceu pouco hoje. Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
-              </div>
-
-              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
-
-              {/* Seção 3 — Impacto direto */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: 167 }}>
-                <span style={superLabel}>Impacto direto</span>
-                {impactoEstimado !== null && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{(impactoView ?? 0).toLocaleString("pt-BR")}</span>
-                    </div>
-                    <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT: Top drinks — spec exata do Figma (Frame 162: r24, pad 24/32/32/32) */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0, overflow: "hidden" }}>
-          <div>
-          <span style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {topDrinksView.map((p, i) => {
-              const max = topDrinksView[0]?.total || 1;
-              const pct = Math.max(6, Math.round((p.total / max) * 100));
-              return (
-                <div key={p.nome + i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-                    <span style={{ fontSize: 15, color: "var(--fg)", display: "flex", gap: 8, minWidth: 0 }}>
-                      <span style={{ color: "var(--fg-muted)", flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome} <span style={{ color: "var(--fg-muted)" }}>({p.qtd})</span></span>
-                    </span>
-                    <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
-                  </div>
-                  <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                    <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transformOrigin: "left", animation: "barGrow 0.85s cubic-bezier(0.22,1,0.36,1) both", animationDelay: `${i * 90}ms` }} />
-                  </div>
-                </div>
-              );
-            })}
-            {produtosTop5.length === 0 && (
-              <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>Sem vendas registradas ainda.</p>
-            )}
-          </div>
-          </div>
-          <a href={`/dashboard/turnos/${turno.id}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</a>
-        </div>
-      </div>
-
-    </div>
+    <OperacaoAoVivo
+      views={views}
+      meta={meta}
+      comandasAbertas={kpis.comandasAbertas}
+      superNome={superPrimeiro ? superPrimeiro.produtoNome : null}
+      superMargem={superPrimeiro ? superPrimeiro.margemPercentual : null}
+      barId={current.bar.id}
+      alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0}
+      turnoId={turno.id}
+    />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef, useEffect, Fragment } from "react";
 import type { Lead } from "@/lib/admin/queries";
 import { updateLead, deleteLead } from "@/lib/admin/actions";
 import { createClient } from "@/lib/supabase/client";
@@ -80,20 +80,33 @@ function OrigemChip({ origem }: { origem: string | null }) {
   );
 }
 
+// ─── Ordenação manual ──────────────────────────────────────────────────────────
+
+function ordemOf(l: Lead): number {
+  return l.ordem ?? Date.parse(l.created_at);
+}
+
+// Linha fina que indica onde o card vai cair.
+function InsertLine() {
+  return <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", margin: "1px 2px" }} />;
+}
+
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 function LeadCard({
-  lead, onClick, onDragStart, isDragging,
+  lead, onClick, onDragStart, onDragEnd, isDragging,
 }: {
   lead: Lead;
   onClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
   isDragging: boolean;
 }) {
   return (
     <div
       draggable
       onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       onClick={onClick}
       style={{
         background: "var(--bg-card)",
@@ -427,6 +440,7 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ stage: string; beforeId: string | null } | null>(null);
   const [, startTransition] = useTransition();
 
   const selectedLead = selectedId ? (leads.find(l => l.id === selectedId) ?? null) : null;
@@ -473,18 +487,54 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
   function handleDragEnd() {
     setDraggingId(null);
     setDragOverStage(null);
+    setDropTarget(null);
+  }
+
+  // Enquanto arrasta por cima de um card, decide se a inserção fica antes ou depois dele.
+  function handleCardOver(e: React.DragEvent, stageId: string, lead: Lead, idx: number, list: Lead[]) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (lead.id === draggingId) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const before = e.clientY < rect.top + rect.height / 2;
+    let nextId = list[idx + 1]?.id ?? null;
+    if (nextId === draggingId) nextId = list[idx + 2]?.id ?? null;
+    setDragOverStage(stageId);
+    setDropTarget({ stage: stageId, beforeId: before ? lead.id : nextId });
   }
 
   function handleDrop(e: React.DragEvent, stageId: string) {
     e.preventDefault();
     const id = e.dataTransfer.getData("text/plain") || draggingId;
+    const target = dropTarget;
     setDraggingId(null);
     setDragOverStage(null);
+    setDropTarget(null);
     if (!id) return;
     const lead = leads.find(l => l.id === id);
-    if (!lead || lead.status === stageId) return;
-    setLeads(prev => prev.map(l => l.id === id ? { ...l, status: stageId } : l));
-    startTransition(async () => { await updateLead(id, { status: stageId }); });
+    if (!lead) return;
+
+    // Coluna destino, como aparece na tela, sem o card arrastado.
+    const without = leads
+      .filter(l => l.status === stageId && l.id !== id)
+      .sort((a, b) => ordemOf(b) - ordemOf(a));
+
+    const beforeId = target && target.stage === stageId ? target.beforeId : null;
+    let at = beforeId ? without.findIndex(l => l.id === beforeId) : without.length;
+    if (at < 0) at = without.length;
+
+    const above = without[at - 1]; // acima → ordem maior
+    const below = without[at];     // abaixo → ordem menor
+    let novaOrdem: number;
+    if (!above && !below) novaOrdem = Date.now();
+    else if (!above) novaOrdem = ordemOf(below) + 1000;
+    else if (!below) novaOrdem = ordemOf(above) - 1000;
+    else novaOrdem = (ordemOf(above) + ordemOf(below)) / 2;
+
+    if (lead.status === stageId && lead.ordem === novaOrdem) return;
+
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status: stageId, ordem: novaOrdem } : l));
+    startTransition(async () => { await updateLead(id, { status: stageId, ordem: novaOrdem }); });
   }
 
   function handleLeadUpdate(updated: Lead) {
@@ -504,7 +554,7 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
         overflowX: "auto", paddingBottom: 16, minHeight: "calc(100vh - 200px)",
       }}>
         {STAGES.map(stage => {
-          const stageLeads = leads.filter(l => l.status === stage.id);
+          const stageLeads = leads.filter(l => l.status === stage.id).sort((a, b) => ordemOf(b) - ordemOf(a));
           const isOver = dragOverStage === stage.id;
 
           return (
@@ -552,15 +602,21 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
               </div>
 
               {/* Cards */}
-              {stageLeads.map(lead => (
-                <LeadCard
-                  key={lead.id}
-                  lead={lead}
-                  isDragging={draggingId === lead.id}
-                  onClick={() => setSelectedId(lead.id)}
-                  onDragStart={e => handleDragStart(e, lead.id)}
-                />
+              {stageLeads.map((lead, idx) => (
+                <Fragment key={lead.id}>
+                  {dropTarget?.stage === stage.id && dropTarget.beforeId === lead.id && <InsertLine />}
+                  <div onDragOver={e => handleCardOver(e, stage.id, lead, idx, stageLeads)}>
+                    <LeadCard
+                      lead={lead}
+                      isDragging={draggingId === lead.id}
+                      onClick={() => setSelectedId(lead.id)}
+                      onDragStart={e => handleDragStart(e, lead.id)}
+                      onDragEnd={handleDragEnd}
+                    />
+                  </div>
+                </Fragment>
               ))}
+              {dropTarget?.stage === stage.id && dropTarget.beforeId === null && stageLeads.length > 0 && <InsertLine />}
 
               {stageLeads.length === 0 && (
                 <div style={{ padding: "24px 8px", textAlign: "center", color: "var(--fg-subtle)", fontSize: 11, opacity: 0.4 }}>

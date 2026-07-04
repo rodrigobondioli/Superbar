@@ -84,6 +84,7 @@ export async function createLeadAdmin(payload: {
     notas: payload.notas?.trim() || null,
     status: "novo",
     origem: "Prospecção ativa", // ativo — você foi atrás
+    ordem: Date.now(),          // entra no topo da coluna
   });
   if (error) return { error: error.message };
   revalidatePath("/admin/leads");
@@ -100,6 +101,7 @@ export async function updateLead(
     nome_responsavel: string | null; email: string | null;
     status: string; notas: string | null;
     follow_up_at: string | null; origem: string | null;
+    ordem: number | null;
   }>
 ): Promise<{ ok: true } | { error: string }> {
   await assertAdmin();
