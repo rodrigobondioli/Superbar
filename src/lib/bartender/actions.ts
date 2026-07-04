@@ -353,6 +353,7 @@ export async function criarPedido(
       quantidade:               1,
       preco_unitario:           item.preco,
       preco_total:              item.preco,
+      observacao:               item.observacao?.trim() || null,
       adicionado_por:           current.userId,
       adicionado_por_member_id: current.memberId,
     }))

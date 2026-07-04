@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { X, Building2, User, Target, Smartphone, Tablet, Copy, RotateCcw, Check } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
-import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, atualizarTaxaServico, type ActionResult } from "@/lib/settings/actions";
+import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, atualizarFluxoPronto, atualizarTaxaServico, type ActionResult } from "@/lib/settings/actions";
 import { signOut } from "@/lib/auth/actions";
 import { getKioskSetupLink, regenerarToken } from "@/lib/kiosk/actions";
 import type { Bar } from "@/types/database";
@@ -324,9 +324,11 @@ function MinhaConta({
 
 // ─── Operação Section ────────────────────────────────────────────────────────
 
-function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string; autoPedido: boolean; taxaServicoPct: number }) {
+function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { barId: string; autoPedido: boolean; fluxoPronto: boolean; taxaServicoPct: number }) {
   const [enabled, setEnabled]       = useState(autoPedido);
   const [saving, setSaving]         = useState(false);
+  const [pronto, setPronto]         = useState(fluxoPronto);
+  const [prontoSaving, setProntoSaving] = useState(false);
   const [taxa, setTaxa]             = useState(String(taxaServicoPct));
   const [taxaSaving, setTaxaSaving] = useState(false);
   const [taxaFeedback, setTaxaFeedback] = useState<ActionResult>(null);
@@ -337,6 +339,14 @@ function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string;
     setSaving(true);
     await atualizarAutoPedido(barId, next);
     setSaving(false);
+  }
+
+  async function handleProntoToggle() {
+    const next = !pronto;
+    setPronto(next);
+    setProntoSaving(true);
+    await atualizarFluxoPronto(barId, next);
+    setProntoSaving(false);
   }
 
   async function handleTaxaSave() {
@@ -408,6 +418,24 @@ function OperacaoSection({ barId, autoPedido, taxaServicoPct }: { barId: string;
             transition: "left 200ms",
             display: "block",
           }} />
+        </button>
+      </div>
+
+      {/* Toggle fluxo_pronto */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", marginTop: 10, background: "var(--bg-inset)", borderRadius: 6, gap: 16 }}>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: "0 0 3px" }}>
+            Garçom retira o drink pronto
+          </p>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
+            {pronto
+              ? "O bartender marca “pronto” e o garçom é avisado para retirar. Ideal quando o garçom leva o drink."
+              : "O bartender entrega direto, sem o passo “pronto”. Ideal para balcão/autoatendimento."}
+          </p>
+        </div>
+        <button type="button" role="switch" aria-checked={pronto} onClick={handleProntoToggle} disabled={prontoSaving}
+          style={{ flexShrink: 0, width: 44, height: 24, borderRadius: 12, border: "none", cursor: prontoSaving ? "default" : "pointer", background: pronto ? "var(--accent)" : "rgba(255,255,255,0.15)", position: "relative", transition: "background 200ms", opacity: prontoSaving ? 0.7 : 1 }}>
+          <span style={{ position: "absolute", top: 3, left: pronto ? 23 : 3, width: 18, height: 18, borderRadius: "50%", background: "#ffffff", transition: "left 200ms", display: "block" }} />
         </button>
       </div>
 
@@ -674,7 +702,7 @@ export function SettingsPanel({
           {/* Divider */}
           <div style={{ height: 1, background: "var(--border)" }} />
 
-          <OperacaoSection barId={barId} autoPedido={autoPedido} taxaServicoPct={taxaServicoPct} />
+          <OperacaoSection barId={barId} autoPedido={autoPedido} fluxoPronto={bar.configuracoes?.fluxo_pronto ?? true} taxaServicoPct={taxaServicoPct} />
 
           {/* Divider */}
           <div style={{ height: 1, background: "var(--border)" }} />

@@ -71,6 +71,7 @@ export interface Bar {
     meta_mensal?: number;
     meta_anual?: number;
     auto_pedido?: boolean;
+    fluxo_pronto?: boolean;      // true (default) = bartender marca pronto + garçom retira
     taxa_servico_pct?: number;   // ex: 10 (= 10%) — 0 ou undefined = taxa desativada
   };
   ativo: boolean;
@@ -334,6 +335,7 @@ export interface CartItem {
   variante_nome: string | null;
   preco: number;
   quantidade: number;
+  observacao?: string;
 }
 
 // ─── Pedidos de cliente (auto_pedido via menu) ───────────────────────────────

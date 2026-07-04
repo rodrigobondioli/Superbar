@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { iniciarPedido, marcarPronto } from "@/lib/bartender/actions";
+import { iniciarPedido, marcarPronto, entregarPedido } from "@/lib/bartender/actions";
 
 // ─── Alerta sonoro / háptico ──────────────────────────────────────────────────
 
@@ -38,6 +38,7 @@ interface ItemDoPedido {
   produto_id: string;
   quantidade: number;
   produto_nome: string;
+  observacao: string | null;
 }
 
 interface PedidoCard {
@@ -78,7 +79,7 @@ function agregarItens(raw: ItemDoPedido[]): ItemDoPedido[] {
   const map = new Map<string, ItemDoPedido>();
   for (const it of raw) {
     const ex = map.get(it.produto_nome);
-    if (ex) ex.quantidade += it.quantidade;
+    if (ex) { ex.quantidade += it.quantidade; if (!ex.observacao && it.observacao) ex.observacao = it.observacao; }
     else map.set(it.produto_nome, { ...it });
   }
   return [...map.values()];
@@ -95,7 +96,7 @@ async function itensDoPedido(ids: string[]): Promise<Map<string, ItemDoPedido[]>
   const supabase = createClient();
   const { data } = await supabase
     .from("comanda_items")
-    .select("pedido_id, quantidade, produto_id, produtos ( nome )")
+    .select("pedido_id, quantidade, produto_id, observacao, produtos ( nome )")
     .in("pedido_id", ids)
     .eq("status", "ativo");
   const byPedido = new Map<string, ItemDoPedido[]>();
@@ -106,6 +107,7 @@ async function itensDoPedido(ids: string[]): Promise<Map<string, ItemDoPedido[]>
       produto_id: it.produto_id as string,
       quantidade: it.quantidade as number,
       produto_nome: (it.produtos as unknown as { nome: string } | null)?.nome ?? "Produto",
+      observacao: (it.observacao as string | null) ?? null,
     });
     byPedido.set(pid, lista);
   }
@@ -154,6 +156,26 @@ async function fetchFicha(barId: string, produtoId: string): Promise<InsumoLinha
   return linhas.length ? linhas : null;
 }
 
+interface FeitoCard { id: string; pessoa: string; mesa_label: string; itens: ItemDoPedido[]; estado: "pronto" | "entregue"; }
+
+async function fetchFeitos(barId: string, turnoId: string): Promise<FeitoCard[]> {
+  const supabase = createClient();
+  const { data: peds } = await supabase
+    .from("pedidos")
+    .select("id, status, comandas ( nome_cliente, identificador, mesas ( numero, nome ) )")
+    .eq("bar_id", barId)
+    .eq("turno_id", turnoId)
+    .in("status", ["pronto", "entregue"])
+    .order("criado_em", { ascending: false })
+    .limit(50);
+  if (!peds?.length) return [];
+  const itensMap = await itensDoPedido(peds.map(p => p.id));
+  return peds.map(p => {
+    const { pessoa, mesa_label } = comandaInfo(p);
+    return { id: p.id, pessoa, mesa_label, itens: itensMap.get(p.id) ?? [], estado: p.status as "pronto" | "entregue" };
+  });
+}
+
 // ─── Card da fila ─────────────────────────────────────────────────────────────
 
 function FilaCard({ pedido, isNew, active, onClick }: {
@@ -177,11 +199,14 @@ function FilaCard({ pedido, isNew, active, onClick }: {
       </div>
       <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{pedido.mesa_label} · há {tempo(pedido.criado_em)}</span>
       <div style={{ height: 1, background: "var(--border-strong)" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {pedido.itens.map((it, i) => (
-          <span key={i} style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-            <span style={{ fontWeight: 700, color: "var(--fg)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
-          </span>
+          <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+              <span style={{ fontWeight: 700, color: "var(--fg)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
+            </span>
+            {it.observacao && <span style={{ fontSize: 12, fontWeight: 500, color: "var(--accent)", marginLeft: 22 }}>{it.observacao}</span>}
+          </div>
         ))}
       </div>
     </div>
@@ -190,8 +215,8 @@ function FilaCard({ pedido, isNew, active, onClick }: {
 
 // ─── Painel do pedido ativo ───────────────────────────────────────────────────
 
-function PainelAtivo({ barId, pedido, onIniciar, onPronto }: {
-  barId: string; pedido: PedidoCard;
+function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
+  barId: string; pedido: PedidoCard; usaPronto: boolean;
   onIniciar: (id: string) => void;
   onPronto: (id: string) => void;
 }) {
@@ -263,6 +288,9 @@ function PainelAtivo({ barId, pedido, onIniciar, onPronto }: {
                   <span style={{ color: "var(--fg-muted)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
                 </span>
               </div>
+              {it.observacao && (
+                <p style={{ fontSize: 14, fontWeight: 500, color: "var(--accent)", margin: "8px 0 0 36px" }}>{it.observacao}</p>
+              )}
               {/* ficha técnica */}
               {ficha === undefined ? null : ficha === null ? (
                 <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "10px 0 0 36px" }}>Sem ficha técnica cadastrada.</p>
@@ -293,11 +321,11 @@ function PainelAtivo({ barId, pedido, onIniciar, onPronto }: {
           </button>
         ) : (
           <button
-            onClick={() => { if (todosFeitos) startTransition(async () => { await marcarPronto(pedido.id); onPronto(pedido.id); }); }}
+            onClick={() => { if (todosFeitos) startTransition(async () => { if (usaPronto) await marcarPronto(pedido.id); else await entregarPedido(pedido.id); onPronto(pedido.id); }); }}
             disabled={!todosFeitos || isPending}
             style={btnPrimary(todosFeitos)}
           >
-            {isPending ? "…" : todosFeitos ? "Pedido pronto →" : `Tique os ${total} drinks para liberar`}
+            {isPending ? "…" : !todosFeitos ? `Tique os ${total} drinks para liberar` : usaPronto ? "Pedido pronto →" : "Entregar →"}
           </button>
         )}
       </div>
@@ -317,10 +345,11 @@ function btnPrimary(enabled: boolean): React.CSSProperties {
 
 // ─── Tab de produção ──────────────────────────────────────────────────────────
 
-type Filtro = "todos" | "preparo";
+type Filtro = "todos" | "preparo" | "feitos";
 
-export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string }) {
+export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: string; turnoId: string; usaPronto?: boolean }) {
   const [pedidos, setPedidos] = useState<PedidoCard[]>([]);
+  const [feitos, setFeitos] = useState<FeitoCard[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [, setTick] = useState(0);
@@ -328,8 +357,9 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
   const [filtro, setFiltro] = useState<Filtro>("todos");
 
   const carregar = useCallback(async () => {
-    const lista = await fetchPedidos(barId, turnoId);
+    const [lista, feitosLista] = await Promise.all([fetchPedidos(barId, turnoId), fetchFeitos(barId, turnoId)]);
     setPedidos(lista);
+    setFeitos(feitosLista);
     setLoading(false);
   }, [barId, turnoId]);
 
@@ -354,6 +384,7 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
         if (up.status === "pronto" || up.status === "entregue") {
           setPedidos(prev => prev.filter(p => p.id !== up.id));
           setActiveId(a => (a === up.id ? null : a));
+          fetchFeitos(barId, turnoId).then(setFeitos);
         } else {
           setPedidos(prev => prev.map(p => p.id === up.id ? { ...p, status: up.status as "recebido" | "preparando" } : p));
         }
@@ -378,6 +409,7 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
   const chips: { id: Filtro; label: string; n: number }[] = [
     { id: "todos", label: "Todos", n: pedidos.length },
     { id: "preparo", label: "Em preparo", n: preparando.length },
+    { id: "feitos", label: "Feitos", n: feitos.length },
   ];
 
   if (loading) {
@@ -408,11 +440,35 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
         </div>
 
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, alignContent: "start" }}>
-          {visiveis.map(p => (
-            <FilaCard key={p.id} pedido={p} isNew={newIds.has(p.id)} active={p.id === activeId} onClick={() => setActiveId(p.id)} />
-          ))}
-          {visiveis.length === 0 && (
-            <p style={{ gridColumn: "1 / -1", fontSize: 13, color: "var(--fg-subtle)", padding: "40px 0", textAlign: "center" }}>Nada na fila.</p>
+          {filtro === "feitos" ? (
+            feitos.length === 0 ? (
+              <p style={{ gridColumn: "1 / -1", fontSize: 13, color: "var(--fg-subtle)", padding: "40px 0", textAlign: "center" }}>Nenhum pedido feito neste turno.</p>
+            ) : feitos.map(f => (
+              <div key={f.id} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 16, opacity: 0.65, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.pessoa}</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: "var(--fg-muted)" }}>{f.estado === "pronto" ? "Pronto" : "Entregue"}</span>
+                </div>
+                <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{f.mesa_label}</span>
+                <div style={{ height: 1, background: "var(--border-strong)" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {f.itens.map((it, i) => (
+                    <span key={i} style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+                      <span style={{ fontWeight: 700, color: "var(--fg)", marginRight: 6 }}>{it.quantidade}×</span>{it.produto_nome}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <>
+              {visiveis.map(p => (
+                <FilaCard key={p.id} pedido={p} isNew={newIds.has(p.id)} active={p.id === activeId} onClick={() => setActiveId(p.id)} />
+              ))}
+              {visiveis.length === 0 && (
+                <p style={{ gridColumn: "1 / -1", fontSize: 13, color: "var(--fg-subtle)", padding: "40px 0", textAlign: "center" }}>Nada na fila.</p>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -420,7 +476,7 @@ export function ProducaoTab({ barId, turnoId }: { barId: string; turnoId: string
       {/* DIREITA: pedido ativo */}
       <div style={{ flex: "0 0 460px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 24, minHeight: 0, display: "flex", flexDirection: "column" }}>
         {active ? (
-          <PainelAtivo barId={barId} pedido={active} onIniciar={localIniciar} onPronto={localPronto} />
+          <PainelAtivo barId={barId} pedido={active} usaPronto={usaPronto} onIniciar={localIniciar} onPronto={localPronto} />
         ) : (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center" }}>
             <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>Nenhum pedido ativo</p>

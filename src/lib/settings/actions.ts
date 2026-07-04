@@ -114,3 +114,18 @@ export async function atualizarAutoPedido(barId: string, value: boolean): Promis
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+/** Fluxo de entrega: true = bartender marca "pronto" e o garçom retira;
+ *  false = bartender entrega direto (sem o passo intermediário). Default: true. */
+export async function atualizarFluxoPronto(barId: string, value: boolean): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("merge_bar_config", {
+    p_bar_id: barId,
+    p_patch:  JSON.stringify({ fluxo_pronto: value }),
+  });
+  if (error) return { error: traduzirErro(error.message) };
+
+  revalidatePath("/producao");
+  revalidatePath("/garcom");
+  return { ok: true };
+}

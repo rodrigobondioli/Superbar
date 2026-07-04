@@ -38,6 +38,14 @@ function changeQty(cart: Cart, key: string, delta: number): Cart {
   return next;
 }
 
+function changeObs(cart: Cart, key: string, value: string): Cart {
+  const next = new Map(cart);
+  const entry = next.get(key);
+  if (!entry) return next;
+  next.set(key, { ...entry, observacao: value });
+  return next;
+}
+
 // ─── Variant picker ───────────────────────────────────────────────────────────
 
 function VariantePicker({
@@ -190,12 +198,14 @@ function CartBar({
   cart,
   comandaId,
   onChangeQty,
+  onChangeObs,
   onConfirm,
   onClear,
 }: {
   cart: Cart;
   comandaId: string;
   onChangeQty: (key: string, delta: number) => void;
+  onChangeObs: (key: string, value: string) => void;
   onConfirm: () => void;
   onClear: () => void;
 }) {
@@ -238,22 +248,30 @@ function CartBar({
             {entries.map(e => {
               const key = cartKey(e.produto_id, e.variante_id);
               return (
-                <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)", gap: 12 }}>
-                  <span style={{ fontSize: 13, color: "var(--fg)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {e.display_nome}
-                  </span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                    <button type="button" onClick={() => onChangeQty(key, -1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Minus style={{ width: 12, height: 12 }} />
-                    </button>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", width: 18, textAlign: "center", fontFamily: "var(--font-mono)" }}>{e.quantidade}</span>
-                    <button type="button" onClick={() => onChangeQty(key, +1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Plus style={{ width: 12, height: 12 }} />
-                    </button>
-                    <span style={{ fontSize: 13, color: "var(--fg-muted)", width: 64, textAlign: "right", fontFamily: "var(--font-mono)" }}>
-                      {currency.format(e.preco * e.quantidade)}
+                <div key={key} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                    <span style={{ fontSize: 13, color: "var(--fg)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {e.display_nome}
                     </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                      <button type="button" onClick={() => onChangeQty(key, -1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Minus style={{ width: 12, height: 12 }} />
+                      </button>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", width: 18, textAlign: "center", fontFamily: "var(--font-mono)" }}>{e.quantidade}</span>
+                      <button type="button" onClick={() => onChangeQty(key, +1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Plus style={{ width: 12, height: 12 }} />
+                      </button>
+                      <span style={{ fontSize: 13, color: "var(--fg-muted)", width: 64, textAlign: "right", fontFamily: "var(--font-mono)" }}>
+                        {currency.format(e.preco * e.quantidade)}
+                      </span>
+                    </div>
                   </div>
+                  <input
+                    value={e.observacao ?? ""}
+                    onChange={ev => onChangeObs(key, ev.target.value)}
+                    placeholder="Observação (ex: sem gelo)"
+                    style={{ width: "100%", marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 6, padding: "7px 10px", fontSize: 12, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
+                  />
                 </div>
               );
             })}
@@ -453,6 +471,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         cart={cart}
         comandaId={comandaId}
         onChangeQty={(key, delta) => setCart(prev => changeQty(prev, key, delta))}
+        onChangeObs={(key, value) => setCart(prev => changeObs(prev, key, value))}
         onConfirm={() => setCart(new Map())}
         onClear={() => setCart(new Map())}
       />

@@ -27,7 +27,7 @@ export default async function ProducaoPage() {
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <ProducaoTab barId={current.bar.id} turnoId={turno.id} />
+      <ProducaoTab barId={current.bar.id} turnoId={turno.id} usaPronto={current.bar.configuracoes?.fluxo_pronto ?? true} />
     </div>
   );
 }
