@@ -41,6 +41,7 @@ export function FichaEditor({
   const [loading, setLoading] = useState(true);
   const [suggesting, setSuggesting] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -65,6 +66,7 @@ export function FichaEditor({
 
   async function sugerir() {
     setSuggesting(true);
+    setMsg(null);
     try {
       const res = await fetch("/api/sugerir-ficha", {
         method: "POST",
@@ -73,11 +75,11 @@ export function FichaEditor({
       });
       const data = (await res.json()) as SugerirFichaResponse & { error?: string };
       if (!res.ok || data.error) {
-        toast(data.error ?? "Não consegui sugerir agora.", "error");
+        setMsg({ ok: false, texto: data.error ?? "Não consegui sugerir agora." });
         return;
       }
       if (data.insumos.length === 0) {
-        toast("A IA não achou uma receita padrão. Cadastre manual.", "error");
+        setMsg({ ok: false, texto: "A IA não achou uma receita padrão. Cadastre manual." });
         return;
       }
       // adiciona só o que ainda não está na ficha
@@ -92,9 +94,14 @@ export function FichaEditor({
           custoUnitario: s.custoUnitario,
         }));
       setLinhas((prev) => [...prev, ...novas]);
-      toast(`${novas.length} insumo${novas.length !== 1 ? "s" : ""} sugerido${novas.length !== 1 ? "s" : ""} pela IA.`, "ok");
+      setMsg({
+        ok: true,
+        texto: novas.length > 0
+          ? `${novas.length} insumo${novas.length !== 1 ? "s" : ""} sugerido${novas.length !== 1 ? "s" : ""} — confira e ajuste o custo.`
+          : "A ficha já tem esses insumos.",
+      });
     } catch {
-      toast("Erro de conexão.", "error");
+      setMsg({ ok: false, texto: "Erro de conexão." });
     } finally {
       setSuggesting(false);
     }
@@ -164,22 +171,32 @@ export function FichaEditor({
             </div>
           ) : (
             <>
-              {/* Botão IA */}
+              {/* Botão IA — preenchimento neutro, só o ícone em laranja (sinaliza IA) */}
               <button
                 onClick={sugerir}
                 disabled={suggesting}
+                className="hover:brightness-110"
                 style={{
                   display: "flex", alignItems: "center", gap: 8, width: "100%", justifyContent: "center",
-                  background: "color-mix(in srgb, var(--accent) 12%, transparent)",
-                  border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)",
-                  color: "var(--accent)", borderRadius: 8, padding: "11px 16px", fontSize: 13, fontWeight: 600,
-                  cursor: suggesting ? "wait" : "pointer", marginBottom: 20,
+                  background: "var(--bg-card-hi)", border: "none",
+                  color: "var(--fg)", borderRadius: 8, padding: "12px 16px", fontSize: 13, fontWeight: 600,
+                  cursor: suggesting ? "wait" : "pointer", marginBottom: 12,
                 }}
               >
                 {suggesting
-                  ? <><Loader2 style={{ width: 15, height: 15 }} className="animate-spin" /> Pensando na receita…</>
-                  : <><Sparkles style={{ width: 15, height: 15 }} /> Sugerir insumos com IA</>}
+                  ? <><Loader2 style={{ width: 15, height: 15, color: "var(--accent)" }} className="animate-spin" /> Pensando na receita…</>
+                  : <><Sparkles style={{ width: 15, height: 15, color: "var(--accent)" }} /> Sugerir insumos com IA</>}
               </button>
+
+              {/* Aviso inline (não usa toast pra não cobrir o botão Salvar) */}
+              {msg && (
+                <p style={{
+                  fontSize: 12, margin: "0 0 16px",
+                  color: msg.ok ? "var(--ok)" : "var(--danger)",
+                }}>
+                  {msg.texto}
+                </p>
+              )}
 
               {/* Cabeçalho da grade */}
               {linhas.length > 0 && (
