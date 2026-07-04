@@ -1,9 +1,9 @@
-import { getLeads } from "@/lib/admin/queries";
+import { getLeads, getStages } from "@/lib/admin/queries";
 import { LeadsKanban } from "@/components/admin/leads-kanban";
 import { LeadsAddForm } from "@/components/admin/leads-add-form";
 
 export default async function AdminLeadsPage() {
-  const leads = await getLeads();
+  const [leads, stages] = await Promise.all([getLeads(), getStages()]);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
@@ -18,7 +18,7 @@ export default async function AdminLeadsPage() {
         <LeadsAddForm />
       </div>
 
-      <LeadsKanban leads={leads} />
+      <LeadsKanban leads={leads} stages={stages} />
     </div>
   );
 }

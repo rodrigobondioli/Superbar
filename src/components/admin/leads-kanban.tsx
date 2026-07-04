@@ -1,22 +1,12 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect, Fragment } from "react";
-import type { Lead } from "@/lib/admin/queries";
-import { updateLead, deleteLead } from "@/lib/admin/actions";
+import type { Lead, Stage } from "@/lib/admin/queries";
+import { updateLead, deleteLead, updateStageLabel } from "@/lib/admin/actions";
 import { createClient } from "@/lib/supabase/client";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
-
-const STAGES = [
-  { id: "novo",       label: "Novo" },
-  { id: "contatado",  label: "Contatado" },
-  { id: "demo",       label: "Demo" },
-  { id: "convertido", label: "Convertido" },
-  { id: "perdido",    label: "Perdido" },
-] as const;
-
-type StageId = typeof STAGES[number]["id"];
 
 const ORIGEM_OPTIONS = ["Site", "Prospecção ativa", "Indicação", "Evento", "Instagram", "Outro"];
 const TIPO_OPTIONS   = ["Coquetelaria", "Wine Bar", "Speakeasy", "Gastrobar", "Outro"];
@@ -161,11 +151,13 @@ function LeadCard({
 
 function LeadPanel({
   lead,
+  stages,
   onClose,
   onUpdate,
   onDelete,
 }: {
   lead: Lead;
+  stages: Stage[];
   onClose: () => void;
   onUpdate: (l: Lead) => void;
   onDelete: (id: string) => void;
@@ -187,7 +179,7 @@ function LeadPanel({
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleStageClick(stage: StageId) {
+  function handleStageClick(stage: string) {
     setForm(prev => ({ ...prev, status: stage }));
   }
 
@@ -274,7 +266,7 @@ function LeadPanel({
 
           {/* Stage pills */}
           <div style={{ display: "flex", gap: 4, marginTop: 14, flexWrap: "wrap" }}>
-            {STAGES.map(s => {
+            {stages.map(s => {
               const active = form.status === s.id;
               return (
                 <button
@@ -435,15 +427,37 @@ function LeadPanel({
 
 // ─── Kanban Board ─────────────────────────────────────────────────────────────
 
-export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
+export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages: Stage[] }) {
   const [leads, setLeads] = useState(initial);
+  const [stagesState, setStagesState] = useState(stages);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{ stage: string; beforeId: string | null } | null>(null);
+  const [editingStageId, setEditingStageId] = useState<string | null>(null);
+  const [draftLabel, setDraftLabel] = useState("");
   const [, startTransition] = useTransition();
 
   const selectedLead = selectedId ? (leads.find(l => l.id === selectedId) ?? null) : null;
+
+  // Sincroniza estágios quando o servidor revalida (ex.: após renomear).
+  useEffect(() => { setStagesState(stages); }, [stages]);
+
+  function startStageEdit(stage: Stage) {
+    setEditingStageId(stage.id);
+    setDraftLabel(stage.label);
+  }
+
+  function saveStageLabel() {
+    const id = editingStageId;
+    setEditingStageId(null);
+    if (!id) return;
+    const label = draftLabel.trim();
+    const current = stagesState.find(s => s.id === id);
+    if (!label || !current || current.label === label) return;
+    setStagesState(prev => prev.map(s => s.id === id ? { ...s, label } : s));
+    startTransition(async () => { await updateStageLabel(id, label); });
+  }
 
   // Mantém a lista em dia quando o servidor revalida (ex.: após adicionar lead
   // manualmente, o createLeadAdmin revalida a rota → chega uma nova prop aqui).
@@ -553,7 +567,7 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
         display: "flex", gap: 10, alignItems: "flex-start",
         overflowX: "auto", paddingBottom: 16, minHeight: "calc(100vh - 200px)",
       }}>
-        {STAGES.map(stage => {
+        {stagesState.map(stage => {
           const stageLeads = leads.filter(l => l.status === stage.id).sort((a, b) => ordemOf(b) - ordemOf(a));
           const isOver = dragOverStage === stage.id;
 
@@ -587,9 +601,31 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
                 marginBottom: 4,
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", flex: 1 }}>
-                    {stage.label}
-                  </span>
+                  {editingStageId === stage.id ? (
+                    <input
+                      autoFocus
+                      value={draftLabel}
+                      onChange={e => setDraftLabel(e.target.value)}
+                      onBlur={saveStageLabel}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") saveStageLabel();
+                        if (e.key === "Escape") setEditingStageId(null);
+                      }}
+                      style={{
+                        flex: 1, minWidth: 0, fontSize: 13, fontWeight: 500, color: "var(--fg)",
+                        background: "var(--bg-card-hi)", border: "1px solid var(--accent)",
+                        borderRadius: 6, padding: "2px 6px", outline: "none",
+                      }}
+                    />
+                  ) : (
+                    <span
+                      onClick={() => startStageEdit(stage)}
+                      title="Clique para renomear"
+                      style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", flex: 1, cursor: "text" }}
+                    >
+                      {stage.label}
+                    </span>
+                  )}
                   <span style={{
                     fontSize: 12, color: "var(--fg-muted)",
                     background: "color-mix(in srgb, var(--fg) 8%, transparent)",
@@ -632,6 +668,7 @@ export function LeadsKanban({ leads: initial }: { leads: Lead[] }) {
       {selectedLead && (
         <LeadPanel
           lead={selectedLead}
+          stages={stagesState}
           onClose={() => setSelectedId(null)}
           onUpdate={handleLeadUpdate}
           onDelete={handleLeadDelete}

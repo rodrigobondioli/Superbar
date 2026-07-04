@@ -91,6 +91,19 @@ export async function createLeadAdmin(payload: {
   return { ok: true };
 }
 
+// ─── Renomear estágio do pipeline ─────────────────────────────────────────────
+
+export async function updateStageLabel(id: string, label: string): Promise<{ ok: true } | { error: string }> {
+  await assertAdmin();
+  const trimmed = label.trim();
+  if (!trimmed) return { error: "O nome não pode ficar vazio." };
+  const admin = createAdminClient();
+  const { error } = await admin.from("crm_stages").update({ label: trimmed }).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/leads");
+  return { ok: true };
+}
+
 // ─── Atualizar lead completo ──────────────────────────────────────────────────
 
 export async function updateLead(

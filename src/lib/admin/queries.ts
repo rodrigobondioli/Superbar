@@ -692,6 +692,32 @@ export interface Lead {
   created_at: string;
 }
 
+export interface Stage {
+  id: string;
+  label: string;
+  ordem: number;
+}
+
+const DEFAULT_STAGES: Stage[] = [
+  { id: "novo", label: "Novo", ordem: 1 },
+  { id: "contatado", label: "Contatado", ordem: 2 },
+  { id: "demo", label: "Demo", ordem: 3 },
+  { id: "convertido", label: "Convertido", ordem: 4 },
+  { id: "perdido", label: "Perdido", ordem: 5 },
+];
+
+export async function getStages(): Promise<Stage[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("crm_stages")
+    .select("id, label, ordem")
+    .order("ordem", { ascending: true })
+    .returns<Stage[]>();
+  // Fallback caso a migration ainda não tenha rodado — o kanban nunca fica sem colunas.
+  if (error || !data || data.length === 0) return DEFAULT_STAGES;
+  return data;
+}
+
 export async function getLeads(): Promise<Lead[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
