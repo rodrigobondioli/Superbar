@@ -1075,6 +1075,24 @@ function HomeScreen({
             : <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p><p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p></div>}
         </div>
 
+        {/* Em destaque (primeiro) */}
+        {featured.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
+            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
+              {featured.map((p) => (
+                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 150px", background: CARD2, borderRadius: 18, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
+                  <div style={{ height: 190, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>{p.imagem_url ? "" : "🍸"}</div>
+                  <div style={{ padding: "12px 13px 15px" }}>
+                    <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
+                    <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Pedir de novo (último pedido) */}
         {ultimoProduto && (
           <div style={{ marginBottom: 22 }}>
@@ -1184,38 +1202,23 @@ function HomeScreen({
           </div>
         )}
 
-        {/* Em destaque */}
-        {featured.length > 0 && (
-          <>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-            </div>
-            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none", marginBottom: 26 }}>
-              {featured.map((p) => (
-                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ flex: "0 0 148px", background: CARD2, borderRadius: 16, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, border: "none" }}>
-                  <div style={{ height: 92, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34 }}>{p.imagem_url ? "" : "🍸"}</div>
-                  <div style={{ padding: "11px 12px 13px" }}>
-                    <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
-                    <p style={{ margin: 0, fontSize: 13, color: ACCENT, fontWeight: 800 }}>{fmt(p.preco)}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
         {/* Categorias */}
         {cardapio.length > 0 && (
           <>
             <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {cardapio.map((cat) => (
-                <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ background: CARD2, borderRadius: 14, padding: "14px 12px", cursor: "pointer", textAlign: "left", border: "none" }}>
-                  <span style={{ fontSize: 22 }}>🍸</span>
-                  <p style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 700, color: "var(--fg)" }}>{cat.nome}</p>
-                  <p style={{ margin: "1px 0 0", fontSize: 11, color: "var(--fg-subtle)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
-                </button>
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {cardapio.map((cat) => {
+                const cover = cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+                return (
+                  <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
+                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </>
         )}
