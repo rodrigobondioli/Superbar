@@ -314,7 +314,7 @@ export interface ItemPedidoCliente {
 
 // ─── Fila de produção (bartender-created orders) ────────────────────────────
 
-export type PedidoStatus = "recebido" | "preparando" | "pronto" | "entregue";
+export type PedidoStatus = "recebido" | "preparando" | "pronto" | "entregue" | "cancelado";
 
 export interface Pedido {
   id: string;

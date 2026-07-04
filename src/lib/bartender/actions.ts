@@ -402,6 +402,27 @@ export async function marcarPronto(pedidoId: string) {
     .eq("status", "preparando");
 }
 
+/** Cancela um pedido (erro, cliente desistiu). Sai da fila e os itens não contam. */
+export async function cancelarPedido(pedidoId: string) {
+  const current = await getCurrentBar();
+  if (!current) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("pedidos")
+    .update({ status: "cancelado", cancelado_em: new Date().toISOString() })
+    .eq("id", pedidoId)
+    .eq("bar_id", current.bar.id)
+    .in("status", ["recebido", "preparando"]);
+
+  await supabase
+    .from("comanda_items")
+    .update({ status: "cancelado", cancelado_em: new Date().toISOString(), cancelado_por: current.userId })
+    .eq("pedido_id", pedidoId)
+    .eq("bar_id", current.bar.id)
+    .eq("status", "ativo");
+}
+
 /** Bartender entrega o pedido — estado final.
  *
  * Chama fn_entregar_pedido() que, numa única transação:

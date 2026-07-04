@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { iniciarPedido, marcarPronto, entregarPedido } from "@/lib/bartender/actions";
+import { iniciarPedido, marcarPronto, entregarPedido, cancelarPedido } from "@/lib/bartender/actions";
 
 // ─── Alerta sonoro / háptico ──────────────────────────────────────────────────
 
@@ -212,17 +212,20 @@ function FilaCard({ pedido, isNew, active, onClick }: {
 
 // ─── Painel do pedido ativo ───────────────────────────────────────────────────
 
-function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
+function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar }: {
   barId: string; pedido: PedidoCard; usaPronto: boolean;
   onIniciar: (id: string) => void;
   onPronto: (id: string) => void;
+  onCancelar: (id: string) => void;
 }) {
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [fichas, setFichas] = useState<Record<string, InsumoLinha[] | null>>({});
+  const [started, setStarted] = useState(pedido.status === "preparando");
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // reset ao trocar de pedido
-  useEffect(() => { setChecked(new Set()); }, [pedido.id]);
+  useEffect(() => { setChecked(new Set()); setStarted(pedido.status === "preparando"); setConfirmCancel(false); }, [pedido.id, pedido.status]);
 
   // carrega fichas dos produtos do pedido
   useEffect(() => {
@@ -240,9 +243,9 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
 
   const total = pedido.itens.length;
   const todosFeitos = total > 0 && checked.size === total;
-  const emPreparo = pedido.status === "preparando";
 
   function toggle(i: number) {
+    if (!started) { setStarted(true); startTransition(async () => { await iniciarPedido(pedido.id); onIniciar(pedido.id); }); }
     setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
   }
 
@@ -250,9 +253,20 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       {/* contexto */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-        <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-          {emPreparo ? "Preparando" : "Pedido"} · {pedido.pessoa}{pedido.pessoa !== pedido.mesa_label ? ` · ${pedido.mesa_label}` : ""}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+            {started ? "Preparando" : "Pedido"} · {pedido.pessoa}{pedido.pessoa !== pedido.mesa_label ? ` · ${pedido.mesa_label}` : ""}
+          </span>
+          {!confirmCancel ? (
+            <button onClick={() => setConfirmCancel(true)} style={{ background: "none", border: "none", color: "var(--fg-subtle)", fontSize: 12, cursor: "pointer", padding: 0, flexShrink: 0 }}>Cancelar</button>
+          ) : (
+            <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>Cancelar pedido?</span>
+              <button onClick={() => startTransition(async () => { await cancelarPedido(pedido.id); onCancelar(pedido.id); })} style={{ background: "none", border: "none", color: "var(--danger)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>Sim</button>
+              <button onClick={() => setConfirmCancel(false)} style={{ background: "none", border: "none", color: "var(--fg-subtle)", fontSize: 12, cursor: "pointer", padding: 0 }}>Não</button>
+            </span>
+          )}
+        </div>
         <span style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)" }}>
           {total} {total === 1 ? "drink" : "drinks"} · há {tempo(pedido.criado_em)}
         </span>
@@ -266,10 +280,10 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
           return (
             <div
               key={i}
-              onClick={() => emPreparo && toggle(i)}
+              onClick={() => toggle(i)}
               style={{
                 background: "var(--bg-card)", border: `1px solid ${done ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
-                borderRadius: 14, padding: 16, cursor: emPreparo ? "pointer" : "default",
+                borderRadius: 14, padding: 16, cursor: "pointer",
                 opacity: done ? 0.55 : 1, transition: "opacity 150ms, border-color 150ms",
               }}
             >
@@ -308,23 +322,13 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto }: {
 
       {/* ação */}
       <div style={{ paddingTop: 16 }}>
-        {pedido.status === "recebido" ? (
-          <button
-            onClick={() => startTransition(async () => { await iniciarPedido(pedido.id); onIniciar(pedido.id); })}
-            disabled={isPending}
-            style={btnPrimary(true)}
-          >
-            {isPending ? "…" : "Iniciar preparo →"}
-          </button>
-        ) : (
-          <button
-            onClick={() => { if (todosFeitos) startTransition(async () => { if (usaPronto) await marcarPronto(pedido.id); else await entregarPedido(pedido.id); onPronto(pedido.id); }); }}
-            disabled={!todosFeitos || isPending}
-            style={btnPrimary(todosFeitos)}
-          >
-            {isPending ? "…" : !todosFeitos ? `Tique os ${total} drinks para liberar` : usaPronto ? "Pedido pronto →" : "Entregar →"}
-          </button>
-        )}
+        <button
+          onClick={() => { if (todosFeitos) startTransition(async () => { if (usaPronto) await marcarPronto(pedido.id); else await entregarPedido(pedido.id); onPronto(pedido.id); }); }}
+          disabled={!todosFeitos || isPending}
+          style={btnPrimary(todosFeitos)}
+        >
+          {isPending ? "…" : !todosFeitos ? `Tique ${total === 1 ? "o drink" : `os ${total} drinks`} para liberar` : usaPronto ? "Pedido pronto →" : "Entregar →"}
+        </button>
       </div>
     </div>
   );
@@ -378,7 +382,10 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pedidos", filter: `bar_id=eq.${barId}` }, (payload) => {
         const up = payload.new as { id: string; status: string };
-        if (up.status === "pronto" || up.status === "entregue") {
+        if (up.status === "cancelado") {
+          setPedidos(prev => prev.filter(p => p.id !== up.id));
+          setActiveId(a => (a === up.id ? null : a));
+        } else if (up.status === "pronto" || up.status === "entregue") {
           setPedidos(prev => prev.filter(p => p.id !== up.id));
           setActiveId(a => (a === up.id ? null : a));
           fetchFeitos(barId, turnoId).then(setFeitos);
@@ -395,6 +402,10 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
     setActiveId(id);
   }
   function localPronto(id: string) {
+    setPedidos(prev => prev.filter(p => p.id !== id));
+    setActiveId(a => (a === id ? null : a));
+  }
+  function localCancelar(id: string) {
     setPedidos(prev => prev.filter(p => p.id !== id));
     setActiveId(a => (a === id ? null : a));
   }
@@ -473,7 +484,7 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
       {/* DIREITA: pedido ativo */}
       <div style={{ flex: "0 0 460px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 24, minHeight: 0, display: "flex", flexDirection: "column" }}>
         {active ? (
-          <PainelAtivo barId={barId} pedido={active} usaPronto={usaPronto} onIniciar={localIniciar} onPronto={localPronto} />
+          <PainelAtivo barId={barId} pedido={active} usaPronto={usaPronto} onIniciar={localIniciar} onPronto={localPronto} onCancelar={localCancelar} />
         ) : (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center" }}>
             <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>Nenhum pedido ativo</p>
