@@ -153,6 +153,17 @@ Um insight que veio da pesquisa e vale ouro pra vender: **os melhores donos de b
 - **Dor hoje:** espera pra ser atendido, espera pra pagar.
 - **O SUPERBAR pode dar:** aproximar o celular (NFC/tap) pra se identificar e pedir. Mas — atenção — em bar premium o atendimento é parte do luxo. Isso é uma aposta a testar, não uma certeza (seção 9).
 
+#### Decisão registrada — o canal do cliente (QR / self-order)
+
+Decidido em conversa de produto (jul/2026). Fica aqui pra não se perder; continua sujeito à validação (H5).
+
+- **É opcional e por bar.** O dono liga ou desliga. Desligado (padrão): pedido só pelo iPad do garçom. Ligado: o cliente escaneia o **QR na mesa** e pede pelo próprio celular. **Tudo incluído** — nunca módulo pago (Princípio 7).
+- **Arquitetura = reúso do fluxo do garçom, não sistema paralelo.** O pedido do cliente abre uma **comanda real** e vira **`comanda_items`** pelo mesmo pipeline do garçom. Assim ele herda tudo: fila do bartender, baixa de estoque, CMV, margem, faturamento (Princípio 2). **Não** é uma tabela solta que não vira dado — a implementação-ilha `pedidos_cliente` foi o caminho errado e deve ser aposentada quando isso for construído de verdade.
+- **Identidade leve primeiro.** v1 = **nome + telefone/WhatsApp** associados à comanda. Suficiente pra histórico e ação de marketing. Login/conta pesada de cliente **não** entra na v1.
+- **Por que a identidade importa (é inteligência, não enfeite):** telefone + histórico = base do **CRM de cliente recorrente** (aniversário, promoção, "o que ele gosta de beber"). Isso é **Estágio 2** (seção 6) — decisão de dinheiro do dono (Princípio 1), não commodity. O QR-só-de-ver-cardápio é commodity (Goomer tem); o QR-que-captura-identidade-e-histórico é **canal de dado que alimenta o moat**.
+- **"Pagar a conta" = pedir a conta.** O cliente **sinaliza** que quer fechar (registro do método); a conta vai pro caixa e o garçom fecha na mesa. **Nunca** processar pagamento dentro do app — isso é fintech, decisão consciente separada (Princípio 8).
+- **Quando construir:** é **Estágio 2**, depois do loop do Estágio 1 (turno + margem + adoção do bartender) estar sólido, e disparado por **um bar querendo testar** (a H5) — não especulativo. Construir a ponte inteira antes disso tira foco do núcleo (Princípio 4: QR é território de concorrente; o diferencial é a inteligência).
+
 ---
 
 ## 5. Como o SUPERBAR ganha dinheiro
@@ -316,7 +327,7 @@ Tem dois níveis de diferença, e é importante separar o que protege pouco do q
 | **H2** | O bartender adota (não sabota) | ⚠️ **A mais perigosa.** Pouco dado direto. | Colocar em 1–2 bares e medir se a equipe usa sozinha depois de 1 semana, sem ninguém cobrando. |
 | **H3** | O dono paga a mensalidade proposta | ⚠️ Parcial. Já pagam caro em sistema ruim. | Apresentar o preço nas conversas de discovery e medir reação real (não "achei legal" — "quando começa?"). |
 | **H4** | O onboarding white-glove derruba a barreira | ✅ Forte indício. | Implantar os 2 primeiros e medir dias até o go-live e se a cobrança só-depois reduz objeção. |
-| **H5** | A interação por aproximação (NFC/tap) serve a bar premium | ❓ Em aberto. Risco de "clima de lanchonete". | Testar a aproximação (NFC) em 1 bar e medir se o cliente premium usa, sem virar clima de autoatendimento. |
+| **H5** | A interação por aproximação (QR/NFC) serve a bar premium | ❓ Em aberto. Risco de "clima de lanchonete". Arquitetura já decidida (seção 4 → "Decisão registrada"); falta validar o apetite do cliente premium. | Testar o QR/aproximação em 1 bar e medir se o cliente premium usa, sem virar clima de autoatendimento. |
 
 **A mais importante é a H2 (adoção do bartender).** Os números de negócio mostram que, se a equipe não adota e o cliente cancela cedo, o modelo todo não fecha. Tudo o mais depende disso. Por isso a tela do bartender é a peça mais importante do produto — ela tem que trabalhar a favor dele.
 

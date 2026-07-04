@@ -170,56 +170,66 @@ function WelcomeNewScreen({ bar, onConfirm }: { bar: Bar; onConfirm: (nome: stri
     <div style={{
       height: "100%", background: BG,
       display: "flex", flexDirection: "column",
-      padding: "72px 28px 52px",
-      justifyContent: "space-between",
+      alignItems: "center", justifyContent: "center",
+      padding: "40px 28px", textAlign: "center",
       fontFamily: FONT,
     }}>
-      <div>
-        <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 22px" }}>
+      <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {/* Logo redondo do bar */}
+        <div style={{
+          width: 88, height: 88, borderRadius: "50%", overflow: "hidden", marginBottom: 24,
+          background: CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          {bar.logo_url
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={bar.logo_url} alt={bar.nome} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            : <span style={{ fontSize: 34, fontWeight: 800, color: ACCENT }}>{bar.nome?.[0]?.toUpperCase() ?? "B"}</span>}
+        </div>
+
+        <p style={{ fontSize: 11, color: ACCENT, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.22em", margin: "0 0 14px" }}>
           {bar.nome}
         </p>
-        <h1 style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", margin: "0 0 14px", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
+        <h1 style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 12px", lineHeight: 1.15, letterSpacing: "-0.5px" }}>
           Antes de começar,<br />como posso te chamar?
         </h1>
         <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.65 }}>
           Vou lembrar de você nas próximas visitas.
         </p>
-      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <input
-          autoFocus
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && valid && onConfirm(nome.trim())}
-          placeholder="Seu nome"
-          style={{
-            background: CARD2,
-            border: `1.5px solid ${valid ? "var(--accent-bright)" : "var(--border)"}`,
-            borderRadius: 8,
-            padding: "20px 22px",
-            fontSize: 20, fontWeight: 500,
-            color: "var(--fg)", outline: "none",
-            colorScheme: "dark",
-            width: "100%", boxSizing: "border-box",
-            transition: "border-color 200ms",
-            fontFamily: FONT,
-          }}
-        />
-        <button
-          onClick={() => valid && onConfirm(nome.trim())}
-          style={{
-            background: valid ? ACCENT : "color-mix(in srgb, var(--fg) 5%, transparent)",
-            color: valid ? "var(--accent-fg)" : "var(--fg-subtle)",
-            border: "none", borderRadius: 8,
-            padding: "20px", fontSize: 16, fontWeight: 800,
-            cursor: valid ? "pointer" : "default",
-            transition: "all 250ms",
-            letterSpacing: "-0.3px", fontFamily: FONT,
-          }}
-        >
-          Continuar →
-        </button>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12, marginTop: 32 }}>
+          <input
+            autoFocus
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && valid && onConfirm(nome.trim())}
+            placeholder="Seu nome"
+            style={{
+              background: CARD2,
+              border: `1.5px solid ${valid ? "var(--accent-bright)" : "var(--border)"}`,
+              borderRadius: 8,
+              padding: "18px 22px",
+              fontSize: 18, fontWeight: 500,
+              color: "var(--fg)", outline: "none",
+              colorScheme: "dark", textAlign: "center",
+              width: "100%", boxSizing: "border-box",
+              transition: "border-color 200ms",
+              fontFamily: FONT,
+            }}
+          />
+          <button
+            onClick={() => valid && onConfirm(nome.trim())}
+            style={{
+              background: valid ? ACCENT : "color-mix(in srgb, var(--fg) 5%, transparent)",
+              color: valid ? "var(--accent-fg)" : "var(--fg-subtle)",
+              border: "none", borderRadius: 999,
+              padding: "16px 24px", fontSize: 15, fontWeight: 600,
+              cursor: valid ? "pointer" : "default",
+              transition: "all 250ms", fontFamily: FONT,
+            }}
+          >
+            Continuar →
+          </button>
+        </div>
       </div>
     </div>
   );
