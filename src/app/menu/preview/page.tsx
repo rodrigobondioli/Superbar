@@ -1,30 +1,17 @@
 import { MenuApp } from "@/components/menu/menu-app";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import { createClient } from "@/lib/supabase/server";
+import { getTopPedidos } from "@/lib/menu/queries";
 import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
 
-// ─── Demo data ────────────────────────────────────────────────────────────────
-const bar: Bar = {
-  id: "demo",
-  nome: "Aurora Bar",
-  slug: "aurora-bar-preview",
-  cnpj: null,
-  telefone: null,
-  endereco: null,
-  logo_url: null,
-  configuracoes: {},
-  ativo: true,
-  created_at: "",
-  updated_at: "",
+// ─── Demo (fallback quando não há bar/logado) ──────────────────────────────────
+const barDemo: Bar = {
+  id: "demo", nome: "Aurora Bar", slug: "aurora-bar-preview", cnpj: null, telefone: null,
+  endereco: null, logo_url: null, configuracoes: {}, ativo: true, created_at: "", updated_at: "",
 };
 
-const mesa: Mesa = {
-  id: "demo-mesa",
-  bar_id: "demo",
-  numero: 3,
-  nome: "Varanda",
-  capacidade: 4,
-  ativo: true,
-  ordem: null,
-  created_at: "",
+const mesaDemo: Mesa = {
+  id: "demo-mesa", bar_id: "demo", numero: 3, nome: "Varanda", capacidade: 4, ativo: true, ordem: null, created_at: "",
 };
 
 function cat(id: string, nome: string, ordem: number): Categoria {
@@ -52,44 +39,52 @@ const IMG = {
   batata:      "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=80",
 };
 
-const categorias = [
-  cat("c1", "Drinks", 1),
-  cat("c2", "Não Alcoólicas", 2),
-  cat("c3", "Petiscos", 3),
+const categoriasDemo = [cat("c1", "Drinks", 1), cat("c2", "Não Alcoólicas", 2), cat("c3", "Petiscos", 3)];
+
+const cardapioDemo = [
+  { ...categoriasDemo[0], produtos: [
+    prod("p1", "c1", "Negroni", 48, "Campari, gin London Dry e vermute rosso. Clássico italiano.", IMG.negroni),
+    prod("p2", "c1", "Gin Tônica", 42, "Gin Tanqueray, tônica premium, zimbro e raspas de limão siciliano.", IMG.gin),
+    prod("p3", "c1", "Old Fashioned", 52, "Bourbon Woodford Reserve, bitters Angostura, açúcar demerara.", IMG.old),
+    prod("p4", "c1", "Margarita", 45, "Tequila blanco, Cointreau, suco de limão siciliano. Na pedra.", IMG.margarita),
+    prod("p5", "c1", "Mojito", 38, "Rum branco, hortelã fresca, limão, açúcar e água com gás.", IMG.mojito),
+    prod("p6", "c1", "Aperol Spritz", 39, "Aperol, prosecco e água com gás. Leve e refrescante.", IMG.aperol),
+    prod("p7", "c1", "Whisky On the Rocks", 65, "Single malt Glenfiddich 12 anos. Servido com gelo esférico.", IMG.whisky),
+    prod("p8", "c1", "Caipirinha Clássica", 32, "Cachaça artesanal Nega Fula, limão tahiti e açúcar cristal.", IMG.caipirinha),
+  ] },
+  { ...categoriasDemo[1], produtos: [
+    prod("p9", "c2", "Limonada Suíça", 22, "Limão siciliano, leite condensado e água com gás. Cremosa.", IMG.limonada),
+    prod("p10", "c2", "Água com Gás", 8, "San Pellegrino 500ml.", IMG.agua),
+    prod("p11", "c2", "Suco de Laranja", 18, "Laranja pera espremida na hora, sem açúcar.", IMG.suco),
+  ] },
+  { ...categoriasDemo[2], produtos: [
+    prod("p12", "c3", "Bruschetta da Casa", 34, "Pão artesanal, tomate cereja, manjericão e azeite trufado.", IMG.bruschetta),
+    prod("p13", "c3", "Tábua de Frios", 68, "Presunto de parma, queijo brie, gorgonzola, nozes e mel.", IMG.tabua),
+    prod("p14", "c3", "Batata Rústica", 28, "Batata frita no azeite, alecrim, flor de sal e aioli.", IMG.batata),
+  ] },
 ];
 
-const cardapio = [
-  {
-    ...categorias[0],
-    produtos: [
-      prod("p1",  "c1", "Negroni",           48, "Campari, gin London Dry e vermute rosso. Clássico italiano.", IMG.negroni),
-      prod("p2",  "c1", "Gin Tônica",         42, "Gin Tanqueray, tônica premium, zimbro e raspas de limão siciliano.", IMG.gin),
-      prod("p3",  "c1", "Old Fashioned",      52, "Bourbon Woodford Reserve, bitters Angostura, açúcar demerara.", IMG.old),
-      prod("p4",  "c1", "Margarita",          45, "Tequila blanco, Cointreau, suco de limão siciliano. Na pedra.", IMG.margarita),
-      prod("p5",  "c1", "Mojito",             38, "Rum branco, hortelã fresca, limão, açúcar e água com gás.", IMG.mojito),
-      prod("p6",  "c1", "Aperol Spritz",      39, "Aperol, prosecco e água com gás. Leve e refrescante.", IMG.aperol),
-      prod("p7",  "c1", "Whisky On the Rocks",65, "Single malt Glenfiddich 12 anos. Servido com gelo esférico.", IMG.whisky),
-      prod("p8",  "c1", "Caipirinha Clássica",32, "Cachaça artesanal Nega Fula, limão tahiti e açúcar cristal.", IMG.caipirinha),
-    ],
-  },
-  {
-    ...categorias[1],
-    produtos: [
-      prod("p9",  "c2", "Limonada Suíça",     22, "Limão siciliano, leite condensado e água com gás. Cremosa.", IMG.limonada),
-      prod("p10", "c2", "Água com Gás",        8,  "San Pellegrino 500ml.", IMG.agua),
-      prod("p11", "c2", "Suco de Laranja",    18,  "Laranja pera espremida na hora, sem açúcar.", IMG.suco),
-    ],
-  },
-  {
-    ...categorias[2],
-    produtos: [
-      prod("p12", "c3", "Bruschetta da Casa", 34, "Pão artesanal, tomate cereja, manjericão e azeite trufado.", IMG.bruschetta),
-      prod("p13", "c3", "Tábua de Frios",     68, "Presunto de parma, queijo brie, gorgonzola, nozes e mel.", IMG.tabua),
-      prod("p14", "c3", "Batata Rústica",     28, "Batata frita no azeite, alecrim, flor de sal e aioli.", IMG.batata),
-    ],
-  },
-];
+export default async function MenuPreviewPage() {
+  // Prévia real: se o dono está logado, mostra o cardápio DELE (mesma regra da página do cliente).
+  const current = await getCurrentBar();
+  if (current) {
+    const supabase = await createClient();
+    const [{ data: categorias }, { data: produtos }, { data: primeiraMesa }] = await Promise.all([
+      supabase.from("categorias").select("*").eq("bar_id", current.bar.id).eq("ativo", true).order("ordem", { ascending: true }).returns<Categoria[]>(),
+      supabase.from("produtos").select("*").eq("bar_id", current.bar.id).eq("ativo", true).returns<Produto[]>(),
+      supabase.from("mesas").select("*").eq("bar_id", current.bar.id).eq("ativo", true).order("numero", { ascending: true }).limit(1).maybeSingle<Mesa>(),
+    ]);
 
-export default function MenuPreviewPage() {
-  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} topPedidos={["p8", "p1", "p6", "p2", "p3"]} />;
+    const cardapio = (categorias ?? [])
+      .map((c) => ({ ...c, produtos: (produtos ?? []).filter((p) => p.categoria_id === c.id) }))
+      .filter((c) => c.produtos.length > 0);
+
+    if (cardapio.length > 0) {
+      const topPedidos = await getTopPedidos(current.bar.id);
+      const mesa: Mesa = primeiraMesa ?? { id: "preview", bar_id: current.bar.id, numero: 0, nome: "Prévia", capacidade: 4, ativo: true, ordem: null, created_at: "" };
+      return <MenuApp bar={current.bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} />;
+    }
+  }
+
+  return <MenuApp bar={barDemo} mesa={mesaDemo} cardapio={cardapioDemo} topPedidos={["p8", "p1", "p6", "p2", "p3"]} />;
 }
