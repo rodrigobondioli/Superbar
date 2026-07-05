@@ -567,21 +567,19 @@ function ProductDetailScreen({
 
         <div style={{ height: 1, background: "var(--border)", margin: "0 0 18px" }} />
 
-        <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Preço</p>
-        <p style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px" }}>
-          {fmt(produto.preco)}
-        </p>
-
-        {autoPedido && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24 }}>
-            <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>Quantidade</span>
-            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 42, height: 42, borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 22, cursor: qty > 1 ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", opacity: qty > 1 ? 1 : 0.35, fontFamily: FONT }}>−</button>
-              <span style={{ fontSize: 22, fontWeight: 800, color: "var(--fg)", minWidth: 26, textAlign: "center" }}>{qty}</span>
-              <button onClick={() => setQty(qty + 1)} style={{ width: 42, height: 42, borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>+</button>
-            </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16 }}>
+          <div>
+            <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Preço</p>
+            <p style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px" }}>{fmt(produto.preco)}</p>
           </div>
-        )}
+          {autoPedido && (
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
+              <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menos" style={{ width: 40, height: 40, borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 21, cursor: qty > 1 ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", opacity: qty > 1 ? 1 : 0.35, fontFamily: FONT }}>−</button>
+              <span style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", minWidth: 22, textAlign: "center" }}>{qty}</span>
+              <button onClick={() => setQty(qty + 1)} aria-label="Mais" style={{ width: 40, height: 40, borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 21, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>+</button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Fixed CTA */}
