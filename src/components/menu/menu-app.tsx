@@ -1219,27 +1219,51 @@ function HomeScreen({
           );
         })()}
 
-        {/* Categorias */}
-        {cardapio.length > 0 && (
-          <>
-            <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {cardapio.map((cat) => {
-                const cover = cat.imagem_url ?? cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+        {/* Categorias — Especial do Dia sai da grade e vira banner */}
+        {cardapio.length > 0 && (() => {
+          const especial = cardapio.find((c) => c.nome.toLowerCase().includes("especial"));
+          const grid = especial ? cardapio.filter((c) => c.id !== especial.id) : cardapio;
+          return (
+            <>
+              {especial && (() => {
+                const cover = especial.imagem_url ?? especial.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+                const item = especial.produtos[0] ?? null;
                 return (
-                  <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
-                      <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
+                  <button
+                    onClick={() => onSelectCategoria(especial)}
+                    style={{ position: "relative", width: "100%", minHeight: 168, borderRadius: 20, overflow: "hidden", border: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", padding: 0, cursor: "pointer", background: cover ? `url(${cover}) center/cover` : CARD2, display: "flex", flexDirection: "column", justifyContent: "flex-end", textAlign: "left", marginBottom: 20 }}
+                  >
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 8%, color-mix(in srgb, var(--bg) 32%, transparent) 55%, transparent 100%)" }} />
+                    <span style={{ position: "absolute", top: 12, left: 12, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Especial do dia</span>
+                    <div style={{ position: "relative", padding: 16 }}>
+                      <p style={{ margin: 0, fontSize: 21, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", lineHeight: 1.15 }}>{item ? item.nome : especial.nome}</p>
+                      {item?.descricao && (
+                        <p style={{ margin: "5px 0 0", fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{item.descricao}</p>
+                      )}
                     </div>
                   </button>
                 );
-              })}
-            </div>
-            <div style={{ height: 24 }} />
-          </>
-        )}
+              })()}
+
+              <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {grid.map((cat) => {
+                  const cover = cat.imagem_url ?? cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
+                  return (
+                    <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
+                      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
+                        <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
+                        <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ height: 24 }} />
+            </>
+          );
+        })()}
 
         {/* Hub de decisão */}
         {N > 0 && (
