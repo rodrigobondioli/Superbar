@@ -383,6 +383,17 @@ function ProdutoForm({
           />
         </div>
 
+        <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
+            <label style={lbl}>Tempo de preparo (min)</label>
+            <input name="tempo_preparo" type="number" min="0" inputMode="numeric" defaultValue={produto?.tempo_preparo != null ? String(produto.tempo_preparo) : ""} placeholder="Ex: 5" style={input} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={lbl}>Calorias (kcal)</label>
+            <input name="calorias" type="number" min="0" inputMode="numeric" defaultValue={produto?.calorias != null ? String(produto.calorias) : ""} placeholder="Ex: 180" style={input} />
+          </div>
+        </div>
+
         <div style={{ display: "flex", gap: 8 }}>
           <button type="submit" style={btnPrimary}>
             {isEdit ? "Salvar" : "Adicionar"}

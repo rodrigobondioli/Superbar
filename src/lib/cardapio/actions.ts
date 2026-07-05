@@ -5,6 +5,13 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getImagemAutomatica } from "./drink-images";
 
+function intOrNull(v: FormDataEntryValue | null): number | null {
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  const n = parseInt(s, 10);
+  return isNaN(n) || n < 0 ? null : n;
+}
+
 // ─── Categorias ───────────────────────────────────────────────────────────────
 
 export async function criarCategoria(formData: FormData) {
@@ -98,6 +105,8 @@ export async function criarProduto(formData: FormData) {
   if (!imagemUrl) imagemUrl = getImagemAutomatica(nome);
 
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
+  const tempoPreparo = intOrNull(formData.get("tempo_preparo"));
+  const calorias     = intOrNull(formData.get("calorias"));
 
   const supabase = await createClient();
   await supabase.from("produtos").insert({
@@ -109,6 +118,8 @@ export async function criarProduto(formData: FormData) {
     custo_status: custo != null ? "confirmada" : "sem",
     descricao,
     imagem_url:   imagemUrl,
+    tempo_preparo: tempoPreparo,
+    calorias,
     ativo:        true,
     controla_estoque: false,
   });
@@ -129,6 +140,8 @@ export async function editarProduto(id: string, formData: FormData) {
   if (!imagemUrl) imagemUrl = getImagemAutomatica(nome);
 
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
+  const tempoPreparo = intOrNull(formData.get("tempo_preparo"));
+  const calorias     = intOrNull(formData.get("calorias"));
 
   const supabase = await createClient();
   await supabase.from("produtos").update({
@@ -139,6 +152,8 @@ export async function editarProduto(id: string, formData: FormData) {
     categoria_id: categoriaId,
     descricao,
     imagem_url:   imagemUrl,
+    tempo_preparo: tempoPreparo,
+    calorias,
   }).eq("id", id);
 
   revalidatePath("/dashboard/cardapio");

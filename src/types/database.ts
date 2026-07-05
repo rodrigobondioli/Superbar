@@ -143,6 +143,8 @@ export interface Produto {
   destaque: boolean;
   ativo: boolean;
   controla_estoque: boolean;
+  tempo_preparo: number | null;   // minutos (opcional) — exibido na ficha do drink
+  calorias: number | null;        // kcal (opcional)
   created_at: string;
   updated_at: string;
 }

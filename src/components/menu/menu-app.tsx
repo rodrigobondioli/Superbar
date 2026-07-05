@@ -472,6 +472,7 @@ function ProductsScreen({
 // ─── PRODUCT DETAIL ───────────────────────────────────────────────────────────
 function ProductDetailScreen({
   produto,
+  categoriaNome,
   onBack,
   onAdd,
   cartCount,
@@ -479,6 +480,7 @@ function ProductDetailScreen({
   autoPedido = true,
 }: {
   produto: Produto;
+  categoriaNome?: string;
   onBack: () => void;
   onAdd: (produto: Produto, qty: number) => void;
   cartCount: number;
@@ -487,31 +489,43 @@ function ProductDetailScreen({
 }) {
   const [qty, setQty] = useState(1);
 
+  // Descrição no formato "(nota de sabor) ingredientes" → separa as duas partes.
+  const desc = (produto.descricao ?? "").trim();
+  const m = desc.match(/^\(([^)]+)\)\s*([\s\S]*)$/);
+  const flavor = m ? m[1].trim() : null;
+  const ingredientes = (m ? m[2] : desc).trim();
+
+  const catN = (categoriaNome ?? "").toLowerCase();
+  const semAlcool = catN.includes("mockt") || catN.includes("sem álc") || catN.includes("nao alc") || catN.includes("não alc") || catN.includes("alcoó") && (catN.includes("nao") || catN.includes("não"));
+  const tag = catN.includes("autoral") ? "Autoral"
+    : (catN.includes("classic") || catN.includes("coquetel")) ? "Clássico"
+    : semAlcool ? "Sem álcool" : null;
+
+  const stat = (label: string, value: string) => (
+    <div key={label} style={{ flex: 1, minWidth: 0, background: CARD2, borderRadius: 14, padding: "12px 14px" }}>
+      <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</p>
+      <p style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{value}</p>
+    </div>
+  );
+  const stats = [
+    stat("Teor", semAlcool ? "Sem álcool" : "Alcoólico"),
+    produto.tempo_preparo ? stat("Preparo", `${produto.tempo_preparo} min`) : null,
+    produto.calorias ? stat("Calorias", `${produto.calorias} kcal`) : null,
+  ].filter(Boolean);
+
   return (
-    <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", overflow: "auto", fontFamily: FONT }}>
-      {/* Hero */}
-      <div style={{ position: "relative", height: 340, flexShrink: 0 }}>
-        {produto.imagem_url ? (
-          <img
-            src={produto.imagem_url}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            alt={produto.nome}
-          />
-        ) : (
-          <div style={{ width: "100%", height: "100%", background: CARD2 }} />
-        )}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: IMG_OVERLAY,
-        }} />
+    <div style={{ height: "100%", background: BG, overflow: "auto", fontFamily: FONT }}>
+      {/* Hero — funde no conteúdo */}
+      <div style={{ position: "relative" }}>
+        <div style={{ height: 400, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD2 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 2%, transparent 42%)" }} />
         <button
           onClick={onBack}
           style={{
-            position: "absolute", top: 52, left: 20,
-            background: "color-mix(in srgb, var(--bg) 70%, transparent)",
-            border: "1px solid var(--border)", borderRadius: 8, padding: "9px 16px",
-            color: "var(--fg)", fontSize: 13, cursor: "pointer", fontFamily: FONT,
+            position: "absolute", top: 52, left: 18,
+            background: "color-mix(in srgb, var(--bg) 55%, transparent)", backdropFilter: "blur(6px)",
+            border: "1px solid var(--border)", borderRadius: 999, padding: "9px 16px",
+            color: "var(--fg)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
           }}
         >
           ← Voltar
@@ -520,8 +534,8 @@ function ProductDetailScreen({
           <button
             onClick={onCart}
             style={{
-              position: "absolute", top: 52, right: 20,
-              background: ACCENT, border: "none", borderRadius: 8,
+              position: "absolute", top: 52, right: 18,
+              background: ACCENT, border: "none", borderRadius: 999,
               padding: "9px 16px", color: "var(--accent-fg)",
               fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT,
             }}
@@ -532,87 +546,73 @@ function ProductDetailScreen({
       </div>
 
       {/* Content */}
-      <div style={{ padding: "24px 24px 160px" }}>
-        <h1 style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 10px", lineHeight: 1.05, letterSpacing: "-0.5px" }}>
+      <div style={{ position: "relative", marginTop: -34, padding: "0 22px 170px" }}>
+        {(tag || flavor) && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+            {tag && <span style={{ background: "color-mix(in srgb, var(--accent) 18%, transparent)", color: "var(--accent-bright)", fontSize: 11, fontWeight: 800, padding: "5px 12px", borderRadius: 999, textTransform: "uppercase", letterSpacing: "0.06em" }}>{tag}</span>}
+            {flavor && <span style={{ background: CARD2, color: "var(--fg-muted)", fontSize: 12, fontWeight: 600, padding: "6px 12px", borderRadius: 999 }}>{flavor}</span>}
+          </div>
+        )}
+        <h1 style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", margin: "0 0 14px", lineHeight: 1.02, letterSpacing: "-0.6px" }}>
           {produto.nome}
         </h1>
-        {produto.descricao && (
-          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 20px", lineHeight: 1.7 }}>
-            {produto.descricao}
-          </p>
+
+        {ingredientes && (
+          <>
+            <p style={{ margin: "0 0 6px", fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>No copo</p>
+            <p style={{ fontSize: 14.5, color: "var(--fg-muted)", margin: "0 0 22px", lineHeight: 1.7 }}>{ingredientes}</p>
+          </>
         )}
-        <p style={{ fontSize: 30, fontWeight: 900, color: "var(--fg)", margin: "0 0 32px", letterSpacing: "-0.5px" }}>
+
+        {stats.length > 0 && (
+          <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>{stats}</div>
+        )}
+
+        <p style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px" }}>
           {fmt(produto.preco)}
         </p>
 
-        {/* Qty picker */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>Quantidade</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <button
-              onClick={() => setQty(Math.max(1, qty - 1))}
-              style={{
-                width: 42, height: 42, borderRadius: 8,
-                background: CARD2, border: "none", color: "var(--fg)", fontSize: 22,
-                cursor: qty > 1 ? "pointer" : "default",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: qty > 1 ? 1 : 0.3, fontFamily: FONT,
-              }}
-            >−</button>
-            <span style={{ fontSize: 22, fontWeight: 800, color: "var(--fg)", minWidth: 28, textAlign: "center" }}>{qty}</span>
-            <button
-              onClick={() => setQty(qty + 1)}
-              style={{
-                width: 42, height: 42, borderRadius: 8,
-                background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 22,
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
-              }}
-            >+</button>
+        {autoPedido && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24 }}>
+            <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>Quantidade</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: 42, height: 42, borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 22, cursor: qty > 1 ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", opacity: qty > 1 ? 1 : 0.35, fontFamily: FONT }}>−</button>
+              <span style={{ fontSize: 22, fontWeight: 800, color: "var(--fg)", minWidth: 26, textAlign: "center" }}>{qty}</span>
+              <button onClick={() => setQty(qty + 1)} style={{ width: 42, height: 42, borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>+</button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Fixed CTA */}
       <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
-        padding: "16px 20px 40px",
-        background: `linear-gradient(to top, ${BG} 70%, transparent)`,
+        padding: "16px 20px 34px",
+        background: `linear-gradient(to top, ${BG} 68%, transparent)`,
         display: "flex", gap: 10,
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            flex: 1, padding: "17px", borderRadius: 8,
-            background: CARD, border: "none",
-            color: "var(--fg-muted)",
-            fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
-          }}
-        >
-          Voltar
-        </button>
         {autoPedido ? (
           <button
             onClick={() => onAdd(produto, qty)}
             style={{
-              flex: 2.5, padding: "17px", borderRadius: 8,
+              flex: 1, padding: "17px", borderRadius: 999,
               background: ACCENT, border: "none", color: "var(--accent-fg)",
               fontSize: 15, fontWeight: 900, cursor: "pointer",
               letterSpacing: "-0.3px", fontFamily: FONT,
             }}
           >
-            Pedir agora · {fmt(produto.preco * qty)}
+            Adicionar · {fmt(produto.preco * qty)}
           </button>
         ) : (
           <div
             style={{
-              flex: 2.5, padding: "17px", borderRadius: 8,
-              background: CARD, color: "var(--fg-muted)",
+              flex: 1, padding: "17px", borderRadius: 999,
+              background: CARD2, color: "var(--fg-muted)",
               fontSize: 14, fontWeight: 700, textAlign: "center",
               display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
             }}
           >
-            Peça ao garçom
+            Peça no balcão
           </div>
         )}
       </div>
@@ -1511,6 +1511,7 @@ export function MenuApp({
       {screen === "product-detail" && selectedProduto && (
         <ProductDetailScreen
           produto={selectedProduto}
+          categoriaNome={cardapio.find((c) => c.id === selectedProduto.categoria_id)?.nome ?? selectedCategoria?.nome}
           onBack={() => setScreen(selectedCategoria ? "products" : "categories")}
           onAdd={handleAddToCart}
           cartCount={cartCount}
