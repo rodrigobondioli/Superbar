@@ -1325,9 +1325,6 @@ function HomeScreen({
               </>
             ) : (
               <div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 5, marginBottom: 10 }}>
-                  {[0, 1, 2].map((d) => <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: d <= step ? ACCENT : "var(--border-strong)" }} />)}
-                </div>
                 {step < VIBE_STEPS.length ? (
                   <>
                     <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{VIBE_STEPS[step].q}</p>
@@ -1354,6 +1351,9 @@ function HomeScreen({
                     <button onClick={() => { setStep(0); setPicks([]); }} style={{ width: "100%", textAlign: "center", padding: 10, background: "none", border: "none", color: ACCENT, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>Recomeçar</button>
                   </>
                 )}
+                <div style={{ display: "flex", justifyContent: "center", gap: 5, marginTop: 16 }}>
+                  {[0, 1, 2].map((d) => <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: d <= step ? ACCENT : "var(--border-strong)" }} />)}
+                </div>
               </div>
             )}
           </div>
@@ -1379,6 +1379,7 @@ function HomeScreen({
         )}
 
         {/* Chamar o garçom (ação real → chamadas) */}
+        <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--fg-subtle)", textAlign: "center" }}>Tá com dúvida ou precisa de algo?</p>
         <button
           onClick={() => {
             if (chamando || chamado) return;
