@@ -84,3 +84,33 @@ export async function getProdutosPublicos(barId: string): Promise<ProdutoPublico
     })),
   }));
 }
+
+/** Doses possíveis por produto a partir da ficha (min de estoque_atual/dose entre
+ *  os ingredientes ativos). Produto sem ficha não entra no mapa (sem limite = disponível).
+ *  Usado pra marcar "esgotado" no cardápio e travar o pedido no servidor. */
+export async function getDosesDisponiveis(barId: string): Promise<Map<string, number>> {
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("receitas")
+    .select("produto_id, quantidade, ingredientes(estoque_atual, ativo)")
+    .eq("bar_id", barId);
+
+  const map = new Map<string, number>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const r of (data ?? []) as any[]) {
+    const ing = Array.isArray(r.ingredientes) ? r.ingredientes[0] : r.ingredientes;
+    // ingrediente inativo ou dose inválida → não limita por esse insumo
+    const doses = ing && ing.ativo && r.quantidade > 0
+      ? Math.floor(Number(ing.estoque_atual) / Number(r.quantidade))
+      : Number.POSITIVE_INFINITY;
+    const prev = map.get(r.produto_id) ?? Number.POSITIVE_INFINITY;
+    map.set(r.produto_id, Math.min(prev, doses));
+  }
+  return map;
+}
+
+/** IDs de produtos esgotados (0 doses possíveis pela ficha). */
+export async function getEsgotados(barId: string): Promise<string[]> {
+  const doses = await getDosesDisponiveis(barId);
+  return [...doses.entries()].filter(([, n]) => n < 1).map(([id]) => id);
+}

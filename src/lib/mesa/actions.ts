@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getDosesDisponiveis } from "@/lib/mesa/queries";
 
 export async function abrirComandaCliente(
   mesaId: string,
@@ -188,6 +189,18 @@ export async function criarPedidoCliente(
     .in("id", produtoIds)
     .returns<{ id: string; nome: string; preco: number; ativo: boolean }[]>();
   const prodMap = new Map((produtos ?? []).map((p) => [p.id, p]));
+
+  // Trava de estoque: recusa item esgotado/sem dose suficiente (evita pedido fantasma).
+  const doses = await getDosesDisponiveis(barId);
+  const qtdPorProduto = new Map<string, number>();
+  for (const l of linhas) qtdPorProduto.set(l.produtoId, (qtdPorProduto.get(l.produtoId) ?? 0) + Math.max(1, Math.floor(l.quantidade)));
+  for (const [pid, qtd] of qtdPorProduto) {
+    const disp = doses.get(pid);
+    if (disp !== undefined && disp < qtd) {
+      const nome = prodMap.get(pid)?.nome ?? "Esse item";
+      return { error: disp <= 0 ? `${nome} está esgotado no momento.` : `Só temos ${disp} de "${nome}" agora.` };
+    }
+  }
 
   const varMap = new Map<string, { id: string; nome: string; preco: number; produto_id: string }>();
   if (varianteIds.length > 0) {

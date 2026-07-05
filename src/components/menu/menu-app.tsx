@@ -359,6 +359,7 @@ function CategoriesScreen({
 function ProductsScreen({
   categoria,
   allCategorias,
+  esgotados,
   onSelect,
   onBack,
   onSwitchCategoria,
@@ -367,6 +368,7 @@ function ProductsScreen({
 }: {
   categoria: CategoriaComProdutos;
   allCategorias: CategoriaComProdutos[];
+  esgotados: Set<string>;
   onSelect: (p: Produto) => void;
   onBack: () => void;
   onSwitchCategoria: (cat: CategoriaComProdutos) => void;
@@ -443,29 +445,34 @@ function ProductsScreen({
         display: "flex", flexDirection: "column", gap: 10,
         padding: "6px 16px 60px",
       }}>
-        {ativos.map((produto) => (
-          <button
-            key={produto.id}
-            onClick={() => onSelect(produto)}
-            style={{
-              display: "flex", alignItems: "center", gap: 14, width: "100%",
-              background: CARD2, borderRadius: 16, padding: 10, border: "none",
-              cursor: "pointer", textAlign: "left", fontFamily: FONT,
-            }}
-          >
-            <div style={{ width: 78, height: 78, borderRadius: 12, flexShrink: 0, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD }} />
-            <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", lineHeight: 1.25 }}>
-                {produto.nome}
-              </p>
-              {produto.descricao && (
-                <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                  {produto.descricao}
+        {ativos.map((produto) => {
+          const esg = esgotados.has(produto.id);
+          return (
+            <button
+              key={produto.id}
+              onClick={() => onSelect(produto)}
+              style={{
+                display: "flex", alignItems: "center", gap: 14, width: "100%",
+                background: CARD2, borderRadius: 16, padding: 10, border: "none",
+                cursor: "pointer", textAlign: "left", fontFamily: FONT, opacity: esg ? 0.55 : 1,
+              }}
+            >
+              <div style={{ width: 78, height: 78, borderRadius: 12, flexShrink: 0, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD, filter: esg ? "grayscale(1)" : "none" }} />
+              <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
+                <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", lineHeight: 1.25 }}>
+                  {produto.nome}
                 </p>
-              )}
-            </div>
-          </button>
-        ))}
+                {esg ? (
+                  <p style={{ margin: "5px 0 0", fontSize: 11, fontWeight: 800, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Esgotado</p>
+                ) : produto.descricao && (
+                  <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                    {produto.descricao}
+                  </p>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -475,6 +482,7 @@ function ProductsScreen({
 function ProductDetailScreen({
   produto,
   categoriaNome,
+  esgotado = false,
   onBack,
   onPedir,
   pedindo = false,
@@ -483,6 +491,7 @@ function ProductDetailScreen({
 }: {
   produto: Produto;
   categoriaNome?: string;
+  esgotado?: boolean;
   onBack: () => void;
   onPedir: (produto: Produto, qty: number) => void;
   pedindo?: boolean;
@@ -572,7 +581,7 @@ function ProductDetailScreen({
             <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Preço</p>
             <p style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px" }}>{fmt(produto.preco)}</p>
           </div>
-          {autoPedido && (
+          {autoPedido && !esgotado && (
             <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
               <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menos" style={{ width: 40, height: 40, borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 21, cursor: qty > 1 ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", opacity: qty > 1 ? 1 : 0.35, fontFamily: FONT }}>−</button>
               <span style={{ fontSize: 20, fontWeight: 800, color: "var(--fg)", minWidth: 22, textAlign: "center" }}>{qty}</span>
@@ -592,7 +601,18 @@ function ProductDetailScreen({
         {pedidoErro && (
           <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "var(--danger)", textAlign: "center" }}>{pedidoErro}</p>
         )}
-        {autoPedido ? (
+        {esgotado ? (
+          <div
+            style={{
+              padding: "17px", borderRadius: 999,
+              background: CARD2, color: "var(--fg-subtle)",
+              fontSize: 14, fontWeight: 800, textAlign: "center", textTransform: "uppercase", letterSpacing: "0.06em",
+              display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
+            }}
+          >
+            Esgotado
+          </div>
+        ) : autoPedido ? (
           <button
             onClick={() => onPedir(produto, qty)}
             disabled={pedindo}
@@ -1495,6 +1515,7 @@ export function MenuApp({
   cardapio,
   topPedidos = [],
   destaques = [],
+  esgotados = [],
   comandaId,
   autoPedido = true,
   initialNome,
@@ -1504,10 +1525,12 @@ export function MenuApp({
   cardapio: CategoriaComProdutos[];
   topPedidos?: string[];
   destaques?: Destaque[];
+  esgotados?: string[];      // produto_ids esgotados pela ficha
   comandaId?: string;        // presente no fluxo do QR → grava no modelo real
   autoPedido?: boolean;      // false = navega mas não pede (só leitura)
   initialNome?: string;      // nome vindo da comanda aberta → pula splash/welcome
 }) {
+  const esgotadoSet = new Set(esgotados);
   const [screen, setScreen] = useState<Screen>(initialNome ? "home" : "splash");
   const [cliente, setCliente] = useState<ClienteLocal | null>(
     initialNome ? { nome: initialNome, visitas: 1, ultimaVisita: new Date().toISOString() } : null,
@@ -1620,6 +1643,7 @@ export function MenuApp({
         <ProductsScreen
           categoria={selectedCategoria}
           allCategorias={cardapio}
+          esgotados={esgotadoSet}
           onSelect={(p) => { setSelectedProduto(p); setScreen("product-detail"); }}
           onBack={() => setScreen("home")}
           onSwitchCategoria={(cat) => setSelectedCategoria(cat)}
@@ -1631,6 +1655,7 @@ export function MenuApp({
         <ProductDetailScreen
           produto={selectedProduto}
           categoriaNome={cardapio.find((c) => c.id === selectedProduto.categoria_id)?.nome ?? selectedCategoria?.nome}
+          esgotado={esgotadoSet.has(selectedProduto.id)}
           onBack={() => setScreen(selectedCategoria ? "products" : "categories")}
           onPedir={handlePedir}
           pedindo={pedindo}

@@ -640,6 +640,7 @@ export function MesaApp({
   cardapio,
   topPedidos = [],
   destaques = [],
+  esgotados = [],
 }: {
   mesa: MesaPublica;
   bar: Bar;
@@ -647,6 +648,7 @@ export function MesaApp({
   cardapio: (Categoria & { produtos: Produto[] })[];
   topPedidos?: string[];
   destaques?: Destaque[];
+  esgotados?: string[];
 }) {
   const [estado, setEstado] = useState<Estado>({ tipo: "identificacao" });
 
@@ -699,6 +701,7 @@ export function MesaApp({
       cardapio={cardapio}
       topPedidos={topPedidos}
       destaques={destaques}
+      esgotados={esgotados}
       comandaId={estado.comandaId}
       autoPedido={mesa.bar.autoPedido}
       initialNome={estado.nomeCliente}

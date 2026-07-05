@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getMesaPublica } from "@/lib/mesa/queries";
+import { getMesaPublica, getEsgotados } from "@/lib/mesa/queries";
 import { getTopPedidos } from "@/lib/menu/queries";
 import { getDestaques } from "@/lib/destaques/queries";
 import { MesaApp } from "@/components/mesa/mesa-app";
@@ -31,7 +31,11 @@ export default async function MesaPage({
     .map((c) => ({ ...c, produtos: (produtos ?? []).filter((p) => p.categoria_id === c.id) }))
     .filter((c) => c.produtos.length > 0);
 
-  const [topPedidos, destaques] = await Promise.all([getTopPedidos(mesa.bar.id), getDestaques(mesa.bar.id)]);
+  const [topPedidos, destaques, esgotados] = await Promise.all([
+    getTopPedidos(mesa.bar.id),
+    getDestaques(mesa.bar.id),
+    getEsgotados(mesa.bar.id),
+  ]);
 
   return (
     <MesaApp
@@ -41,6 +45,7 @@ export default async function MesaPage({
       cardapio={cardapio}
       topPedidos={topPedidos}
       destaques={destaques}
+      esgotados={esgotados}
     />
   );
 }
