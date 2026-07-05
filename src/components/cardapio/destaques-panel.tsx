@@ -76,6 +76,9 @@ export function DestaquesPanel({
             <div style={{ marginBottom: 14 }}>
               <span style={lbl}>Imagem do banner</span>
               <ImageUpload onUpload={setImagemUrl} />
+              <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.4 }}>
+                Recomendado: 1200 × 720 px (proporção 5:3), JPG ou PNG.
+              </p>
             </div>
             <div style={{ marginBottom: 12 }}>
               <label style={lbl}>Título</label>

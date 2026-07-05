@@ -1053,13 +1053,15 @@ function HomeScreen({
   const [chamado, setChamado] = useState(false);
   const [chamarErro, setChamarErro] = useState<string | null>(null);
   const [heroIdx, setHeroIdx] = useState(0);
+  const [heroDrag, setHeroDrag] = useState(0);      // deslocamento em px enquanto arrasta
+  const [heroDragging, setHeroDragging] = useState(false);
 
-  // Carrossel automático quando há 2+ destaques (rota a cada 4.5s)
+  // Carrossel automático quando há 2+ destaques (rota a cada 4.5s) — pausa no arraste
   useEffect(() => {
-    if (heroItems.length <= 1) return;
+    if (heroItems.length <= 1 || heroDragging) return;
     const t = setInterval(() => setHeroIdx((i) => (i + 1) % heroItems.length), 4500);
     return () => clearInterval(t);
-  }, [heroItems.length]);
+  }, [heroItems.length, heroDragging]);
 
   useEffect(() => {
     if (reelRef.current && N > 0) {
@@ -1138,31 +1140,49 @@ function HomeScreen({
 
         {/* Em destaque — banners (carrossel automático + arrasta quando há 2+) */}
         {heroItems.length > 0 && (() => {
-          const hero = heroItems[heroIdx % heroItems.length];
+          const cur = heroIdx % heroItems.length;
+          const multi = heroItems.length > 1;
           return (
             <div style={{ marginBottom: 24 }}>
               <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{destaques.length === 0 && ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
-              <button
-                onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } hero.onClick(); }}
-                onTouchStart={(e) => { heroDragRef.current = { x: e.touches[0].clientX, moved: false }; }}
-                onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - heroDragRef.current.x) > 10) heroDragRef.current.moved = true; }}
-                onTouchEnd={(e) => {
-                  if (heroItems.length <= 1) return;
-                  const dx = e.changedTouches[0].clientX - heroDragRef.current.x;
-                  if (Math.abs(dx) > 40) setHeroIdx((i) => (i + (dx < 0 ? 1 : heroItems.length - 1)) % heroItems.length);
+              <div
+                onTouchStart={(e) => { if (!multi) return; heroDragRef.current = { x: e.touches[0].clientX, moved: false }; setHeroDragging(true); }}
+                onTouchMove={(e) => {
+                  if (!multi || !heroDragging) return;
+                  const dx = e.touches[0].clientX - heroDragRef.current.x;
+                  if (Math.abs(dx) > 6) heroDragRef.current.moved = true;
+                  // resistência nas bordas (não há slide antes do 1º / depois do último)
+                  const atStart = cur === 0 && dx > 0;
+                  const atEnd = cur === heroItems.length - 1 && dx < 0;
+                  setHeroDrag(atStart || atEnd ? dx * 0.35 : dx);
                 }}
-                style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem ? `url(${hero.imagem}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
-                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{hero.badge}</span>
-                <div style={{ position: "relative", padding: 16, textAlign: "left" }}>
-                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.titulo}</p>
-                  {hero.subtitulo && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.45 }}>{hero.subtitulo}</p>}
+                onTouchEnd={(e) => {
+                  if (!multi) return;
+                  const dx = e.changedTouches[0].clientX - heroDragRef.current.x;
+                  setHeroDragging(false); setHeroDrag(0);
+                  if (Math.abs(dx) > 48) setHeroIdx((i) => (i + (dx < 0 ? 1 : heroItems.length - 1)) % heroItems.length);
+                }}
+                style={{ overflow: "hidden", borderRadius: 20, touchAction: "pan-y" }}>
+                <div style={{ display: "flex", transform: `translateX(calc(${-cur * 100}% + ${heroDrag}px))`, transition: heroDragging ? "none" : "transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1)", willChange: "transform" }}>
+                  {heroItems.map((h, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } h.onClick(); }}
+                      style={{ flex: "0 0 100%", position: "relative", minHeight: 240, border: "none", padding: 0, cursor: "pointer", background: h.imagem ? `url(${h.imagem}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end", textAlign: "left" }}>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
+                      <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{h.badge}</span>
+                      <div style={{ position: "relative", padding: 16 }}>
+                        <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{h.titulo}</p>
+                        {h.subtitulo && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.45 }}>{h.subtitulo}</p>}
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              </button>
-              {heroItems.length > 1 && (
+              </div>
+              {multi && (
                 <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
                   {heroItems.map((_, i) => (
-                    <button key={i} onClick={() => setHeroIdx(i)} aria-label={`Destaque ${i + 1}`} style={{ width: i === heroIdx % heroItems.length ? 20 : 6, height: 6, borderRadius: 999, background: i === heroIdx % heroItems.length ? ACCENT : "var(--border-strong)", border: "none", cursor: "pointer", transition: "all 200ms", padding: 0 }} />
+                    <button key={i} onClick={() => setHeroIdx(i)} aria-label={`Destaque ${i + 1}`} style={{ width: i === cur ? 20 : 6, height: 6, borderRadius: 999, background: i === cur ? ACCENT : "var(--border-strong)", border: "none", cursor: "pointer", transition: "all 200ms", padding: 0 }} />
                   ))}
                 </div>
               )}
@@ -1316,7 +1336,7 @@ function HomeScreen({
             });
           }}
           disabled={chamando}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, borderRadius: 999, border: "none", background: chamado ? "color-mix(in srgb, var(--ok) 14%, transparent)" : CARD2, color: chamado ? "var(--ok)" : "var(--fg)", fontSize: 15, fontWeight: 700, cursor: chamando ? "wait" : "pointer", fontFamily: FONT }}
+          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, padding: 16, borderRadius: 999, border: "none", background: chamado ? "color-mix(in srgb, var(--ok) 14%, transparent)" : ACCENT, color: chamado ? "var(--ok)" : "var(--accent-fg)", fontSize: 15, fontWeight: 700, cursor: chamando ? "wait" : "pointer", fontFamily: FONT, opacity: chamando ? 0.7 : 1, transition: "opacity 160ms" }}
         >
           {chamado ? (
             <><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Garçom a caminho</>
