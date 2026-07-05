@@ -36,6 +36,22 @@ export async function criarDestaque(formData: FormData) {
   revalidatePath("/dashboard/cardapio");
 }
 
+export async function editarDestaque(id: string, formData: FormData) {
+  const titulo = String(formData.get("titulo") ?? "").trim();
+  if (!titulo) return;
+  const subtitulo = String(formData.get("subtitulo") ?? "").trim() || null;
+  const imagemUrl = String(formData.get("imagem_url") ?? "").trim() || null;
+  const produtoId = String(formData.get("produto_id") ?? "").trim() || null;
+
+  const supabase = await createClient();
+  await supabase
+    .from("destaques")
+    .update({ titulo, subtitulo, imagem_url: imagemUrl, produto_id: produtoId })
+    .eq("id", id);
+
+  revalidatePath("/dashboard/cardapio");
+}
+
 export async function deletarDestaque(id: string) {
   const supabase = await createClient();
   await supabase.from("destaques").delete().eq("id", id);

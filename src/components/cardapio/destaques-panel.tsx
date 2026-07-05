@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, Plus, Loader2 } from "lucide-react";
+import { X, Trash2, Plus, Loader2, Pencil, Check } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { ImageUpload } from "./image-upload";
-import { criarDestaque, deletarDestaque } from "@/lib/destaques/actions";
+import { criarDestaque, editarDestaque, deletarDestaque } from "@/lib/destaques/actions";
 import type { Destaque } from "@/types/database";
 
 const input: React.CSSProperties = {
@@ -28,7 +28,6 @@ export function DestaquesPanel({
   const [imagemUrl, setImagemUrl] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [formKey, setFormKey] = useState(0);
-  const [deletando, setDeletando] = useState<string | null>(null);
 
   async function handleSubmit(fd: FormData) {
     fd.set("imagem_url", imagemUrl ?? "");
@@ -38,13 +37,6 @@ export function DestaquesPanel({
     setImagemUrl(null);
     setFormKey((k) => k + 1);
     toast("Destaque adicionado.", "ok");
-  }
-
-  async function handleDelete(id: string) {
-    setDeletando(id);
-    try { await deletarDestaque(id); toast("Destaque removido.", "ok"); }
-    catch { toast("Erro ao remover.", "error"); }
-    finally { setDeletando(null); }
   }
 
   return (
@@ -107,21 +99,85 @@ export function DestaquesPanel({
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {destaques.map((d) => (
-                <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 10 }}>
-                  <div style={{ width: 64, height: 44, borderRadius: 6, flexShrink: 0, background: d.imagem_url ? `url(${d.imagem_url}) center/cover` : "var(--bg-inset)" }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.titulo}</p>
-                    {d.subtitulo && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.subtitulo}</p>}
-                  </div>
-                  <button onClick={() => handleDelete(d.id)} disabled={deletando === d.id} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--danger)", padding: 6, flexShrink: 0 }} title="Remover">
-                    {deletando === d.id ? <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" /> : <Trash2 style={{ width: 15, height: 15 }} />}
-                  </button>
-                </div>
+                <DestaqueRow key={d.id} d={d} produtos={produtos} />
               ))}
             </div>
           )}
         </div>
       </div>
     </>
+  );
+}
+
+function DestaqueRow({ d, produtos }: { d: Destaque; produtos: { id: string; nome: string }[] }) {
+  const [editing, setEditing] = useState(false);
+  const [imagemUrl, setImagemUrl] = useState<string | null>(d.imagem_url ?? null);
+  const [salvando, setSalvando] = useState(false);
+  const [deletando, setDeletando] = useState(false);
+
+  async function handleEdit(fd: FormData) {
+    fd.set("imagem_url", imagemUrl ?? "");
+    setSalvando(true);
+    await editarDestaque(d.id, fd);
+    setSalvando(false);
+    setEditing(false);
+    toast("Destaque atualizado.", "ok");
+  }
+
+  async function handleDelete() {
+    setDeletando(true);
+    try { await deletarDestaque(d.id); toast("Destaque removido.", "ok"); }
+    catch { toast("Erro ao remover.", "error"); setDeletando(false); }
+  }
+
+  if (editing) {
+    return (
+      <form action={handleEdit} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
+        <div style={{ marginBottom: 14 }}>
+          <span style={lbl}>Imagem do banner</span>
+          <ImageUpload currentUrl={d.imagem_url} onUpload={setImagemUrl} />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={lbl}>Título</label>
+          <input name="titulo" defaultValue={d.titulo} style={input} required />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={lbl}>Subtítulo (opcional)</label>
+          <input name="subtitulo" defaultValue={d.subtitulo ?? ""} style={input} />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={lbl}>Levar a um drink (opcional)</label>
+          <select name="produto_id" style={{ ...input, colorScheme: "dark" }} defaultValue={d.produto_id ?? ""}>
+            <option value="">Nenhum — só o banner</option>
+            {produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+          </select>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
+            {salvando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Check style={{ width: 14, height: 14 }} />}
+            Salvar
+          </button>
+          <button type="button" onClick={() => { setEditing(false); setImagemUrl(d.imagem_url ?? null); }} style={{ background: "none", border: "1px solid var(--border)", color: "var(--fg-muted)", borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+            Cancelar
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 10 }}>
+      <div style={{ width: 64, height: 44, borderRadius: 6, flexShrink: 0, background: d.imagem_url ? `url(${d.imagem_url}) center/cover` : "var(--bg-inset)" }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.titulo}</p>
+        {d.subtitulo && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.subtitulo}</p>}
+      </div>
+      <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-subtle)", padding: 6, flexShrink: 0 }} title="Editar">
+        <Pencil style={{ width: 15, height: 15 }} />
+      </button>
+      <button onClick={handleDelete} disabled={deletando} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--danger)", padding: 6, flexShrink: 0 }} title="Remover">
+        {deletando ? <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" /> : <Trash2 style={{ width: 15, height: 15 }} />}
+      </button>
+    </div>
   );
 }
