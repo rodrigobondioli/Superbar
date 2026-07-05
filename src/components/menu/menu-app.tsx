@@ -1231,16 +1231,17 @@ function HomeScreen({
                 return (
                   <button
                     onClick={() => onSelectCategoria(especial)}
-                    style={{ display: "flex", width: "100%", minHeight: 150, borderRadius: 20, overflow: "hidden", border: "1px solid color-mix(in srgb, var(--accent) 55%, transparent)", padding: 0, cursor: "pointer", background: CARD, textAlign: "left", marginBottom: 20 }}
+                    style={{ display: "flex", gap: 14, alignItems: "stretch", width: "100%", background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left", marginBottom: 22 }}
                   >
-                    <div style={{ flex: 1, minWidth: 0, padding: "16px 14px 16px 18px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 8 }}>
-                      <span style={{ alignSelf: "flex-start", background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>Especial do dia</span>
-                      <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", lineHeight: 1.15 }}>{item ? item.nome : especial.nome}</p>
+                    <div style={{ position: "relative", width: "55%", flexShrink: 0, aspectRatio: "4 / 3", borderRadius: 16, overflow: "hidden", background: cover ? `url(${cover}) center/cover` : CARD2 }}>
+                      <span style={{ position: "absolute", top: 10, left: 10, background: ACCENT, color: "var(--accent-fg)", fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 10px", borderRadius: 999 }}>Especial do dia</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
+                      <p style={{ margin: 0, fontSize: 19, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", lineHeight: 1.15 }}>{item ? item.nome : especial.nome}</p>
                       {item?.descricao && (
-                        <p style={{ margin: 0, fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>{item.descricao}</p>
+                        <p style={{ margin: 0, fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>{item.descricao}</p>
                       )}
                     </div>
-                    <div style={{ width: "38%", minWidth: 120, flexShrink: 0, alignSelf: "stretch", background: cover ? `url(${cover}) center/cover` : CARD2 }} />
                   </button>
                 );
               })()}
