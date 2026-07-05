@@ -1385,9 +1385,10 @@ function HomeScreen({
 
 // ─── CONSUMAÇÃO (conta corrente em tempo real) ────────────────────────────────
 function ConsumacaoScreen({
-  comandaId, mesaLabel, barId, mesaId, justOrdered, pedidoErro, onSeguir,
+  comandaId, nomeCliente, mesaLabel, barId, mesaId, justOrdered, pedidoErro, onSeguir,
 }: {
   comandaId?: string;
+  nomeCliente?: string | null;
   mesaLabel: string;
   barId: string;
   mesaId: string;
@@ -1437,8 +1438,10 @@ function ConsumacaoScreen({
     <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", fontFamily: FONT }}>
       <div style={{ flexShrink: 0, padding: "52px 22px 16px", borderBottom: "1px solid var(--border)" }}>
         <button onClick={onSeguir} aria-label="Voltar" style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "1px solid var(--border)", borderRadius: 999, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg)", fontSize: 19, cursor: "pointer", marginBottom: 14, fontFamily: FONT }}>←</button>
-        <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>{mesaLabel}</p>
-        <h1 style={{ margin: "3px 0 0", fontSize: 26, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px" }}>Sua consumação</h1>
+        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px" }}>Sua consumação</h1>
+        <p style={{ margin: "5px 0 0", fontSize: 13, color: "var(--fg-muted)" }}>
+          {nomeCliente ? <><span style={{ fontWeight: 700, color: "var(--fg)" }}>{nomeCliente}</span> · {mesaLabel}</> : mesaLabel}
+        </p>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 22px 120px" }}>
@@ -1478,8 +1481,8 @@ function ConsumacaoScreen({
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "14px 20px 30px", background: `linear-gradient(to top, ${BG} 70%, transparent)`, display: "flex", gap: 10 }}>
-        <button onClick={onSeguir} style={{ flex: 1, padding: "16px", borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>Seguir pedindo</button>
         <button onClick={chamar} style={{ flex: 1, padding: "16px", borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>{chamando ? "Chamado ✓" : "Chamar garçom"}</button>
+        <button onClick={onSeguir} style={{ flex: 1, padding: "16px", borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>Seguir pedindo</button>
       </div>
     </div>
   );
@@ -1638,6 +1641,7 @@ export function MenuApp({
       {screen === "consumacao" && (
         <ConsumacaoScreen
           comandaId={comandaId}
+          nomeCliente={cliente?.nome ?? null}
           mesaLabel={mesa.nome ?? `Mesa ${mesa.numero}`}
           barId={bar.id}
           mesaId={mesa.id}
