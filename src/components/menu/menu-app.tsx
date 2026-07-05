@@ -438,30 +438,29 @@ function ProductsScreen({
       {/* 2-column grid */}
       <div style={{
         flex: 1, overflow: "auto",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 12, padding: "2px 16px 60px",
-        alignContent: "start",
+        display: "flex", flexDirection: "column", gap: 10,
+        padding: "6px 16px 60px",
       }}>
         {ativos.map((produto) => (
           <button
             key={produto.id}
             onClick={() => onSelect(produto)}
             style={{
-              position: "relative", aspectRatio: "4 / 5", borderRadius: 16,
-              overflow: "hidden", cursor: "pointer", border: "none", padding: 0,
-              textAlign: "left", display: "block",
-              background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD2,
+              display: "flex", alignItems: "center", gap: 14, width: "100%",
+              background: CARD2, borderRadius: 16, padding: 10, border: "none",
+              cursor: "pointer", textAlign: "left", fontFamily: FONT,
             }}
           >
-            <div style={{ position: "absolute", inset: 0, background: IMG_OVERLAY }} />
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 13px" }}>
-              <p style={{
-                margin: 0, fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, letterSpacing: "-0.2px",
-                overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-              }}>
+            <div style={{ width: 78, height: 78, borderRadius: 12, flexShrink: 0, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD }} />
+            <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", lineHeight: 1.25 }}>
                 {produto.nome}
               </p>
+              {produto.descricao && (
+                <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                  {produto.descricao}
+                </p>
+              )}
             </div>
           </button>
         ))}
