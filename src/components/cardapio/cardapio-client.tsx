@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
@@ -14,6 +14,7 @@ import {
   criarCategoria,
   editarCategoria,
   atualizarFotoCategoria,
+  reordenarCategorias,
   desativarCategoria,
   criarProduto,
   editarProduto,
@@ -628,10 +629,22 @@ function CategoriaItem({
   grupo,
   selected,
   onSelect,
+  dragging = false,
+  dropTarget = false,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  onDropItem,
 }: {
   grupo: CategoriaComProdutosAdmin;
   selected: boolean;
   onSelect: () => void;
+  dragging?: boolean;
+  dropTarget?: boolean;
+  onDragStart?: () => void;
+  onDragEnter?: () => void;
+  onDragEnd?: () => void;
+  onDropItem?: () => void;
 }) {
   const [editingNome, setEditingNome] = useState(false);
   const [imagemUrl, setImagemUrl] = useState<string | null>(grupo.categoria.imagem_url ?? null);
@@ -669,12 +682,23 @@ function CategoriaItem({
   return (
     <div
       onClick={onSelect}
+      draggable
+      onDragStart={onDragStart}
+      onDragEnter={onDragEnter}
+      onDragOver={e => e.preventDefault()}
+      onDrop={e => { e.preventDefault(); onDropItem?.(); }}
+      onDragEnd={onDragEnd}
       className="group shrink-0 lg:shrink flex items-center gap-2 cursor-pointer rounded transition-colors"
       style={{
         padding: "8px 12px",
-        background: selected ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+        background: dropTarget
+          ? "color-mix(in srgb, var(--accent) 14%, transparent)"
+          : selected ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
+        opacity: dragging ? 0.4 : 1,
+        boxShadow: dropTarget ? "inset 0 2px 0 var(--accent)" : "none",
       }}
     >
+      <GripVertical className="hidden lg:block shrink-0" style={{ width: 13, height: 13, color: "var(--fg-subtle)", opacity: selected ? 0.6 : 0.25, cursor: "grab" }} />
       <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexShrink: 0 }}>
         <ImageUpload
           compact
@@ -740,6 +764,36 @@ export function CardapioClient({
   const [importPanelOpen, setImportPanelOpen] = useState(false);
   const [classicosOpen, setClassicosOpen] = useState(false);
   const [destaquesOpen, setDestaquesOpen] = useState(false);
+
+  // Drag-and-drop para ordenar categorias (a ordem reflete no app do cliente).
+  // `order` guarda a preferência do usuário; a ordem renderizada é derivada no
+  // render (sem efeito) mesclando com o cardápio atual — categorias novas entram
+  // no fim, removidas somem, sem estado obsoleto.
+  const [order, setOrder] = useState<string[]>(cardapio.map((g) => g.categoria.id));
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+
+  const orderedCardapio: CategoriaComProdutosAdmin[] = (() => {
+    const byId = new Map(cardapio.map((g) => [g.categoria.id, g]));
+    const seen = new Set<string>();
+    const result: CategoriaComProdutosAdmin[] = [];
+    for (const id of order) { const g = byId.get(id); if (g) { result.push(g); seen.add(id); } }
+    for (const g of cardapio) if (!seen.has(g.categoria.id)) result.push(g);
+    return result;
+  })();
+
+  function handleReorder(targetId: string) {
+    if (!dragId || dragId === targetId) { setDragId(null); setOverId(null); return; }
+    const cur = orderedCardapio.map((g) => g.categoria.id);
+    const from = cur.indexOf(dragId);
+    const to = cur.indexOf(targetId);
+    setDragId(null); setOverId(null);
+    if (from < 0 || to < 0) return;
+    cur.splice(from, 1);
+    cur.splice(to, 0, dragId);
+    setOrder(cur);
+    reordenarCategorias(cur);
+  }
 
   const nomesExistentes = cardapio.flatMap((g) => g.produtos.map((p) => p.nome));
   const produtosFlat = cardapio.flatMap((g) => g.produtos.map((p) => ({ id: p.id, nome: p.nome })));
@@ -868,12 +922,18 @@ export function CardapioClient({
         >
           <p className="hidden lg:block shrink-0" style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 16 }}>Categorias</p>
 
-          {cardapio.map(grupo => (
+          {orderedCardapio.map(grupo => (
             <CategoriaItem
               key={grupo.categoria.id}
               grupo={grupo}
               selected={selectedId === grupo.categoria.id}
               onSelect={() => { setSelectedId(grupo.categoria.id); setAddingProduto(false); }}
+              dragging={dragId === grupo.categoria.id}
+              dropTarget={overId === grupo.categoria.id && dragId !== grupo.categoria.id}
+              onDragStart={() => setDragId(grupo.categoria.id)}
+              onDragEnter={() => setOverId(grupo.categoria.id)}
+              onDragEnd={() => { setDragId(null); setOverId(null); }}
+              onDropItem={() => handleReorder(grupo.categoria.id)}
             />
           ))}
 

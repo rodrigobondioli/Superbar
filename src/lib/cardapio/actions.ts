@@ -48,6 +48,17 @@ export async function editarCategoria(id: string, formData: FormData) {
   revalidatePath("/dashboard/cardapio");
 }
 
+/** Persiste a nova ordem das categorias (drag-and-drop na lista).
+ *  A ordem aqui é a mesma que o cliente vê no app (que ordena por `ordem`). */
+export async function reordenarCategorias(orderedIds: string[]) {
+  if (orderedIds.length === 0) return;
+  const supabase = await createClient();
+  await Promise.all(
+    orderedIds.map((id, i) => supabase.from("categorias").update({ ordem: i + 1 }).eq("id", id)),
+  );
+  revalidatePath("/dashboard/cardapio");
+}
+
 /** Salva só a foto da categoria (thumb clicável na lista, sem abrir o editor). */
 export async function atualizarFotoCategoria(id: string, imagemUrl: string | null) {
   const supabase = await createClient();
