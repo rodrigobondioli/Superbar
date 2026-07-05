@@ -274,7 +274,7 @@ export interface ComandaItem {
   preco_total: number;
   observacao: string | null;
   status: ComandaItemStatus;
-  adicionado_por: string;
+  adicionado_por: string | null;  // null quando o próprio cliente adiciona (auto-pedido)
   cancelado_por: string | null;
   adicionado_em: string;
   cancelado_em: string | null;

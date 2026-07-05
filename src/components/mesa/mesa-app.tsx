@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { abrirComandaCliente, chamarAtendimento, buscarComandaPorTelefone } from "@/lib/mesa/actions";
+import { abrirComandaCliente, chamarAtendimento, buscarComandaPorTelefone, criarPedidoCliente, type ItemPedido } from "@/lib/mesa/actions";
 import type { MesaPublica, ProdutoPublico } from "@/lib/mesa/queries";
 
 type Tab = "cardapio" | "conta";
@@ -43,6 +43,28 @@ const IconReceipt = () => (
     <line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/>
   </svg>
 );
+
+// ─── Stepper de quantidade (auto-pedido) ──────────────────────────────────────
+
+function Stepper({ qty, onAdd, onRemove }: { qty: number; onAdd: () => void; onRemove: () => void }) {
+  const round: React.CSSProperties = {
+    width: 32, height: 32, borderRadius: 999, border: "none", cursor: "pointer",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 18, fontWeight: 800, lineHeight: 1, WebkitTapHighlightColor: "transparent",
+  };
+  if (qty === 0) {
+    return (
+      <button onClick={onAdd} aria-label="Adicionar" style={{ ...round, background: "var(--accent)", color: "var(--accent-fg)" }}>+</button>
+    );
+  }
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <button onClick={onRemove} aria-label="Remover" style={{ ...round, background: "rgba(255,255,255,0.1)", color: "var(--fg)" }}>−</button>
+      <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", minWidth: 18, textAlign: "center" }}>{qty}</span>
+      <button onClick={onAdd} aria-label="Adicionar" style={{ ...round, background: "var(--accent)", color: "var(--accent-fg)" }}>+</button>
+    </div>
+  );
+}
 
 // ─── Tela de identificação ────────────────────────────────────────────────────
 
@@ -259,10 +281,17 @@ function TelaAberta({
   comandaId: string;
   nomeCliente: string;
 }) {
-  const [tab, setTab] = useState<Tab>("conta");
+  const auto = mesa.bar.autoPedido;
+  const [tab, setTab] = useState<Tab>(auto ? "cardapio" : "conta");
   const [itens, setItens] = useState<ItemComanda[]>([]);
   const [chamando, setChamando] = useState(false);
   const [chamadaPending, startChamada] = useTransition();
+
+  // Carrinho do auto-pedido: chave `${produtoId}|${varianteId ?? ""}` → quantidade
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [enviando, setEnviando] = useState(false);
+  const [pedidoErro, setPedidoErro] = useState<string | null>(null);
+  const [enviado, setEnviado] = useState(false);
 
   // Agrupa produtos por categoria
   const porCategoria = produtos.reduce<Record<string, ProdutoPublico[]>>((acc, p) => {
@@ -270,6 +299,36 @@ function TelaAberta({
     acc[p.categoriaNome].push(p);
     return acc;
   }, {});
+
+  // Mapa de itens pedíveis (produto sem variante = 1 entrada; com variantes = 1 por variante)
+  const itemInfo = new Map<string, { nome: string; preco: number; produtoId: string; varianteId: string | null }>();
+  for (const p of produtos) {
+    if (p.variantes.length === 0) {
+      itemInfo.set(`${p.id}|`, { nome: p.nome, preco: p.preco, produtoId: p.id, varianteId: null });
+    } else {
+      for (const v of p.variantes) itemInfo.set(`${p.id}|${v.id}`, { nome: `${p.nome} · ${v.nome}`, preco: v.preco, produtoId: p.id, varianteId: v.id });
+    }
+  }
+  const keyFor = (produtoId: string, varianteId: string | null) => `${produtoId}|${varianteId ?? ""}`;
+  const addCart = (k: string) => { setPedidoErro(null); setCart(c => ({ ...c, [k]: (c[k] ?? 0) + 1 })); };
+  const removeCart = (k: string) => setCart(c => { const n = (c[k] ?? 0) - 1; const next = { ...c }; if (n <= 0) delete next[k]; else next[k] = n; return next; });
+  const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
+  const cartTotal = Object.entries(cart).reduce((s, [k, q]) => s + (itemInfo.get(k)?.preco ?? 0) * q, 0);
+
+  const enviarPedido = () => {
+    if (enviando || cartCount === 0) return;
+    const payload: ItemPedido[] = Object.entries(cart)
+      .filter(([, q]) => q > 0)
+      .map(([k, q]) => { const info = itemInfo.get(k)!; return { produtoId: info.produtoId, varianteId: info.varianteId, quantidade: q }; });
+    setEnviando(true); setPedidoErro(null);
+    startChamada(async () => {
+      const r = await criarPedidoCliente(comandaId, mesa.bar.id, payload);
+      setEnviando(false);
+      if ("error" in r) { setPedidoErro(r.error); return; }
+      setCart({}); setEnviado(true); setTab("conta");
+      setTimeout(() => setEnviado(false), 2600);
+    });
+  };
 
   // Carrega e assina itens em tempo real
   const carregarItens = useCallback(async () => {
@@ -387,48 +446,57 @@ function TelaAberta({
                     {categoria}
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {prods.map(p => (
-                      <div
-                        key={p.id}
-                        style={{
+                    {prods.map(p => {
+                      const semVar = p.variantes.length === 0;
+                      return (
+                        <div key={p.id} style={{
                           padding: "14px 16px", borderRadius: 8,
                           background: "rgba(255,255,255,0.04)",
                           border: "1px solid rgba(255,255,255,0.08)",
-                          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                        }}
-                      >
-                        <div style={{ flex: 1, marginRight: 16 }}>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", margin: "0 0 3px" }}>
-                            {p.nome}
-                          </p>
-                          {p.descricao && (
-                            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 6px", lineHeight: 1.4 }}>
-                              {p.descricao}
-                            </p>
-                          )}
-                          {p.variantes.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                              {p.variantes.map(v => (
-                                <span key={v.id} style={{
-                                  fontSize: 10, padding: "3px 8px", borderRadius: 4,
-                                  background: "rgba(255,255,255,0.07)",
-                                  border: "1px solid rgba(255,255,255,0.1)",
-                                  color: "var(--fg-subtle)",
-                                }}>
-                                  {v.nome} · {currency.format(v.preco)}
-                                </span>
-                              ))}
+                          display: "flex", flexDirection: "column", gap: 10,
+                        }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", margin: "0 0 3px" }}>{p.nome}</p>
+                              {p.descricao && (
+                                <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.4 }}>{p.descricao}</p>
+                              )}
+                            </div>
+                            {semVar && (
+                              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                                <p style={{ fontSize: 14, fontWeight: 800, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: 0, whiteSpace: "nowrap" }}>
+                                  {currency.format(p.preco)}
+                                </p>
+                                {auto && (
+                                  <Stepper qty={cart[keyFor(p.id, null)] ?? 0} onAdd={() => addCart(keyFor(p.id, null))} onRemove={() => removeCart(keyFor(p.id, null))} />
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {!semVar && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              {p.variantes.map(v => {
+                                const k = keyFor(p.id, v.id);
+                                return (
+                                  <div key={v.id} style={{
+                                    display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+                                    padding: "8px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)",
+                                  }}>
+                                    <p style={{ fontSize: 13, color: "var(--fg)", margin: 0 }}>
+                                      {v.nome} <span style={{ color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>· {currency.format(v.preco)}</span>
+                                    </p>
+                                    {auto && (
+                                      <Stepper qty={cart[k] ?? 0} onAdd={() => addCart(k)} onRemove={() => removeCart(k)} />
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
-                        <p style={{
-                          fontSize: 14, fontWeight: 800, color: "var(--fg)",
-                          fontFamily: "var(--font-mono)", margin: 0, whiteSpace: "nowrap",
-                        }}>
-                          {currency.format(p.preco)}
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -495,38 +563,67 @@ function TelaAberta({
         </div>
       </div>
 
-      {/* Botão flutuante: Chamar atendimento */}
+      {/* Barra flutuante inferior: envia pedido (auto) ou chama atendimento */}
       <div style={{
-        position: "fixed", bottom: 24, left: 0, right: 0,
-        display: "flex", justifyContent: "center", zIndex: 10,
-        padding: "0 24px",
-        pointerEvents: "none",
+        position: "fixed", bottom: 24, left: 0, right: 0, zIndex: 10,
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        padding: "0 20px", pointerEvents: "none",
       }}>
-        <button
-          onClick={() => {
-            if (chamando || chamadaPending) return;
-            setChamando(true);
-            startChamada(async () => {
-              await chamarAtendimento(mesa.id, mesa.bar.id);
-              setTimeout(() => setChamando(false), 4000);
-            });
-          }}
-          style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "14px 28px", borderRadius: 8,
-            background: chamando ? "var(--fg-subtle)" : "var(--fg)",
-            color: chamando ? "var(--bg)" : "var(--bg)",
-            border: "none", fontSize: 15, fontWeight: 800,
-            cursor: chamando ? "default" : "pointer",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
-            transition: "background 300ms",
-            WebkitTapHighlightColor: "transparent",
-            pointerEvents: "auto",
-          }}
-        >
-          <IconBell />
-          {chamando ? "Atendimento chamado ✓" : "Chamar atendimento"}
-        </button>
+        {pedidoErro && (
+          <div style={{ pointerEvents: "auto", maxWidth: 480, width: "100%", boxSizing: "border-box", background: "var(--bg-card-hi, #242426)", border: "1px solid var(--danger)", color: "var(--fg)", borderRadius: 8, padding: "10px 14px", fontSize: 13, fontWeight: 600, textAlign: "center" }}>
+            {pedidoErro}
+          </div>
+        )}
+        {enviado && cartCount === 0 && (
+          <div style={{ pointerEvents: "auto", maxWidth: 480, width: "100%", boxSizing: "border-box", background: "color-mix(in srgb, var(--ok) 16%, var(--bg))", border: "1px solid var(--ok)", color: "var(--ok)", borderRadius: 8, padding: "12px 14px", fontSize: 14, fontWeight: 700, textAlign: "center" }}>
+            Pedido enviado — já foi pro bar ✓
+          </div>
+        )}
+
+        {auto && cartCount > 0 ? (
+          <button
+            onClick={enviarPedido}
+            disabled={enviando}
+            style={{
+              pointerEvents: "auto", maxWidth: 480, width: "100%", boxSizing: "border-box",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+              padding: "16px 22px", borderRadius: 999,
+              background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+              fontSize: 15, fontWeight: 800, cursor: enviando ? "wait" : "pointer",
+              boxShadow: "0 6px 28px rgba(0,0,0,0.5)", opacity: enviando ? 0.7 : 1,
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            <span>{enviando ? "Enviando…" : `Enviar pedido · ${cartCount} ${cartCount === 1 ? "item" : "itens"}`}</span>
+            <span style={{ fontFamily: "var(--font-mono)" }}>{currency.format(cartTotal)}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              if (chamando || chamadaPending) return;
+              setChamando(true);
+              startChamada(async () => {
+                await chamarAtendimento(mesa.id, mesa.bar.id);
+                setTimeout(() => setChamando(false), 4000);
+              });
+            }}
+            style={{
+              pointerEvents: "auto",
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "14px 28px", borderRadius: 999,
+              background: chamando ? "var(--fg-subtle)" : "var(--fg)",
+              color: "var(--bg)",
+              border: "none", fontSize: 15, fontWeight: 800,
+              cursor: chamando ? "default" : "pointer",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              transition: "background 300ms",
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            <IconBell />
+            {chamando ? "Atendimento chamado ✓" : "Chamar atendimento"}
+          </button>
+        )}
       </div>
     </div>
   );
