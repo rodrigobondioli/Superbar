@@ -1010,7 +1010,7 @@ function HomeScreen({
   const catNome = new Map(cardapio.map((c) => [c.id, norm(c.nome)]));
   const badgeDrink = (p: Produto): string => {
     const n = catNome.get(p.categoria_id ?? "") ?? "";
-    return n.includes("autoral") ? "Autoral" : n.includes("classic") ? "Clássico" : "Assinatura da casa";
+    return n.includes("autoral") ? "Autoral" : n.includes("classic") ? "Clássico" : "Sugestão";
   };
   const ehAlcoolico = (p: Produto): boolean => {
     const n = catNome.get(p.categoria_id ?? "") ?? "";
