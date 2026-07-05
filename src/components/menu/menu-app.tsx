@@ -372,60 +372,38 @@ function ProductsScreen({
   onCart: () => void;
 }) {
   const ativos = categoria.produtos.filter((p) => p.ativo);
-  const heroCover = ativos.find((p) => p.imagem_url)?.imagem_url ?? null;
 
   return (
     <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", fontFamily: FONT }}>
 
-      {/* Hero */}
-      <div style={{ position: "relative", height: 210, flexShrink: 0, overflow: "hidden" }}>
-        {heroCover ? (
-          <img
-            src={heroCover}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0"; }}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            alt=""
-          />
-        ) : (
-          <div style={{ width: "100%", height: "100%", background: CARD2 }} />
-        )}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: IMG_OVERLAY,
-        }} />
-        <button
-          onClick={onBack}
-          style={{
-            position: "absolute", top: 54, left: 16,
-            background: "color-mix(in srgb, var(--bg) 70%, transparent)", backdropFilter: "none",
-            border: "1px solid var(--border)", borderRadius: 8, padding: "8px 16px",
-            color: "var(--fg)", fontSize: 13, fontWeight: 500,
-            cursor: "pointer", fontFamily: FONT,
-          }}
-        >
-          ← Voltar
-        </button>
-        {cartCount > 0 && (
+      {/* Header limpo (sem foto-hero redundante) */}
+      <div style={{ flexShrink: 0, padding: "52px 16px 4px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <button
-            onClick={onCart}
+            onClick={onBack}
             style={{
-              position: "absolute", top: 54, right: 16,
-              background: ACCENT, color: "var(--accent-fg)",
-              border: "none", borderRadius: 8, padding: "8px 18px",
-              fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT,
+              background: "color-mix(in srgb, var(--fg) 6%, transparent)",
+              border: "1px solid var(--border)", borderRadius: 999, padding: "8px 16px",
+              color: "var(--fg)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
             }}
           >
-            🛒 {cartCount}
+            ← Voltar
           </button>
-        )}
-        <div style={{ position: "absolute", bottom: 16, left: 20 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.8px", lineHeight: 1 }}>
-            {categoria.nome}
-          </h1>
-          <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "5px 0 0" }}>
-            {ativos.length} {ativos.length === 1 ? "opção" : "opções"}
-          </p>
+          {cartCount > 0 && (
+            <button
+              onClick={onCart}
+              style={{ background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}
+            >
+              🛒 {cartCount}
+            </button>
+          )}
         </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.6px", lineHeight: 1.05 }}>
+          {categoria.nome}
+        </h1>
+        <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "5px 0 0" }}>
+          {ativos.length} {ativos.length === 1 ? "opção" : "opções"}
+        </p>
       </div>
 
       {/* Filter chips */}
