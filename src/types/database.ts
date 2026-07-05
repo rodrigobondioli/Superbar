@@ -230,7 +230,7 @@ export interface Comanda {
   bar_id: string;
   turno_id: string;
   mesa_id: string | null;
-  bartender_id: string;
+  bartender_id: string | null;  // null quando o próprio cliente abre a comanda (QR da mesa)
   identificador: string | null;  // nº do cartão de comanda
   nome_cliente: string | null;   // nome da pessoa (opcional)
   cliente_id: string | null;     // FK → clientes.id (auto-linked via identificador)

@@ -39,6 +39,7 @@ export async function abrirComandaCliente(
     .single<{ id: string }>();
 
   if (error || !comanda) {
+    console.error("abrirComandaCliente: falha no insert de comanda", error);
     return { error: "Não foi possível abrir a comanda. Tente novamente." };
   }
 
