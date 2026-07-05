@@ -8,6 +8,25 @@ import { traduzirErro } from "@/lib/utils";
 
 export type ActionResult = { ok: true } | { error: string } | null;
 
+/** Mescla campos em bars.configuracoes com admin client (bypassa a RLS de UPDATE
+ *  que fazia o save "dar sucesso" sem gravar), validando que é o dono do bar. */
+async function mergeConfigDono(barId: string, patch: Record<string, unknown>): Promise<ActionResult> {
+  const current = await getCurrentBar();
+  if (!current || current.bar.id !== barId) return { error: "Não autorizado." };
+
+  const admin = createAdminClient();
+  const { data: bar } = await admin
+    .from("bars")
+    .select("configuracoes")
+    .eq("id", barId)
+    .maybeSingle<{ configuracoes: Record<string, unknown> | null }>();
+
+  const novaConfig = { ...(bar?.configuracoes ?? {}), ...patch };
+  const { error } = await admin.from("bars").update({ configuracoes: novaConfig }).eq("id", barId);
+  if (error) return { error: traduzirErro(error.message) };
+  return { ok: true };
+}
+
 export async function atualizarPerfil(barId: string, formData: FormData): Promise<ActionResult> {
   const nome     = String(formData.get("nome") ?? "").trim();
   const telefone = String(formData.get("telefone") ?? "").trim() || null;
@@ -26,15 +45,20 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
 
   if (!nome) return { error: "Nome é obrigatório." };
 
+  const current = await getCurrentBar();
+  if (!current || current.bar.id !== barId) return { error: "Não autorizado." };
+
   const endereco = { rua, numero, bairro, cidade, estado, cep };
 
-  const supabase = await createClient();
+  // Admin client: a RLS de UPDATE em bars bloqueava o client autenticado
+  // (update afetava 0 linhas sem erro → "sucesso" falso). Dono já validado acima.
+  const admin = createAdminClient();
 
   // Lê configuracoes atual para fazer merge (não sobrescrever outros campos)
-  const { data: barAtual } = await supabase.from("bars")
+  const { data: barAtual } = await admin.from("bars")
     .select("configuracoes")
     .eq("id", barId)
-    .maybeSingle() as { data: { configuracoes: Record<string, unknown> } | null };
+    .maybeSingle<{ configuracoes: Record<string, unknown> | null }>();
 
   const configuracoes = {
     ...(barAtual?.configuracoes ?? {}),
@@ -42,7 +66,7 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
     ...(metaAnual  !== undefined ? { meta_anual:  metaAnual  } : {}),
   };
 
-  const { error } = await supabase.from("bars").update({
+  const { error } = await admin.from("bars").update({
     nome,
     telefone,
     logo_url: logoUrl,
@@ -57,8 +81,10 @@ export async function atualizarPerfil(barId: string, formData: FormData): Promis
 }
 
 export async function atualizarLogo(barId: string, logoUrl: string | null): Promise<ActionResult> {
-  const supabase = await createClient();
-  const { error } = await supabase.from("bars").update({ logo_url: logoUrl }).eq("id", barId);
+  const current = await getCurrentBar();
+  if (!current || current.bar.id !== barId) return { error: "Não autorizado." };
+  const admin = createAdminClient();
+  const { error } = await admin.from("bars").update({ logo_url: logoUrl }).eq("id", barId);
   if (error) return { error: traduzirErro(error.message) };
   revalidatePath("/dashboard");
   return { ok: true };
@@ -91,37 +117,16 @@ export async function atualizarConta(userId: string, formData: FormData): Promis
 }
 
 export async function atualizarTaxaServico(barId: string, pct: number): Promise<ActionResult> {
-  const supabase = await createClient();
-  // merge_bar_config usa UPDATE ... SET configuracoes = configuracoes || patch
-  // — atômico, sem race condition com outros campos sendo salvos simultaneamente
-  const { error } = await supabase.rpc("merge_bar_config", {
-    p_bar_id: barId,
-    p_patch:  JSON.stringify({ taxa_servico_pct: pct }),
-  });
-  if (error) return { error: traduzirErro(error.message) };
-
+  const r = await mergeConfigDono(barId, { taxa_servico_pct: pct });
+  if (r && "error" in r) return r;
   revalidatePath("/dashboard");
   revalidatePath("/caixa");
   return { ok: true };
 }
 
 export async function atualizarAutoPedido(barId: string, value: boolean): Promise<ActionResult> {
-  const current = await getCurrentBar();
-  if (!current || current.bar.id !== barId) return { error: "Não autorizado." };
-
-  // Lê a config atual, mescla em JS e grava com admin client (bypassa RLS,
-  // garante persistência). Evita a ambiguidade de cast JSONB da RPC.
-  const admin = createAdminClient();
-  const { data: bar } = await admin
-    .from("bars")
-    .select("configuracoes")
-    .eq("id", barId)
-    .maybeSingle<{ configuracoes: Record<string, unknown> | null }>();
-
-  const novaConfig = { ...(bar?.configuracoes ?? {}), auto_pedido: value };
-  const { error } = await admin.from("bars").update({ configuracoes: novaConfig }).eq("id", barId);
-  if (error) return { error: traduzirErro(error.message) };
-
+  const r = await mergeConfigDono(barId, { auto_pedido: value });
+  if (r && "error" in r) return r;
   revalidatePath("/dashboard");
   return { ok: true };
 }
@@ -129,13 +134,8 @@ export async function atualizarAutoPedido(barId: string, value: boolean): Promis
 /** Fluxo de entrega: true = bartender marca "pronto" e o garçom retira;
  *  false = bartender entrega direto (sem o passo intermediário). Default: true. */
 export async function atualizarFluxoPronto(barId: string, value: boolean): Promise<ActionResult> {
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("merge_bar_config", {
-    p_bar_id: barId,
-    p_patch:  JSON.stringify({ fluxo_pronto: value }),
-  });
-  if (error) return { error: traduzirErro(error.message) };
-
+  const r = await mergeConfigDono(barId, { fluxo_pronto: value });
+  if (r && "error" in r) return r;
   revalidatePath("/producao");
   revalidatePath("/garcom");
   return { ok: true };
