@@ -9,9 +9,11 @@ interface ImageUploadProps {
   autoUrl?: string | null;    // from drink library
   bucket?: string;            // default: "product-images"
   onUpload: (url: string | null) => void;
+  compact?: boolean;          // thumbnail clicável (lista de categorias)
+  size?: number;              // tamanho do thumb no modo compacto (px)
 }
 
-export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", onUpload }: ImageUploadProps) {
+export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", onUpload, compact = false, size = 34 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null);
   const [autoFailed, setAutoFailed] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -64,6 +66,35 @@ export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", on
   function handleRemove() {
     setPreview(null);
     onUpload(autoUrl ?? null);
+  }
+
+  if (compact) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          title={displayUrl ? "Trocar foto" : "Adicionar foto"}
+          style={{
+            width: size, height: size, borderRadius: 8, flexShrink: 0, padding: 0,
+            border: displayUrl ? "1px solid var(--border)" : "1.5px dashed var(--border)",
+            background: displayUrl ? `url(${displayUrl}) center/cover` : "color-mix(in srgb, var(--fg) 4%, transparent)",
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {uploading
+            ? <span style={{ fontSize: 9, color: "var(--fg-subtle)" }}>…</span>
+            : (!displayUrl && <ImageIcon style={{ width: Math.round(size * 0.45), height: Math.round(size * 0.45), color: "var(--fg-subtle)" }} />)}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        />
+      </>
+    );
   }
 
   return (

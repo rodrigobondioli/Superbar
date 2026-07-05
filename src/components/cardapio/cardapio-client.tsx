@@ -13,6 +13,7 @@ import type { Destaque } from "@/types/database";
 import {
   criarCategoria,
   editarCategoria,
+  atualizarFotoCategoria,
   desativarCategoria,
   criarProduto,
   editarProduto,
@@ -674,11 +675,21 @@ function CategoriaItem({
         background: selected ? "color-mix(in srgb, var(--fg) 6%, transparent)" : "transparent",
       }}
     >
+      <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexShrink: 0 }}>
+        <ImageUpload
+          compact
+          size={30}
+          bucket="product-images"
+          currentUrl={grupo.categoria.imagem_url}
+          onUpload={(url) => atualizarFotoCategoria(grupo.categoria.id, url)}
+        />
+      </div>
       <span style={{
         fontSize: 13,
         fontWeight: selected ? 500 : 400,
         color: selected ? "var(--fg)" : "var(--fg-muted)",
         whiteSpace: "nowrap",
+        flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
       }}>
         {grupo.categoria.nome}
       </span>

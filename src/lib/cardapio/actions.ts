@@ -48,6 +48,13 @@ export async function editarCategoria(id: string, formData: FormData) {
   revalidatePath("/dashboard/cardapio");
 }
 
+/** Salva só a foto da categoria (thumb clicável na lista, sem abrir o editor). */
+export async function atualizarFotoCategoria(id: string, imagemUrl: string | null) {
+  const supabase = await createClient();
+  await supabase.from("categorias").update({ imagem_url: imagemUrl }).eq("id", id);
+  revalidatePath("/dashboard/cardapio");
+}
+
 /** Liga/desliga o "destaque" de um produto (vira Assinatura da casa no app do cliente). */
 export async function toggleDestaque(id: string, destaque: boolean) {
   const supabase = await createClient();
