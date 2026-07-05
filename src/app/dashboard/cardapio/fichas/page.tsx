@@ -8,5 +8,9 @@ export default async function FichasLotePage() {
   if (!current) redirect("/login");
 
   const drinks = await getDrinksParaFicha(current.bar.id);
-  return <FichasLoteClient drinks={drinks} />;
+  return (
+    <div className="py-6 lg:px-10 lg:py-8">
+      <FichasLoteClient drinks={drinks} />
+    </div>
+  );
 }

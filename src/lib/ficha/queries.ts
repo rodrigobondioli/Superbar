@@ -12,17 +12,28 @@ export interface DrinkParaFicha {
 
 export async function getDrinksParaFicha(barId: string): Promise<DrinkParaFicha[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("produtos")
-    .select("id, nome, preco, produto_variantes ( id, ativo )")
-    .eq("bar_id", barId)
-    .eq("ativo", true)
-    .neq("custo_status", "confirmada")
-    .order("nome", { ascending: true })
-    .returns<{ id: string; nome: string; preco: number; produto_variantes: { id: string; ativo: boolean }[] | null }[]>();
+  const [{ data }, { data: receitas }] = await Promise.all([
+    supabase
+      .from("produtos")
+      .select("id, nome, preco, custo_status, produto_variantes ( id, ativo )")
+      .eq("bar_id", barId)
+      .eq("ativo", true)
+      .order("nome", { ascending: true })
+      .returns<{ id: string; nome: string; preco: number; custo_status: CustoStatus; produto_variantes: { id: string; ativo: boolean }[] | null }[]>(),
+    supabase
+      .from("receitas")
+      .select("produto_id")
+      .eq("bar_id", barId)
+      .is("variante_id", null)
+      .returns<{ produto_id: string }[]>(),
+  ]);
+
+  // "Tem ficha de verdade" = existe receita E o custo está confirmado.
+  const comFichaOk = new Set((receitas ?? []).map((r) => r.produto_id));
 
   return (data ?? [])
-    .filter((p) => !(p.produto_variantes ?? []).some((v) => v.ativo))
+    .filter((p) => !(p.produto_variantes ?? []).some((v) => v.ativo)) // só sem variante
+    .filter((p) => !(comFichaOk.has(p.id) && p.custo_status === "confirmada")) // pendente = sem ficha real confirmada
     .map((p) => ({ id: p.id, nome: p.nome, preco: Number(p.preco) }));
 }
 

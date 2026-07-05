@@ -123,8 +123,8 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
       {/* ── LISTA ── */}
       {phase === "lista" && (
         <>
-          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 20px" }}>
-            {drinks.length} drink{drinks.length !== 1 ? "s" : ""} sem ficha. A IA sugere os insumos de todos de uma vez; você precifica cada insumo uma única vez e a margem sai pronta.
+          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 14px" }}>
+            {drinks.length} drink{drinks.length !== 1 ? "s" : ""} sem ficha:
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
             {drinks.map((d) => (
@@ -230,12 +230,18 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
 
 function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () => void }) {
   return (
-    <div style={{ maxWidth: 640 }}>
-      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 20 }}>
+    <div>
+      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 16 }}>
         <ArrowLeft style={{ width: 14, height: 14 }} /> Cardápio
       </button>
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: "var(--fg)", letterSpacing: "-0.01em", margin: "0 0 20px" }}>Fichas em lote</h1>
-      {children}
+      {/* Cabeçalho no padrão do dashboard */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, marginBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Fichas em lote</h1>
+        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>A IA sugere os insumos dos drinks sem ficha e você precifica de uma vez.</p>
+      </div>
+      <div style={{ maxWidth: 640 }}>
+        {children}
+      </div>
     </div>
   );
 }
