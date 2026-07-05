@@ -24,6 +24,34 @@ export async function abrirComandaCliente(
   }
 
   const telefone = telefoneCliente?.replace(/\D/g, "") || null;
+  const nome = nomeCliente.trim();
+
+  // CRM: se deu telefone, cria/acha o cliente e vincula à comanda.
+  // As estatísticas (visitas, gasto, ticket) são acumuladas no pagamento (caixa),
+  // que já atualiza clientes quando a comanda tem cliente_id.
+  let clienteId: string | null = null;
+  if (telefone && telefone.length >= 10) {
+    const { data: existente } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .eq("bar_id", barId)
+      .eq("telefone", telefone)
+      .maybeSingle<{ id: string; nome: string }>();
+
+    if (existente) {
+      clienteId = existente.id;
+      if (nome && nome !== existente.nome) {
+        await supabase.from("clientes").update({ nome }).eq("id", existente.id);
+      }
+    } else {
+      const { data: novo } = await supabase
+        .from("clientes")
+        .insert({ bar_id: barId, nome, telefone })
+        .select("id")
+        .single<{ id: string }>();
+      clienteId = novo?.id ?? null;
+    }
+  }
 
   const { data: comanda, error } = await supabase
     .from("comandas")
@@ -31,8 +59,9 @@ export async function abrirComandaCliente(
       bar_id: barId,
       turno_id: turno.id,
       mesa_id: mesaId,
-      nome_cliente: nomeCliente.trim(),
+      nome_cliente: nome,
       telefone_cliente: telefone,
+      cliente_id: clienteId,
       status: "aberta",
     })
     .select("id")
