@@ -1229,20 +1229,27 @@ function HomeScreen({
                 const cover = especial.imagem_url ?? especial.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
                 const item = especial.produtos[0] ?? null;
                 return (
-                  <button
-                    onClick={() => onSelectCategoria(especial)}
-                    style={{ display: "flex", gap: 14, alignItems: "stretch", width: "100%", background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left", marginBottom: 22 }}
+                  <div
+                    onClick={() => item ? onSelectProduto(item) : onSelectCategoria(especial)}
+                    style={{ display: "flex", gap: 14, alignItems: "stretch", width: "100%", cursor: "pointer", textAlign: "left", marginBottom: 22 }}
                   >
-                    <div style={{ position: "relative", width: "55%", flexShrink: 0, aspectRatio: "4 / 3", borderRadius: 16, overflow: "hidden", background: cover ? `url(${cover}) center/cover` : CARD2 }}>
-                      <span style={{ position: "absolute", top: 10, left: 10, background: ACCENT, color: "var(--accent-fg)", fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 10px", borderRadius: 999 }}>Especial do dia</span>
-                    </div>
+                    <div style={{ width: "55%", flexShrink: 0, aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", background: cover ? `url(${cover}) center/cover` : CARD2 }} />
                     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
+                      <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: ACCENT, textTransform: "uppercase", letterSpacing: "0.1em" }}>Especial do dia</p>
                       <p style={{ margin: 0, fontSize: 19, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", lineHeight: 1.15 }}>{item ? item.nome : especial.nome}</p>
                       {item?.descricao && (
-                        <p style={{ margin: 0, fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>{item.descricao}</p>
+                        <p style={{ margin: "0 0 4px", fontSize: 12.5, color: "var(--fg-muted)", lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>{item.descricao}</p>
+                      )}
+                      {item && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onSelectProduto(item); }}
+                          style={{ alignSelf: "flex-start", background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}
+                        >
+                          Provar
+                        </button>
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })()}
 
@@ -1327,7 +1334,7 @@ function HomeScreen({
               <div>
                 {step < VIBE_STEPS.length ? (
                   <>
-                    <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{VIBE_STEPS[step].q}</p>
+                    <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", textAlign: "center" }}>{VIBE_STEPS[step].q}</p>
                     {VIBE_STEPS[step].o.map((o) => (
                       <button key={o} onClick={() => { setPicks((prev) => { const n = [...prev]; n[step] = o; return n; }); setStep(step + 1); }}
                         style={{ width: "100%", textAlign: "left", padding: "13px 15px", border: "1px solid var(--border)", borderRadius: 13, background: "var(--bg)", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT, marginBottom: 8 }}>
