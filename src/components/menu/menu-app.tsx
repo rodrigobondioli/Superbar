@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { submeterPedido, pedirConta } from "@/lib/menu/actions";
+import { criarPedidoCliente } from "@/lib/mesa/actions";
 import { chamarAtendimento } from "@/lib/mesa/actions";
 import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
 
@@ -515,12 +516,14 @@ function ProductDetailScreen({
   onAdd,
   cartCount,
   onCart,
+  autoPedido = true,
 }: {
   produto: Produto;
   onBack: () => void;
   onAdd: (produto: Produto, qty: number) => void;
   cartCount: number;
   onCart: () => void;
+  autoPedido?: boolean;
 }) {
   const [qty, setQty] = useState(1);
 
@@ -628,17 +631,30 @@ function ProductDetailScreen({
         >
           Voltar
         </button>
-        <button
-          onClick={() => onAdd(produto, qty)}
-          style={{
-            flex: 2.5, padding: "17px", borderRadius: 8,
-            background: ACCENT, border: "none", color: "var(--accent-fg)",
-            fontSize: 15, fontWeight: 900, cursor: "pointer",
-            letterSpacing: "-0.3px", fontFamily: FONT,
-          }}
-        >
-          Pedir agora · {fmt(produto.preco * qty)}
-        </button>
+        {autoPedido ? (
+          <button
+            onClick={() => onAdd(produto, qty)}
+            style={{
+              flex: 2.5, padding: "17px", borderRadius: 8,
+              background: ACCENT, border: "none", color: "var(--accent-fg)",
+              fontSize: 15, fontWeight: 900, cursor: "pointer",
+              letterSpacing: "-0.3px", fontFamily: FONT,
+            }}
+          >
+            Pedir agora · {fmt(produto.preco * qty)}
+          </button>
+        ) : (
+          <div
+            style={{
+              flex: 2.5, padding: "17px", borderRadius: 8,
+              background: CARD, color: "var(--fg-muted)",
+              fontSize: 14, fontWeight: 700, textAlign: "center",
+              display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
+            }}
+          >
+            Peça ao garçom
+          </div>
+        )}
       </div>
     </div>
   );
@@ -650,6 +666,7 @@ function CartScreen({
   cart,
   bar,
   mesa,
+  comandaId,
   onBack,
   onPedidoEnviado,
 }: {
@@ -657,6 +674,7 @@ function CartScreen({
   cart: CartItem[];
   bar: Bar;
   mesa: Mesa;
+  comandaId?: string;
   onBack: () => void;
   onPedidoEnviado: () => void;
 }) {
@@ -671,17 +689,28 @@ function CartScreen({
     setSubmitting(true);
     setError(null);
     try {
-      await submeterPedido({
-        barId: bar.id,
-        mesaId: mesa.id,
-        nomeCliente: cliente?.nome ?? null,
-        itens: cart.map((i) => ({
-          produto_id: i.produto.id,
-          nome: i.produto.nome,
-          preco: i.produto.preco,
-          quantidade: i.quantidade,
-        })),
-      });
+      if (comandaId) {
+        // Fluxo real do QR: grava no modelo verdadeiro (pedido + comanda_items → fila do bar)
+        const r = await criarPedidoCliente(
+          comandaId,
+          bar.id,
+          cart.map((i) => ({ produtoId: i.produto.id, varianteId: null, quantidade: i.quantidade })),
+        );
+        if ("error" in r) throw new Error(r.error);
+      } else {
+        // Rotas sem comanda (prévia): mantém o caminho legado por enquanto
+        await submeterPedido({
+          barId: bar.id,
+          mesaId: mesa.id,
+          nomeCliente: cliente?.nome ?? null,
+          itens: cart.map((i) => ({
+            produto_id: i.produto.id,
+            nome: i.produto.nome,
+            preco: i.produto.preco,
+            quantidade: i.quantidade,
+          })),
+        });
+      }
       setSuccess(true);
       setTimeout(() => onPedidoEnviado(), 2800);
     } catch (err) {
@@ -1358,15 +1387,23 @@ export function MenuApp({
   cardapio,
   topPedidos = [],
   destaques = [],
+  comandaId,
+  autoPedido = true,
+  initialNome,
 }: {
   bar: Bar;
   mesa: Mesa;
   cardapio: CategoriaComProdutos[];
   topPedidos?: string[];
   destaques?: Destaque[];
+  comandaId?: string;        // presente no fluxo do QR → grava no modelo real
+  autoPedido?: boolean;      // false = navega mas não pede (só leitura)
+  initialNome?: string;      // nome vindo da comanda aberta → pula splash/welcome
 }) {
-  const [screen, setScreen] = useState<Screen>("splash");
-  const [cliente, setCliente] = useState<ClienteLocal | null>(null);
+  const [screen, setScreen] = useState<Screen>(initialNome ? "home" : "splash");
+  const [cliente, setCliente] = useState<ClienteLocal | null>(
+    initialNome ? { nome: initialNome, visitas: 1, ultimaVisita: new Date().toISOString() } : null,
+  );
   const [selectedCategoria, setSelectedCategoria] = useState<CategoriaComProdutos | null>(null);
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -1375,9 +1412,10 @@ export function MenuApp({
   const allProdutos = cardapio.flatMap((c) => c.produtos);
 
   useEffect(() => {
+    if (initialNome) return;               // no QR o nome já veio da comanda
     const stored = readCliente(bar.slug);
     if (stored) setCliente(stored);
-  }, [bar.slug]);
+  }, [bar.slug, initialNome]);
 
   const showToast = () => {
     setToast(true);
@@ -1482,6 +1520,7 @@ export function MenuApp({
           onAdd={handleAddToCart}
           cartCount={cartCount}
           onCart={() => setScreen("cart")}
+          autoPedido={autoPedido}
         />
       )}
       {screen === "cart" && (
@@ -1490,6 +1529,7 @@ export function MenuApp({
           cart={cart}
           bar={bar}
           mesa={mesa}
+          comandaId={comandaId}
           onBack={() => setScreen(selectedCategoria ? "products" : "categories")}
           onPedidoEnviado={() => {
             setCart([]);

@@ -4,6 +4,8 @@ import { useState, useEffect, useTransition, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { abrirComandaCliente, chamarAtendimento, buscarComandaPorTelefone, criarPedidoCliente, type ItemPedido } from "@/lib/mesa/actions";
 import type { MesaPublica, ProdutoPublico } from "@/lib/mesa/queries";
+import { MenuApp } from "@/components/menu/menu-app";
+import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
 
 type Tab = "cardapio" | "conta";
 
@@ -633,10 +635,18 @@ function TelaAberta({
 
 export function MesaApp({
   mesa,
-  produtos,
+  bar,
+  mesaRow,
+  cardapio,
+  topPedidos = [],
+  destaques = [],
 }: {
   mesa: MesaPublica;
-  produtos: ProdutoPublico[];
+  bar: Bar;
+  mesaRow: Mesa;
+  cardapio: (Categoria & { produtos: Produto[] })[];
+  topPedidos?: string[];
+  destaques?: Destaque[];
 }) {
   const [estado, setEstado] = useState<Estado>({ tipo: "identificacao" });
 
@@ -683,11 +693,15 @@ export function MesaApp({
   }
 
   return (
-    <TelaAberta
-      mesa={mesa}
-      produtos={produtos}
+    <MenuApp
+      bar={bar}
+      mesa={mesaRow}
+      cardapio={cardapio}
+      topPedidos={topPedidos}
+      destaques={destaques}
       comandaId={estado.comandaId}
-      nomeCliente={estado.nomeCliente}
+      autoPedido={mesa.bar.autoPedido}
+      initialNome={estado.nomeCliente}
     />
   );
 }
