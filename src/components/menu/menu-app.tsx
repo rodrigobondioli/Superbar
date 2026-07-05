@@ -1436,7 +1436,7 @@ function ConsumacaoScreen({
 
   return (
     <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", fontFamily: FONT }}>
-      <div style={{ flexShrink: 0, padding: "52px 22px 16px", borderBottom: "1px solid var(--border)" }}>
+      <div style={{ flexShrink: 0, padding: "52px 22px 16px" }}>
         <button onClick={onSeguir} aria-label="Voltar" style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "1px solid var(--border)", borderRadius: 999, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg)", fontSize: 19, cursor: "pointer", marginBottom: 14, fontFamily: FONT }}>←</button>
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px" }}>Sua consumação</h1>
         <p style={{ margin: "5px 0 0", fontSize: 13, color: "var(--fg-muted)" }}>
