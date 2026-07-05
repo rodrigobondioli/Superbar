@@ -61,33 +61,28 @@ export function Toaster() {
           pointerEvents: "none",
         }}
       >
-        {items.map(item => (
-          <div
-            key={item.id}
-            role="status"
-            style={{
-              padding: "12px 16px", borderRadius: 8,
-              background:
-                item.type === "ok"    ? "var(--ok-bg)"      :
-                item.type === "error" ? "var(--danger-bg)"  :
-                "color-mix(in srgb, var(--fg) 8%, var(--bg-elevated))",
-              border: `1px solid ${
-                item.type === "ok"    ? "color-mix(in srgb, var(--ok) 30%, transparent)"     :
-                item.type === "error" ? "color-mix(in srgb, var(--danger) 30%, transparent)" :
-                "var(--border)"
-              }`,
-              color:
-                item.type === "ok"    ? "var(--ok)"     :
-                item.type === "error" ? "var(--danger)"  :
-                "var(--fg)",
-              fontSize: 13, fontWeight: 500,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
-              animation: "sb-toast-in 0.18s ease",
-            }}
-          >
-            {item.message}
-          </div>
-        ))}
+        {items.map(item => {
+          const dot = item.type === "ok" ? "var(--ok)" : item.type === "error" ? "var(--danger)" : "var(--accent)";
+          return (
+            <div
+              key={item.id}
+              role="status"
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "13px 16px", borderRadius: 10,
+                background: "var(--bg-card-hi, #242426)",
+                border: "1px solid var(--border-strong)",
+                color: "var(--fg)",
+                fontSize: 13, fontWeight: 600,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                animation: "sb-toast-in 0.18s ease",
+              }}
+            >
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0 }} />
+              {item.message}
+            </div>
+          );
+        })}
       </div>
     </>
   );
