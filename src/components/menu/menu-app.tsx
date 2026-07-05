@@ -441,12 +441,12 @@ function ProductsScreen({
               key={cat.id}
               onClick={() => !active && onSwitchCategoria(cat)}
               style={{
-                flexShrink: 0, padding: "7px 16px",
-                borderRadius: 4,
+                flexShrink: 0, padding: "8px 16px",
+                borderRadius: 999,
                 border: active ? "none" : "1px solid var(--border)",
-                background: active ? ACCENT : "color-mix(in srgb, var(--fg) 4%, transparent)",
-                color: active ? "var(--accent-fg)" : "var(--fg-subtle)",
-                fontSize: 13, fontWeight: active ? 700 : 400,
+                background: active ? ACCENT : "transparent",
+                color: active ? "var(--accent-fg)" : "var(--fg-muted)",
+                fontSize: 13, fontWeight: active ? 800 : 600,
                 cursor: active ? "default" : "pointer",
                 whiteSpace: "nowrap", fontFamily: FONT,
               }}
@@ -462,7 +462,7 @@ function ProductsScreen({
         flex: 1, overflow: "auto",
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: 10, padding: "2px 16px 60px",
+        gap: 12, padding: "2px 16px 60px",
         alignContent: "start",
       }}>
         {ativos.map((produto) => (
@@ -470,38 +470,19 @@ function ProductsScreen({
             key={produto.id}
             onClick={() => onSelect(produto)}
             style={{
-              background: CARD, border: "1px solid var(--border)", borderRadius: 8,
-              overflow: "hidden", cursor: "pointer",
-              textAlign: "left", padding: 0,
-              display: "flex", flexDirection: "column",
+              position: "relative", aspectRatio: "4 / 5", borderRadius: 16,
+              overflow: "hidden", cursor: "pointer", border: "none", padding: 0,
+              textAlign: "left", display: "block",
+              background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD2,
             }}
           >
-            <div style={{ position: "relative", paddingBottom: "72%" }}>
-              {produto.imagem_url ? (
-                <img
-                  src={produto.imagem_url}
-                  onError={(e) => {
-                    const parent = (e.currentTarget as HTMLImageElement).parentElement;
-                    if (parent) parent.style.background = CARD2;
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                  style={{
-                    position: "absolute", inset: 0,
-                    width: "100%", height: "100%",
-                    objectFit: "cover", display: "block",
-                  }}
-                  alt={produto.nome}
-                />
-              ) : (
-                <div style={{ position: "absolute", inset: 0, background: CARD2 }} />
-              )}
-            </div>
-            <div style={{ padding: "11px 13px 14px", flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", margin: "0 0 5px", lineHeight: 1.3 }}>
+            <div style={{ position: "absolute", inset: 0, background: IMG_OVERLAY }} />
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 13px" }}>
+              <p style={{
+                margin: 0, fontSize: 14, fontWeight: 800, color: "var(--fg)", lineHeight: 1.2, letterSpacing: "-0.2px",
+                overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+              }}>
                 {produto.nome}
-              </p>
-              <p style={{ fontSize: 14, fontWeight: 800, color: ACCENT, margin: 0 }}>
-                {fmt(produto.preco)}
               </p>
             </div>
           </button>
