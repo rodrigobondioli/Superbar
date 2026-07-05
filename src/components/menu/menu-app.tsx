@@ -38,6 +38,8 @@ const BG     = "var(--bg)";
 const CARD   = "var(--bg-elevated)";
 const CARD2  = "color-mix(in srgb, var(--fg) 8%, transparent)";
 const FONT   = "var(--font-sans)";
+// Overlay padrão sobre imagens (gradiente de baixo p/ cima). ~10% mais fraco que antes.
+const IMG_OVERLAY = "linear-gradient(to top, color-mix(in srgb, var(--bg) 90%, transparent) 0%, color-mix(in srgb, var(--bg) 22%, transparent) 55%, transparent 100%)";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function storageKey(barSlug: string) {
@@ -298,7 +300,7 @@ function CategoriesScreen({
               )}
               <div style={{
                 position: "absolute", inset: 0,
-                background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 30%, transparent) 55%, transparent 100%)",
+                background: IMG_OVERLAY,
               }} />
               <div style={{
                 position: "relative", height: "100%",
@@ -389,7 +391,7 @@ function ProductsScreen({
         )}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 45%, transparent) 55%, transparent 100%)",
+          background: IMG_OVERLAY,
         }} />
         <button
           onClick={onBack}
@@ -543,7 +545,7 @@ function ProductDetailScreen({
         )}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 60%, transparent 100%)",
+          background: IMG_OVERLAY,
         }} />
         <button
           onClick={onBack}
@@ -1198,7 +1200,7 @@ function HomeScreen({
                       key={i}
                       onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } h.onClick(); }}
                       style={{ flex: "0 0 100%", position: "relative", minHeight: 240, border: "none", padding: 0, cursor: "pointer", background: h.imagem ? `url(${h.imagem}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end", textAlign: "left" }}>
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
+                      <div style={{ position: "absolute", inset: 0, background: IMG_OVERLAY }} />
                       <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{h.badge}</span>
                       <div style={{ position: "relative", padding: 16 }}>
                         <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{h.titulo}</p>
@@ -1233,7 +1235,9 @@ function HomeScreen({
                     onClick={() => item ? onSelectProduto(item) : onSelectCategoria(especial)}
                     style={{ display: "flex", gap: 14, alignItems: "stretch", width: "100%", cursor: "pointer", textAlign: "left", marginBottom: 22 }}
                   >
-                    <div style={{ width: "55%", flexShrink: 0, aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", background: cover ? `url(${cover}) center/cover` : CARD2 }} />
+                    <div style={{ position: "relative", width: "55%", flexShrink: 0, aspectRatio: "1 / 1", borderRadius: 16, overflow: "hidden", background: cover ? `url(${cover}) center/cover` : CARD2 }}>
+                      <div style={{ position: "absolute", inset: 0, background: IMG_OVERLAY }} />
+                    </div>
                     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
                       <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: ACCENT, textTransform: "uppercase", letterSpacing: "0.1em" }}>Especial do dia</p>
                       <p style={{ margin: 0, fontSize: 19, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", lineHeight: 1.15 }}>{item ? item.nome : especial.nome}</p>
@@ -1259,7 +1263,7 @@ function HomeScreen({
                   const cover = cat.imagem_url ?? cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
                   return (
                     <button key={cat.id} onClick={() => onSelectCategoria(cat)} style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: 16, overflow: "hidden", cursor: "pointer", border: "none", padding: 0, background: cover ? `url(${cover}) center/cover` : CARD2 }}>
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 20%, transparent) 55%, transparent 100%)" }} />
+                      <div style={{ position: "absolute", inset: 0, background: IMG_OVERLAY }} />
                       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "12px 14px", textAlign: "left" }}>
                         <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{cat.nome}</p>
                         <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--fg-muted)" }}>{cat.produtos.length} {cat.produtos.length === 1 ? "opção" : "opções"}</p>
