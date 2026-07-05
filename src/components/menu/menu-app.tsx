@@ -496,6 +496,10 @@ function ProductDetailScreen({
   const m = desc.match(/^\(([^)]+)\)\s*([\s\S]*)$/);
   const flavor = m ? m[1].trim() : null;
   const ingredientes = (m ? m[2] : desc).trim();
+  // Quebra a nota de sabor em tags tipo hashtag (cítrico, azedo, amargo…)
+  const flavorTags = flavor
+    ? flavor.split(/,| e | · |\/|\+/i).map((s) => s.trim().replace(/^levemente\s+/i, "")).filter(Boolean)
+    : [];
 
   const catN = (categoriaNome ?? "").toLowerCase();
   const semAlcool = catN.includes("mockt") || catN.includes("sem álc") || catN.includes("nao alc") || catN.includes("não alc") || catN.includes("alcoó") && (catN.includes("nao") || catN.includes("não"));
@@ -538,10 +542,12 @@ function ProductDetailScreen({
 
       {/* Content */}
       <div style={{ position: "relative", marginTop: -34, padding: "0 22px 170px" }}>
-        {(tag || flavor) && (
+        {(tag || flavorTags.length > 0) && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
             {tag && <span style={{ background: "color-mix(in srgb, var(--accent) 18%, transparent)", color: "var(--accent-bright)", fontSize: 11, fontWeight: 800, padding: "5px 12px", borderRadius: 999, textTransform: "uppercase", letterSpacing: "0.06em" }}>{tag}</span>}
-            {flavor && <span style={{ background: CARD2, color: "var(--fg-muted)", fontSize: 12, fontWeight: 600, padding: "6px 12px", borderRadius: 999 }}>{flavor}</span>}
+            {flavorTags.map((t) => (
+              <span key={t} style={{ background: CARD2, color: "var(--fg-muted)", fontSize: 12, fontWeight: 600, padding: "6px 12px", borderRadius: 999 }}>#{t.toLowerCase()}</span>
+            ))}
           </div>
         )}
         <h1 style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", margin: "0 0 14px", lineHeight: 1.02, letterSpacing: "-0.6px" }}>
@@ -556,9 +562,12 @@ function ProductDetailScreen({
         )}
 
         {stats.length > 0 && (
-          <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>{stats}</div>
+          <div style={{ display: "flex", gap: 10, marginBottom: 22 }}>{stats}</div>
         )}
 
+        <div style={{ height: 1, background: "var(--border)", margin: "0 0 18px" }} />
+
+        <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Preço</p>
         <p style={{ fontSize: 28, fontWeight: 900, color: "var(--fg)", margin: 0, letterSpacing: "-0.5px" }}>
           {fmt(produto.preco)}
         </p>
@@ -1099,7 +1108,7 @@ function HomeScreen({
             {cliente?.nome?.[0]?.toUpperCase() ?? "?"}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>Boa noite,</p>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>{(() => { const h = new Date().getHours(); return h < 12 ? "Bom dia," : h < 18 ? "Boa tarde," : "Boa noite,"; })()}</p>
             <p style={{ margin: "1px 0 0", fontSize: 17, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px" }}>{cliente?.nome ?? "você"}</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
@@ -1216,7 +1225,7 @@ function HomeScreen({
                 );
               })()}
 
-              <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias</p>
+              <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Categorias <span style={{ color: "var(--fg-subtle)", fontWeight: 700 }}>({grid.length})</span></p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 {grid.map((cat) => {
                   const cover = cat.imagem_url ?? cat.produtos.find((p) => p.imagem_url)?.imagem_url ?? null;
