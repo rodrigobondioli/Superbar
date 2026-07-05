@@ -508,7 +508,7 @@ function ProductDetailScreen({
     </div>
   );
   const stats = [
-    stat("Teor", semAlcool ? "Sem álcool" : "Alcoólico"),
+    semAlcool ? stat("Teor", "Sem álcool") : null,   // "Alcoólico" é óbvio num bar — não vira chip
     produto.tempo_preparo ? stat("Preparo", `${produto.tempo_preparo} min`) : null,
     produto.calorias ? stat("Calorias", `${produto.calorias} kcal`) : null,
   ].filter(Boolean);

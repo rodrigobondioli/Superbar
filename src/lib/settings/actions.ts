@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentBar } from "@/lib/dashboard/queries";
 import { traduzirErro } from "@/lib/utils";
 
 export type ActionResult = { ok: true } | { error: string } | null;
@@ -104,11 +106,20 @@ export async function atualizarTaxaServico(barId: string, pct: number): Promise<
 }
 
 export async function atualizarAutoPedido(barId: string, value: boolean): Promise<ActionResult> {
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("merge_bar_config", {
-    p_bar_id: barId,
-    p_patch:  JSON.stringify({ auto_pedido: value }),
-  });
+  const current = await getCurrentBar();
+  if (!current || current.bar.id !== barId) return { error: "Não autorizado." };
+
+  // Lê a config atual, mescla em JS e grava com admin client (bypassa RLS,
+  // garante persistência). Evita a ambiguidade de cast JSONB da RPC.
+  const admin = createAdminClient();
+  const { data: bar } = await admin
+    .from("bars")
+    .select("configuracoes")
+    .eq("id", barId)
+    .maybeSingle<{ configuracoes: Record<string, unknown> | null }>();
+
+  const novaConfig = { ...(bar?.configuracoes ?? {}), auto_pedido: value };
+  const { error } = await admin.from("bars").update({ configuracoes: novaConfig }).eq("id", barId);
   if (error) return { error: traduzirErro(error.message) };
 
   revalidatePath("/dashboard");

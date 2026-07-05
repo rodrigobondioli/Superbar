@@ -337,8 +337,9 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
     const next = !enabled;
     setEnabled(next); // optimistic
     setSaving(true);
-    await atualizarAutoPedido(barId, next);
+    const r = await atualizarAutoPedido(barId, next);
     setSaving(false);
+    if (r && "error" in r) setEnabled(!next); // reverte se a gravação falhar
   }
 
   async function handleProntoToggle() {
