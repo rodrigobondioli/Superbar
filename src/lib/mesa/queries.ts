@@ -59,7 +59,7 @@ export async function getProdutosPublicos(barId: string): Promise<ProdutoPublico
   const { data } = await supabase
     .from("produtos")
     .select(`
-      id, nome, descricao, preco, foto_url,
+      id, nome, descricao, preco, imagem_url,
       categorias(nome),
       produto_variantes(id, nome, preco)
     `)
@@ -75,7 +75,7 @@ export async function getProdutosPublicos(barId: string): Promise<ProdutoPublico
     nome: p.nome,
     descricao: p.descricao ?? null,
     preco: p.preco,
-    foto_url: p.foto_url ?? null,
+    foto_url: p.imagem_url ?? null,
     categoriaNome: p.categorias?.nome ?? "Cardápio",
     variantes: (p.produto_variantes ?? []).map((v: { id: string; nome: string; preco: number }) => ({
       id: v.id,
