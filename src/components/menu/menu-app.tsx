@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { submeterPedido, pedirConta } from "@/lib/menu/actions";
 import { criarPedidoCliente } from "@/lib/mesa/actions";
+import { createClient } from "@/lib/supabase/client";
 import { chamarAtendimento } from "@/lib/mesa/actions";
 import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
 
@@ -17,6 +18,7 @@ type Screen =
   | "products"
   | "product-detail"
   | "cart"
+  | "consumacao"
   | "pedir-conta"
   | "conta-solicitada";
 
@@ -474,17 +476,17 @@ function ProductDetailScreen({
   produto,
   categoriaNome,
   onBack,
-  onAdd,
-  cartCount,
-  onCart,
+  onPedir,
+  pedindo = false,
+  pedidoErro,
   autoPedido = true,
 }: {
   produto: Produto;
   categoriaNome?: string;
   onBack: () => void;
-  onAdd: (produto: Produto, qty: number) => void;
-  cartCount: number;
-  onCart: () => void;
+  onPedir: (produto: Produto, qty: number) => void;
+  pedindo?: boolean;
+  pedidoErro?: string | null;
   autoPedido?: boolean;
 }) {
   const [qty, setQty] = useState(1);
@@ -521,28 +523,17 @@ function ProductDetailScreen({
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 2%, transparent 42%)" }} />
         <button
           onClick={onBack}
+          aria-label="Voltar"
           style={{
-            position: "absolute", top: 52, left: 18,
+            position: "absolute", top: 14, left: 12,
             background: "color-mix(in srgb, var(--bg) 55%, transparent)", backdropFilter: "blur(6px)",
-            border: "1px solid var(--border)", borderRadius: 999, padding: "9px 16px",
-            color: "var(--fg)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT,
+            border: "1px solid var(--border)", borderRadius: 999,
+            width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--fg)", fontSize: 19, cursor: "pointer", fontFamily: FONT,
           }}
         >
-          ← Voltar
+          ←
         </button>
-        {cartCount > 0 && (
-          <button
-            onClick={onCart}
-            style={{
-              position: "absolute", top: 52, right: 18,
-              background: ACCENT, border: "none", borderRadius: 999,
-              padding: "9px 16px", color: "var(--accent-fg)",
-              fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT,
-            }}
-          >
-            🛒 {cartCount}
-          </button>
-        )}
       </div>
 
       {/* Content */}
@@ -589,24 +580,28 @@ function ProductDetailScreen({
         position: "fixed", bottom: 0, left: 0, right: 0,
         padding: "16px 20px 34px",
         background: `linear-gradient(to top, ${BG} 68%, transparent)`,
-        display: "flex", gap: 10,
+        display: "flex", flexDirection: "column", gap: 8,
       }}>
+        {pedidoErro && (
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "var(--danger)", textAlign: "center" }}>{pedidoErro}</p>
+        )}
         {autoPedido ? (
           <button
-            onClick={() => onAdd(produto, qty)}
+            onClick={() => onPedir(produto, qty)}
+            disabled={pedindo}
             style={{
-              flex: 1, padding: "17px", borderRadius: 999,
+              padding: "17px", borderRadius: 999,
               background: ACCENT, border: "none", color: "var(--accent-fg)",
-              fontSize: 15, fontWeight: 900, cursor: "pointer",
-              letterSpacing: "-0.3px", fontFamily: FONT,
+              fontSize: 15, fontWeight: 900, cursor: pedindo ? "wait" : "pointer",
+              letterSpacing: "-0.3px", fontFamily: FONT, opacity: pedindo ? 0.7 : 1,
             }}
           >
-            Adicionar · {fmt(produto.preco * qty)}
+            {pedindo ? "Enviando…" : `Quero esse drink · ${fmt(produto.preco * qty)}`}
           </button>
         ) : (
           <div
             style={{
-              flex: 1, padding: "17px", borderRadius: 999,
+              padding: "17px", borderRadius: 999,
               background: CARD2, color: "var(--fg-muted)",
               fontSize: 14, fontWeight: 700, textAlign: "center",
               display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT,
@@ -1107,9 +1102,15 @@ function HomeScreen({
             <p style={{ margin: 0, fontSize: 12, color: "var(--fg-subtle)" }}>Boa noite,</p>
             <p style={{ margin: "1px 0 0", fontSize: 17, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px" }}>{cliente?.nome ?? "você"}</p>
           </div>
-          {cartCount > 0
-            ? <button onClick={onCart} style={{ background: ACCENT, color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "9px 15px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>🛒 {cartCount}</button>
-            : <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p><p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p></div>}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ margin: 0, fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Mesa</p>
+              <p style={{ margin: "1px 0 0", fontSize: 14, fontWeight: 700, color: "var(--fg-muted)" }}>{mesaLabel.replace(/\D/g, "") || mesaLabel}</p>
+            </div>
+            <button onClick={onCart} aria-label="Minha conta" title="Minha conta" style={{ background: CARD2, border: "none", borderRadius: 999, width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg)", cursor: "pointer", flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+            </button>
+          </div>
         </div>
 
         {/* Pedir de novo (último pedido) */}
@@ -1375,6 +1376,108 @@ function HomeScreen({
   );
 }
 
+// ─── CONSUMAÇÃO (conta corrente em tempo real) ────────────────────────────────
+function ConsumacaoScreen({
+  comandaId, mesaLabel, barId, mesaId, justOrdered, pedidoErro, onSeguir,
+}: {
+  comandaId?: string;
+  mesaLabel: string;
+  barId: string;
+  mesaId: string;
+  justOrdered: boolean;
+  pedidoErro?: string | null;
+  onSeguir: () => void;
+}) {
+  const [itens, setItens] = useState<{ id: string; nome: string; varianteNome: string | null; precoTotal: number }[]>([]);
+  const [chamando, setChamando] = useState(false);
+
+  const carregar = useCallback(async () => {
+    if (!comandaId) return;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("comanda_items")
+      .select("id, preco_total, variante_nome, produtos(nome)")
+      .eq("comanda_id", comandaId)
+      .eq("status", "ativo")
+      .order("adicionado_em", { ascending: true });
+    if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setItens(data.map((i: any) => ({ id: i.id, nome: i.produtos?.nome ?? "Produto", varianteNome: i.variante_nome ?? null, precoTotal: i.preco_total })));
+    }
+  }, [comandaId]);
+
+  useEffect(() => {
+    carregar();
+    if (!comandaId) return;
+    const supabase = createClient();
+    const ch = supabase
+      .channel(`consumo_${comandaId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "comanda_items", filter: `comanda_id=eq.${comandaId}` }, carregar)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [comandaId, carregar]);
+
+  const chamar = async () => {
+    if (chamando) return;
+    setChamando(true);
+    await chamarAtendimento(mesaId, barId);
+    setTimeout(() => setChamando(false), 4000);
+  };
+
+  const total = itens.reduce((s, i) => s + i.precoTotal, 0);
+
+  return (
+    <div style={{ height: "100%", background: BG, display: "flex", flexDirection: "column", fontFamily: FONT }}>
+      <div style={{ flexShrink: 0, padding: "52px 22px 16px", borderBottom: "1px solid var(--border)" }}>
+        <button onClick={onSeguir} aria-label="Voltar" style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "1px solid var(--border)", borderRadius: 999, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg)", fontSize: 19, cursor: "pointer", marginBottom: 14, fontFamily: FONT }}>←</button>
+        <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em" }}>{mesaLabel}</p>
+        <h1 style={{ margin: "3px 0 0", fontSize: 26, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px" }}>Sua consumação</h1>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 22px 120px" }}>
+        {justOrdered && (
+          <div style={{ background: "color-mix(in srgb, var(--ok) 16%, var(--bg))", border: "1px solid var(--ok)", color: "var(--ok)", borderRadius: 14, padding: "14px 16px", fontSize: 14, fontWeight: 800, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+            Pedido enviado — já foi pro bar!
+          </div>
+        )}
+        {pedidoErro && !justOrdered && (
+          <div style={{ background: "var(--bg-card-hi, #242426)", border: "1px solid var(--danger)", color: "var(--fg)", borderRadius: 12, padding: "12px 14px", fontSize: 13, fontWeight: 600, marginBottom: 16, textAlign: "center" }}>{pedidoErro}</div>
+        )}
+
+        {itens.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "48px 0" }}>
+            <p style={{ fontSize: 30, margin: "0 0 10px" }}>🍸</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>Nada por aqui ainda</p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Seus pedidos aparecem aqui em tempo real.</p>
+          </div>
+        ) : (
+          <>
+            <div style={{ borderTop: "1px solid var(--border)" }}>
+              {itens.map((item) => (
+                <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid var(--border)" }}>
+                  <p style={{ margin: 0, fontSize: 14, color: "var(--fg)" }}>{item.nome}{item.varianteNome && <span style={{ color: "var(--fg-subtle)" }}> — {item.varianteNome}</span>}</p>
+                  <p style={{ margin: 0, marginLeft: 16, fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>{fmt(item.precoTotal)}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 0" }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--fg)" }}>Total</p>
+              <p style={{ margin: 0, fontSize: 26, fontWeight: 900, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>{fmt(total)}</p>
+            </div>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", textAlign: "center", margin: "6px 0 0" }}>Para pagar, chame o garçom ou vá ao caixa.</p>
+          </>
+        )}
+      </div>
+
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "14px 20px 30px", background: `linear-gradient(to top, ${BG} 70%, transparent)`, display: "flex", gap: 10 }}>
+        <button onClick={onSeguir} style={{ flex: 1, padding: "16px", borderRadius: 999, background: ACCENT, border: "none", color: "var(--accent-fg)", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>Seguir pedindo</button>
+        <button onClick={chamar} style={{ flex: 1, padding: "16px", borderRadius: 999, background: CARD2, border: "none", color: "var(--fg)", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: FONT }}>{chamando ? "Chamado ✓" : "Chamar garçom"}</button>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export function MenuApp({
   bar,
@@ -1403,6 +1506,9 @@ export function MenuApp({
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [toast, setToast] = useState(false);
+  const [pedindo, setPedindo] = useState(false);
+  const [pedidoErro, setPedidoErro] = useState<string | null>(null);
+  const [justOrdered, setJustOrdered] = useState(false);
 
   const allProdutos = cardapio.flatMap((c) => c.produtos);
 
@@ -1435,19 +1541,22 @@ export function MenuApp({
     setScreen("home");
   };
 
-  const handleAddToCart = (produto: Produto, qty: number) => {
-    setCart((prev) => {
-      const exists = prev.find((i) => i.produto.id === produto.id);
-      if (exists) return prev.map((i) => i.produto.id === produto.id ? { ...i, quantidade: i.quantidade + qty } : i);
-      return [...prev, { produto, quantidade: qty }];
-    });
+  // Pedido direto (sem carrinho): tocou "Quero esse drink" → já vai pro bar e
+  // leva pra tela de consumação. Menos fricção.
+  const handlePedir = async (produto: Produto, qty: number) => {
     if (cliente) {
       const updated = { ...cliente, ultimoProdutoId: produto.id };
       setCliente(updated);
       writeCliente(bar.slug, updated);
     }
-    showToast();
-    setScreen("products");
+    if (!comandaId) { setPedidoErro("Prévia — o pedido não é enviado aqui."); setScreen("consumacao"); return; }
+    setPedindo(true); setPedidoErro(null);
+    const r = await criarPedidoCliente(comandaId, bar.id, [{ produtoId: produto.id, varianteId: null, quantidade: qty }]);
+    setPedindo(false);
+    if ("error" in r) { setPedidoErro(r.error); return; }
+    setJustOrdered(true);
+    setScreen("consumacao");
+    setTimeout(() => setJustOrdered(false), 3200);
   };
 
   const cartCount = cart.reduce((acc, i) => acc + i.quantidade, 0);
@@ -1478,7 +1587,7 @@ export function MenuApp({
           topPedidos={topPedidos}
           destaques={destaques}
           cartCount={cartCount}
-          onCart={() => setScreen("cart")}
+          onCart={() => setScreen("consumacao")}
           onSelectCategoria={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}
           onSelectProduto={(p) => {
             setSelectedProduto(p);
@@ -1493,7 +1602,7 @@ export function MenuApp({
           cardapio={cardapio}
           onSelect={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}
           cartCount={cartCount}
-          onCart={() => setScreen("cart")}
+          onCart={() => setScreen("consumacao")}
           onPedirConta={() => setScreen("pedir-conta")}
         />
       )}
@@ -1505,7 +1614,7 @@ export function MenuApp({
           onBack={() => setScreen("home")}
           onSwitchCategoria={(cat) => setSelectedCategoria(cat)}
           cartCount={cartCount}
-          onCart={() => setScreen("cart")}
+          onCart={() => setScreen("consumacao")}
         />
       )}
       {screen === "product-detail" && selectedProduto && (
@@ -1513,10 +1622,21 @@ export function MenuApp({
           produto={selectedProduto}
           categoriaNome={cardapio.find((c) => c.id === selectedProduto.categoria_id)?.nome ?? selectedCategoria?.nome}
           onBack={() => setScreen(selectedCategoria ? "products" : "categories")}
-          onAdd={handleAddToCart}
-          cartCount={cartCount}
-          onCart={() => setScreen("cart")}
+          onPedir={handlePedir}
+          pedindo={pedindo}
+          pedidoErro={pedidoErro}
           autoPedido={autoPedido}
+        />
+      )}
+      {screen === "consumacao" && (
+        <ConsumacaoScreen
+          comandaId={comandaId}
+          mesaLabel={mesa.nome ?? `Mesa ${mesa.numero}`}
+          barId={bar.id}
+          mesaId={mesa.id}
+          justOrdered={justOrdered}
+          pedidoErro={pedidoErro}
+          onSeguir={() => setScreen("home")}
         />
       )}
       {screen === "cart" && (
