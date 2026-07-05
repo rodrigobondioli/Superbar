@@ -287,10 +287,12 @@ function VarianteRow({ variante, produtoId, produtoNome, fichaSet }: { variante:
 function ProdutoForm({
   categoriaId,
   produto,
+  categorias,
   onDone,
 }: {
   categoriaId: string;
   produto?: ProdutoComVariantes;
+  categorias: { id: string; nome: string }[];
   onDone: () => void;
 }) {
   const isEdit = !!produto;
@@ -317,8 +319,6 @@ function ProdutoForm({
       marginBottom: 10,
     }}>
       <form action={handleSubmit}>
-        <input type="hidden" name="categoria_id" value={categoriaId} />
-
         <div className="flex flex-wrap gap-3 mb-3">
           <div className="shrink-0">
             <label style={lbl}>Foto</label>
@@ -365,6 +365,13 @@ function ProdutoForm({
         </div>
 
         <div style={{ marginBottom: 12 }}>
+          <label style={lbl}>Categoria</label>
+          <select name="categoria_id" defaultValue={produto?.categoria_id ?? categoriaId} style={{ ...input, colorScheme: "dark" }}>
+            {categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+          </select>
+        </div>
+
+        <div style={{ marginBottom: 12 }}>
           <label style={lbl}>Descrição (opcional)</label>
           <input
             name="descricao"
@@ -390,10 +397,12 @@ function ProdutoRow({
   produto,
   categoriaId,
   fichaSet,
+  categorias,
 }: {
   produto: ProdutoComVariantes;
   categoriaId: string;
   fichaSet: Set<string>;
+  categorias: { id: string; nome: string }[];
 }) {
   const [editing, setEditing] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -435,6 +444,7 @@ function ProdutoRow({
       <ProdutoForm
         categoriaId={categoriaId}
         produto={produto}
+        categorias={categorias}
         onDone={() => setEditing(false)}
       />
     );
@@ -722,6 +732,7 @@ export function CardapioClient({
 
   const nomesExistentes = cardapio.flatMap((g) => g.produtos.map((p) => p.nome));
   const produtosFlat = cardapio.flatMap((g) => g.produtos.map((p) => ({ id: p.id, nome: p.nome })));
+  const categoriasFlat = cardapio.map((g) => ({ id: g.categoria.id, nome: g.categoria.nome }));
 
   // Drinks sem variante e sem ficha confirmada — alvos do lote de fichas
   const pendentesFicha = cardapio
@@ -905,6 +916,7 @@ export function CardapioClient({
               {addingProduto && (
                 <ProdutoForm
                   categoriaId={selectedGrupo.categoria.id}
+                  categorias={categoriasFlat}
                   onDone={() => setAddingProduto(false)}
                 />
               )}
@@ -924,7 +936,7 @@ export function CardapioClient({
                 />
               ) : (
                 selectedGrupo.produtos.map(p => (
-                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} />
+                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} categorias={categoriasFlat} />
                 ))
               )}
             </>

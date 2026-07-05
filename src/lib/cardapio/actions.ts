@@ -205,15 +205,16 @@ export async function criarProdutosClassicos(
   if (validos.length === 0) return { ok: true, criados: 0 };
 
   const supabase = await createClient();
+  const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-  // Garante as categorias necessárias (acha por nome ou cria)
-  const nomesCat = [...new Set(validos.map((i) => i.categoria))];
+  // Categorias que já existem — casa por sinônimo (Drinks ≈ Drinques ≈ Coquetéis)
+  // pra NÃO criar categoria duplicada em inglês.
   const { data: existentes } = await supabase
     .from("categorias")
     .select("id, nome")
     .eq("bar_id", current.bar.id)
     .returns<{ id: string; nome: string }[]>();
-  const catId = new Map((existentes ?? []).map((c) => [c.nome, c.id]));
+  const existentesN = (existentes ?? []).map((c) => ({ id: c.id, n: norm(c.nome) }));
 
   const { data: ultima } = await supabase
     .from("categorias")
@@ -224,19 +225,29 @@ export async function criarProdutosClassicos(
     .maybeSingle<{ ordem: number }>();
   let ordem = (ultima?.ordem ?? 0) + 1;
 
+  const resolvido = new Map<string, string>(); // nome-do-clássico → categoria_id
+  const nomesCat = [...new Set(validos.map((i) => i.categoria))];
   for (const nome of nomesCat) {
-    if (catId.has(nome)) continue;
+    const alvo = norm(nome);
+    const isNaoAlc = alvo.includes("nao alco") || alvo.includes("sem alco");
+    let match = existentesN.find((c) => c.n === alvo);
+    if (!match) {
+      match = existentesN.find((c) => isNaoAlc
+        ? (c.n.includes("nao alco") || c.n.includes("sem alco"))
+        : (c.n.includes("drink") || c.n.includes("drinque") || c.n.includes("coquete") || c.n.includes("cocktail")));
+    }
+    if (match) { resolvido.set(nome, match.id); continue; }
     const { data: nova } = await supabase
       .from("categorias")
       .insert({ bar_id: current.bar.id, nome, ordem: ordem++, ativo: true })
       .select("id")
       .single<{ id: string }>();
-    if (nova) catId.set(nome, nova.id);
+    if (nova) { resolvido.set(nome, nova.id); existentesN.push({ id: nova.id, n: alvo }); }
   }
 
   const rows = validos.map((i) => ({
     bar_id: current.bar.id,
-    categoria_id: catId.get(i.categoria) ?? null,
+    categoria_id: resolvido.get(i.categoria) ?? null,
     nome: i.nome.trim(),
     preco: i.preco != null && i.preco > 0 ? i.preco : 0,
     custo: null,
