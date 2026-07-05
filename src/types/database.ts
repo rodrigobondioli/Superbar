@@ -383,6 +383,19 @@ export interface Insight {
   criado_em: string;
 }
 
+/** Banner de destaque da vitrine do cliente (evento, drink novo…). Link opcional a um produto. */
+export interface Destaque {
+  id: string;
+  bar_id: string;
+  titulo: string;
+  subtitulo: string | null;
+  imagem_url: string | null;
+  produto_id: string | null;
+  ordem: number;
+  ativo: boolean;
+  criado_em: string;
+}
+
 /** Insumo do bar (SKU real). custo_atual = custo por unidade base. */
 export interface Ingrediente {
   id: string;
@@ -427,6 +440,7 @@ export interface Database {
       categorias: TableDef<Categoria>;
       produtos: TableDef<Produto>;
       produto_variantes: TableDef<ProdutoVariante>;
+      destaques: TableDef<Destaque>;
       ingredientes: TableDef<Ingrediente>;
       receitas: TableDef<Receita>;
       fornecedores: TableDef<Fornecedor>;

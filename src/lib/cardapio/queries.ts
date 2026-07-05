@@ -47,3 +47,18 @@ export async function getCardapioAdmin(barId: string): Promise<CategoriaComProdu
 
   return [...map.values()];
 }
+
+/** IDs (produto sem-variante OU variante) que TÊM ficha de ingredientes cadastrada.
+ *  Usado pra colorir o botão "Ficha": verde só quando há receita de verdade,
+ *  não só um custo direto solto. */
+export async function getIdsComFicha(barId: string): Promise<Set<string>> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("receitas")
+    .select("produto_id, variante_id")
+    .eq("bar_id", barId)
+    .returns<{ produto_id: string; variante_id: string | null }[]>();
+  const set = new Set<string>();
+  for (const r of data ?? []) set.add(r.variante_id ?? r.produto_id);
+  return set;
+}

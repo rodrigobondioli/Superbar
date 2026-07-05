@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
 import { FichaEditor } from "./ficha-editor";
 import { ClassicosPicker } from "./classicos-picker";
+import { DestaquesPanel } from "./destaques-panel";
+import type { Destaque } from "@/types/database";
 import {
   criarCategoria,
   editarCategoria,
@@ -19,7 +21,6 @@ import {
   criarVariante,
   editarVariante,
   deletarVariante,
-  toggleDestaque,
 } from "@/lib/cardapio/actions";
 import { getImagemAutomatica } from "@/lib/cardapio/drink-images";
 import { ImageUpload } from "./image-upload";
@@ -30,19 +31,25 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 
 // ─── Status da ficha (custo) ────────────────────────────────────────────────────
 // verde = confirmada (margem real) · âmbar = estimativa (falta custo) · cinza = sem ficha
-function statusFicha(p: ProdutoComVariantes): CustoStatus {
+// Verde só quando existe RECEITA de verdade (não custo direto solto).
+function statusAlvo(temFicha: boolean, custoStatus: CustoStatus): CustoStatus {
+  if (!temFicha) return "sem";
+  return custoStatus === "confirmada" ? "confirmada" : "sugerida";
+}
+function statusFicha(p: ProdutoComVariantes, fichaSet: Set<string>): CustoStatus {
   const vs = (p.produto_variantes ?? []).filter(v => v.ativo);
   if (vs.length > 0) {
-    if (vs.every(v => v.custo_status === "confirmada")) return "confirmada";
-    if (vs.every(v => v.custo_status === "sem")) return "sem";
-    return "sugerida"; // parcial/misto conta como estimativa
+    const st = vs.map(v => statusAlvo(fichaSet.has(v.id), v.custo_status));
+    if (st.every(s => s === "confirmada")) return "confirmada";
+    if (st.every(s => s === "sem")) return "sem";
+    return "sugerida";
   }
-  return p.custo_status;
+  return statusAlvo(fichaSet.has(p.id), p.custo_status);
 }
 
 const TITULO_FICHA: Record<CustoStatus, string> = {
-  confirmada: "Custo confirmado — margem real",
-  sugerida: "Custo estimado — falta preencher",
+  confirmada: "Ficha preenchida — margem real",
+  sugerida: "Ficha incompleta — falta custo",
   sem: "Sem ficha — clique para preencher",
 };
 
@@ -190,7 +197,7 @@ function VarianteForm({
 }
 
 // ─── Variante Row ─────────────────────────────────────────────────────────────
-function VarianteRow({ variante, produtoId, produtoNome }: { variante: ProdutoVariante; produtoId: string; produtoNome: string }) {
+function VarianteRow({ variante, produtoId, produtoNome, fichaSet }: { variante: ProdutoVariante; produtoId: string; produtoNome: string; fichaSet: Set<string> }) {
   const [editing, setEditing] = useState(false);
   const [deletando, setDeletando] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
@@ -239,8 +246,8 @@ function VarianteRow({ variante, produtoId, produtoNome }: { variante: ProdutoVa
       <button
         type="button"
         onClick={() => setFichaOpen(true)}
-        style={fichaPill(variante.custo_status, true)}
-        title={TITULO_FICHA[variante.custo_status]}
+        style={fichaPill(statusAlvo(fichaSet.has(variante.id), variante.custo_status), true)}
+        title={TITULO_FICHA[statusAlvo(fichaSet.has(variante.id), variante.custo_status)]}
       >
         <FlaskConical style={{ width: 12, height: 12 }} />
         <span className="hidden sm:inline">Ficha</span>
@@ -382,9 +389,11 @@ function ProdutoForm({
 function ProdutoRow({
   produto,
   categoriaId,
+  fichaSet,
 }: {
   produto: ProdutoComVariantes;
   categoriaId: string;
+  fichaSet: Set<string>;
 }) {
   const [editing, setEditing] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -393,22 +402,8 @@ function ProdutoRow({
   const [toggling, setToggling] = useState(false);
   const [deletando, setDeletando] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
-  const [destacando, setDestacando] = useState(false);
 
   const variantes = produto.produto_variantes ?? [];
-
-  async function handleDestaque() {
-    if (destacando) return;
-    setDestacando(true);
-    try {
-      await toggleDestaque(produto.id, produto.destaque);
-      toast(produto.destaque ? "Saiu dos destaques." : `"${produto.nome}" em destaque.`, "ok");
-    } catch {
-      toast("Erro ao destacar.", "error");
-    } finally {
-      setDestacando(false);
-    }
-  }
 
   async function handleToggle() {
     if (toggling) return;
@@ -524,23 +519,11 @@ function ProdutoRow({
         <button
           type="button"
           onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
-          style={fichaPill(statusFicha(produto))}
-          title={TITULO_FICHA[statusFicha(produto)]}
+          style={fichaPill(statusFicha(produto, fichaSet))}
+          title={TITULO_FICHA[statusFicha(produto, fichaSet)]}
         >
           <FlaskConical style={{ width: 13, height: 13 }} />
           <span className="hidden sm:inline">Ficha</span>
-        </button>
-
-        {/* Estrela de destaque — sempre visível quando ativo (feature do dono) */}
-        <button
-          type="button"
-          disabled={destacando}
-          onClick={handleDestaque}
-          className={produto.destaque ? "" : "opacity-100 lg:opacity-40 lg:group-hover:opacity-100 transition-opacity"}
-          style={{ ...iconBtn, flexShrink: 0, color: produto.destaque ? "var(--accent)" : "var(--fg-subtle)", opacity: destacando ? 0.5 : undefined }}
-          title={produto.destaque ? "Tirar dos destaques" : "Destacar (Assinatura da casa)"}
-        >
-          <Star style={{ width: 15, height: 15, fill: produto.destaque ? "var(--accent)" : "none" }} />
         </button>
 
         {/* Actions — always visible on mobile, hover-only on desktop */}
@@ -590,7 +573,7 @@ function ProdutoRow({
           )}
 
           {variantes.map(v => (
-            <VarianteRow key={v.id} variante={v} produtoId={produto.id} produtoNome={produto.nome} />
+            <VarianteRow key={v.id} variante={v} produtoId={produto.id} produtoNome={produto.nome} fichaSet={fichaSet} />
           ))}
 
           {addingVariante ? (
@@ -720,23 +703,30 @@ function CategoriaItem({
 export function CardapioClient({
   cardapio,
   barId,
+  fichaIds,
+  destaques,
 }: {
   cardapio: CategoriaComProdutosAdmin[];
   barId: string;
+  fichaIds: string[];
+  destaques: Destaque[];
 }) {
   const router = useRouter();
+  const fichaSet = new Set(fichaIds);
   const [selectedId, setSelectedId] = useState(cardapio[0]?.categoria.id ?? "");
   const [addingProduto, setAddingProduto] = useState(false);
   const [addingCategoria, setAddingCategoria] = useState(false);
   const [importPanelOpen, setImportPanelOpen] = useState(false);
   const [classicosOpen, setClassicosOpen] = useState(false);
+  const [destaquesOpen, setDestaquesOpen] = useState(false);
 
   const nomesExistentes = cardapio.flatMap((g) => g.produtos.map((p) => p.nome));
+  const produtosFlat = cardapio.flatMap((g) => g.produtos.map((p) => ({ id: p.id, nome: p.nome })));
 
-  // Drinks sem variante e sem custo confirmado — alvos do lote de fichas
+  // Drinks sem variante e sem ficha confirmada — alvos do lote de fichas
   const pendentesFicha = cardapio
     .flatMap((g) => g.produtos)
-    .filter((p) => p.ativo && (p.produto_variantes ?? []).filter((v) => v.ativo).length === 0 && p.custo_status !== "confirmada").length;
+    .filter((p) => p.ativo && (p.produto_variantes ?? []).filter((v) => v.ativo).length === 0 && statusFicha(p, fichaSet) !== "confirmada").length;
 
   const selectedGrupo = cardapio.find(g => g.categoria.id === selectedId);
 
@@ -770,6 +760,13 @@ export function CardapioClient({
               Fichas ({pendentesFicha})
             </button>
           )}
+          <button
+            onClick={() => setDestaquesOpen(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
+          >
+            <Megaphone style={{ width: 15, height: 15 }} />
+            Destaques
+          </button>
           <button
             onClick={() => setClassicosOpen(true)}
             style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
@@ -927,7 +924,7 @@ export function CardapioClient({
                 />
               ) : (
                 selectedGrupo.produtos.map(p => (
-                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} />
+                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} />
                 ))
               )}
             </>
@@ -940,6 +937,13 @@ export function CardapioClient({
         nomesExistentes={nomesExistentes}
         open={importPanelOpen}
         onClose={() => setImportPanelOpen(false)}
+      />
+
+      <DestaquesPanel
+        open={destaquesOpen}
+        onClose={() => setDestaquesOpen(false)}
+        destaques={destaques}
+        produtos={produtosFlat}
       />
 
       {classicosOpen && (

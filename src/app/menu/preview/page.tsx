@@ -2,6 +2,7 @@ import { MenuApp } from "@/components/menu/menu-app";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { createClient } from "@/lib/supabase/server";
 import { getTopPedidos } from "@/lib/menu/queries";
+import { getDestaques } from "@/lib/destaques/queries";
 import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
 
 // ─── Demo (fallback quando não há bar/logado) ──────────────────────────────────
@@ -80,11 +81,11 @@ export default async function MenuPreviewPage() {
       .filter((c) => c.produtos.length > 0);
 
     if (cardapio.length > 0) {
-      const topPedidos = await getTopPedidos(current.bar.id);
+      const [topPedidos, destaques] = await Promise.all([getTopPedidos(current.bar.id), getDestaques(current.bar.id)]);
       const mesa: Mesa = primeiraMesa ?? { id: "preview", bar_id: current.bar.id, numero: 0, nome: "Prévia", capacidade: 4, ativo: true, ordem: null, created_at: "" };
-      return <MenuApp bar={current.bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} />;
+      return <MenuApp bar={current.bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} destaques={destaques} />;
     }
   }
 
-  return <MenuApp bar={barDemo} mesa={mesaDemo} cardapio={cardapioDemo} topPedidos={["p8", "p1", "p6", "p2", "p3"]} />;
+  return <MenuApp bar={barDemo} mesa={mesaDemo} cardapio={cardapioDemo} topPedidos={["p8", "p1", "p6", "p2", "p3"]} destaques={[]} />;
 }

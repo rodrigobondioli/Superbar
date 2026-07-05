@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { submeterPedido, pedirConta } from "@/lib/menu/actions";
 import { chamarAtendimento } from "@/lib/mesa/actions";
-import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
+import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
 
 type CategoriaComProdutos = Categoria & { produtos: Produto[] };
 
@@ -990,7 +990,7 @@ function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaC
 }
 
 function HomeScreen({
-  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, topPedidos, cartCount, onCart, onSelectCategoria, onSelectProduto,
+  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, topPedidos, destaques, cartCount, onCart, onSelectCategoria, onSelectProduto,
 }: {
   cliente: ClienteLocal | null;
   mesaLabel: string;
@@ -1000,6 +1000,7 @@ function HomeScreen({
   allProdutos: Produto[];
   ultimoProduto: Produto | null;
   topPedidos: string[];
+  destaques: Destaque[];
   cartCount: number;
   onCart: () => void;
   onSelectCategoria: (cat: CategoriaComProdutos) => void;
@@ -1019,11 +1020,19 @@ function HomeScreen({
   };
   const pool = ativos.filter(ehAlcoolico).slice(0, 12);
   const sugestoes = ativos.filter((p) => p.id !== ultimoProduto?.id);
-  const destaques = ativos.filter((p) => p.destaque);
-  const featBase = destaques.length > 0
-    ? destaques
-    : (sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes);
+  const featBase = sugestoes.filter((p) => p.imagem_url).length >= 2 ? sugestoes.filter((p) => p.imagem_url) : sugestoes;
   const featured = featBase.slice(0, 6);
+  // Hero = banners de destaque (se o dono criou); senão, cai nos drinks com foto.
+  const heroItems: { imagem: string | null; titulo: string; subtitulo: string | null; badge: string; onClick: () => void }[] =
+    destaques.length > 0
+      ? destaques.map((d) => ({
+          imagem: d.imagem_url, titulo: d.titulo, subtitulo: d.subtitulo, badge: "Destaque",
+          onClick: () => { const p = d.produto_id ? ativos.find((x) => x.id === d.produto_id) : null; if (p) onSelectProduto(p); },
+        }))
+      : featured.map((p) => ({
+          imagem: p.imagem_url, titulo: p.nome, subtitulo: p.descricao, badge: badgeDrink(p),
+          onClick: () => onSelectProduto(p),
+        }));
   const topDrinks = topPedidos
     .map((id) => ativos.find((p) => p.id === id))
     .filter((p): p is Produto => !!p)
@@ -1045,12 +1054,12 @@ function HomeScreen({
   const [chamarErro, setChamarErro] = useState<string | null>(null);
   const [heroIdx, setHeroIdx] = useState(0);
 
-  // Carrossel automático do destaque quando o dono marca 2+ (rota a cada 4.5s)
+  // Carrossel automático quando há 2+ destaques (rota a cada 4.5s)
   useEffect(() => {
-    if (featured.length <= 1) return;
-    const t = setInterval(() => setHeroIdx((i) => (i + 1) % featured.length), 4500);
+    if (heroItems.length <= 1) return;
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % heroItems.length), 4500);
     return () => clearInterval(t);
-  }, [featured.length]);
+  }, [heroItems.length]);
 
   useEffect(() => {
     if (reelRef.current && N > 0) {
@@ -1127,33 +1136,33 @@ function HomeScreen({
           </div>
         )}
 
-        {/* Em destaque — hero (carrossel automático quando o dono marca 2+) */}
-        {featured.length > 0 && (() => {
-          const hero = featured[heroIdx % featured.length];
+        {/* Em destaque — banners (carrossel automático + arrasta quando há 2+) */}
+        {heroItems.length > 0 && (() => {
+          const hero = heroItems[heroIdx % heroItems.length];
           return (
             <div style={{ marginBottom: 24 }}>
               <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{destaques.length === 0 && ultimoProduto ? "Você pode gostar" : "Em destaque"}</p>
               <button
-                onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } onSelectProduto(hero); }}
+                onClick={() => { if (heroDragRef.current.moved) { heroDragRef.current.moved = false; return; } hero.onClick(); }}
                 onTouchStart={(e) => { heroDragRef.current = { x: e.touches[0].clientX, moved: false }; }}
                 onTouchMove={(e) => { if (Math.abs(e.touches[0].clientX - heroDragRef.current.x) > 10) heroDragRef.current.moved = true; }}
                 onTouchEnd={(e) => {
-                  if (featured.length <= 1) return;
+                  if (heroItems.length <= 1) return;
                   const dx = e.changedTouches[0].clientX - heroDragRef.current.x;
-                  if (Math.abs(dx) > 40) setHeroIdx((i) => (i + (dx < 0 ? 1 : featured.length - 1)) % featured.length);
+                  if (Math.abs(dx) > 40) setHeroIdx((i) => (i + (dx < 0 ? 1 : heroItems.length - 1)) % heroItems.length);
                 }}
-                style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem_url ? `url(${hero.imagem_url}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                style={{ position: "relative", width: "100%", minHeight: 240, borderRadius: 20, overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: hero.imagem ? `url(${hero.imagem}) center/cover` : CARD, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, var(--bg) 10%, color-mix(in srgb, var(--bg) 35%, transparent) 52%, transparent 82%)" }} />
-                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{badgeDrink(hero)}</span>
+                <span style={{ position: "absolute", top: 14, left: 14, background: ACCENT, color: "var(--accent-fg)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", padding: "5px 11px", borderRadius: 999 }}>{hero.badge}</span>
                 <div style={{ position: "relative", padding: 16, textAlign: "left" }}>
-                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.nome}</p>
-                  {hero.descricao && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.45 }}>{hero.descricao}</p>}
+                  <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.5px", lineHeight: 1.1 }}>{hero.titulo}</p>
+                  {hero.subtitulo && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--fg-muted)", lineHeight: 1.45 }}>{hero.subtitulo}</p>}
                 </div>
               </button>
-              {featured.length > 1 && (
+              {heroItems.length > 1 && (
                 <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
-                  {featured.map((_, i) => (
-                    <button key={i} onClick={() => setHeroIdx(i)} aria-label={`Destaque ${i + 1}`} style={{ width: i === heroIdx % featured.length ? 20 : 6, height: 6, borderRadius: 999, background: i === heroIdx % featured.length ? ACCENT : "var(--border-strong)", border: "none", cursor: "pointer", transition: "all 200ms", padding: 0 }} />
+                  {heroItems.map((_, i) => (
+                    <button key={i} onClick={() => setHeroIdx(i)} aria-label={`Destaque ${i + 1}`} style={{ width: i === heroIdx % heroItems.length ? 20 : 6, height: 6, borderRadius: 999, background: i === heroIdx % heroItems.length ? ACCENT : "var(--border-strong)", border: "none", cursor: "pointer", transition: "all 200ms", padding: 0 }} />
                   ))}
                 </div>
               )}
@@ -1328,11 +1337,13 @@ export function MenuApp({
   mesa,
   cardapio,
   topPedidos = [],
+  destaques = [],
 }: {
   bar: Bar;
   mesa: Mesa;
   cardapio: CategoriaComProdutos[];
   topPedidos?: string[];
+  destaques?: Destaque[];
 }) {
   const [screen, setScreen] = useState<Screen>("splash");
   const [cliente, setCliente] = useState<ClienteLocal | null>(null);
@@ -1412,6 +1423,7 @@ export function MenuApp({
           allProdutos={allProdutos}
           ultimoProduto={ultimoProduto}
           topPedidos={topPedidos}
+          destaques={destaques}
           cartCount={cartCount}
           onCart={() => setScreen("cart")}
           onSelectCategoria={(cat) => { setSelectedCategoria(cat); setScreen("products"); }}

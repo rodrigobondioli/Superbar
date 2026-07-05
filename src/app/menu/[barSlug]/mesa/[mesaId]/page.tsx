@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { MenuApp } from "@/components/menu/menu-app";
 import { getTopPedidos } from "@/lib/menu/queries";
+import { getDestaques } from "@/lib/destaques/queries";
 import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
 
 interface Props {
@@ -55,7 +56,7 @@ export default async function MenuPage({ params }: Props) {
     }))
     .filter((cat) => cat.produtos.length > 0);
 
-  const topPedidos = await getTopPedidos(bar.id);
+  const [topPedidos, destaques] = await Promise.all([getTopPedidos(bar.id), getDestaques(bar.id)]);
 
-  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} />;
+  return <MenuApp bar={bar} mesa={mesa} cardapio={cardapio} topPedidos={topPedidos} destaques={destaques} />;
 }
