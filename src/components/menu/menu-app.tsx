@@ -41,7 +41,7 @@ const CARD   = "var(--bg-elevated)";
 const CARD2  = "color-mix(in srgb, var(--fg) 8%, transparent)";
 const FONT   = "var(--font-sans)";
 // Overlay padrão sobre imagens (gradiente de baixo p/ cima). ~10% mais fraco que antes.
-const IMG_OVERLAY = "linear-gradient(to top, color-mix(in srgb, var(--bg) 90%, transparent) 0%, color-mix(in srgb, var(--bg) 22%, transparent) 55%, transparent 100%)";
+const IMG_OVERLAY = "linear-gradient(to top, color-mix(in srgb, var(--bg) 80%, transparent) 0%, color-mix(in srgb, var(--bg) 14%, transparent) 55%, transparent 100%)";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function storageKey(barSlug: string) {
