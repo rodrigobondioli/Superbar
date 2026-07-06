@@ -148,15 +148,18 @@ export default async function Home() {
             </div>
 
             {/* Mascote — coqueteleira vazando. Mobile: abre a seção (order-first,
-                antes dos cards). Desktop: volta pro meio das duas colunas. */}
-            <div className="order-first flex items-center justify-center py-2 lg:order-none lg:py-0">
-              <Image
-                src="/img-lp/coquetelaria-vazando.png"
-                alt="Coqueteleira vazando"
-                width={420}
-                height={660}
-                className="w-auto max-h-[300px] lg:max-h-none lg:w-full"
-              />
+                antes dos cards) no mesmo tamanho da coqueteleira da DonoSection
+                (max-w-280). Desktop: volta pro meio das duas colunas (coluna cheia). */}
+            <div className="order-first flex justify-center lg:order-none">
+              <div className="w-full max-w-[280px] lg:max-w-full">
+                <Image
+                  src="/img-lp/coquetelaria-vazando.png"
+                  alt="Coqueteleira vazando"
+                  width={420}
+                  height={660}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Right cards */}
