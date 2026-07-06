@@ -148,30 +148,37 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
     ? comandas.reduce((a, b) => a.aberta_em < b.aberta_em ? a : b)
     : null;
 
-  // ── Livre ──
+  // ── Livre ── card limpo (serve tanto no grid mobile quanto no trilho do iPad)
   if (livre) {
     return (
-      <button type="button" onClick={onAbrir} style={{
-        display: "flex", flexDirection: "column", alignItems: "stretch", gap: 8,
-        borderRadius: 12, padding: 16,
-        background: "var(--bg-card)",
-        border: "1px solid var(--border)",
-        cursor: "pointer", width: "100%", textAlign: "left",
-        WebkitTapHighlightColor: "transparent",
-        transition: "border-color 120ms",
-      }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-          <span style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", lineHeight: 1.2 }}>
+      <button
+        type="button"
+        onClick={onAbrir}
+        className="hover:!border-[color-mix(in_srgb,var(--accent)_50%,transparent)] hover:!bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          borderRadius: 12, padding: "14px 16px",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          cursor: "pointer", width: "100%", textAlign: "left",
+          WebkitTapHighlightColor: "transparent",
+          transition: "border-color 120ms, background 120ms",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {label}
-          </span>
-          {capacidade && (
-            <span style={{ fontSize: 13, color: "var(--fg-muted)", flexShrink: 0 }}>
-              {capacidade} lugares
-            </span>
-          )}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--fg-subtle)", marginTop: 3 }}>
+            {capacidade ? `${capacidade} lugares · livre` : "Livre"}
+          </div>
         </div>
-        <span style={{ alignSelf: "flex-start", marginTop: 2, display: "inline-flex", padding: "7px 16px", borderRadius: 999, border: "1px solid var(--border-strong)", color: "var(--accent)", fontSize: 13, fontWeight: 500 }}>
-          + Abrir comanda
+        <span aria-hidden style={{
+          flexShrink: 0, width: 34, height: 34, borderRadius: "50%",
+          background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+          color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </span>
       </button>
     );
@@ -468,23 +475,8 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   return (
     <div className="flex-1 flex flex-col" style={{ overflow: "hidden" }}>
 
-      {/* Topo fixo: AÇÃO primária (pedido) + busca + status */}
+      {/* Topo fixo: busca + status (a ação de pedido é o FAB flutuante) */}
       <div style={{ padding: "16px 24px 0", flexShrink: 0 }}>
-        {/* Ação primária — fazer pedido é o objetivo nº1 do garçom */}
-        <button
-          onClick={() => setNovoPedidoOpen(true)}
-          className="hover:brightness-110"
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            width: "100%", background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: 14, padding: "16px", fontSize: 16, fontWeight: 700,
-            cursor: "pointer", marginBottom: 14,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Novo pedido
-        </button>
-
         <ScanCartao />
         <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg-muted)", margin: 0 }}>
@@ -520,47 +512,87 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         </div>
       </div>
 
-      {/* Grid de mesas — área scrollável */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 40px" }}>
-        {mesas.length === 0 && (
-          <div style={{
-            background: "var(--bg-card)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
-            padding: "32px 20px", textAlign: "center", marginBottom: 20,
-          }}>
-            <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "6px 0 0", opacity: 0.7 }}>
-              Configure as mesas em Dashboard → Mesas.
-            </p>
-          </div>
-        )}
+      {/* Área rolável — esquerda: mesas ativas · direita (iPad+): livres enfileiradas */}
+      <div className="flex-1 flex flex-col lg:flex-row" style={{ minHeight: 0 }}>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          {(filtro === "todas" || filtro === "aguardando") && aguardando.length > 0 && (
-            <section>
-              <SecLabel label="Aguardando pagamento" count={aguardando.length} />
-              <div style={GRID_OCUPADAS}>
-                {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
-              </div>
-            </section>
+        {/* Coluna principal — mesas ATIVAS (foco: abrir/continuar pedido) */}
+        <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, padding: "0 24px 40px" }}>
+          {mesas.length === 0 && (
+            <div style={{
+              background: "var(--bg-card)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",
+              padding: "32px 20px", textAlign: "center", marginBottom: 20,
+            }}>
+              <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>Nenhuma mesa cadastrada.</p>
+              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "6px 0 0", opacity: 0.7 }}>
+                Configure as mesas em Dashboard → Mesas.
+              </p>
+            </div>
           )}
-          {(filtro === "todas" || filtro === "abertas") && abertas.length > 0 && (
-            <section>
-              <SecLabel label="Abertas" count={abertas.length} />
-              <div style={GRID_OCUPADAS}>
-                {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
-              </div>
-            </section>
+
+          {totalOcupadas === 0 && mesas.length > 0 && (
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "24px 0" }}>
+              Nenhuma mesa ativa. Toque no <strong style={{ color: "var(--accent)" }}>+</strong> pra abrir um pedido.
+            </p>
           )}
-          {(filtro === "todas" || filtro === "livres") && livres.length > 0 && (
-            <section>
-              <SecLabel label="Livres" count={livres.length} />
-              <div style={GRID_LIVRES}>
-                {livres.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} />)}
-              </div>
-            </section>
-          )}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            {(filtro === "todas" || filtro === "abertas") && abertas.length > 0 && (
+              <section>
+                <SecLabel label="Abertas" count={abertas.length} />
+                <div style={GRID_OCUPADAS}>
+                  {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
+                </div>
+              </section>
+            )}
+            {(filtro === "todas" || filtro === "aguardando") && aguardando.length > 0 && (
+              <section>
+                <SecLabel label="Aguardando pagamento" count={aguardando.length} />
+                <div style={GRID_OCUPADAS}>
+                  {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
+                </div>
+              </section>
+            )}
+            {/* Livres — no MOBILE ficam aqui; no iPad+ vão pro trilho da direita */}
+            {(filtro === "todas" || filtro === "livres") && livres.length > 0 && (
+              <section className="lg:hidden">
+                <SecLabel label="Livres" count={livres.length} />
+                <div style={GRID_LIVRES}>
+                  {livres.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} />)}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
+
+        {/* Trilho direito (iPad+) — mesas livres, acesso rápido pra abrir */}
+        <aside className="hidden lg:flex flex-col shrink-0" style={{ width: 300, borderLeft: "1px solid var(--border)", overflowY: "auto", minHeight: 0, padding: "4px 20px 40px" }}>
+          <SecLabel label="Mesas livres" count={livres.length} />
+          {livres.length === 0 ? (
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)" }}>Nenhuma mesa livre.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {livres.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} onAbrir={e.onAbrir} />)}
+            </div>
+          )}
+        </aside>
       </div>
+
+      {/* FAB — Novo pedido (foco nº1 do garçom), igual ao padrão do cardápio */}
+      <button
+        onClick={() => setNovoPedidoOpen(true)}
+        aria-label="Novo pedido"
+        title="Novo pedido"
+        className="hover:brightness-110"
+        style={{
+          position: "fixed", right: 24, bottom: "calc(24px + env(safe-area-inset-bottom))",
+          zIndex: 55, width: 60, height: 60, borderRadius: 999,
+          background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 10px 28px rgba(0,0,0,0.45)", cursor: "pointer",
+        }}
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
 
       {/* Keyframes */}
       <style>{`
