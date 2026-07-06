@@ -135,10 +135,10 @@ function MesaCard({ mesa, ocupada, selected, onClick }: { mesa: Mesa; ocupada: b
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        position: "relative", minWidth: 150, height: 114, borderRadius: 16,
+        position: "relative", width: "100%", height: 114, borderRadius: 16,
         background: "var(--bg-card)",
         border: (selected || hover) ? "1px solid var(--border-strong)" : "1px solid transparent",
-        display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 40px",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px",
         cursor: "pointer", transition: "background 120ms, border-color 120ms", textAlign: "center",
       }}
     >
@@ -269,8 +269,8 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
         />
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 344px", gap: 48, alignItems: "start" }} className="max-lg:!grid-cols-1 max-lg:!gap-8">
-          {/* Grid de mesas */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+          {/* Grid de mesas — preenche a largura (2 col no mobile) */}
+          <div className="grid gap-3 lg:gap-6" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
             {mesas.map((mesa) => (
               <MesaCard
                 key={mesa.id}

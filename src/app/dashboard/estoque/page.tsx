@@ -23,16 +23,16 @@ export default async function EstoquePage() {
   ];
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
+    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-4 lg:gap-6">
 
       {/* Header — padrão Figma */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+      <div className="max-lg:pb-4" style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
         <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Estoque</h1>
         <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Controle de estoque e reposição inteligente</p>
       </div>
 
       {/* Semáforo */}
-      <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 24 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
         {semaforo.map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

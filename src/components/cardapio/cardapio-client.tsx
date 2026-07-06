@@ -828,12 +828,12 @@ export function CardapioClient({
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Gerencie categorias e produtos do seu bar.</p>
         </div>
-        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+        <div className="flex flex-wrap gap-2 max-lg:w-full">
           {selectedGrupo && (
             <button
               onClick={() => setAddingProduto(p => !p)}
               style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-              className="hover:brightness-110"
+              className="hover:brightness-110 max-lg:flex-1"
             >
               <Plus style={{ width: 15, height: 15 }} />
               Novo produto

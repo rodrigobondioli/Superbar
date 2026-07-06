@@ -42,7 +42,7 @@ export default async function TurnosPage() {
   ]);
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
+    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-4 lg:gap-6">
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
@@ -54,7 +54,7 @@ export default async function TurnosPage() {
             Registro de todos os turnos abertos e fechados.
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="hidden sm:flex items-center gap-2">
           <span style={{ padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 500 }}>Hoje</span>
           <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>Ontem</span>
           <span style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", color: "var(--fg-muted)", fontSize: 13 }}>7 dias</span>

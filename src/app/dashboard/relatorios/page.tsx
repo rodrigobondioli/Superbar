@@ -60,10 +60,10 @@ export default async function RelatoriosPage({
   const maxFat = topProdutos[0]?.faturamento || 1;
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-6">
+    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-4 lg:gap-6">
 
       {/* Header: título + subtítulo + período */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
+      <div className="max-lg:pb-4" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Relatórios</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Análise de desempenho por período</p>
@@ -72,23 +72,23 @@ export default async function RelatoriosPage({
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: 24 }}>
-        <div style={kpiCard}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+        <div className="max-lg:!p-5" style={kpiCard}>
           <span style={kpiLabel}>Receita</span>
           <span style={kpiMetric}>{currency.format(comparacao.atual)}</span>
           {comparacao.percentual !== null ? <DeltaVs percent={comparacao.percentual} /> : <span style={kpiSub}>sem base de comparação</span>}
         </div>
-        <div style={kpiCard}>
+        <div className="max-lg:!p-5" style={kpiCard}>
           <span style={kpiLabel}>CMV</span>
           <span style={kpiMetric}>{kpis.cmv !== null ? `${percent.format(kpis.cmv)}%` : "—"}</span>
           <span style={kpiSub}>custo sobre receita</span>
         </div>
-        <div style={kpiCard}>
+        <div className="max-lg:!p-5" style={kpiCard}>
           <span style={kpiLabel}>Margem bruta</span>
           <span style={{ ...kpiMetric, color: kpis.margemBruta !== null && kpis.margemBruta < 50 ? "var(--warn)" : "var(--fg)" }}>{kpis.margemBruta !== null ? `${percent.format(kpis.margemBruta)}%` : "—"}</span>
           <span style={kpiSub}>receita menos custo</span>
         </div>
-        <div style={kpiCard}>
+        <div className="max-lg:!p-5" style={kpiCard}>
           <span style={kpiLabel}>Ticket médio</span>
           <span style={kpiMetric}>{kpis.ticketMedio !== null ? currency.format(kpis.ticketMedio) : "—"}</span>
           <span style={kpiSub}>por comanda paga</span>
@@ -96,7 +96,7 @@ export default async function RelatoriosPage({
       </div>
 
       {/* Receita por dia */}
-      <div style={cardBig}>
+      <div className="max-lg:!p-5" style={cardBig}>
         <span style={cardTitle}>Receita por dia</span>
         <div style={{ marginTop: 24 }}>
           <LineChart data={pontos} height={220} />
@@ -104,7 +104,7 @@ export default async function RelatoriosPage({
       </div>
 
       {/* Top produtos */}
-      <div style={cardBig}>
+      <div className="max-lg:!p-5" style={cardBig}>
         <span style={cardTitle}>Produtos mais vendidos</span>
         <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 24 }}>
           {topProdutos.map((p, i) => {
