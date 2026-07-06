@@ -3,8 +3,7 @@ import { cookies } from "next/headers";
 import type { Bar, BarRole, Turno, CustoStatus } from "@/types/database";
 import { percentChange } from "@/lib/dashboard/percent-change";
 import { calcularCmv } from "@/lib/dashboard/menu-engineering";
-import { getBarByKioskToken } from "@/lib/kiosk/queries";
-import { KIOSK_COOKIE, OPERADOR_COOKIE } from "@/lib/kiosk/constants";
+import { OPERADOR_COOKIE } from "@/lib/kiosk/constants";
 
 export interface CurrentBar {
   bar: Bar;
@@ -55,28 +54,17 @@ export async function getCurrentBar(): Promise<CurrentBar | null> {
     }
   }
 
-  // ── 2. Sessão kiosk (iPad sem login do dono) ───────────────────────────────
-  const kioskCookie = cookieStore.get(KIOSK_COOKIE)?.value;
-  if (kioskCookie) {
-    const [, token] = kioskCookie.split(":");
-    if (token) {
-      const bar = await getBarByKioskToken(token);
-      if (bar) {
-        return {
-          bar,
-          role: "bartender" as BarRole, // papel genérico para kiosk; a tela usa OperadorShell
-          userId: "kiosk",
-          memberId: "",
-          atribuicaoMemberId: opCookie || null,
-          userNome: "iPad do Bar",
-          userEmail: "",
-          userAvatarUrl: null,
-          isKiosk: true,
-        };
-      }
-    }
-  }
-
+  // ── 2. Modo de operação do dispositivo: LOGIN COMPARTILHADO ─────────────────
+  // O iPad/dispositivo do bar loga UMA vez com uma conta do bar (sessão PWA
+  // persistente) e o OperadorShell escolhe QUEM está operando (atribuição via
+  // OPERADOR_COOKIE). A RLS fica ligada em toda a operação — o dado de um bar
+  // nunca vaza pra outro.
+  //
+  // O antigo modo "kiosk sem login" (token no cookie) foi desativado de propósito:
+  // sem sessão auth, a RLS bloqueia leitura E escrita de mesa/comanda/pedido,
+  // então o dispositivo ficaria inoperante. Princípio 9 — não expor caminho falso.
+  // Se nenhum usuário estiver autenticado, as superfícies operacionais mandam
+  // pro /login.
   return null;
 }
 

@@ -33,12 +33,22 @@ export async function getOuCriarTurno(
     .select("*")
     .single();
 
-  if (error) {
-    console.error("[getOuCriarTurno] falha ao criar turno:", error.message, { barId, userId });
-    return null;
-  }
+  if (!error) return data;
 
-  return data;
+  // Corrida: outro dispositivo criou o turno entre o SELECT e o INSERT. O índice
+  // único parcial (turnos_um_aberto_por_bar) rejeita o segundo INSERT — em vez de
+  // falhar, relemos e devolvemos o turno vencedor. Um turno aberto por bar, sempre.
+  const { data: turnoConcorrente } = await admin
+    .from("turnos")
+    .select("*")
+    .eq("bar_id", barId)
+    .eq("status", "aberto")
+    .maybeSingle();
+
+  if (turnoConcorrente) return turnoConcorrente;
+
+  console.error("[getOuCriarTurno] falha ao criar turno:", error.message, { barId, userId });
+  return null;
 }
 
 export async function abrirTurno() {

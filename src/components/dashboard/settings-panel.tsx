@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Building2, User, Target, Smartphone, Tablet, Copy, RotateCcw, Check } from "lucide-react";
+import { X, Building2, User, Target, Smartphone, Tablet } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
 import { atualizarPerfil, atualizarConta, atualizarLogo, atualizarAvatar, atualizarAutoPedido, atualizarFluxoPronto, atualizarTaxaServico, type ActionResult } from "@/lib/settings/actions";
 import { signOut } from "@/lib/auth/actions";
-import { getKioskSetupLink, regenerarToken } from "@/lib/kiosk/actions";
 import type { Bar } from "@/types/database";
 
 // ─── Shared inline styles ────────────────────────────────────────────────────
@@ -492,38 +491,9 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
   );
 }
 
-// ─── Dispositivos (iPad kiosk) ───────────────────────────────────────────────
+// ─── Dispositivos (iPad do bar) ──────────────────────────────────────────────
 
 function DispositivosSection() {
-  const [url, setUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [regenerando, setRegenerando] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const loadUrl = useCallback(async () => {
-    setLoading(true);
-    const result = await getKioskSetupLink();
-    setUrl(result.url);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { loadUrl(); }, [loadUrl]);
-
-  async function handleRegenerar() {
-    if (!confirm("Regenerar vai desconectar TODOS os iPads ativos. Continuar?")) return;
-    setRegenerando(true);
-    const result = await regenerarToken();
-    setUrl(result.url);
-    setRegenerando(false);
-  }
-
-  async function handleCopy() {
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   return (
     <section>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
@@ -543,57 +513,12 @@ function DispositivosSection() {
             Configurar iPad do bar
           </p>
           <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.5 }}>
-            Abra este link no iPad que os garçons e caixa vão usar. O dispositivo fica ativo por 1 ano sem precisar de login.
+            No iPad que garçons e caixa vão usar, abra o app e faça login uma vez
+            com a conta do bar. A sessão fica salva no aparelho — não precisa logar
+            de novo. Depois, cada pessoa toca no próprio nome na tela “Quem está
+            operando agora?” para que os pedidos fiquem atribuídos a ela.
           </p>
         </div>
-
-        {loading ? (
-          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>Carregando…</p>
-        ) : url ? (
-          <div style={{ display: "flex", gap: 8 }}>
-            <div style={{
-              flex: 1, background: "var(--bg-card)",
-              border: "1px solid var(--border)", borderRadius: 4,
-              padding: "9px 12px",
-              fontSize: 11, color: "var(--fg-subtle)",
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              fontFamily: "var(--font-sans)",
-            }}>
-              {url}
-            </div>
-            <button
-              onClick={handleCopy}
-              title="Copiar link"
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: 38, height: 38, flexShrink: 0,
-                borderRadius: 4, border: "1px solid var(--border)",
-                background: copied ? "var(--ok-bg)" : "var(--bg-card)",
-                color: copied ? "var(--ok)" : "var(--fg-muted)",
-                cursor: "pointer", transition: "background 150ms, color 150ms",
-              }}
-            >
-              {copied ? <Check style={{ width: 14, height: 14 }} /> : <Copy style={{ width: 14, height: 14 }} />}
-            </button>
-          </div>
-        ) : (
-          <p style={{ fontSize: 12, color: "var(--danger)", margin: 0 }}>Erro ao carregar link.</p>
-        )}
-
-        <button
-          onClick={handleRegenerar}
-          disabled={regenerando}
-          style={{
-            display: "flex", alignItems: "center", gap: 6,
-            alignSelf: "flex-start",
-            fontSize: 11, color: "var(--fg-subtle)",
-            background: "none", border: "none", cursor: regenerando ? "not-allowed" : "pointer",
-            padding: 0, opacity: regenerando ? 0.5 : 1,
-          }}
-        >
-          <RotateCcw style={{ width: 11, height: 11 }} />
-          {regenerando ? "Regenerando…" : "Revogar todos os iPads e gerar novo link"}
-        </button>
       </div>
     </section>
   );
