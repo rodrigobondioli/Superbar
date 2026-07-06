@@ -108,7 +108,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
 
       {/* HEADER */}
       <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: isMobile ? 12 : 16, flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
+        {!isMobile && <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>}
         <div style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
           {OPCOES.map((o) => {
             const active = periodo === o.id;
@@ -296,7 +296,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               )}
             </div>
           </div>
-          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
+          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
         </div>
       </div>
 
