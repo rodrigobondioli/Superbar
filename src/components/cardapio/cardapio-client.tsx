@@ -314,13 +314,15 @@ function ProdutoForm({
   }
 
   return (
-    <div className="max-lg:!border-0 max-lg:!bg-transparent max-lg:!p-0 max-lg:!mb-0" style={{
+    <div className="produto-form max-lg:!border-0 max-lg:!bg-transparent max-lg:!p-0 max-lg:!mb-0" style={{
       background: "var(--bg-elevated)",
       border: "1px solid var(--border)",
       borderRadius: 4,
       padding: 16,
       marginBottom: 10,
     }}>
+      {/* iOS só evita o auto-zoom no focus se o input tiver fonte >= 16px */}
+      <style>{`@media (max-width: 1023px){ .produto-form input, .produto-form select, .produto-form textarea { font-size: 16px !important; } }`}</style>
       <form action={handleSubmit}>
         <div className="flex flex-wrap gap-3 mb-3">
           <div className="shrink-0">
@@ -829,19 +831,8 @@ export function CardapioClient({
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Gerencie categorias e produtos do seu bar.</p>
         </div>
-        <div className="flex flex-wrap items-start gap-2 max-lg:w-full max-lg:flex-col-reverse">
-          {/* Primário: criar produto */}
-          {selectedGrupo && (
-            <button
-              onClick={() => setAddingProduto(p => !p)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
-              className="hover:brightness-110 max-lg:hidden"
-            >
-              <Plus style={{ width: 15, height: 15 }} />
-              Novo produto
-            </button>
-          )}
-          {/* Secundárias: utilitárias — linha no desktop, grade 2 col no mobile */}
+        <div className="flex flex-wrap items-start gap-2 max-lg:w-full">
+          {/* Utilitárias — linha no desktop, grade 2 col no mobile. Criar produto é o FAB (+). */}
           <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2 max-lg:w-full">
             {pendentesFicha > 0 && (
               <button
@@ -1083,14 +1074,15 @@ export function CardapioClient({
         </>
       )}
 
-      {/* FAB — novo produto (só mobile) */}
+      {/* FAB — única forma de criar produto (desktop e mobile) */}
       {selectedGrupo && !addingProduto && (
         <button
           onClick={() => setAddingProduto(true)}
           aria-label="Novo produto"
-          className="lg:hidden hover:brightness-110"
+          title="Novo produto"
+          className="hover:brightness-110"
           style={{
-            position: "fixed", right: 20, bottom: "calc(24px + env(safe-area-inset-bottom))",
+            position: "fixed", right: 24, bottom: "calc(24px + env(safe-area-inset-bottom))",
             zIndex: 60, width: 56, height: 56, borderRadius: 999,
             background: "var(--accent)", color: "var(--accent-fg)", border: "none",
             display: "flex", alignItems: "center", justifyContent: "center",
