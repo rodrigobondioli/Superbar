@@ -4,7 +4,7 @@ import type { Bar, BarRole, Turno, CustoStatus } from "@/types/database";
 import { percentChange } from "@/lib/dashboard/percent-change";
 import { calcularCmv } from "@/lib/dashboard/menu-engineering";
 import { getBarByKioskToken } from "@/lib/kiosk/queries";
-import { KIOSK_COOKIE } from "@/lib/kiosk/constants";
+import { KIOSK_COOKIE, OPERADOR_COOKIE } from "@/lib/kiosk/constants";
 
 export interface CurrentBar {
   bar: Bar;
@@ -15,6 +15,9 @@ export interface CurrentBar {
    *  Para staff sem auth (bartender/garçom/caixa), o memberId virá do device via
    *  seleção local + PIN. */
   memberId: string;
+  /** Membro a quem as AÇÕES devem ser atribuídas: o operador selecionado no device
+   *  (garçom/bartender/caixa), se houver; senão o membro autenticado. null = sem atribuição. */
+  atribuicaoMemberId: string | null;
   userNome: string;
   userEmail: string;
   userAvatarUrl: string | null;
@@ -24,6 +27,8 @@ export interface CurrentBar {
 
 export async function getCurrentBar(): Promise<CurrentBar | null> {
   const supabase = await createClient();
+  const cookieStore = await cookies();
+  const opCookie = cookieStore.get(OPERADOR_COOKIE)?.value || null;
   const { data: auth } = await supabase.auth.getUser();
 
   // ── 1. Autenticação normal (dono / gerente com conta) ──────────────────────
@@ -42,6 +47,7 @@ export async function getCurrentBar(): Promise<CurrentBar | null> {
         role: membership.role,
         userId: auth.user.id,
         memberId: membership.id,
+        atribuicaoMemberId: opCookie || membership.id,
         userNome: membership.profiles?.nome ?? auth.user.email ?? "Usuário",
         userEmail: auth.user.email ?? "",
         userAvatarUrl: membership.profiles?.avatar_url ?? null,
@@ -50,7 +56,6 @@ export async function getCurrentBar(): Promise<CurrentBar | null> {
   }
 
   // ── 2. Sessão kiosk (iPad sem login do dono) ───────────────────────────────
-  const cookieStore = await cookies();
   const kioskCookie = cookieStore.get(KIOSK_COOKIE)?.value;
   if (kioskCookie) {
     const [, token] = kioskCookie.split(":");
@@ -62,6 +67,7 @@ export async function getCurrentBar(): Promise<CurrentBar | null> {
           role: "bartender" as BarRole, // papel genérico para kiosk; a tela usa OperadorShell
           userId: "kiosk",
           memberId: "",
+          atribuicaoMemberId: opCookie || null,
           userNome: "iPad do Bar",
           userEmail: "",
           userAvatarUrl: null,

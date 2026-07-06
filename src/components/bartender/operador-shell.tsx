@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { signOut } from "@/lib/auth/actions";
-import { checkPin } from "@/lib/kiosk/actions";
+import { checkPin, definirOperador, limparOperador } from "@/lib/kiosk/actions";
 import { AppHeader } from "@/components/ui/app-header";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABEL } from "@/lib/role-labels";
@@ -239,12 +239,14 @@ export function OperadorShell({
       if (salvo) {
         const m = JSON.parse(salvo) as MembroSimples;
         setOperador(m);
+        void definirOperador(m.id); // ressincroniza o cookie de atribuição
       } else if (membros.length === 1) {
         const m = membros[0];
         if (m.temPin) {
           setPinPendente(m);
         } else {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+          void definirOperador(m.id);
           setOperador(m);
         }
       }
@@ -259,12 +261,15 @@ export function OperadorShell({
 
   function confirmarOperador(m: MembroSimples) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+    // Grava o cookie de atribuição — a partir daqui as ações ficam no nome dele.
+    void definirOperador(m.id);
     setPinPendente(null);
     setOperador(m);
   }
 
   function trocar() {
     localStorage.removeItem(STORAGE_KEY);
+    void limparOperador();
     setOperador(null);
     setPinPendente(null);
   }

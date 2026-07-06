@@ -3,9 +3,47 @@
 import { cookies } from "next/headers";
 import { getBarByKioskToken, verificarPin, regenerarKioskToken, getKioskToken } from "./queries";
 import { createClient } from "@/lib/supabase/server";
-import { KIOSK_COOKIE } from "./constants";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import { KIOSK_COOKIE, OPERADOR_COOKIE } from "./constants";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
+
+/** Define o operador atual do device (garçom/bartender/caixa selecionado).
+ *  Grava um cookie que o getCurrentBar lê como fonte de atribuição — assim as
+ *  ações (abrir comanda, lançar pedido, cobrar) ficam no nome de quem fez. */
+export async function definirOperador(memberId: string): Promise<{ ok: boolean }> {
+  if (!memberId) return { ok: false };
+  const current = await getCurrentBar();
+  if (!current) return { ok: false };
+
+  // Valida via admin (kiosk é anônimo — RLS bloquearia a leitura de bar_members).
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("bar_members")
+    .select("id")
+    .eq("id", memberId)
+    .eq("bar_id", current.bar.id)
+    .eq("ativo", true)
+    .maybeSingle<{ id: string }>();
+  if (!data) return { ok: false };
+
+  const store = await cookies();
+  store.set(OPERADOR_COOKIE, memberId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: ONE_YEAR,
+    path: "/",
+  });
+  return { ok: true };
+}
+
+/** Remove o operador atual do device (ao "Trocar"). */
+export async function limparOperador(): Promise<void> {
+  const store = await cookies();
+  store.delete(OPERADOR_COOKIE);
+}
 
 /** Ativa o kiosk no dispositivo atual: salva cookie por 1 ano.
  *  Chamado pela rota /kiosk/setup?token=XXX. */

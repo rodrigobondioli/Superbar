@@ -66,7 +66,7 @@ export async function abrirComanda(
       bar_id: current.bar.id,
       turno_id: turno.id,
       bartender_id: current.userId,
-      aberta_por_member_id: current.memberId,
+      aberta_por_member_id: current.atribuicaoMemberId,
       mesa_id: mesaId,
       total_pessoas: totalPessoas ?? null,
       identificador: identificador ?? null,
@@ -281,7 +281,7 @@ export async function adicionarItem(
     preco_unitario: preco,
     preco_total:    preco,
     adicionado_por:           current.userId,
-    adicionado_por_member_id: current.memberId,
+    adicionado_por_member_id: current.atribuicaoMemberId,
   });
 
   revalidatePath(`/garcom/${comandaId}`);
@@ -296,7 +296,7 @@ export async function removerItem(itemId: string, comandaId: string) {
     .update({
       status: "cancelado",
       cancelado_por:           current.userId,
-      cancelado_por_member_id: current.memberId,
+      cancelado_por_member_id: current.atribuicaoMemberId,
       cancelado_em:            new Date().toISOString(),
     })
     .eq("id", itemId)
@@ -418,7 +418,7 @@ export async function criarPedido(
       turno_id:             turno.id,
       comanda_id:           comandaId,
       status:               "recebido",
-      criado_por_member_id: current.memberId,
+      criado_por_member_id: current.atribuicaoMemberId,
     })
     .select("id")
     .single<{ id: string }>();
@@ -439,7 +439,7 @@ export async function criarPedido(
       preco_total:              item.preco,
       observacao:               item.observacao?.trim() || null,
       adicionado_por:           current.userId,
-      adicionado_por_member_id: current.memberId,
+      adicionado_por_member_id: current.atribuicaoMemberId,
     }))
   );
 
@@ -461,7 +461,7 @@ export async function iniciarPedido(pedidoId: string) {
     .update({
       status:                  "preparando",
       iniciado_em:             new Date().toISOString(),
-      iniciado_por_member_id:  current.memberId,
+      iniciado_por_member_id:  current.atribuicaoMemberId,
     })
     .eq("id", pedidoId)
     .eq("bar_id", current.bar.id)
@@ -528,7 +528,7 @@ export async function entregarPedido(
   const { data, error } = await supabase.rpc("fn_entregar_pedido", {
     p_pedido_id: pedidoId,
     p_user_id:   current.userId,
-    p_member_id: current.memberId,
+    p_member_id: current.atribuicaoMemberId,
   });
 
   if (error)       return { error: error.message };
