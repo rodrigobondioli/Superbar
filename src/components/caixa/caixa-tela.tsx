@@ -427,11 +427,15 @@ export function CaixaTela({
   }, [barId]);
 
   useEffect(() => {
+    fetchComandas(); // busca inicial
     const supabase = createClient();
-    const canal = supabase.channel("caixa-live")
+    const canal = supabase.channel(`caixa-live-${barId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "comandas", filter: `bar_id=eq.${barId}` }, () => fetchComandas())
       .subscribe();
-    return () => { supabase.removeChannel(canal); };
+    // Fallback: mesmo se o realtime falhar (auth/RLS/publication), o caixa
+    // atualiza sozinho sem refresh. Princípio 11/12 — a operação não pode travar.
+    const poll = setInterval(fetchComandas, 4000);
+    return () => { supabase.removeChannel(canal); clearInterval(poll); };
   }, [barId, fetchComandas]);
 
   const handlePago = useCallback((group: MesaGroup, metodo: PagamentoMetodo) => {
