@@ -101,14 +101,15 @@ function SeletorPessoas({
 
 // ─── Card individual de mesa ──────────────────────────────────────────────────
 
-function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, onAdicionarPessoa }: {
+function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, onOpen }: {
   label: string;
   comandas: Comanda[];
   capacidade?: number | null;
   chamadaId?: string;
   onAbrir?: () => void;
   onAtender?: () => void;
-  onAdicionarPessoa?: () => void;
+  /** Mesa: abre a tela da mesa (centro do garçom). Ausente = balcão (link direto na comanda). */
+  onOpen?: () => void;
 }) {
   const livre         = comandas.length === 0;
   const totalValor    = comandas.reduce((sum, c) => sum + c.total, 0);
@@ -183,67 +184,56 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, 
         </div>
       )}
 
-      {/* Header da mesa */}
-      <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 16px", borderBottom: "1px solid var(--border)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>
-            {label}
-          </span>
-          {maisAntiga && (
-            <span style={{ fontSize: 10, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
-              <IconClock />{tempoAberta(maisAntiga.aberta_em)}
-            </span>
-          )}
-        </div>
-        <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>
-          {currency.format(totalValor)}
-        </span>
-      </div>
-
-      {/* Comandas — link para cada uma */}
-      {comandas.map((c) => {
-        const querPagar = c.status === "aguardando_pagamento";
-        return (
-          <Link
-            key={c.id}
-            href={`/garcom/${c.id}`}
-            style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "13px 16px", textDecoration: "none",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <span style={{
-              fontSize: 12, fontWeight: 600,
-              color: querPagar ? "var(--warn)" : "var(--fg-subtle)",
-            }}>
-              {c.nome_cliente
-                ? `${c.nome_cliente}${querPagar ? " — pagar" : ""}`
-                : querPagar ? "Aguardando pagamento" : "Ver comanda"}
+      {onOpen ? (
+        /* MESA — o card inteiro abre a TELA DA MESA (centro do garçom) */
+        <button type="button" onClick={onOpen} className="[-webkit-tap-highlight-color:transparent]"
+          style={{ width: "100%", display: "block", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{label}</span>
+              {maisAntiga && (
+                <span style={{ fontSize: 10, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
+                  <IconClock />{tempoAberta(maisAntiga.aberta_em)}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 16px" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: comandas.some(c => c.status === "aguardando_pagamento") ? "var(--warn)" : "var(--fg-subtle)" }}>
+              {comandas.length} {comandas.length === 1 ? "pessoa" : "pessoas"}
+              {comandas.some(c => c.status === "aguardando_pagamento") ? " · conta enviada" : ""}
             </span>
             <span style={{ fontSize: 14, color: "var(--fg-subtle)" }}>›</span>
-          </Link>
-        );
-      })}
-
-      {/* Adicionar pessoa — mesa elástica: cada pessoa vira uma comanda própria */}
-      {onAdicionarPessoa && (
-        <button
-          type="button"
-          onClick={onAdicionarPessoa}
-          className="hover:!text-[var(--accent)]"
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            width: "100%", padding: "11px 16px", background: "none", border: "none",
-            cursor: "pointer", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600,
-          }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Adicionar pessoa
+          </div>
         </button>
+      ) : (
+        /* BALCÃO — link direto por comanda */
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{label}</span>
+              {maisAntiga && (
+                <span style={{ fontSize: 10, color: "var(--fg-subtle)", display: "flex", alignItems: "center", gap: 3 }}>
+                  <IconClock />{tempoAberta(maisAntiga.aberta_em)}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
+          </div>
+          {comandas.map((c) => {
+            const querPagar = c.status === "aguardando_pagamento";
+            return (
+              <Link key={c.id} href={`/garcom/${c.id}`}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", textDecoration: "none", borderBottom: "1px solid var(--border)" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: querPagar ? "var(--warn)" : "var(--fg-subtle)" }}>
+                  {c.nome_cliente ? `${c.nome_cliente}${querPagar ? " — pagar" : ""}` : querPagar ? "Aguardando pagamento" : "Ver comanda"}
+                </span>
+                <span style={{ fontSize: 14, color: "var(--fg-subtle)" }}>›</span>
+              </Link>
+            );
+          })}
+        </>
       )}
     </div>
   );
@@ -398,13 +388,14 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     chamadaId?: string;
     onAbrir?: () => void;
     onAtender?: () => void;
-    onAdicionarPessoa?: () => void;
+    onOpen?: () => void;
   };
 
   const todasEntradas: MesaEntry[] = [
     ...mesas.map(({ mesa, comandas }) => {
       const label = mesa.nome ?? `Mesa ${mesa.numero}`;
       const chamadaId = chamadas.get(mesa.id);
+      const irParaMesa = () => router.push(`/garcom/mesa/${mesa.id}`);
       return {
         key: mesa.id,
         mesaId: mesa.id,
@@ -412,15 +403,11 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         comandas,
         capacidade: mesa.capacidade,
         chamadaId,
-        onAbrir: comandas.length === 0
-          ? () => setPendingAbrir({ mesaId: mesa.id, label })
-          : undefined,
+        // Livre e ocupada abrem a TELA DA MESA (centro do garçom)
+        onAbrir: comandas.length === 0 ? irParaMesa : undefined,
+        onOpen: comandas.length > 0 ? irParaMesa : undefined,
         onAtender: chamadaId
           ? () => handleAtenderChamada(chamadaId, mesa.id)
-          : undefined,
-        // Mesa elástica: adicionar outra comanda (pessoa) numa mesa já ocupada
-        onAdicionarPessoa: comandas.length > 0
-          ? () => setPendingAbrir({ mesaId: mesa.id, label })
           : undefined,
       };
     }),
@@ -530,7 +517,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               <section>
                 <SecLabel label="Abertas" count={abertas.length} />
                 <div style={GRID_OCUPADAS}>
-                  {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onAdicionarPessoa={e.onAdicionarPessoa} />)}
+                  {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onOpen={e.onOpen} />)}
                 </div>
               </section>
             )}
@@ -538,7 +525,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               <section>
                 <SecLabel label="Aguardando pagamento" count={aguardando.length} />
                 <div style={GRID_OCUPADAS}>
-                  {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onAdicionarPessoa={e.onAdicionarPessoa} />)}
+                  {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onOpen={e.onOpen} />)}
                 </div>
               </section>
             )}

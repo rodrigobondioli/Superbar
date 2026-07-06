@@ -64,6 +64,26 @@ export async function abrirComanda(
   return { id: novaComanda.id };
 }
 
+/** Abre VÁRIAS comandas de uma vez numa mesa (uma por pessoa/nome).
+ *  Nomes vazios são ignorados; se a lista vier toda vazia, abre 1 comanda anônima
+ *  (caso "mesa compartilha uma conta só"). Modelo individual, Princípio 12. */
+export async function abrirComandasMesa(
+  mesaId: string,
+  nomes: string[],
+): Promise<{ ids: string[] } | { error: string }> {
+  const limpos = nomes.map((n) => n.trim()).filter(Boolean);
+  const alvo = limpos.length > 0 ? limpos : [""]; // vazio → 1 comanda anônima
+  const ids: string[] = [];
+  for (const nome of alvo) {
+    const r = await abrirComanda(mesaId, 1, undefined, nome || undefined);
+    if (r && "id" in r) ids.push(r.id);
+    else if (r && "error" in r) return { error: r.error };
+  }
+  if (ids.length === 0) return { error: "Não consegui abrir as comandas." };
+  revalidatePath("/garcom");
+  return { ids };
+}
+
 /**
  * Busca comanda aberta pelo identificador do cartão no turno atual.
  * Retorna o ID da comanda se encontrada, null caso contrário.
