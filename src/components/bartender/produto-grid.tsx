@@ -162,7 +162,7 @@ function ProdutoCard({
       }}>
         {produto.imagem_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={produto.imagem_url} alt={produto.nome} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={produto.imagem_url} alt={produto.nome} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <Martini style={{ width: 26, height: 26, color: "var(--fg-subtle)" }} strokeWidth={1.5} />
         )}

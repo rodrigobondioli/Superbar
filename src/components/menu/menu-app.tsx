@@ -775,6 +775,8 @@ function CartScreen({
             {item.produto.imagem_url ? (
               <img
                 src={item.produto.imagem_url}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                 style={{ width: 54, height: 54, borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
                 alt={item.produto.nome}
