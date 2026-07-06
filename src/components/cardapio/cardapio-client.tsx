@@ -828,7 +828,7 @@ export function CardapioClient({
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Gerencie categorias e produtos do seu bar.</p>
         </div>
-        <div className="flex flex-wrap items-start gap-2 max-lg:w-full max-lg:flex-col">
+        <div className="flex flex-wrap items-start gap-2 max-lg:w-full max-lg:flex-col-reverse">
           {/* Primário: criar produto */}
           {selectedGrupo && (
             <button
