@@ -24,7 +24,7 @@ const lbl: React.CSSProperties = {
 };
 
 export function FichaEditor({
-  open, onClose, produtoId, produtoNome, preco, varianteId = null, varianteNome, base, sabor,
+  open, onClose, produtoId, produtoNome, preco, varianteId = null, varianteNome, base, sabor, descricao,
 }: {
   open: boolean;
   onClose: () => void;
@@ -35,6 +35,7 @@ export function FichaEditor({
   varianteNome?: string;
   base?: string;
   sabor?: string;
+  descricao?: string;
 }) {
   const router = useRouter();
   const [linhas, setLinhas] = useState<Linha[]>([]);
@@ -48,7 +49,12 @@ export function FichaEditor({
     let active = true;
     carregarFicha(produtoId, varianteId).then((f) => {
       if (!active) return;
-      setLinhas(f.linhas.map((l) => ({ ...l })));
+      // Ficha existente carrega como está; ficha vazia já abre 1 linha pronta pra digitar.
+      setLinhas(
+        f.linhas.length > 0
+          ? f.linhas.map((l) => ({ ...l }))
+          : [{ ingredienteId: null, nome: "", quantidade: 1, unidade: "ml", custoUnitario: null }],
+      );
       setLoading(false);
     });
     return () => { active = false; };
@@ -71,7 +77,7 @@ export function FichaEditor({
       const res = await fetch("/api/sugerir-ficha", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome: varianteNome ? `${produtoNome} ${varianteNome}` : produtoNome, base, sabor }),
+        body: JSON.stringify({ nome: varianteNome ? `${produtoNome} ${varianteNome}` : produtoNome, base, sabor, descricao }),
       });
       const data = (await res.json()) as SugerirFichaResponse & { error?: string };
       if (!res.ok || data.error) {
@@ -82,8 +88,9 @@ export function FichaEditor({
         setMsg({ ok: false, texto: "A IA não achou uma receita padrão. Cadastre manual." });
         return;
       }
-      // adiciona só o que ainda não está na ficha
-      const jaTem = new Set(linhas.map((l) => l.nome.toLowerCase().trim()));
+      // descarta linhas vazias (ex: a linha em branco do empty state) antes do merge
+      const preenchidas = linhas.filter((l) => l.nome.trim());
+      const jaTem = new Set(preenchidas.map((l) => l.nome.toLowerCase().trim()));
       const novas: Linha[] = data.insumos
         .filter((s) => !jaTem.has(s.papel.toLowerCase().trim()))
         .map((s) => ({
@@ -93,7 +100,7 @@ export function FichaEditor({
           unidade: s.unidade,
           custoUnitario: s.custoUnitario,
         }));
-      setLinhas((prev) => [...prev, ...novas]);
+      setLinhas([...preenchidas, ...novas]);
       setMsg({
         ok: true,
         texto: novas.length > 0

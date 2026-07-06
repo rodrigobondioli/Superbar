@@ -16,6 +16,7 @@ interface Body {
   nome?: string;
   base?: string; // destilado, ex: "vodka" (para variantes de base)
   sabor?: string; // fruta/sabor, ex: "morango"
+  descricao?: string; // descrição do cardápio — sinal-chave para drinks autorais
 }
 
 /**
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
   const contexto = [
     body.base ? `Base/destilado: ${body.base.trim()}` : null,
     body.sabor ? `Sabor/fruta: ${body.sabor.trim()}` : null,
+    body.descricao?.trim() ? `Descrição do cardápio: ${body.descricao.trim()}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -66,6 +68,7 @@ Liste os insumos com quantidade padrão e unidade. Regras:
 - Use o nome GENÉRICO do insumo ("vodka", "limão", "açúcar", "gelo") — NUNCA marca comercial.
 - Quantidades por 1 dose/porção servida.
 - Se o drink tiver base específica informada, use-a como o destilado.
+- Se houver "Descrição do cardápio", ela é a fonte de verdade: extraia os insumos dela. Isso vale principalmente para drinks AUTORAIS (nome inventado), onde a descrição diz os ingredientes reais. Não é receita clássica conhecida? Baseie-se na descrição, não chute pelo nome.
 - Não invente insumo que não pertence ao drink.
 
 Retorne APENAS JSON, sem explicação:

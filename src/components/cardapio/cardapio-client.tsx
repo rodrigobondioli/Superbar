@@ -199,7 +199,7 @@ function VarianteForm({
 }
 
 // ─── Variante Row ─────────────────────────────────────────────────────────────
-function VarianteRow({ variante, produtoId, produtoNome, fichaSet }: { variante: ProdutoVariante; produtoId: string; produtoNome: string; fichaSet: Set<string> }) {
+function VarianteRow({ variante, produtoId, produtoNome, produtoDescricao, fichaSet }: { variante: ProdutoVariante; produtoId: string; produtoNome: string; produtoDescricao?: string; fichaSet: Set<string> }) {
   const [editing, setEditing] = useState(false);
   const [deletando, setDeletando] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
@@ -280,6 +280,7 @@ function VarianteRow({ variante, produtoId, produtoNome, fichaSet }: { variante:
         varianteId={variante.id}
         varianteNome={variante.nome}
         sabor={variante.nome}
+        descricao={produtoDescricao}
       />
     </div>
   );
@@ -596,7 +597,7 @@ function ProdutoRow({
           )}
 
           {variantes.map(v => (
-            <VarianteRow key={v.id} variante={v} produtoId={produto.id} produtoNome={produto.nome} fichaSet={fichaSet} />
+            <VarianteRow key={v.id} variante={v} produtoId={produto.id} produtoNome={produto.nome} produtoDescricao={produto.descricao ?? undefined} fichaSet={fichaSet} />
           ))}
 
           {addingVariante ? (
@@ -629,6 +630,7 @@ function ProdutoRow({
           produtoId={produto.id}
           produtoNome={produto.nome}
           preco={produto.preco}
+          descricao={produto.descricao ?? undefined}
         />
       )}
     </div>
