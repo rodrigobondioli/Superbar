@@ -314,7 +314,7 @@ function ProdutoForm({
   }
 
   return (
-    <div style={{
+    <div className="max-lg:!border-0 max-lg:!bg-transparent max-lg:!p-0 max-lg:!mb-0" style={{
       background: "var(--bg-elevated)",
       border: "1px solid var(--border)",
       borderRadius: 4,
@@ -835,7 +835,7 @@ export function CardapioClient({
             <button
               onClick={() => setAddingProduto(p => !p)}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
-              className="hover:brightness-110 max-lg:w-full"
+              className="hover:brightness-110 max-lg:hidden"
             >
               <Plus style={{ width: 15, height: 15 }} />
               Novo produto
@@ -1007,11 +1007,17 @@ export function CardapioClient({
               </div>
 
               {addingProduto && (
-                <ProdutoForm
-                  categoriaId={selectedGrupo.categoria.id}
-                  categorias={categoriasFlat}
-                  onDone={() => setAddingProduto(false)}
-                />
+                <>
+                  {/* Backdrop — só mobile (no desktop o form é inline) */}
+                  <div onClick={() => setAddingProduto(false)} className="lg:hidden fixed inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)" }} />
+                  <div className="max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-50 max-lg:max-h-[90vh] max-lg:overflow-y-auto max-lg:rounded-t-2xl max-lg:bg-[var(--bg-elevated)] max-lg:p-4 max-lg:pb-8">
+                    <ProdutoForm
+                      categoriaId={selectedGrupo.categoria.id}
+                      categorias={categoriasFlat}
+                      onDone={() => setAddingProduto(false)}
+                    />
+                  </div>
+                </>
               )}
 
               {selectedGrupo.produtos.length === 0 && !addingProduto ? (
@@ -1075,6 +1081,24 @@ export function CardapioClient({
             />
           </div>
         </>
+      )}
+
+      {/* FAB — novo produto (só mobile) */}
+      {selectedGrupo && !addingProduto && (
+        <button
+          onClick={() => setAddingProduto(true)}
+          aria-label="Novo produto"
+          className="lg:hidden hover:brightness-110"
+          style={{
+            position: "fixed", right: 20, bottom: "calc(24px + env(safe-area-inset-bottom))",
+            zIndex: 60, width: 56, height: 56, borderRadius: 999,
+            background: "var(--accent)", color: "var(--accent-fg)", border: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.4)", cursor: "pointer",
+          }}
+        >
+          <Plus style={{ width: 26, height: 26 }} strokeWidth={2.25} />
+        </button>
       )}
     </div>
   );

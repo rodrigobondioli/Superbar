@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Menu, X, MonitorSmartphone } from "lucide-react";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { AlertasBell } from "./alertas-bell";
-import { SettingsButton } from "./settings-button";
 import { AppHeader } from "@/components/ui/app-header";
 import type { BarRole, Bar } from "@/types/database";
 import type { AlertaEstoque } from "@/lib/dashboard/queries";
@@ -56,16 +55,6 @@ export function DashboardLayoutClient({
           right={
             <>
               <AlertasBell alertas={alertas} />
-              <SettingsButton
-                bar={bar}
-                barId={barId}
-                userId={userId}
-                userNome={userNome}
-                userEmail={userEmail}
-                userAvatarUrl={userAvatarUrl}
-                autoPedido={autoPedido}
-                taxaServicoPct={taxaServicoPct}
-              />
               <button
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Abrir menu"
@@ -217,6 +206,14 @@ export function DashboardLayoutClient({
               onNavigate={() => setDrawerOpen(false)}
               hideHeader
               touchMode
+              alertas={alertas}
+              bar={bar}
+              barId={barId}
+              userId={userId}
+              userEmail={userEmail}
+              userAvatarUrl={userAvatarUrl}
+              autoPedido={autoPedido}
+              taxaServicoPct={taxaServicoPct}
             />
           </div>
         </div>

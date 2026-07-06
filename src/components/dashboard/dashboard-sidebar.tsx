@@ -212,9 +212,10 @@ export function DashboardSidebar({
               </div>
             )}
             {!touchMode && <div style={{ height: 1, background: "var(--border)", margin: "0 -10px 8px" }} />}
-            {!touchMode && bar && barId && userId && (
+            {bar && barId && userId && (
               <SettingsButton
                 linkMode
+                touchMode={touchMode}
                 bar={bar} barId={barId} userId={userId} userNome={userNome}
                 userEmail={userEmail} userAvatarUrl={userAvatarUrl ?? null}
                 autoPedido={autoPedido} taxaServicoPct={taxaServicoPct}

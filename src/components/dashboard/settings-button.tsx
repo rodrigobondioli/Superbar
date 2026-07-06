@@ -16,10 +16,11 @@ interface SettingsButtonProps {
   taxaServicoPct?: number;
   alertCount?: number;
   linkMode?: boolean;
+  touchMode?: boolean;
 }
 
 export function SettingsButton({
-  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10, alertCount = 0, linkMode = false,
+  bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10, alertCount = 0, linkMode = false, touchMode = false,
 }: SettingsButtonProps) {
   const [open, setOpen] = useState(false);
   const inicial = userNome.split(" ")[0].charAt(0).toUpperCase();
@@ -31,13 +32,13 @@ export function SettingsButton({
           type="button"
           onClick={() => setOpen(true)}
           style={{
-            display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left",
-            padding: "7px 10px", background: "none", border: "none", cursor: "pointer",
-            fontSize: 12, color: "var(--fg-subtle)", borderRadius: 6,
+            display: "flex", alignItems: "center", gap: touchMode ? 12 : 8, width: "100%", textAlign: "left",
+            padding: touchMode ? "12px 14px" : "7px 10px", background: "none", border: "none", cursor: "pointer",
+            fontSize: touchMode ? 14 : 12, color: touchMode ? "var(--fg-muted)" : "var(--fg-subtle)", borderRadius: 6,
           }}
           className="hover:!text-[var(--fg-muted)]"
         >
-          <Settings style={{ width: 13, height: 13, flexShrink: 0 }} strokeWidth={1.75} />
+          <Settings style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13, flexShrink: 0 }} strokeWidth={1.75} />
           Configurações
         </button>
       ) : (
