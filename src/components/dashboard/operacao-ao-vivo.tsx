@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+/** true quando a viewport é menor que o breakpoint `lg` (mesmo corte do shell do dashboard). */
+function useIsMobile(bp = 1024) {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${bp - 1}px)`);
+    const on = () => setMobile(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, [bp]);
+  return mobile;
+}
 
 export type Periodo = "hoje" | "ontem" | "7dias";
 
@@ -78,11 +91,20 @@ const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-s
 export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superMargem, barId, alertCount, turnoId }: Props) {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [hover, setHover] = useState<string | null>(null);
+  const isMobile = useIsMobile();
   const v = views[periodo];
   const showSuper = superNome !== null && superMargem !== null;
+  const kpiCardR: React.CSSProperties = isMobile ? { ...kpiCard, padding: 20 } : kpiCard;
+  const kpiMetricR: React.CSSProperties = isMobile ? { ...kpiMetric, fontSize: 36, marginTop: 10 } : kpiMetric;
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }}>
+    <div
+      style={
+        isMobile
+          ? { display: "flex", flexDirection: "column", padding: "12px 16px 24px", gap: 12, boxSizing: "border-box" }
+          : { height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }
+      }
+    >
 
       {/* HEADER */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
@@ -122,12 +144,12 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       </div>
 
       {/* ROW 1: KPI CARDS */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 16, flexShrink: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1.6fr 1fr 1fr 1fr", gap: isMobile ? 10 : 16, flexShrink: 0 }}>
 
         {/* Faturado */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column" }}>
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: isMobile ? 20 : 32, display: "flex", flexDirection: "column", gridColumn: isMobile ? "1 / -1" : undefined }}>
           <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>{v.labelFat}</span>
-          <span style={{ fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{v.faturado.toLocaleString("pt-BR")}</span>
+          <span style={{ fontSize: isMobile ? 44 : 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{v.faturado.toLocaleString("pt-BR")}</span>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
             <Tri up={v.deltaFat >= 0} color={v.deltaFat >= 0 ? "var(--accent)" : "var(--danger)"} />
             <span style={{ color: "var(--fg)" }}>
@@ -144,10 +166,10 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
 
         {/* Margem */}
-        <div style={kpiCard}>
+        <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Margem</span>
-            <span style={kpiMetric}>{v.margem}%</span>
+            <span style={kpiMetricR}>{v.margem}%</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -156,10 +178,10 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
 
         {/* Custo (CMV) */}
-        <div style={kpiCard}>
+        <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Custo (CMV)</span>
-            <span style={kpiMetric}>{v.cmv}%</span>
+            <span style={kpiMetricR}>{v.cmv}%</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -168,10 +190,10 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
 
         {/* Ticket Médio */}
-        <div style={kpiCard}>
+        <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Ticket Médio</span>
-            <span style={kpiMetric}><Cifrao />{v.ticket.toLocaleString("pt-BR")}</span>
+            <span style={kpiMetricR}><Cifrao />{v.ticket.toLocaleString("pt-BR")}</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -181,7 +203,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       </div>
 
       {/* ROW 2: STAT PILLS */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, flexShrink: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 12, flexShrink: 0 }}>
         {[
           { label: "Drinks por hora", value: String(v.drinksHora) },
           { label: "Petiscos por hora", value: String(v.petiscosHora) },
@@ -199,15 +221,17 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       </div>
 
       {/* ROW 3: AI + SUPER AÇÃO (esq) · TOP DRINKS (dir) */}
-      <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
+      <div style={isMobile
+        ? { display: "flex", flexDirection: "column", gap: 12 }
+        : { flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "1.32fr 1fr", gap: 16, alignItems: "stretch" }}>
 
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
-          <AiHeroInput fill barId={barId} alertCount={alertCount} />
+          <AiHeroInput fill={!isMobile} barId={barId} alertCount={alertCount} />
 
           {showSuper && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: 24, display: "flex", alignItems: "stretch", gap: 32, flexShrink: 0 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: "0 0 auto", minWidth: 150 }}>
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "stretch", gap: isMobile ? 18 : 32, flexShrink: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 24, flex: "0 0 auto", minWidth: isMobile ? 0 : 150 }}>
                 <span style={superLabel}>Super ação</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{superNome}</p>
@@ -218,15 +242,15 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                 </div>
               </div>
 
-              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
+              <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
 
               <div style={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
                 <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>Apareceu pouco hoje. Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
               </div>
 
-              <div style={{ width: 1, background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
+              <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: 167 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: isMobile ? 0 : 167 }}>
                 <span style={superLabel}>Impacto direto</span>
                 {v.impacto !== null && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -242,9 +266,9 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
 
         {/* RIGHT: Top drinks */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: "24px 32px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: isMobile ? "20px 20px 24px" : "24px 32px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0, overflow: isMobile ? "visible" : "hidden" }}>
           <div>
-            <span style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 32 }}>Top drinks do turno</span>
+            <span style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: isMobile ? 20 : 32 }}>Top drinks do turno</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               {v.topDrinks.map((p, i) => {
                 const max = v.topDrinks[0]?.total || 1;
