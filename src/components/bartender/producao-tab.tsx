@@ -224,8 +224,12 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // reset ao trocar de pedido
-  useEffect(() => { setChecked(new Set()); setStarted(pedido.status === "preparando"); setConfirmCancel(false); }, [pedido.id, pedido.status]);
+  // Reset SÓ ao trocar de pedido (por id). Não pode depender de pedido.status:
+  // ticar o 1º drink chama iniciarPedido → status vira "preparando" → isso zerava
+  // o checked e desmarcava o que você acabou de ticar.
+  useEffect(() => { setChecked(new Set()); setStarted(pedido.status === "preparando"); setConfirmCancel(false); }, [pedido.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Sincroniza "started" quando o status vira preparando (por outro device), sem tocar no checked.
+  useEffect(() => { if (pedido.status === "preparando") setStarted(true); }, [pedido.status]);
 
   // carrega fichas dos produtos do pedido
   useEffect(() => {
@@ -239,7 +243,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
       if (!cancel) setFichas(out);
     })();
     return () => { cancel = true; };
-  }, [barId, pedido.id, pedido.itens]);
+  }, [barId, pedido.id]); // eslint-disable-line react-hooks/exhaustive-deps -- itens são fixos por pedido
 
   const total = pedido.itens.length;
   const todosFeitos = total > 0 && checked.size === total;
@@ -367,6 +371,10 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
   useEffect(() => {
     carregar();
     const timer = setInterval(() => setTick(t => t + 1), 60_000);
+    // Fallback: garante que pedido novo apareça mesmo se o realtime não entregar.
+    // Produção NÃO pode perder pedido (Princípio 11/12). O checked do card ativo
+    // não é afetado (reseta só por id, não por status/refetch).
+    const poll = setInterval(carregar, 6000);
     const supabase = createClient();
     const channel = supabase
       .channel(`producao_${barId}`)
@@ -394,7 +402,7 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
         }
       })
       .subscribe();
-    return () => { clearInterval(timer); supabase.removeChannel(channel); };
+    return () => { clearInterval(timer); clearInterval(poll); supabase.removeChannel(channel); };
   }, [barId, turnoId, carregar]);
 
   function localIniciar(id: string) {
