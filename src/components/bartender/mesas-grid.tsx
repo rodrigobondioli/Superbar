@@ -467,7 +467,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     <div className="flex-1 flex flex-col" style={{ overflow: "hidden" }}>
 
       {/* Topo fixo: busca + status */}
-      <div style={{ padding: "16px 20px 0", flexShrink: 0 }}>
+      <div style={{ padding: "16px 24px 0", flexShrink: 0 }}>
         <ScanCartao />
         <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <h1 style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", margin: 0, letterSpacing: "-0.02em" }}>
@@ -504,7 +504,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       </div>
 
       {/* Grid de mesas — área scrollável */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "0 20px 40px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 40px" }}>
         {mesas.length === 0 && (
           <div style={{
             background: "var(--bg-card)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)",

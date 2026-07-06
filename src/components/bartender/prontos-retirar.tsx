@@ -95,7 +95,7 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
     <div style={{
       flexShrink: 0, background: "color-mix(in srgb, var(--accent) 8%, var(--bg))",
       borderBottom: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)",
-      padding: "14px 16px",
+      padding: "14px 24px",
     }}>
       <p style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", margin: "0 0 10px" }}>
         Prontos pra retirar · {prontos.length}
