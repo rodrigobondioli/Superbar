@@ -51,17 +51,25 @@ export function MesaDrawer({
   };
 
   const [enviando, setEnviando] = useState(false);
+  const [fechando, setFechando] = useState(false);           // modo "fechar conta"
+  const [selFechar, setSelFechar] = useState<Set<string>>(new Set());
+
+  const temPessoas = comandas.length > 0;
+  const abertasComTotal = comandas.filter(c => c.status === "aberta" && c.total > 0);
+
+  const abrirFechar = () => { setSelFechar(new Set(abertasComTotal.map(c => c.id))); setFechando(true); };
+  const toggleFechar = (id: string) => setSelFechar(prev => {
+    const s = new Set(prev); if (s.has(id)) s.delete(id); else s.add(id); return s;
+  });
   const enviarCaixa = async (ids: string[]) => {
     if (ids.length === 0 || enviando) return;
     setEnviando(true); setErro(null);
     const r = await enviarComandasCaixa(ids);
     setEnviando(false);
     if ("error" in r) { setErro(r.error); return; }
+    setFechando(false);
     await recarregar();
   };
-
-  const temPessoas = comandas.length > 0;
-  const abertasComTotal = comandas.filter(c => c.status === "aberta" && c.total > 0);
 
   return (
     <>
@@ -122,18 +130,10 @@ export function MesaDrawer({
                         </div>
                       </div>
                       {!pagando && (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
-                          <Link href={`/garcom/${c.id}`} className="hover:brightness-110"
-                            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 999, padding: "8px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
-                            Pedir
-                          </Link>
-                          {c.total > 0 && (
-                            <button onClick={() => enviarCaixa([c.id])} disabled={enviando} className="hover:!text-[var(--accent)]"
-                              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-subtle)", fontSize: 12, fontWeight: 600, padding: 0 }}>
-                              Fechar conta →
-                            </button>
-                          )}
-                        </div>
+                        <Link href={`/garcom/${c.id}`} className="hover:brightness-110"
+                          style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 999, padding: "9px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+                          Pedir
+                        </Link>
                       )}
                     </div>
                   );
@@ -163,14 +163,50 @@ export function MesaDrawer({
                 </div>
               )}
 
-              {abertasComTotal.length >= 2 && (
-                <button
-                  onClick={() => enviarCaixa(abertasComTotal.map(c => c.id))}
-                  disabled={enviando}
-                  className="hover:brightness-110"
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginTop: 18, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg)", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-                  {enviando ? "Enviando…" : `Enviar mesa toda pro caixa (${abertasComTotal.length})`}
-                </button>
+              {/* ── Fechar conta — separado, no final ── */}
+              {abertasComTotal.length >= 1 && (
+                <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid var(--border-strong)" }}>
+                  {!fechando ? (
+                    <button onClick={abrirFechar} className="hover:brightness-110"
+                      style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg)", borderRadius: 12, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                      Fechar conta · enviar pro caixa
+                    </button>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 12px" }}>
+                        Marque quem está <strong style={{ color: "var(--fg)" }}>fechando</strong> (quem fica segue aberto):
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {abertasComTotal.map(c => {
+                          const marcada = selFechar.has(c.id);
+                          const nome = c.nome_cliente ?? "Sem nome";
+                          return (
+                            <button key={c.id} onClick={() => toggleFechar(c.id)}
+                              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", cursor: "pointer",
+                                background: marcada ? "color-mix(in srgb, var(--accent) 8%, transparent)" : "var(--bg-card)",
+                                border: `1px solid ${marcada ? "color-mix(in srgb, var(--accent) 45%, transparent)" : "var(--border)"}`,
+                                borderRadius: 12, padding: "11px 14px" }}>
+                              <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                                background: marcada ? "var(--accent)" : "transparent", border: marcada ? "none" : "1.5px solid var(--border-strong)",
+                                color: "var(--accent-fg)", fontSize: 13, fontWeight: 800 }}>{marcada ? "✓" : ""}</span>
+                              <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nome}</span>
+                              <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 600 }}>{currency.format(c.total)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                        <button onClick={() => setFechando(false)} style={{ flexShrink: 0, background: "none", border: "1px solid var(--border)", borderRadius: 12, padding: "13px 18px", color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                          Cancelar
+                        </button>
+                        <button onClick={() => enviarCaixa([...selFechar])} disabled={enviando || selFechar.size === 0} className="hover:brightness-110"
+                          style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: selFechar.size === 0 ? 0.5 : 1 }}>
+                          {enviando ? "Enviando…" : `Enviar pro caixa (${selFechar.size})`}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
               {erro && <p style={{ fontSize: 13, color: "var(--danger)", marginTop: 10 }}>{erro}</p>}
             </>
