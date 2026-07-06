@@ -64,6 +64,25 @@ export async function abrirComanda(
   return { id: novaComanda.id };
 }
 
+export type PessoaComandaLite = { id: string; nome_cliente: string | null; total: number; status: string; aberta_em: string };
+
+/** Lista as comandas abertas/aguardando de uma mesa (leitura server-side, auth'd).
+ *  Usado pelo drawer da mesa pra sempre refletir o estado real sem depender do realtime. */
+export async function listarComandasMesa(mesaId: string): Promise<PessoaComandaLite[]> {
+  const current = await getCurrentBar();
+  if (!current) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("comandas")
+    .select("id, nome_cliente, total, status, aberta_em")
+    .eq("bar_id", current.bar.id)
+    .eq("mesa_id", mesaId)
+    .in("status", ["aberta", "aguardando_pagamento"])
+    .order("aberta_em", { ascending: true })
+    .returns<PessoaComandaLite[]>();
+  return data ?? [];
+}
+
 /** Abre VÁRIAS comandas de uma vez numa mesa (uma por pessoa/nome).
  *  Nomes vazios são ignorados; se a lista vier toda vazia, abre 1 comanda anônima
  *  (caso "mesa compartilha uma conta só"). Modelo individual, Princípio 12. */

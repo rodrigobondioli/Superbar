@@ -1,75 +1,102 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
-import { abrirComandasMesa } from "@/lib/bartender/actions";
+import { X, Plus, Trash2, Loader2 } from "lucide-react";
+import { abrirComandasMesa, listarComandasMesa, type PessoaComandaLite } from "@/lib/bartender/actions";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-export type PessoaComanda = {
-  id: string;
-  nome_cliente: string | null;
-  total: number;
-  status: string;
-  aberta_em: string;
-};
-
-export function MesaView({
-  mesaId, label, comandasIniciais, nSugerido,
+/** Drawer lateral da mesa — centro do garçom: montar as pessoas e só depois pedir.
+ *  Busca as comandas por server action (robusto, não depende do realtime). */
+export function MesaDrawer({
+  open, onClose, mesaId, label,
 }: {
-  barId: string;
-  mesaId: string;
+  open: boolean;
+  onClose: () => void;
+  mesaId: string | null;
   label: string;
-  comandasIniciais: PessoaComanda[];
-  nSugerido: number;
 }) {
-  const router = useRouter();
-  const temPessoas = comandasIniciais.length > 0;
+  const [comandas, setComandas] = useState<PessoaComandaLite[]>([]);
+  const [loading, setLoading]   = useState(false);
+  const [mode, setMode]         = useState<"quantas" | "slots">("quantas");
+  const [slots, setSlots]       = useState<string[]>([""]);
+  const [saving, setSaving]     = useState(false);
+  const [erro, setErro]         = useState<string | null>(null);
+  const [addNome, setAddNome]   = useState<string | null>(null);
 
-  // Setup (mesa sem comandas): "quantas?" → slots pra nomear
-  const [mode, setMode] = useState<"quantas" | "slots">(nSugerido > 0 ? "slots" : "quantas");
-  const [slots, setSlots] = useState<string[]>(() => Array(Math.max(1, nSugerido || 1)).fill(""));
-  const [saving, setSaving] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open || !mesaId) return;
+    let active = true;
+    setLoading(true);
+    setMode("quantas"); setSlots([""]); setAddNome(null); setErro(null);
+    listarComandasMesa(mesaId).then(cs => {
+      if (!active) return;
+      setComandas(cs);
+      setLoading(false);
+    });
+    return () => { active = false; };
+  }, [open, mesaId]);
 
-  // Lista (mesa com comandas): adicionar mais uma pessoa
-  const [addNome, setAddNome] = useState<string | null>(null); // null = form fechado
-
-  const escolherQuantas = (n: number) => { setSlots(Array(n).fill("")); setMode("slots"); };
+  const recarregar = async () => { if (mesaId) setComandas(await listarComandasMesa(mesaId)); };
 
   const abrir = async (nomes: string[]) => {
+    if (!mesaId) return;
     setSaving(true); setErro(null);
     const r = await abrirComandasMesa(mesaId, nomes);
     setSaving(false);
     if ("error" in r) { setErro(r.error); return; }
     setAddNome(null);
-    router.refresh(); // recarrega → cai na lista com as comandas criadas
+    await recarregar();
   };
 
+  const temPessoas = comandas.length > 0;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 24px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-        <Link href="/garcom" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--fg-muted)", textDecoration: "none", fontSize: 13 }}>
-          <ArrowLeft style={{ width: 16, height: 16 }} /> Mesas
-        </Link>
-        <span style={{ color: "var(--fg-subtle)", fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--fg)" }}>{label}</span>
-      </div>
+    <>
+      <div
+        onClick={onClose}
+        style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(0,0,0,0.55)", opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none", transition: "opacity 0.25s ease" }}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Mesa ${label}`}
+        style={{
+          position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 81,
+          width: "min(94vw, 460px)",
+          background: "var(--bg)", borderLeft: "1px solid var(--border)",
+          display: "flex", flexDirection: "column",
+          transform: open ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)",
+          boxShadow: open ? "-16px 0 40px rgba(0,0,0,0.4)" : "none",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0, paddingTop: "calc(16px + env(safe-area-inset-top))" }}>
+          <div>
+            <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Mesa</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{label}</h2>
+          </div>
+          <button onClick={onClose} aria-label="Fechar" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 8, background: "transparent", border: "1px solid var(--border)", color: "var(--fg-muted)", cursor: "pointer" }}>
+            <X style={{ width: 16, height: 16 }} />
+          </button>
+        </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px 40px" }}>
-        <div style={{ maxWidth: 560, margin: "0 auto" }}>
-
-          {/* ── Lista de pessoas ── */}
-          {temPessoas ? (
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+          {loading ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 120, color: "var(--fg-subtle)", gap: 8, fontSize: 13 }}>
+              <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" /> Carregando…
+            </div>
+          ) : temPessoas ? (
+            /* ── Lista de pessoas ── */
             <>
               <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 14px" }}>
-                {comandasIniciais.length} {comandasIniciais.length === 1 ? "pessoa" : "pessoas"} na mesa · toque em <strong style={{ color: "var(--fg)" }}>Pedir</strong> pra lançar o pedido de cada uma
+                {comandas.length} {comandas.length === 1 ? "pessoa" : "pessoas"} · toque em <strong style={{ color: "var(--fg)" }}>Pedir</strong> pra lançar o pedido de cada uma
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {comandasIniciais.map((c, i) => {
+                {comandas.map((c, i) => {
                   const nome = c.nome_cliente ?? `Pessoa ${i + 1}`;
                   const pagando = c.status === "aguardando_pagamento";
                   return (
@@ -94,7 +121,6 @@ export function MesaView({
                 })}
               </div>
 
-              {/* Adicionar pessoa */}
               {addNome === null ? (
                 <button onClick={() => setAddNome("")} className="hover:!text-[var(--accent)]"
                   style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14, background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, padding: "6px 0" }}>
@@ -122,29 +148,29 @@ export function MesaView({
           ) : mode === "quantas" ? (
             /* ── Quantas pessoas? ── */
             <>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>Quantas pessoas?</h1>
-              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 20px" }}>Cada pessoa vira uma comanda. Dá pra ajustar depois.</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 14 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>Quantas pessoas?</h3>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 18px" }}>Cada pessoa vira uma comanda. Dá pra ajustar depois.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 12 }}>
                 {[1,2,3,4,5,6,7,8].map(n => (
-                  <button key={n} onClick={() => escolherQuantas(n)} className="hover:!border-[var(--accent)]"
-                    style={{ height: 64, borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 22, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-mono)" }}>
+                  <button key={n} onClick={() => { setSlots(Array(n).fill("")); setMode("slots"); }} className="hover:!border-[var(--accent)]"
+                    style={{ height: 60, borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 20, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-mono)" }}>
                     {n}
                   </button>
                 ))}
               </div>
-              <button onClick={() => escolherQuantas(1)} style={{ width: "100%", padding: "13px", background: "none", border: "none", color: "var(--fg-muted)", fontSize: 14, cursor: "pointer" }}>
+              <button onClick={() => { setSlots([""]); setMode("slots"); }} style={{ width: "100%", padding: "12px", background: "none", border: "none", color: "var(--fg-muted)", fontSize: 14, cursor: "pointer" }}>
                 Não sei ainda — começar com 1
               </button>
             </>
           ) : (
             /* ── Slots pra nomear e abrir ── */
             <>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>Quem está na mesa?</h1>
-              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 18px" }}>Nome de cada pessoa (opcional). Abre uma comanda pra cada.</p>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>Quem está na mesa?</h3>
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 16px" }}>Nome de cada pessoa (opcional). Abre uma comanda pra cada.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {slots.map((s, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ width: 24, fontSize: 13, color: "var(--fg-subtle)", flexShrink: 0, textAlign: "right" }}>{i + 1}</span>
+                    <span style={{ width: 20, fontSize: 13, color: "var(--fg-subtle)", flexShrink: 0, textAlign: "right" }}>{i + 1}</span>
                     <input
                       value={s}
                       onChange={e => setSlots(prev => prev.map((v, k) => k === i ? e.target.value : v))}
@@ -165,9 +191,7 @@ export function MesaView({
                 style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, padding: "4px 0" }}>
                 <Plus style={{ width: 15, height: 15 }} /> Mais uma pessoa
               </button>
-
               {erro && <p style={{ fontSize: 13, color: "var(--danger)", margin: "12px 0 0" }}>{erro}</p>}
-
               <button onClick={() => abrir(slots)} disabled={saving} className="hover:brightness-110"
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginTop: 20, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 12, padding: "15px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 {saving ? <><Loader2 style={{ width: 16, height: 16 }} className="animate-spin" /> Abrindo…</> : "Abrir comandas"}
@@ -176,6 +200,6 @@ export function MesaView({
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

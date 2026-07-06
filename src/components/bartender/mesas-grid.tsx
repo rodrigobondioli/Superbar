@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
 import { abrirComanda, atenderChamada } from "@/lib/bartender/actions";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
+import { MesaDrawer } from "@/components/bartender/mesa-view";
 import { Button } from "@/components/ui/button";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -248,7 +248,6 @@ interface MesasGridProps {
 }
 
 export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps) {
-  const router = useRouter();
   const [mesas, setMesas]   = useState<MesaComStatus[]>(initialMesas);
   const [balcao, setBalcao] = useState<Comanda | null>(initialBalcao);
   // mesaId → chamadaId (para mesas com chamada pendente)
@@ -265,6 +264,8 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   const [pendingAbrir, setPendingAbrir] = useState<{ mesaId: string | null; label: string } | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [openError, setOpenError] = useState<string | null>(null);
+  // Drawer lateral da mesa (centro do garçom)
+  const [mesaAberta, setMesaAberta] = useState<{ id: string; label: string } | null>(null);
   const [, startTransition] = useTransition();
 
   // ── Realtime — comandas ───────────────────────────────────────────────────
@@ -395,7 +396,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     ...mesas.map(({ mesa, comandas }) => {
       const label = mesa.nome ?? `Mesa ${mesa.numero}`;
       const chamadaId = chamadas.get(mesa.id);
-      const irParaMesa = () => router.push(`/garcom/mesa/${mesa.id}`);
+      const irParaMesa = () => setMesaAberta({ id: mesa.id, label });
       return {
         key: mesa.id,
         mesaId: mesa.id,
@@ -597,7 +598,15 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         </>
       )}
 
-      {/* Modal: quantas pessoas */}
+      {/* Drawer lateral da mesa */}
+      <MesaDrawer
+        open={!!mesaAberta}
+        onClose={() => setMesaAberta(null)}
+        mesaId={mesaAberta?.id ?? null}
+        label={mesaAberta?.label ?? ""}
+      />
+
+      {/* Modal: quantas pessoas (balcão) */}
       {pendingAbrir && (
         <SeletorPessoas
           label={pendingAbrir.label}
