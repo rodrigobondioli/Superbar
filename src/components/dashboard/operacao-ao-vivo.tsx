@@ -210,7 +210,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       </div>
 
       {/* ROW 2: STAT PILLS */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 12, flexShrink: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)", gap: isMobile ? 8 : 12, flexShrink: 0 }}>
         {[
           { label: "Drinks por hora", value: String(v.drinksHora) },
           { label: "Petiscos por hora", value: String(v.petiscosHora) },
