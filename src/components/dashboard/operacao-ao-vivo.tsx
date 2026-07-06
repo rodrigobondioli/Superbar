@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
+// layout-effect no cliente, effect no servidor — corrige o layout ANTES do paint
+// (mata o flash em que o desktop aparece "torto" no mobile antes de ajustar).
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 /** true quando a viewport é menor que o breakpoint `lg` (mesmo corte do shell do dashboard). */
 function useIsMobile(bp = 1024) {
   const [mobile, setMobile] = useState(false);
-  useEffect(() => {
+  useIsoLayoutEffect(() => {
     const mq = window.matchMedia(`(max-width: ${bp - 1}px)`);
     const on = () => setMobile(mq.matches);
     on();
@@ -68,15 +72,15 @@ function Tri({ up, color }: { up: boolean; color: string }) {
 function Cifrao() {
   return <span style={{ fontSize: "0.42em", fontWeight: 600, color: "var(--fg-muted)", marginRight: "0.16em", letterSpacing: 0, verticalAlign: "baseline" }}>R$</span>;
 }
-function DeltaRow({ value, invert = false }: { value: number | null | undefined; invert?: boolean }) {
+function DeltaRow({ value, invert = false, compact = false }: { value: number | null | undefined; invert?: boolean; compact?: boolean }) {
   if (value === null || value === undefined) return null;
   const up = value >= 0;
   const good = invert ? !up : up;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 14 : 15 }}>
       <Tri up={up} color={good ? "var(--accent)" : "var(--danger)"} />
       <span style={{ color: "var(--fg)" }}>
-        {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"} vs. sem. passada
+        {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"}{compact ? "" : " vs. sem. passada"}
       </span>
     </div>
   );
@@ -86,7 +90,7 @@ const superLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: 
 const kpiCard: React.CSSProperties = { background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column", justifyContent: "space-between" };
 const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
 const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
-const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginBottom: 11 };
+const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginTop: 16, marginBottom: 11 };
 
 export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superMargem, barId, alertCount, turnoId }: Props) {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
@@ -188,7 +192,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={v.deltaCmv} invert />
+            <DeltaRow value={v.deltaCmv} invert compact={isMobile} />
           </div>
         </div>
 
@@ -200,7 +204,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={v.deltaTicket} />
+            <DeltaRow value={v.deltaTicket} compact={isMobile} />
           </div>
         </div>
       </div>
@@ -296,7 +300,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               )}
             </div>
           </div>
-          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: 32, alignSelf: "flex-start", padding: "8px 16px", borderRadius: 999, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
+          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: isMobile ? 20 : 32, alignSelf: isMobile ? "stretch" : "flex-start", textAlign: "center", padding: isMobile ? "12px 16px" : "8px 16px", borderRadius: 999, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
         </div>
       </div>
 
