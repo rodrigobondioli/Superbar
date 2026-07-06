@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ChevronDown, ChevronUp, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
@@ -425,6 +425,7 @@ function ProdutoRow({
   const [toggling, setToggling] = useState(false);
   const [deletando, setDeletando] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const variantes = produto.produto_variantes ?? [];
 
@@ -464,10 +465,16 @@ function ProdutoRow({
     );
   }
 
+  const menuItem: React.CSSProperties = {
+    display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left",
+    background: "none", border: "none", cursor: "pointer",
+    padding: "11px 14px", fontSize: 14, color: "var(--fg)",
+  };
+
   return (
     <div style={{ marginBottom: 2 }}>
       <div
-        className="group flex items-center gap-2.5"
+        className="group flex items-center gap-2.5 max-lg:!px-0"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
@@ -484,6 +491,7 @@ function ProdutoRow({
         <div
           onClick={!produto.imagem_url ? () => setEditing(true) : undefined}
           title={!produto.imagem_url ? "Adicionar imagem" : undefined}
+          className="max-lg:!w-14 max-lg:!h-14"
           style={{
             width: 80, height: 80, borderRadius: 8, flexShrink: 0,
             background: produto.imagem_url
@@ -506,40 +514,12 @@ function ProdutoRow({
           )}
         </div>
 
-        {/* Chip de variantes */}
-        <button
-          type="button"
-          onClick={() => { setVariantesOpen(v => !v); setAddingVariante(false); }}
-          style={{
-            display: "flex", alignItems: "center", gap: 4,
-            background: variantesOpen
-              ? "color-mix(in srgb, var(--accent-bright) 16%, transparent)"
-              : "color-mix(in srgb, var(--fg) 6%, transparent)",
-            border: "none", borderRadius: 999, padding: "8px 16px",
-            color: variantesOpen ? "var(--accent-bright)" : "var(--fg)",
-            fontSize: 13, fontWeight: 600, cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          <span className="hidden sm:inline">
-            {variantes.length > 0
-              ? `${variantes.length} variante${variantes.length > 1 ? "s" : ""}`
-              : "Variantes"}
-          </span>
-          <span className="sm:hidden">
-            {variantes.length > 0 ? variantes.length : "+"}
-          </span>
-          {variantesOpen
-            ? <ChevronUp style={{ width: 11, height: 11 }} />
-            : <ChevronDown style={{ width: 11, height: 11 }} />}
-        </button>
-
         <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
           {currency.format(produto.preco)}
         </span>
 
-        {/* Ficha — sempre visível (feature-chave). Com variantes, abre o painel
-            (a ficha é por variante); sem variantes, abre o editor do produto. */}
+        {/* Ficha — sempre visível (feature-chave: sinal de custo/margem que o dono
+            varre de relance). Com variantes abre o painel; sem variantes, o editor. */}
         <button
           type="button"
           onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
@@ -550,35 +530,56 @@ function ProdutoRow({
           <span className="hidden sm:inline">Ficha</span>
         </button>
 
-        {/* Actions — always visible on mobile, hover-only on desktop */}
-        <div className="flex gap-0.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-100">
-          <button onClick={() => setEditing(true)} style={iconBtn} title="Editar">
-            <Pencil style={{ width: 13, height: 13 }} />
-          </button>
+        {/* Menu de ações — tudo consolidado no ⋯ (variantes, editar, ativar, deletar) */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
           <button
             type="button"
-            disabled={toggling}
-            onClick={handleToggle}
-            style={{ ...iconBtn, color: produto.ativo ? "var(--fg-subtle)" : "var(--ok)", opacity: toggling ? 0.5 : 1 }}
-            title={produto.ativo ? "Desativar" : "Ativar"}
+            onClick={() => setMenuOpen(o => !o)}
+            style={{ ...iconBtn, background: menuOpen ? "color-mix(in srgb, var(--fg) 8%, transparent)" : "transparent" }}
+            title="Ações"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
           >
-            {toggling
-              ? <Loader2 style={{ width: 13, height: 13 }} className="animate-spin" />
-              : produto.ativo
-                ? <EyeOff style={{ width: 13, height: 13 }} />
-                : <Eye style={{ width: 13, height: 13 }} />}
+            <MoreVertical style={{ width: 16, height: 16 }} />
           </button>
-          <button
-            type="button"
-            disabled={deletando}
-            onClick={handleDeletar}
-            style={{ ...iconBtn, color: "var(--danger)", opacity: deletando ? 0.5 : 1 }}
-            title="Deletar produto"
-          >
-            {deletando
-              ? <Loader2 style={{ width: 13, height: 13 }} className="animate-spin" />
-              : <Trash2 style={{ width: 13, height: 13 }} />}
-          </button>
+
+          {menuOpen && (
+            <>
+              <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+              <div
+                role="menu"
+                style={{
+                  position: "absolute", top: "calc(100% + 4px)", right: 0, zIndex: 41,
+                  minWidth: 200, background: "var(--bg-elevated)",
+                  border: "1px solid var(--border)", borderRadius: 10,
+                  boxShadow: "0 8px 28px rgba(0,0,0,0.4)", overflow: "hidden", padding: "4px 0",
+                }}
+              >
+                <button role="menuitem" style={menuItem} className="hover:!bg-white/[0.05]"
+                  onClick={() => { setVariantesOpen(v => !v); setAddingVariante(false); setMenuOpen(false); }}>
+                  <Layers style={{ width: 15, height: 15, color: "var(--fg-subtle)" }} />
+                  Variantes{variantes.length > 0 ? ` (${variantes.length})` : ""}
+                </button>
+                <button role="menuitem" style={menuItem} className="hover:!bg-white/[0.05]"
+                  onClick={() => { setEditing(true); setMenuOpen(false); }}>
+                  <Pencil style={{ width: 15, height: 15, color: "var(--fg-subtle)" }} />
+                  Editar
+                </button>
+                <button role="menuitem" style={menuItem} className="hover:!bg-white/[0.05]" disabled={toggling}
+                  onClick={() => { handleToggle(); setMenuOpen(false); }}>
+                  {produto.ativo
+                    ? <EyeOff style={{ width: 15, height: 15, color: "var(--fg-subtle)" }} />
+                    : <Eye style={{ width: 15, height: 15, color: "var(--ok)" }} />}
+                  {produto.ativo ? "Desativar" : "Ativar"}
+                </button>
+                <button role="menuitem" style={{ ...menuItem, color: "var(--danger)" }} className="hover:!bg-white/[0.05]" disabled={deletando}
+                  onClick={() => { handleDeletar(); setMenuOpen(false); }}>
+                  <Trash2 style={{ width: 15, height: 15 }} />
+                  Deletar
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -996,7 +997,7 @@ export function CardapioClient({
         </div>
 
         {/* ── Product list ── */}
-        <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 overflow-y-auto">
+        <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
           {!selectedGrupo ? null : (
             <>
               <div style={{ marginBottom: 16 }}>
