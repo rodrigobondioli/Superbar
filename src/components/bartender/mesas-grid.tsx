@@ -47,14 +47,10 @@ function SeletorPessoas({
   onClose: () => void;
   isPending: boolean;
 }) {
-  const [step, setStep] = useState<"pessoas" | "nome">("pessoas");
-  const [qtd, setQtd]   = useState(0);
   const [nome, setNome] = useState("");
-
-  const confirmarQtd = (n: number) => {
-    if (n === 1) { setQtd(1); setStep("nome"); }
-    else onConfirm(n);
-  };
+  // Modelo individual: cada comanda é UMA pessoa. Abrir só pede o nome (opcional).
+  // Mais pessoas entram pelo "+ Adicionar pessoa" na mesa.
+  const abrir = () => { if (!isPending) onConfirm(1, nome.trim() || undefined); };
 
   return (
     <>
@@ -74,58 +70,29 @@ function SeletorPessoas({
         <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 4px" }}>
           Nova comanda
         </p>
-
-        {step === "pessoas" ? (
-          <>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 20px" }}>
-              {label} — Quantas pessoas?
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
-              {[1,2,3,4,5,6,7,8].map(n => (
-                <Button key={n} variant="secondary" disabled={isPending}
-                  onClick={() => !isPending && confirmarQtd(n)}
-                  className="h-16 text-[22px] font-extrabold font-mono">
-                  {n}
-                </Button>
-              ))}
-            </div>
-            <Button variant="ghost" disabled={isPending} className="w-full py-[14px]"
-              onClick={() => !isPending && onConfirm(0)}>
-              Pular (não informar)
-            </Button>
-          </>
-        ) : (
-          <>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 8px" }}>
-              {label} — 1 pessoa
-            </h2>
-            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 16px" }}>
-              Qual o nome? (opcional)
-            </p>
-            <input
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && !isPending && onConfirm(qtd, nome || undefined)}
-              placeholder="Ex: João, Mesa 3 — Ana..."
-              autoFocus
-              style={{
-                width: "100%", boxSizing: "border-box",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                borderRadius: 8, padding: "13px 14px",
-                color: "var(--fg)", fontSize: 16, outline: "none", marginBottom: 16,
-              } as React.CSSProperties}
-            />
-            <Button variant="op" disabled={isPending} className="w-full"
-              onClick={() => !isPending && onConfirm(qtd, nome || undefined)}>
-              {isPending ? "Abrindo..." : "Abrir comanda"}
-            </Button>
-            <Button variant="ghost" className="w-full mt-1"
-              onClick={() => setStep("pessoas")}>
-              ← Voltar
-            </Button>
-          </>
-        )}
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 8px" }}>
+          {label}
+        </h2>
+        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 16px" }}>
+          Nome da pessoa (opcional). Cada pessoa é uma comanda — depois dá pra adicionar mais.
+        </p>
+        <input
+          value={nome}
+          onChange={e => setNome(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && abrir()}
+          placeholder="Ex: João, Ana…"
+          autoFocus
+          style={{
+            width: "100%", boxSizing: "border-box",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.14)",
+            borderRadius: 8, padding: "13px 14px",
+            color: "var(--fg)", fontSize: 16, outline: "none", marginBottom: 16,
+          } as React.CSSProperties}
+        />
+        <Button variant="op" disabled={isPending} className="w-full" onClick={abrir}>
+          {isPending ? "Abrindo..." : "Abrir comanda"}
+        </Button>
       </div>
       </div>
     </>
