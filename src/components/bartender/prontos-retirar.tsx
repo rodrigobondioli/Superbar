@@ -7,19 +7,46 @@ import { entregarPedido } from "@/lib/bartender/actions";
 interface Item { quantidade: number; nome: string; }
 interface Pronto { id: string; pessoa: string; mesa_label: string; itens: Item[]; }
 
-function ding() {
+// AudioContext compartilhado e destravado. No iOS o contexto nasce "suspended"
+// e só toca depois de um gesto do usuário — por isso destravamos no 1º toque.
+let sharedCtx: AudioContext | null = null;
+function getCtx(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  if (!sharedCtx) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AC = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AC) return null;
+    try { sharedCtx = new AC(); } catch { return null; }
+  }
+  if (sharedCtx.state === "suspended") sharedCtx.resume().catch(() => {});
+  return sharedCtx;
+}
+/** Chamar num gesto do usuário pra liberar o áudio no iOS. */
+function unlockAudio() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  // um blip mudo destrava o pipeline no iOS
   try {
-    const ctx = new AudioContext();
-    const play = (f: number, s: number, d: number) => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination); o.type = "sine"; o.frequency.value = f;
-      g.gain.setValueAtTime(0.3, ctx.currentTime + s);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + s + d);
-      o.start(ctx.currentTime + s); o.stop(ctx.currentTime + s + d);
-    };
-    play(988, 0, 0.1); play(1319, 0.12, 0.14);
-    setTimeout(() => ctx.close(), 500);
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    g.gain.value = 0; o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.01);
   } catch { /* ignora */ }
+}
+
+function ding() {
+  const ctx = getCtx();
+  if (ctx) {
+    try {
+      const play = (f: number, s: number, d: number) => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination); o.type = "sine"; o.frequency.value = f;
+        g.gain.setValueAtTime(0.3, ctx.currentTime + s);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + s + d);
+        o.start(ctx.currentTime + s); o.stop(ctx.currentTime + s + d);
+      };
+      play(988, 0, 0.1); play(1319, 0.12, 0.14);
+    } catch { /* ignora */ }
+  }
   if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate([60, 40, 100]);
 }
 
@@ -69,6 +96,14 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
 
   const carregar = useCallback(async () => { setProntos(await fetchProntos(barId, turnoId)); }, [barId, turnoId]);
 
+  // Destrava o áudio no primeiro gesto do usuário (necessário no iOS)
+  useEffect(() => {
+    const on = () => unlockAudio();
+    window.addEventListener("pointerdown", on);
+    window.addEventListener("touchstart", on);
+    return () => { window.removeEventListener("pointerdown", on); window.removeEventListener("touchstart", on); };
+  }, []);
+
   useEffect(() => {
     carregar();
     const supabase = createClient();
@@ -93,11 +128,14 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
 
   return (
     <div style={{
-      flexShrink: 0, background: "color-mix(in srgb, var(--accent) 8%, var(--bg))",
-      borderBottom: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)",
+      flexShrink: 0, background: "color-mix(in srgb, var(--accent) 10%, var(--bg))",
+      borderBottom: "2px solid color-mix(in srgb, var(--accent) 45%, transparent)",
       padding: "14px 24px",
+      animation: "prontos-pulse 1.8s ease-in-out infinite",
     }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", margin: "0 0 10px" }}>
+      <style>{`@keyframes prontos-pulse { 0%,100% { box-shadow: inset 0 3px 0 -1px transparent; } 50% { box-shadow: inset 0 3px 0 -1px var(--accent); } }`}</style>
+      <p style={{ fontSize: 14, fontWeight: 700, color: "var(--accent)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <span aria-hidden style={{ fontSize: 15 }}>🔔</span>
         Prontos pra retirar · {prontos.length}
       </p>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 2 }}>

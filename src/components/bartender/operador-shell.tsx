@@ -294,9 +294,31 @@ export function OperadorShell({
         roleLabel={roleLabel}
         right={
           operador ? (
-            <Button variant="secondary" size="sm" onClick={trocar}>
-              {operador.nome} · Trocar
-            </Button>
+            <button
+              onClick={trocar}
+              title={`${operador.nome} · Trocar`}
+              style={{
+                display: "flex", alignItems: "center", gap: 8,
+                background: "var(--bg-card)", border: "1px solid var(--border)",
+                borderRadius: 999, padding: "5px 14px 5px 5px", cursor: "pointer",
+                color: "var(--fg-muted)", fontSize: 13, fontWeight: 500, flexShrink: 0,
+              }}
+            >
+              {operador.fotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={operador.fotoUrl} alt="" style={{ width: 26, height: 26, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+              ) : (
+                <span style={{
+                  width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                  background: "color-mix(in srgb, var(--accent) 50%, transparent)",
+                  color: "var(--accent)", fontSize: 12, fontWeight: 700,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  {operador.nome[0]?.toUpperCase()}
+                </span>
+              )}
+              Trocar
+            </button>
           ) : (
             /* Kiosk: sem Sair. Auth normal: mostra Sair */
             !isKiosk ? (

@@ -283,6 +283,8 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   const [pendingAbrir, setPendingAbrir] = useState<{ mesaId: string | null; label: string } | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [openError, setOpenError] = useState<string | null>(null);
+  // Chooser "Novo pedido" (balcão ou mesa livre)
+  const [novoPedidoOpen, setNovoPedidoOpen] = useState(false);
   const [, startTransition] = useTransition();
 
   // ── Realtime — comandas ───────────────────────────────────────────────────
@@ -466,13 +468,28 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
   return (
     <div className="flex-1 flex flex-col" style={{ overflow: "hidden" }}>
 
-      {/* Topo fixo: busca + status */}
+      {/* Topo fixo: AÇÃO primária (pedido) + busca + status */}
       <div style={{ padding: "16px 24px 0", flexShrink: 0 }}>
+        {/* Ação primária — fazer pedido é o objetivo nº1 do garçom */}
+        <button
+          onClick={() => setNovoPedidoOpen(true)}
+          className="hover:brightness-110"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            width: "100%", background: "var(--accent)", color: "var(--accent-fg)",
+            border: "none", borderRadius: 14, padding: "16px", fontSize: 16, fontWeight: 700,
+            cursor: "pointer", marginBottom: 14,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo pedido
+        </button>
+
         <ScanCartao />
         <div style={{ marginTop: 16, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", margin: 0, letterSpacing: "-0.02em" }}>
-            {totalOcupadas > 0 ? `${totalOcupadas} ocupada${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
-          </h1>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg-muted)", margin: 0 }}>
+            {totalOcupadas > 0 ? `${totalOcupadas} mesa${totalOcupadas > 1 ? "s" : ""} ativa${totalOcupadas > 1 ? "s" : ""}` : "Todas livres"}
+          </p>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             {([
               { id: "todas", label: "Todas", n: mesas.length ? undefined : 0 },
@@ -592,6 +609,51 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
                 Fechar
               </Button>
             </div>
+          </div>
+        </>
+      )}
+
+      {/* Modal: Novo pedido — escolhe balcão ou mesa livre */}
+      {novoPedidoOpen && (
+        <>
+          <div onClick={() => setNovoPedidoOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 70 }} />
+          <div role="dialog" aria-modal="true" style={{
+            position: "fixed", left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 71,
+            width: "min(92vw, 560px)", maxHeight: "82vh", overflowY: "auto",
+            background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 16, padding: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: 0 }}>Novo pedido</h2>
+              <button onClick={() => setNovoPedidoOpen(false)} aria-label="Fechar" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-subtle)", fontSize: 20, padding: 4, lineHeight: 1 }}>✕</button>
+            </div>
+            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 16px" }}>Balcão pra pedido rápido, ou toque numa mesa livre.</p>
+            {livres.length === 0 ? (
+              <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "8px 0" }}>Nenhuma mesa livre no momento.</p>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+                {[...livres].sort((a, b) => (a.mesaId === null ? -1 : b.mesaId === null ? 1 : 0)).map(e => {
+                  const isBalcao = e.mesaId === null;
+                  return (
+                    <button
+                      key={e.key}
+                      onClick={() => { e.onAbrir?.(); setNovoPedidoOpen(false); }}
+                      className="hover:brightness-110"
+                      style={{
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                        padding: "18px 12px", borderRadius: 14, cursor: "pointer",
+                        background: isBalcao ? "var(--accent)" : "var(--bg-card)",
+                        color: isBalcao ? "var(--accent-fg)" : "var(--fg)",
+                        border: isBalcao ? "none" : "1px solid var(--border-strong)",
+                        fontSize: 15, fontWeight: 600, minHeight: 78,
+                      }}
+                    >
+                      {isBalcao && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>}
+                      {e.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </>
       )}
