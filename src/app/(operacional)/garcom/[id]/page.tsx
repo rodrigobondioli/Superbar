@@ -7,6 +7,7 @@ import { getCardapio, getComandaById, getItensComanda, agruparItens } from "@/li
 import { ProdutoGrid } from "@/components/bartender/produto-grid";
 import { ComandaConteudo } from "@/components/bartender/comanda-conteudo";
 import { ComandaBottomSheet } from "@/components/bartender/comanda-bottom-sheet";
+import { PessoaTabs, type PessoaTab } from "@/components/bartender/pessoa-tabs";
 import type { Mesa } from "@/types/database";
 
 interface Props {
@@ -27,12 +28,20 @@ export default async function GarcomComandaPage({ params }: Props) {
   if (!comanda || comanda.bar_id !== current.bar.id) redirect("/garcom");
 
   let mesaLabel = "Balcão";
+  let pessoas: PessoaTab[] = [];
   if (comanda.mesa_id) {
     const supabase = await createClient();
-    const { data: mesa } = await supabase
-      .from("mesas").select("numero, nome").eq("id", comanda.mesa_id)
-      .maybeSingle<Pick<Mesa, "numero" | "nome">>();
+    const [{ data: mesa }, { data: irmas }] = await Promise.all([
+      supabase.from("mesas").select("numero, nome").eq("id", comanda.mesa_id)
+        .maybeSingle<Pick<Mesa, "numero" | "nome">>(),
+      supabase.from("comandas").select("id, nome_cliente, status")
+        .eq("bar_id", current.bar.id).eq("mesa_id", comanda.mesa_id)
+        .in("status", ["aberta", "aguardando_pagamento"])
+        .order("aberta_em", { ascending: true })
+        .returns<PessoaTab[]>(),
+    ]);
     if (mesa) mesaLabel = mesa.nome ?? `Mesa ${mesa.numero}`;
+    pessoas = irmas ?? [];
   }
 
   const itensBrutos = await getItensComanda(comanda.id);
@@ -67,6 +76,11 @@ export default async function GarcomComandaPage({ params }: Props) {
           </span>
         )}
       </div>
+
+      {/* Troca rápida de pessoa dentro da mesa */}
+      {comanda.mesa_id && pessoas.length > 0 && (
+        <PessoaTabs comandas={pessoas} atualId={comanda.id} mesaId={comanda.mesa_id} />
+      )}
 
       {/* Main: product grid + comanda panel */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>

@@ -55,9 +55,9 @@ export function MesaDrawer({
   const [selFechar, setSelFechar] = useState<Set<string>>(new Set());
 
   const temPessoas = comandas.length > 0;
-  const abertasComTotal = comandas.filter(c => c.status === "aberta" && c.total > 0);
+  const abertas = comandas.filter(c => c.status === "aberta");
 
-  const abrirFechar = () => { setSelFechar(new Set(abertasComTotal.map(c => c.id))); setFechando(true); };
+  const abrirFechar = () => { setSelFechar(new Set(abertas.map(c => c.id))); setFechando(true); };
   const toggleFechar = (id: string) => setSelFechar(prev => {
     const s = new Set(prev); if (s.has(id)) s.delete(id); else s.add(id); return s;
   });
@@ -164,7 +164,7 @@ export function MesaDrawer({
               )}
 
               {/* ── Fechar conta — separado, no final ── */}
-              {abertasComTotal.length >= 1 && (
+              {abertas.length >= 1 && (
                 <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid var(--border-strong)" }}>
                   {!fechando ? (
                     <button onClick={abrirFechar} className="hover:brightness-110"
@@ -177,7 +177,7 @@ export function MesaDrawer({
                         Marque quem está <strong style={{ color: "var(--fg)" }}>fechando</strong> (quem fica segue aberto):
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {abertasComTotal.map(c => {
+                        {abertas.map(c => {
                           const marcada = selFechar.has(c.id);
                           const nome = c.nome_cliente ?? "Sem nome";
                           return (
