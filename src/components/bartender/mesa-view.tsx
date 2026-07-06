@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, Plus, Trash2, Loader2 } from "lucide-react";
-import { abrirComandasMesa, listarComandasMesa, type PessoaComandaLite } from "@/lib/bartender/actions";
+import { abrirComandasMesa, listarComandasMesa, enviarComandasCaixa, type PessoaComandaLite } from "@/lib/bartender/actions";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -50,7 +50,18 @@ export function MesaDrawer({
     await recarregar();
   };
 
+  const [enviando, setEnviando] = useState(false);
+  const enviarCaixa = async (ids: string[]) => {
+    if (ids.length === 0 || enviando) return;
+    setEnviando(true); setErro(null);
+    const r = await enviarComandasCaixa(ids);
+    setEnviando(false);
+    if ("error" in r) { setErro(r.error); return; }
+    await recarregar();
+  };
+
   const temPessoas = comandas.length > 0;
+  const abertasComTotal = comandas.filter(c => c.status === "aberta" && c.total > 0);
 
   return (
     <>
@@ -111,10 +122,18 @@ export function MesaDrawer({
                         </div>
                       </div>
                       {!pagando && (
-                        <Link href={`/garcom/${c.id}`} className="hover:brightness-110"
-                          style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 999, padding: "9px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
-                          Pedir
-                        </Link>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+                          <Link href={`/garcom/${c.id}`} className="hover:brightness-110"
+                            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 999, padding: "8px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+                            Pedir
+                          </Link>
+                          {c.total > 0 && (
+                            <button onClick={() => enviarCaixa([c.id])} disabled={enviando} className="hover:!text-[var(--accent)]"
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-subtle)", fontSize: 12, fontWeight: 600, padding: 0 }}>
+                              Fechar conta →
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
@@ -142,6 +161,16 @@ export function MesaDrawer({
                   </button>
                   <button onClick={() => setAddNome(null)} style={{ flexShrink: 0, background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "0 14px", color: "var(--fg-muted)", cursor: "pointer" }}>✕</button>
                 </div>
+              )}
+
+              {abertasComTotal.length >= 2 && (
+                <button
+                  onClick={() => enviarCaixa(abertasComTotal.map(c => c.id))}
+                  disabled={enviando}
+                  className="hover:brightness-110"
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginTop: 18, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg)", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                  {enviando ? "Enviando…" : `Enviar mesa toda pro caixa (${abertasComTotal.length})`}
+                </button>
               )}
               {erro && <p style={{ fontSize: 13, color: "var(--danger)", marginTop: 10 }}>{erro}</p>}
             </>

@@ -308,6 +308,35 @@ export async function fecharComanda(comandaId: string) {
   return { ok: true };
 }
 
+/** Envia uma ou várias comandas pro caixa (status → aguardando_pagamento).
+ *  Por pessoa: quem vai embora fecha, quem fica continua aberto. Só fecha as que
+ *  estão 'aberta' (guard idempotente). Lá no caixa o pagamento é por tick. */
+export async function enviarComandasCaixa(
+  comandaIds: string[],
+): Promise<{ ok: true; enviadas: number } | { error: string }> {
+  const ids = [...new Set(comandaIds.filter(Boolean))];
+  if (ids.length === 0) return { error: "Nenhuma comanda selecionada." };
+
+  const current = await getCurrentBar();
+  if (!current) return { error: "Não autenticado." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("comandas")
+    .update({ status: "aguardando_pagamento", fechada_em: new Date().toISOString() })
+    .eq("bar_id", current.bar.id)
+    .eq("status", "aberta")
+    .in("id", ids)
+    .select("id");
+
+  if (error) return { error: "Erro ao enviar pro caixa." };
+
+  revalidatePath("/caixa");
+  revalidatePath("/dashboard/caixa");
+  revalidatePath("/garcom");
+  return { ok: true, enviadas: data?.length ?? 0 };
+}
+
 export async function cancelarComanda(
   comandaId: string,
 ): Promise<{ ok: true } | { error: string }> {
