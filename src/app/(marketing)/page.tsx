@@ -147,8 +147,9 @@ export default async function Home() {
               ))}
             </div>
 
-            {/* Mascote — coqueteleira vazando (visível no mobile também) */}
-            <div className="flex items-center justify-center py-2 lg:py-0">
+            {/* Mascote — coqueteleira vazando. Mobile: abre a seção (order-first,
+                antes dos cards). Desktop: volta pro meio das duas colunas. */}
+            <div className="order-first flex items-center justify-center py-2 lg:order-none lg:py-0">
               <Image
                 src="/img-lp/coquetelaria-vazando.png"
                 alt="Coqueteleira vazando"
