@@ -20,9 +20,10 @@ export default async function GarcomComandaPage({ params }: Props) {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
 
-  const [comanda, cardapio] = await Promise.all([
+  const [comanda, cardapio, itensBrutos] = await Promise.all([
     getComandaById(id),
-    getCardapio(current.bar.id),
+    getCardapio(current.bar.id),   // cacheado por bar — troca de pessoa não refaz
+    getItensComanda(id),
   ]);
 
   if (!comanda || comanda.bar_id !== current.bar.id) redirect("/garcom");
@@ -44,7 +45,6 @@ export default async function GarcomComandaPage({ params }: Props) {
     pessoas = irmas ?? [];
   }
 
-  const itensBrutos = await getItensComanda(comanda.id);
   const itens = agruparItens(itensBrutos);
   const subtotal = itens.reduce((acc, item) => acc + item.precoTotal, 0);
   const totalUnidades = itens.reduce((acc, item) => acc + item.quantidade, 0);

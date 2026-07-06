@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Categoria, Comanda, Mesa, ProdutoComVariantes } from "@/types/database";
 
 export interface CategoriaComProdutos {
@@ -16,8 +17,28 @@ const SEM_CATEGORIA: Categoria = {
   created_at: "",
 };
 
+// Cache em memória por bar — o menu é igual pra todas as pessoas/comandas, então
+// a troca de pessoa (navegação) não refaz a busca. TTL curto + invalidação
+// explícita quando o dono edita o cardápio (limparCardapioCache nas actions).
+type CardapioCacheEntry = { data: CategoriaComProdutos[]; exp: number };
+const CARDAPIO_TTL_MS = 60_000;
+const cardapioCache = new Map<string, CardapioCacheEntry>();
+
+export function limparCardapioCache(barId: string) {
+  cardapioCache.delete(barId);
+}
+
+/** Cardápio do bar (cacheado em memória por ~60s). */
 export async function getCardapio(barId: string): Promise<CategoriaComProdutos[]> {
-  const supabase = await createClient();
+  const hit = cardapioCache.get(barId);
+  if (hit && hit.exp > Date.now()) return hit.data;
+  const data = await fetchCardapio(barId);
+  cardapioCache.set(barId, { data, exp: Date.now() + CARDAPIO_TTL_MS });
+  return data;
+}
+
+async function fetchCardapio(barId: string): Promise<CategoriaComProdutos[]> {
+  const supabase = createAdminClient();
 
   const [{ data: categorias }, { data: produtos }] = await Promise.all([
     supabase

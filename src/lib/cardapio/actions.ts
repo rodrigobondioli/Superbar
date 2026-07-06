@@ -3,7 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar } from "@/lib/dashboard/queries";
+import { limparCardapioCache } from "@/lib/bartender/queries";
 import { getImagemAutomatica } from "./drink-images";
+
+/** Invalida o cache do cardápio do bar atual (usado pelo garçom/bartender).
+ *  Toda mutação de menu chama isso pra o garçom ver a mudança na hora. */
+async function invalidarCardapio() {
+  const c = await getCurrentBar();
+  if (c) limparCardapioCache(c.bar.id);
+  revalidatePath("/dashboard/cardapio");
+}
 
 function intOrNull(v: FormDataEntryValue | null): number | null {
   const s = String(v ?? "").trim();
@@ -39,7 +48,7 @@ export async function criarCategoria(formData: FormData) {
     ativo: true,
   });
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function editarCategoria(id: string, formData: FormData) {
@@ -52,7 +61,7 @@ export async function editarCategoria(id: string, formData: FormData) {
     update.imagem_url = String(formData.get("imagem_url") ?? "").trim() || null;
   }
   await supabase.from("categorias").update(update).eq("id", id);
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 /** Persiste a nova ordem das categorias (drag-and-drop na lista).
@@ -63,27 +72,27 @@ export async function reordenarCategorias(orderedIds: string[]) {
   await Promise.all(
     orderedIds.map((id, i) => supabase.from("categorias").update({ ordem: i + 1 }).eq("id", id)),
   );
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 /** Salva só a foto da categoria (thumb clicável na lista, sem abrir o editor). */
 export async function atualizarFotoCategoria(id: string, imagemUrl: string | null) {
   const supabase = await createClient();
   await supabase.from("categorias").update({ imagem_url: imagemUrl }).eq("id", id);
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 /** Liga/desliga o "destaque" de um produto (vira Assinatura da casa no app do cliente). */
 export async function toggleDestaque(id: string, destaque: boolean) {
   const supabase = await createClient();
   await supabase.from("produtos").update({ destaque: !destaque }).eq("id", id);
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function desativarCategoria(id: string) {
   const supabase = await createClient();
   await supabase.from("categorias").update({ ativo: false }).eq("id", id);
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 // ─── Produtos ─────────────────────────────────────────────────────────────────
@@ -124,7 +133,7 @@ export async function criarProduto(formData: FormData) {
     controla_estoque: false,
   });
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function editarProduto(id: string, formData: FormData) {
@@ -156,7 +165,7 @@ export async function editarProduto(id: string, formData: FormData) {
     calorias,
   }).eq("id", id);
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 // ─── Variantes ────────────────────────────────────────────────────────────────
@@ -193,7 +202,7 @@ export async function criarVariante(produtoId: string, formData: FormData) {
     ordem:       (ultima?.ordem ?? 0) + 1,
   });
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function editarVariante(varianteId: string, formData: FormData) {
@@ -215,7 +224,7 @@ export async function editarVariante(varianteId: string, formData: FormData) {
     imagem_url: imagemUrl,
   }).eq("id", varianteId);
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function deletarVariante(varianteId: string) {
@@ -224,7 +233,7 @@ export async function deletarVariante(varianteId: string) {
     .update({ ativo: false })
     .eq("id", varianteId);
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 /** Porta B do onboarding: cria vários produtos clássicos de uma vez.
@@ -294,14 +303,14 @@ export async function criarProdutosClassicos(
   const { error } = await supabase.from("produtos").insert(rows);
   if (error) return { error: "Erro ao criar os produtos." };
 
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
   return { ok: true, criados: rows.length };
 }
 
 export async function toggleProduto(id: string, ativo: boolean) {
   const supabase = await createClient();
   await supabase.from("produtos").update({ ativo: !ativo }).eq("id", id);
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
 
 export async function deletarProduto(id: string) {
@@ -311,5 +320,5 @@ export async function deletarProduto(id: string) {
   if (error) {
     await supabase.from("produtos").update({ ativo: false }).eq("id", id);
   }
-  revalidatePath("/dashboard/cardapio");
+  await invalidarCardapio();
 }
