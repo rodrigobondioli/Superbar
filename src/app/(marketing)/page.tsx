@@ -123,7 +123,7 @@ export default async function Home() {
           </p>
         </div>
 
-        {/* Grid: mobile = 1 col (mascote hidden), desktop = 3 col */}
+        {/* Grid: mobile = 1 col (mascote entre os cards), desktop = 3 col */}
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-14">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px_1fr] lg:items-center lg:gap-x-8">
 
@@ -147,14 +147,14 @@ export default async function Home() {
               ))}
             </div>
 
-            {/* Mascote — hidden on mobile */}
-            <div className="hidden items-center justify-center lg:flex">
+            {/* Mascote — coqueteleira vazando (visível no mobile também) */}
+            <div className="flex items-center justify-center py-2 lg:py-0">
               <Image
                 src="/img-lp/coquetelaria-vazando.png"
                 alt="Coqueteleira vazando"
                 width={420}
                 height={660}
-                className="w-full"
+                className="w-auto max-h-[300px] lg:max-h-none lg:w-full"
               />
             </div>
 
