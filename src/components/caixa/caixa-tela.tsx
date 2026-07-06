@@ -475,9 +475,9 @@ export function CaixaTela({
     const canal = supabase.channel(`caixa-live-${barId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "comandas", filter: `bar_id=eq.${barId}` }, () => fetchComandas())
       .subscribe();
-    // Fallback: mesmo se o realtime falhar (auth/RLS/publication), o caixa
-    // atualiza sozinho sem refresh. Princípio 11/12 — a operação não pode travar.
-    const poll = setInterval(fetchComandas, 4000);
+    // Fallback: com o realtime ligado, isto é só rede de segurança (15s).
+    // Se o realtime cair (auth/RLS), ainda atualiza sozinho sem refresh.
+    const poll = setInterval(fetchComandas, 15000);
     return () => { supabase.removeChannel(canal); clearInterval(poll); };
   }, [barId, fetchComandas]);
 
