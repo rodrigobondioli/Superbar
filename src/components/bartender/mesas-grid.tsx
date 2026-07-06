@@ -134,13 +134,14 @@ function SeletorPessoas({
 
 // ─── Card individual de mesa ──────────────────────────────────────────────────
 
-function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }: {
+function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, onAdicionarPessoa }: {
   label: string;
   comandas: Comanda[];
   capacidade?: number | null;
   chamadaId?: string;
   onAbrir?: () => void;
   onAtender?: () => void;
+  onAdicionarPessoa?: () => void;
 }) {
   const livre         = comandas.length === 0;
   const totalValor    = comandas.reduce((sum, c) => sum + c.total, 0);
@@ -260,6 +261,23 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender }
           </Link>
         );
       })}
+
+      {/* Adicionar pessoa — mesa elástica: cada pessoa vira uma comanda própria */}
+      {onAdicionarPessoa && (
+        <button
+          type="button"
+          onClick={onAdicionarPessoa}
+          className="hover:!text-[var(--accent)]"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            width: "100%", padding: "11px 16px", background: "none", border: "none",
+            cursor: "pointer", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600,
+          }}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar pessoa
+        </button>
+      )}
     </div>
   );
 }
@@ -413,6 +431,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     chamadaId?: string;
     onAbrir?: () => void;
     onAtender?: () => void;
+    onAdicionarPessoa?: () => void;
   };
 
   const todasEntradas: MesaEntry[] = [
@@ -431,6 +450,10 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           : undefined,
         onAtender: chamadaId
           ? () => handleAtenderChamada(chamadaId, mesa.id)
+          : undefined,
+        // Mesa elástica: adicionar outra comanda (pessoa) numa mesa já ocupada
+        onAdicionarPessoa: comandas.length > 0
+          ? () => setPendingAbrir({ mesaId: mesa.id, label })
           : undefined,
       };
     }),
@@ -540,7 +563,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               <section>
                 <SecLabel label="Abertas" count={abertas.length} />
                 <div style={GRID_OCUPADAS}>
-                  {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
+                  {abertas.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onAdicionarPessoa={e.onAdicionarPessoa} />)}
                 </div>
               </section>
             )}
@@ -548,7 +571,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
               <section>
                 <SecLabel label="Aguardando pagamento" count={aguardando.length} />
                 <div style={GRID_OCUPADAS}>
-                  {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} />)}
+                  {aguardando.map(e => <MesaCard key={e.key} label={e.label} comandas={e.comandas} capacidade={e.capacidade} chamadaId={e.chamadaId} onAbrir={e.onAbrir} onAtender={e.onAtender} onAdicionarPessoa={e.onAdicionarPessoa} />)}
                 </div>
               </section>
             )}

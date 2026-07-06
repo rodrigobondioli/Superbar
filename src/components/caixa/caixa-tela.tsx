@@ -173,7 +173,7 @@ function CortesiaModal({ mesaNome, onConfirm, onClose }: {
 
 function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
   group: MesaGroup; barNome: string; taxaServicoPct: number;
-  onPago: (metodo: PagamentoMetodo) => void; onClose: () => void;
+  onPago: (metodo: PagamentoMetodo, pagas: ComandaPendente[], pagouTudo: boolean) => void; onClose: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [pago, setPago]               = useState(false);
@@ -184,21 +184,40 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
   const [incluirServico, setIncluirServico] = useState(taxaServicoPct > 0);
   const [expandida, setExpandida]     = useState<string | null>(null);
 
-  const subtotal     = group.total;
+  // Multi-seleção: por padrão TODAS marcadas (fechar mesa toda). O caixa desmarca
+  // quem paga separado (individual/casal). O reset quando as comandas mudam vem do
+  // `key` no pai (remonta o painel), então aqui basta o initializer.
+  const [selecionadas, setSelecionadas] = useState<Set<string>>(() => new Set(group.comandas.map(c => c.id)));
+
+  const comandasSel  = group.comandas.filter(c => selecionadas.has(c.id));
+  const nSel         = comandasSel.length;
+  const nTotal       = group.comandas.length;
+  const todasMarcadas = nSel === nTotal;
+  const subtotal     = comandasSel.reduce((s, c) => s + c.total, 0);
   const servicoValor = Math.round(subtotal * (taxaServicoPct / 100) * 100) / 100;
   const totalFinal   = incluirServico ? subtotal + servicoValor : subtotal;
 
+  const toggleComanda = (id: string) => setSelecionadas(prev => {
+    const s = new Set(prev); if (s.has(id)) s.delete(id); else s.add(id); return s;
+  });
+  const toggleTodas = () => setSelecionadas(prev => prev.size === nTotal ? new Set() : new Set(group.comandas.map(c => c.id)));
+
   const pagar = (metodo: PagamentoMetodo, motivo?: string) => {
+    if (nSel === 0) return;
     setError(null);
     startTransition(async () => {
-      const ids = group.comandas.map(c => c.id);
+      const pagas = comandasSel;
+      const ids = pagas.map(c => c.id);
       const result = await registrarPagamentosMesa(ids, metodo, metodo !== "cortesia" && incluirServico, motivo);
       if (result && "error" in result) {
         setError(result.error as string);
       } else {
-        setMetodoPago(metodo === "cortesia" ? `Cortesia${motivo ? ` — ${motivo}` : ""}` : METODO_LABEL[metodo]);
-        setPago(true);
-        onPago(metodo);
+        const pagouTudo = ids.length === group.comandas.length;
+        if (pagouTudo) {
+          setMetodoPago(metodo === "cortesia" ? `Cortesia${motivo ? ` — ${motivo}` : ""}` : METODO_LABEL[metodo]);
+          setPago(true);
+        }
+        onPago(metodo, pagas, pagouTudo);
       }
     });
   };
@@ -255,22 +274,45 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
         )}
       </div>
 
-      {/* Lista de pessoas */}
+      {/* Lista de pessoas — tick pra fechar juntas (individual · casal · mesa toda) */}
       <div>
+        {nTotal > 1 && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px 8px" }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>Marque quem paga junto</span>
+            <button onClick={toggleTodas} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "var(--accent)" }}>
+              {todasMarcadas ? "Desmarcar todas" : "Marcar todas"}
+            </button>
+          </div>
+        )}
         {group.comandas.map((comanda, idx) => {
           const nome = comanda.nome_cliente ?? `Pessoa ${idx + 1}`;
           const aberto = expandida === comanda.id;
+          const marcada = selecionadas.has(comanda.id);
           return (
-            <div key={comanda.id} style={{ borderBottom: "1px solid var(--border)" }}>
-              <button onClick={() => setExpandida(aberto ? null : comanda.id)} className="[-webkit-tap-highlight-color:transparent]"
-                style={{ width: "100%", display: "flex", alignItems: "center", padding: "12px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--fg-muted)" }}>
-                  {nome.charAt(0).toUpperCase()}
-                </div>
-                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>{nome}</span>
-                <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 600 }}>{currency.format(comanda.total)}</span>
-                <span style={{ fontSize: 10, color: "var(--fg-subtle)", marginLeft: 4 }}>{aberto ? "▲" : "▼"}</span>
-              </button>
+            <div key={comanda.id} style={{ borderBottom: "1px solid var(--border)", background: nTotal > 1 && marcada ? "color-mix(in srgb, var(--accent) 6%, transparent)" : "transparent" }}>
+              <div style={{ display: "flex", alignItems: "stretch" }}>
+                {nTotal > 1 && (
+                  <button onClick={() => toggleComanda(comanda.id)} aria-label={marcada ? "Desmarcar" : "Marcar"} className="[-webkit-tap-highlight-color:transparent]"
+                    style={{ display: "flex", alignItems: "center", padding: "0 2px 0 16px", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
+                    <span style={{
+                      width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: marcada ? "var(--accent)" : "transparent",
+                      border: marcada ? "none" : "1.5px solid var(--border-strong)",
+                      color: "var(--accent-fg)", fontSize: 13, fontWeight: 800,
+                    }}>{marcada ? "✓" : ""}</span>
+                  </button>
+                )}
+                <button onClick={() => setExpandida(aberto ? null : comanda.id)} className="[-webkit-tap-highlight-color:transparent]"
+                  style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", padding: nTotal > 1 ? "12px 20px 12px 10px" : "12px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 10 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--fg-muted)" }}>
+                    {nome.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nome}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 600 }}>{currency.format(comanda.total)}</span>
+                  <span style={{ fontSize: 10, color: "var(--fg-subtle)", marginLeft: 4 }}>{aberto ? "▲" : "▼"}</span>
+                </button>
+              </div>
               {aberto && comanda.itens.length > 0 && (
                 <div style={{ padding: "0 20px 10px 56px" }}>
                   {comanda.itens.map((it, i) => (
@@ -300,7 +342,9 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
         )}
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: "1px solid var(--border)", paddingTop: 12, marginBottom: 16 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)" }}>Total</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-subtle)" }}>
+            {nTotal > 1 ? (todasMarcadas ? "Total · mesa toda" : `Total · ${nSel} de ${nTotal}`) : "Total"}
+          </span>
           <span style={{ fontSize: 32, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.8px" }}>{currency.format(totalFinal)}</span>
         </div>
 
@@ -309,7 +353,7 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
         {cartaoAberto ? (
           <div style={{ display: "flex", gap: 8 }}>
             {(["debito", "credito"] as PagamentoMetodo[]).map(key => (
-              <Button key={key} variant="op" className="flex-1" disabled={isPending} onClick={() => { pagar(key); setCartaoAberto(false); }}>
+              <Button key={key} variant="op" className="flex-1" disabled={isPending || nSel === 0} onClick={() => { pagar(key); setCartaoAberto(false); }}>
                 {key === "debito" ? "Débito" : "Crédito"}
               </Button>
             ))}
@@ -317,10 +361,10 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            <Button variant="op" className="w-full" disabled={isPending} onClick={() => pagar("pix")}>Pix</Button>
-            <Button variant="op" className="w-full" disabled={isPending} onClick={() => pagar("dinheiro")}>Dinheiro</Button>
-            <Button variant="op" className="w-full" disabled={isPending} onClick={() => setCartaoAberto(true)}>Cartão</Button>
-            <Button variant="op" className="w-full" disabled={isPending} onClick={() => setShowCortesia(true)}>Cortesia</Button>
+            <Button variant="op" className="w-full" disabled={isPending || nSel === 0} onClick={() => pagar("pix")}>Pix</Button>
+            <Button variant="op" className="w-full" disabled={isPending || nSel === 0} onClick={() => pagar("dinheiro")}>Dinheiro</Button>
+            <Button variant="op" className="w-full" disabled={isPending || nSel === 0} onClick={() => setCartaoAberto(true)}>Cartão</Button>
+            <Button variant="op" className="w-full" disabled={isPending || nSel === 0} onClick={() => setShowCortesia(true)}>Cortesia</Button>
           </div>
         )}
       </div>
@@ -427,7 +471,6 @@ export function CaixaTela({
   }, [barId]);
 
   useEffect(() => {
-    fetchComandas(); // busca inicial
     const supabase = createClient();
     const canal = supabase.channel(`caixa-live-${barId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "comandas", filter: `bar_id=eq.${barId}` }, () => fetchComandas())
@@ -438,27 +481,35 @@ export function CaixaTela({
     return () => { supabase.removeChannel(canal); clearInterval(poll); };
   }, [barId, fetchComandas]);
 
-  const handlePago = useCallback((group: MesaGroup, metodo: PagamentoMetodo) => {
+  const handlePago = useCallback((group: MesaGroup, metodo: PagamentoMetodo, pagas: ComandaPendente[], pagouTudo: boolean) => {
     const mesaKey = group.key;
-    const totalMesa = group.total;
+    const totalPago = pagas.reduce((s, c) => s + c.total, 0);
+    const qtd = pagas.length;
     setInsightsAtual(prev => {
-      const novoTotal = prev.totalTurno + totalMesa;
-      const novaQtd   = prev.comandasPagas + group.comandas.length;
+      const novoTotal = prev.totalTurno + totalPago;
+      const novaQtd   = prev.comandasPagas + qtd;
       const metodosAtuais = [...prev.porMetodo];
       const idx = metodosAtuais.findIndex(m => m.metodo === metodo);
       if (idx >= 0) {
-        metodosAtuais[idx] = { ...metodosAtuais[idx], total: metodosAtuais[idx].total + totalMesa, quantidade: metodosAtuais[idx].quantidade + group.comandas.length };
+        metodosAtuais[idx] = { ...metodosAtuais[idx], total: metodosAtuais[idx].total + totalPago, quantidade: metodosAtuais[idx].quantidade + qtd };
       } else {
-        metodosAtuais.push({ metodo, total: totalMesa, quantidade: group.comandas.length });
+        metodosAtuais.push({ metodo, total: totalPago, quantidade: qtd });
       }
       return { totalTurno: novoTotal, comandasPagas: novaQtd, ticketMedio: novaQtd > 0 ? novoTotal / novaQtd : 0, porMetodo: metodosAtuais };
     });
-    setPagos(prev => new Set([...prev, mesaKey]));
-    setTimeout(() => {
-      setListaAtual(prev => prev.filter(c => (c.mesa_id ?? c.mesa) !== mesaKey));
-      setPagos(prev => { const s = new Set(prev); s.delete(mesaKey); return s; });
-      setSelecionada(prev => prev === mesaKey ? null : prev);
-    }, 1400);
+    const paidIds = new Set(pagas.map(c => c.id));
+    if (pagouTudo) {
+      // Fechou a mesa toda — anima e some
+      setPagos(prev => new Set([...prev, mesaKey]));
+      setTimeout(() => {
+        setListaAtual(prev => prev.filter(c => !paidIds.has(c.id)));
+        setPagos(prev => { const s = new Set(prev); s.delete(mesaKey); return s; });
+        setSelecionada(prev => prev === mesaKey ? null : prev);
+      }, 1400);
+    } else {
+      // Pagamento parcial — remove só as pagas, o painel segue com as restantes
+      setListaAtual(prev => prev.filter(c => !paidIds.has(c.id)));
+    }
   }, []);
 
   const grupoSelecionado = grupos.find(g => g.key === selecionada) ?? null;
@@ -493,9 +544,9 @@ export function CaixaTela({
         {/* Painel direito */}
         {grupoSelecionado ? (
           <div className="hidden md:block" style={{ flex: "0 0 50%", overflowY: "auto" }}>
-            <DetailPanel key={grupoSelecionado.key} group={grupoSelecionado} barNome={barNome}
+            <DetailPanel key={grupoSelecionado.key + "|" + grupoSelecionado.comandas.map(c => c.id).join(",")} group={grupoSelecionado} barNome={barNome}
               taxaServicoPct={taxaServicoPct}
-              onPago={metodo => handlePago(grupoSelecionado, metodo)}
+              onPago={(metodo, pagas, pagouTudo) => handlePago(grupoSelecionado, metodo, pagas, pagouTudo)}
               onClose={() => setSelecionada(null)} />
           </div>
         ) : !vazio ? (
@@ -511,9 +562,9 @@ export function CaixaTela({
           <div onClick={() => setSelecionada(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 60 }} />
           <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 61, background: "var(--bg-elevated)", borderTop: "1px solid var(--border)", borderRadius: "12px 12px 0 0", maxHeight: "92dvh", display: "flex", flexDirection: "column" }}>
             <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "12px auto 0", flexShrink: 0 }} />
-            <DetailPanel key={grupoSelecionado.key} group={grupoSelecionado} barNome={barNome}
+            <DetailPanel key={grupoSelecionado.key + "|" + grupoSelecionado.comandas.map(c => c.id).join(",")} group={grupoSelecionado} barNome={barNome}
               taxaServicoPct={taxaServicoPct}
-              onPago={metodo => handlePago(grupoSelecionado, metodo)}
+              onPago={(metodo, pagas, pagouTudo) => handlePago(grupoSelecionado, metodo, pagas, pagouTudo)}
               onClose={() => setSelecionada(null)} />
           </div>
         </div>
