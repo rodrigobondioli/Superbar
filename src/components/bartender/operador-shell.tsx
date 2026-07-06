@@ -34,10 +34,7 @@ function QuemEVoce({
       }}>
         Quem está operando agora?
       </p>
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12,
-        width: "100%", maxWidth: 960,
-      }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full" style={{ maxWidth: 960 }}>
         {membros.map(m => (
           <button
             key={m.id}
@@ -46,7 +43,7 @@ function QuemEVoce({
             style={{
               background: "var(--bg-card)",
               border: "1px solid var(--border)", borderRadius: 16,
-              padding: "24px 20px", cursor: "pointer",
+              padding: "18px 12px", cursor: "pointer",
               textAlign: "center", width: "100%",
             }}
           >
@@ -57,27 +54,27 @@ function QuemEVoce({
                 alt={m.nome}
                 onError={() => setFotoErros(prev => new Set(prev).add(m.id))}
                 style={{
-                  width: 64, height: 64, borderRadius: "50%", objectFit: "cover",
-                  margin: "0 auto 16px", display: "block",
+                  width: 52, height: 52, borderRadius: "50%", objectFit: "cover",
+                  margin: "0 auto 10px", display: "block",
                   border: "2px solid color-mix(in srgb, var(--accent) 40%, transparent)",
                 }}
               />
             ) : (
               <div style={{
-                width: 64, height: 64, borderRadius: "50%",
+                width: 52, height: 52, borderRadius: "50%",
                 background: "color-mix(in srgb, var(--accent) 50%, transparent)",
                 border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 24, fontWeight: 700, color: "var(--accent)",
-                margin: "0 auto 16px",
+                fontSize: 20, fontWeight: 700, color: "var(--accent)",
+                margin: "0 auto 10px",
               }}>
                 {m.nome[0]?.toUpperCase()}
               </div>
             )}
-            <p style={{ fontSize: 18, fontWeight: 600, color: "var(--fg)", margin: "0 0 6px" }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 3px", lineHeight: 1.25 }}>
               {m.nome}
             </p>
-            <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+            <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: 0 }}>
               {ROLE_LABEL[m.role] ?? m.role}
             </p>
             {m.temPin && (
