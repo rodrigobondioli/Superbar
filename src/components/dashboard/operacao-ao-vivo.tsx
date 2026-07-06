@@ -11,9 +11,11 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 // (mata o flash em que o desktop aparece "torto" no mobile antes de ajustar).
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-/** true quando a viewport é menor que o breakpoint `lg` (mesmo corte do shell do dashboard). */
+/** true quando a viewport é menor que o breakpoint `lg` (mesmo corte do shell do dashboard).
+ *  Default TRUE (mobile-first): o HTML do servidor já sai empilhado e nunca vaza pro lado
+ *  no celular. O desktop reajusta pra grid depois da hidratação (sem quebrar layout). */
 function useIsMobile(bp = 1024) {
-  const [mobile, setMobile] = useState(false);
+  const [mobile, setMobile] = useState(true);
   useIsoLayoutEffect(() => {
     const mq = window.matchMedia(`(max-width: ${bp - 1}px)`);
     const on = () => setMobile(mq.matches);

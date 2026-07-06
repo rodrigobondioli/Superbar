@@ -126,7 +126,7 @@ export function AiHeroInput({
               fontSize: 15,
               lineHeight: 1.6,
               resize: 'none',
-              minHeight: 32,
+              minHeight: 56,
               maxHeight: 120,
               overflow: 'auto',
             }}
