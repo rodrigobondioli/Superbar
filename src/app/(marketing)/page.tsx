@@ -150,7 +150,7 @@ export default async function Home() {
             {/* Mascote — coqueteleira vazando. Mobile: abre a seção (order-first,
                 antes dos cards) no mesmo tamanho da coqueteleira da DonoSection
                 (max-w-280). Desktop: volta pro meio das duas colunas (coluna cheia). */}
-            <div className="order-first flex justify-center lg:order-none">
+            <div className="order-first mb-4 flex justify-center lg:order-none lg:mb-0">
               <div className="w-full max-w-[280px] lg:max-w-full">
                 <Image
                   src="/img-lp/coquetelaria-vazando.png"
