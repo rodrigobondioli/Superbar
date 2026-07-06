@@ -7,6 +7,7 @@ import {
   getComparacaoPeriodo,
   getKpisFinanceirosPeriodo,
   getProdutosVendidosPeriodo,
+  getVendasPorGarcom,
 } from "@/lib/dashboard/relatorios";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -49,12 +50,14 @@ export default async function RelatoriosPage({
   const current = await getCurrentBar();
   if (!current) return null;
 
-  const [pontos, comparacao, kpis, produtos] = await Promise.all([
+  const [pontos, comparacao, kpis, produtos, vendasGarcom] = await Promise.all([
     getFaturamentoPorDia(current.bar.id, periodo),
     getComparacaoPeriodo(current.bar.id, periodo),
     getKpisFinanceirosPeriodo(current.bar.id, periodo),
     getProdutosVendidosPeriodo(current.bar.id, periodo),
+    getVendasPorGarcom(current.bar.id, periodo),
   ]);
+  const maxGarcom = vendasGarcom[0]?.totalVendido || 1;
 
   const topProdutos = [...produtos].sort((a, b) => b.faturamento - a.faturamento).slice(0, 6);
   const maxFat = topProdutos[0]?.faturamento || 1;
@@ -130,6 +133,38 @@ export default async function RelatoriosPage({
           )}
         </div>
       </div>
+
+      {/* Vendas por garçom */}
+      {vendasGarcom.length > 0 && (
+        <div className="max-lg:!p-5" style={cardBig}>
+          <span style={cardTitle}>Vendas por garçom</span>
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "4px 0 0" }}>Por pedido lançado no período — quem atendeu.</p>
+          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 22 }}>
+            {vendasGarcom.map((g, i) => {
+              const pct = Math.max(6, Math.round((g.totalVendido / maxGarcom) * 100));
+              const inicial = g.nome.charAt(0).toUpperCase();
+              return (
+                <div key={g.memberId} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    {g.fotoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={g.fotoUrl} alt="" style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                    ) : (
+                      <span style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: "var(--bg-card-hi)", color: "var(--fg-muted)", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{inicial}</span>
+                    )}
+                    <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g.nome}</span>
+                    <span className="hidden sm:inline" style={{ fontSize: 13, color: "var(--fg-muted)", flexShrink: 0, minWidth: 64, textAlign: "right" }}>{g.qtdItens} {g.qtdItens === 1 ? "item" : "itens"}</span>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0, minWidth: 96, textAlign: "right" }}>{currency.format(g.totalVendido)}</span>
+                  </div>
+                  <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
+                    <div style={{ height: 3, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transformOrigin: "left", animation: "barGrow 0.85s cubic-bezier(0.22,1,0.36,1) both", animationDelay: `${i * 70}ms` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   );

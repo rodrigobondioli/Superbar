@@ -116,6 +116,54 @@ export async function getRankingProdutos(
     .slice(0, limit);
 }
 
+export interface VendaGarcom {
+  memberId: string;
+  nome: string;
+  fotoUrl: string | null;
+  totalVendido: number;
+  qtdItens: number;
+}
+
+/** Vendas por garçom no período — atribuição pelo item lançado (adicionado_por_member_id).
+ *  Base = pedido lançado (não pagamento), então reflete quem VENDEU, mesmo comanda aberta. */
+export async function getVendasPorGarcom(barId: string, periodo: PeriodoRange): Promise<VendaGarcom[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("comanda_items")
+    .select("quantidade, preco_total, adicionado_por_member_id")
+    .eq("bar_id", barId)
+    .eq("status", "ativo")
+    .gte("adicionado_em", periodo.inicio.toISOString())
+    .lte("adicionado_em", periodo.fim.toISOString())
+    .not("adicionado_por_member_id", "is", null)
+    .returns<{ quantidade: number; preco_total: number; adicionado_por_member_id: string }[]>();
+
+  const porMembro = new Map<string, { total: number; qtd: number }>();
+  for (const it of data ?? []) {
+    const cur = porMembro.get(it.adicionado_por_member_id) ?? { total: 0, qtd: 0 };
+    cur.total += Number(it.preco_total);
+    cur.qtd += Number(it.quantidade);
+    porMembro.set(it.adicionado_por_member_id, cur);
+  }
+  if (porMembro.size === 0) return [];
+
+  const ids = [...porMembro.keys()];
+  const { data: membros } = await supabase
+    .from("bar_members")
+    .select("id, nome, foto_url")
+    .in("id", ids)
+    .returns<{ id: string; nome: string | null; foto_url: string | null }[]>();
+  const membroMap = new Map((membros ?? []).map(m => [m.id, m]));
+
+  return ids
+    .map(id => {
+      const v = porMembro.get(id)!;
+      const m = membroMap.get(id);
+      return { memberId: id, nome: m?.nome ?? "Sem nome", fotoUrl: m?.foto_url ?? null, totalVendido: v.total, qtdItens: v.qtd };
+    })
+    .sort((a, b) => b.totalVendido - a.totalVendido);
+}
+
 export interface KpisFinanceirosPeriodo {
   cmv: number | null;          // % custo sobre receita
   margemBruta: number | null;  // % (100 - CMV)
