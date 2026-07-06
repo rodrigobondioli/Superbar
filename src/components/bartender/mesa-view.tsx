@@ -10,12 +10,14 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 /** Drawer lateral da mesa — centro do garçom: montar as pessoas e só depois pedir.
  *  Busca as comandas por server action (robusto, não depende do realtime). */
 export function MesaDrawer({
-  open, onClose, mesaId, label,
+  open, onClose, mesaId, label, onEnviadas,
 }: {
   open: boolean;
   onClose: () => void;
   mesaId: string | null;
   label: string;
+  /** Avisa a grade quais comandas foram enviadas pro caixa (pra sair de "Abertas" na hora, sem depender do realtime). */
+  onEnviadas?: (ids: string[]) => void;
 }) {
   const [comandas, setComandas] = useState<PessoaComandaLite[]>([]);
   const [loading, setLoading]   = useState(false);
@@ -68,6 +70,7 @@ export function MesaDrawer({
     setEnviando(false);
     if ("error" in r) { setErro(r.error); return; }
     setFechando(false);
+    onEnviadas?.(ids);
     await recarregar();
   };
 

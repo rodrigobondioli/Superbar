@@ -604,6 +604,13 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         onClose={() => setMesaAberta(null)}
         mesaId={mesaAberta?.id ?? null}
         label={mesaAberta?.label ?? ""}
+        onEnviadas={(ids) => {
+          const set = new Set(ids);
+          setMesas(prev => prev.map(m => ({
+            ...m,
+            comandas: m.comandas.map(c => set.has(c.id) ? { ...c, status: "aguardando_pagamento" } : c),
+          })));
+        }}
       />
 
       {/* Modal: quantas pessoas (balcão) */}
