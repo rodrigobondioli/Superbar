@@ -828,48 +828,56 @@ export function CardapioClient({
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Cardápio</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Gerencie categorias e produtos do seu bar.</p>
         </div>
-        <div className="flex flex-wrap gap-2 max-lg:w-full">
+        <div className="flex flex-wrap items-start gap-2 max-lg:w-full max-lg:flex-col">
+          {/* Primário: criar produto */}
           {selectedGrupo && (
             <button
               onClick={() => setAddingProduto(p => !p)}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-              className="hover:brightness-110 max-lg:flex-1"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              className="hover:brightness-110 max-lg:w-full"
             >
               <Plus style={{ width: 15, height: 15 }} />
               Novo produto
             </button>
           )}
-          {pendentesFicha > 0 && (
+          {/* Secundárias: utilitárias — linha no desktop, grade 2 col no mobile */}
+          <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2 max-lg:w-full">
+            {pendentesFicha > 0 && (
+              <button
+                onClick={() => router.push("/dashboard/cardapio/fichas")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+                title="Gerar fichas dos drinks sem custo, em lote, com IA"
+                className="max-lg:!px-3"
+              >
+                <FlaskConical style={{ width: 15, height: 15 }} />
+                Fichas ({pendentesFicha})
+              </button>
+            )}
             <button
-              onClick={() => router.push("/dashboard/cardapio/fichas")}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-              title="Gerar fichas dos drinks sem custo, em lote, com IA"
+              onClick={() => setDestaquesOpen(true)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              className="max-lg:!px-3"
             >
-              <FlaskConical style={{ width: 15, height: 15 }} />
-              Fichas ({pendentesFicha})
+              <Megaphone style={{ width: 15, height: 15 }} />
+              Destaques
             </button>
-          )}
-          <button
-            onClick={() => setDestaquesOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-          >
-            <Megaphone style={{ width: 15, height: 15 }} />
-            Destaques
-          </button>
-          <button
-            onClick={() => setClassicosOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-          >
-            <Sparkles style={{ width: 15, height: 15 }} />
-            Clássicos
-          </button>
-          <button
-            onClick={() => setImportPanelOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
-          >
-            <FileSpreadsheet style={{ width: 15, height: 15 }} />
-            Importar cardápio
-          </button>
+            <button
+              onClick={() => setClassicosOpen(true)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              className="max-lg:!px-3"
+            >
+              <Sparkles style={{ width: 15, height: 15 }} />
+              Clássicos
+            </button>
+            <button
+              onClick={() => setImportPanelOpen(true)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              className="max-lg:!px-3"
+            >
+              <FileSpreadsheet style={{ width: 15, height: 15 }} />
+              Importar<span className="max-lg:hidden">&nbsp;cardápio</span>
+            </button>
+          </div>
         </div>
       </div>
 
