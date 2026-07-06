@@ -4,7 +4,23 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { getOuCriarTurno } from "@/lib/dashboard/turno-actions";
+import { getComandaById, getItensComanda, agruparItens, type ItemAgrupado } from "@/lib/bartender/queries";
 import type { CartItem, Comanda } from "@/types/database";
+
+/** Detalhe de uma comanda (comanda + itens agrupados + subtotal) — usado pelo
+ *  workspace do garçom pra trocar de pessoa client-side, sem recarregar a página. */
+export async function getComandaDetalhe(
+  comandaId: string,
+): Promise<{ comanda: Comanda; itens: ItemAgrupado[]; subtotal: number } | null> {
+  const [comanda, itensBrutos] = await Promise.all([
+    getComandaById(comandaId),
+    getItensComanda(comandaId),
+  ]);
+  if (!comanda) return null;
+  const itens = agruparItens(itensBrutos);
+  const subtotal = itens.reduce((acc, i) => acc + i.precoTotal, 0);
+  return { comanda, itens, subtotal };
+}
 
 /** Abre comanda para uma mesa específica (ou balcão se mesaId for null). */
 export async function abrirComanda(

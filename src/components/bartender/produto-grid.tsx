@@ -331,7 +331,7 @@ function CartBar({
 
 // ─── Main grid ────────────────────────────────────────────────────────────────
 
-export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComProdutos[]; comandaId: string }) {
+export function ProdutoGrid({ cardapio, comandaId, onEnviado }: { cardapio: CategoriaComProdutos[]; comandaId: string; onEnviado?: () => void }) {
   const [categoriaAtiva, setCategoriaAtiva] = useState(cardapio[0]?.categoria.id ?? "");
   const [busca, setBusca] = useState("");
   const [buscaAtiva, setBuscaAtiva] = useState(false);
@@ -472,7 +472,7 @@ export function ProdutoGrid({ cardapio, comandaId }: { cardapio: CategoriaComPro
         comandaId={comandaId}
         onChangeQty={(key, delta) => setCart(prev => changeQty(prev, key, delta))}
         onChangeObs={(key, value) => setCart(prev => changeObs(prev, key, value))}
-        onConfirm={() => setCart(new Map())}
+        onConfirm={() => { setCart(new Map()); onEnviado?.(); }}
         onClear={() => setCart(new Map())}
       />
     </>
