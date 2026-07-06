@@ -35,8 +35,8 @@ function QuemEVoce({
         Quem está operando agora?
       </p>
       <div style={{
-        display: "flex", flexWrap: "wrap", gap: 12,
-        justifyContent: "center", width: "100%", maxWidth: 960,
+        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12,
+        width: "100%", maxWidth: 960,
       }}>
         {membros.map(m => (
           <button
@@ -47,7 +47,7 @@ function QuemEVoce({
               background: "var(--bg-card)",
               border: "1px solid var(--border)", borderRadius: 16,
               padding: "24px 20px", cursor: "pointer",
-              textAlign: "center", width: 160, flexShrink: 0,
+              textAlign: "center", width: "100%",
             }}
           >
             {m.fotoUrl && !fotoErros.has(m.id) ? (
