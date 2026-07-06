@@ -101,7 +101,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
     <div
       style={
         isMobile
-          ? { display: "flex", flexDirection: "column", padding: "12px 16px 24px", gap: 12, boxSizing: "border-box" }
+          ? { display: "flex", flexDirection: "column", padding: "12px 0 24px", gap: 12, boxSizing: "border-box" }
           : { height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }
       }
     >
@@ -190,7 +190,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
 
         {/* Ticket Médio */}
-        <div style={kpiCardR}>
+        <div style={isMobile ? { ...kpiCardR, gridColumn: "1 / -1" } : kpiCardR}>
           <div>
             <span style={kpiLabel}>Ticket Médio</span>
             <span style={kpiMetricR}><Cifrao />{v.ticket.toLocaleString("pt-BR")}</span>
