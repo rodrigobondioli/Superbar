@@ -107,9 +107,9 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
     >
 
       {/* HEADER */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: isMobile ? 12 : 16, flexWrap: "wrap" }}>
         <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
           {OPCOES.map((o) => {
             const active = periodo === o.id;
             const isHover = hover === o.id;
@@ -122,6 +122,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                 style={{
                   padding: "8px 16px", borderRadius: 999, fontSize: 13,
                   fontWeight: active ? 500 : 400, cursor: "pointer",
+                  whiteSpace: "nowrap", flex: isMobile ? 1 : "0 0 auto",
                   transition: "background 120ms, border-color 120ms, color 120ms",
                   background: active ? "var(--accent)" : isHover ? "rgba(255,255,255,0.06)" : "transparent",
                   border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
@@ -132,14 +133,16 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               </button>
             );
           })}
-          <Link
-            href="/dashboard/relatorios"
-            onMouseEnter={() => setHover("rel")}
-            onMouseLeave={() => setHover(null)}
-            style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
-          >
-            Ver relatório completo
-          </Link>
+          {!isMobile && (
+            <Link
+              href="/dashboard/relatorios"
+              onMouseEnter={() => setHover("rel")}
+              onMouseLeave={() => setHover(null)}
+              style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
+            >
+              Ver relatório completo
+            </Link>
+          )}
         </div>
       </div>
 

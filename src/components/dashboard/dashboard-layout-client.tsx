@@ -124,7 +124,7 @@ export function DashboardLayoutClient({
                 color: "var(--accent-fg)",
                 fontSize: 15, fontWeight: 600,
                 textDecoration: "none",
-                borderRadius: 8,
+                borderRadius: 999,
                 letterSpacing: "0.02em",
                 transition: "filter 150ms",
               }}
@@ -162,18 +162,18 @@ export function DashboardLayoutClient({
           onClick={() => setDrawerOpen(false)}
         />
 
-        {/* Drawer panel — 90vw, slide from left */}
+        {/* Drawer panel — 90vw, slide from right */}
         <div
           style={{
             position: "absolute",
-            left: 0, top: 0, bottom: 0,
+            right: 0, top: 0, bottom: 0,
             width: "90vw",
             maxWidth: 400,
             background: "var(--bg)",
-            borderRight: "1px solid var(--border)",
+            borderLeft: "1px solid var(--border)",
             display: "flex",
             flexDirection: "column",
-            transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+            transform: drawerOpen ? "translateX(0)" : "translateX(100%)",
             transition: "transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)",
             willChange: "transform",
             overflowY: "auto",
