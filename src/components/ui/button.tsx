@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
   SUPERBAR — Padrão de botões
   ──────────────────────────────────────────────────────────
   primary      → fundo accent cheio (#FF3500), texto preto
-  secondary    → transparente + borda, texto claro
-  ghost        → sem fundo nem borda, texto muted
+  secondary    → fundo surface (bg-card) + borda, texto claro  (Figma: bg/surface + border/default)
+  ghost        → sem fundo nem borda, texto claro (Figma: text/primary)
   danger       → fundo danger (#EF4444), texto branco
   op           → operacional iPad — accent, touch target ≥52px
   op-secondary → operacional iPad — transparente + borda, ≥52px
@@ -30,10 +30,10 @@ const variants: Record<ButtonVariant, string> = {
   primary:
     "bg-accent text-accent-fg hover:brightness-105",
   secondary:
-    "border border-border-strong bg-transparent text-fg " +
+    "border border-border-strong bg-bg-card text-fg " +
     "hover:bg-bg-hover hover:border-fg-subtle",
   ghost:
-    "bg-transparent text-fg-muted " +
+    "bg-transparent text-fg " +
     "hover:bg-bg-hover hover:text-fg",
   danger:
     "bg-danger text-white hover:brightness-105",

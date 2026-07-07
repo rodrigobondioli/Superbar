@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -15,7 +17,6 @@ export default function AceitarConvitePage() {
   const [erro, setErro] = useState<string | null>(null);
   const [senha, setSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [focos, setFocos] = useState({ senha: false, confirmar: false });
 
   useEffect(() => {
     const supabase = createClient();
@@ -40,19 +41,6 @@ export default function AceitarConvitePage() {
 
     return () => { subscription.unsubscribe(); clearTimeout(timer); };
   }, []);
-
-  const inputStyle = (focused: boolean): React.CSSProperties => ({
-    width: "100%",
-    background: "var(--bg-inset)",
-    border: `1px solid ${focused ? "var(--fg)" : "var(--border)"}`,
-    borderRadius: "4px",
-    padding: "14px 16px",
-    color: "var(--fg)",
-    fontSize: "14px",
-    outline: "none",
-    boxSizing: "border-box",
-    colorScheme: "dark",
-  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,7 +78,6 @@ export default function AceitarConvitePage() {
 
   return (
     <>
-      <style>{`input::placeholder { color: var(--fg-subtle); }`}</style>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -126,25 +113,19 @@ export default function AceitarConvitePage() {
 
               <div style={{ width: "100%", maxWidth: "420px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "4px", padding: "40px" }}>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <input
+                  <Input
                     type="password"
                     placeholder="Nova senha"
                     required
                     value={senha}
                     onChange={e => setSenha(e.target.value)}
-                    style={inputStyle(focos.senha)}
-                    onFocus={() => setFocos(f => ({ ...f, senha: true }))}
-                    onBlur={() => setFocos(f => ({ ...f, senha: false }))}
                   />
-                  <input
+                  <Input
                     type="password"
                     placeholder="Confirmar senha"
                     required
                     value={confirmar}
                     onChange={e => setConfirmar(e.target.value)}
-                    style={inputStyle(focos.confirmar)}
-                    onFocus={() => setFocos(f => ({ ...f, confirmar: true }))}
-                    onBlur={() => setFocos(f => ({ ...f, confirmar: false }))}
                   />
 
                   {erro && (
@@ -153,24 +134,7 @@ export default function AceitarConvitePage() {
                     </p>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={fase === "processando"}
-                    style={{
-                      width: "100%",
-                      background: fase === "processando"
-                        ? "color-mix(in srgb, var(--accent) 50%, transparent)"
-                        : "var(--accent)",
-                      border: "none", borderRadius: "4px", padding: "14px",
-                      color: fase === "processando"
-                        ? "color-mix(in srgb, var(--accent-fg) 50%, transparent)"
-                        : "var(--accent-fg)",
-                      fontWeight: "700", fontSize: "14px",
-                      cursor: fase === "processando" ? "default" : "pointer",
-                      letterSpacing: "0.01em", transition: "background 0.15s",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                    }}
-                  >
+                  <Button type="submit" variant="primary" size="lg" disabled={fase === "processando"} className="w-full">
                     {fase === "processando" && (
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
                         <circle cx="8" cy="8" r="6" stroke="var(--fg-subtle)" strokeWidth="2" />
@@ -178,7 +142,7 @@ export default function AceitarConvitePage() {
                       </svg>
                     )}
                     {fase === "processando" ? "Configurando acesso…" : "Confirmar e entrar"}
-                  </button>
+                  </Button>
                 </form>
               </div>
             </>

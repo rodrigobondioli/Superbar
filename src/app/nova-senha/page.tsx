@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -16,8 +18,6 @@ export default function NovaSenhaPage() {
   const [confirmar, setConfirmar] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-
-  const [focos, setFocos] = useState({ senha: false, confirmar: false });
 
   useEffect(() => {
     // Supabase processa o fragment da URL (#access_token=...) automaticamente
@@ -41,19 +41,6 @@ export default function NovaSenhaPage() {
       clearTimeout(timer);
     };
   }, [supabase.auth]);
-
-  const inputStyle = (focused: boolean): React.CSSProperties => ({
-    width: "100%",
-    background: "var(--bg-inset)",
-    border: `1px solid ${focused ? "var(--fg)" : "var(--border)"}`,
-    borderRadius: "4px",
-    padding: "14px 16px",
-    color: "var(--fg)",
-    fontSize: "14px",
-    outline: "none",
-    boxSizing: "border-box",
-    colorScheme: "dark",
-  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,7 +69,6 @@ export default function NovaSenhaPage() {
 
   return (
     <>
-      <style>{`input::placeholder { color: var(--fg-subtle); }`}</style>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -124,25 +110,19 @@ export default function NovaSenhaPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <input
+                <Input
                   type="password"
                   placeholder="Nova senha"
                   required
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  style={inputStyle(focos.senha)}
-                  onFocus={() => setFocos((f) => ({ ...f, senha: true }))}
-                  onBlur={() => setFocos((f) => ({ ...f, senha: false }))}
                 />
-                <input
+                <Input
                   type="password"
                   placeholder="Confirmar nova senha"
                   required
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
-                  style={inputStyle(focos.confirmar)}
-                  onFocus={() => setFocos((f) => ({ ...f, confirmar: true }))}
-                  onBlur={() => setFocos((f) => ({ ...f, confirmar: false }))}
                 />
 
                 {erro && (
@@ -151,27 +131,7 @@ export default function NovaSenhaPage() {
                   </p>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: "100%",
-                    background: loading ? "color-mix(in srgb, var(--accent) 50%, transparent)" : "var(--accent)",
-                    border: "none",
-                    borderRadius: "4px",
-                    padding: "14px",
-                    color: loading ? "color-mix(in srgb, var(--accent-fg) 50%, transparent)" : "var(--accent-fg)",
-                    fontWeight: "700",
-                    fontSize: "14px",
-                    cursor: loading ? "default" : "pointer",
-                    letterSpacing: "0.01em",
-                    transition: "background 0.15s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
+                <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full">
                   {loading && (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
                       <circle cx="8" cy="8" r="6" stroke="var(--fg-subtle)" strokeWidth="2" />
@@ -179,7 +139,7 @@ export default function NovaSenhaPage() {
                     </svg>
                   )}
                   {loading ? "Salvando..." : "Salvar nova senha"}
-                </button>
+                </Button>
               </form>
             )}
           </div>

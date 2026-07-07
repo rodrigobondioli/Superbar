@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -17,22 +19,6 @@ export default function CadastroPage() {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState(false);
-  const [focos, setFocos] = useState({ email: false, senha: false, confirmar: false });
-
-  const inputStyle = (focused: boolean): React.CSSProperties => ({
-    width: "100%",
-    background: "#1C1C1E",
-    border: focused ? "1px solid rgba(255,53,0,0.6)" : "1px solid transparent",
-    borderRadius: 8,
-    padding: "16px",
-    color: "#FAFAFA",
-    fontSize: 15,
-    outline: "none",
-    boxSizing: "border-box",
-    colorScheme: "dark",
-    fontFamily: "var(--font-sans)",
-    transition: "border-color 0.15s",
-  });
 
   const linkStyle: React.CSSProperties = {
     color: "#898989",
@@ -55,8 +41,6 @@ export default function CadastroPage() {
 
   return (
     <>
-      <style>{`input::placeholder { color: #898989; }`}</style>
-
       <div
         style={{
           minHeight: "100dvh",
@@ -140,7 +124,7 @@ export default function CadastroPage() {
               ) : (
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <input
+                    <Input
                       id="email"
                       type="email"
                       placeholder="Email"
@@ -148,11 +132,8 @@ export default function CadastroPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      style={inputStyle(focos.email)}
-                      onFocus={() => setFocos((f) => ({ ...f, email: true }))}
-                      onBlur={() => setFocos((f) => ({ ...f, email: false }))}
                     />
-                    <input
+                    <Input
                       id="senha"
                       type="password"
                       placeholder="Senha"
@@ -160,11 +141,8 @@ export default function CadastroPage() {
                       required
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
-                      style={inputStyle(focos.senha)}
-                      onFocus={() => setFocos((f) => ({ ...f, senha: true }))}
-                      onBlur={() => setFocos((f) => ({ ...f, senha: false }))}
                     />
-                    <input
+                    <Input
                       id="confirmar"
                       type="password"
                       placeholder="Confirmar senha"
@@ -172,9 +150,6 @@ export default function CadastroPage() {
                       required
                       value={confirmar}
                       onChange={(e) => setConfirmar(e.target.value)}
-                      style={inputStyle(focos.confirmar)}
-                      onFocus={() => setFocos((f) => ({ ...f, confirmar: true }))}
-                      onBlur={() => setFocos((f) => ({ ...f, confirmar: false }))}
                     />
                   </div>
 
@@ -184,27 +159,9 @@ export default function CadastroPage() {
                     </p>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      width: "100%",
-                      background: loading ? "rgba(255,53,0,0.55)" : "#FF3500",
-                      border: "none",
-                      borderRadius: 9999,
-                      padding: "13px 24px",
-                      color: "#111113",
-                      fontFamily: "var(--font-sans)",
-                      fontWeight: 500,
-                      fontSize: 15,
-                      cursor: loading ? "default" : "pointer",
-                      transition: "background 0.15s, opacity 0.15s",
-                      minHeight: 44,
-                      opacity: loading ? 0.7 : 1,
-                    }}
-                  >
+                  <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full">
                     {loading ? "Criando conta…" : "Criar conta"}
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>

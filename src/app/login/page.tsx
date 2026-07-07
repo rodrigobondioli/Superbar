@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "@/lib/auth/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState, use } from "react";
 
 export default function LoginPage({
@@ -12,24 +14,7 @@ export default function LoginPage({
 }) {
   const { error } = use(searchParams);
 
-  const [emailFocused, setEmailFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const inputStyle = (focused: boolean): React.CSSProperties => ({
-    width: "100%",
-    background: "#1C1C1E",
-    border: focused ? "1px solid rgba(255,53,0,0.6)" : "1px solid transparent",
-    borderRadius: 8,
-    padding: "16px",
-    color: "#FAFAFA",
-    fontSize: 15,
-    outline: "none",
-    boxSizing: "border-box",
-    colorScheme: "dark",
-    fontFamily: "var(--font-sans)",
-    transition: "border-color 0.15s",
-  });
 
   const linkStyle: React.CSSProperties = {
     color: "#898989",
@@ -40,8 +25,6 @@ export default function LoginPage({
 
   return (
     <>
-      <style>{`input::placeholder { color: #898989; }`}</style>
-
       <div
         style={{
           minHeight: "100dvh",
@@ -116,27 +99,21 @@ export default function LoginPage({
                 onSubmit={() => setLoading(true)}
               >
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <input
+                  <Input
                     id="email"
                     type="email"
                     name="email"
                     placeholder="Email"
                     aria-label="Email"
                     required
-                    style={inputStyle(emailFocused)}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
                   />
-                  <input
+                  <Input
                     id="password"
                     type="password"
                     name="password"
                     placeholder="Senha"
                     aria-label="Senha"
                     required
-                    style={inputStyle(passwordFocused)}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
                   />
                 </div>
 
@@ -156,27 +133,9 @@ export default function LoginPage({
                   </p>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: "100%",
-                    background: loading ? "rgba(255,53,0,0.55)" : "#FF3500",
-                    border: "none",
-                    borderRadius: 9999,
-                    padding: "13px 24px",
-                    color: "#111113",
-                    fontFamily: "var(--font-sans)",
-                    fontWeight: 500,
-                    fontSize: 15,
-                    cursor: loading ? "default" : "pointer",
-                    transition: "background 0.15s, opacity 0.15s",
-                    minHeight: 44,
-                    opacity: loading ? 0.7 : 1,
-                  }}
-                >
+                <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full">
                   {loading ? "Entrando…" : "Entrar"}
-                </button>
+                </Button>
               </form>
             </div>
 

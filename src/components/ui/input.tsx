@@ -8,8 +8,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     <input
       ref={ref}
       className={cn(
-        "w-full rounded-md border border-border bg-bg-inset px-4 py-3 font-sans text-fg outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-fg-subtle",
-        "focus:border-border-strong focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--ring)_25%,transparent)]",
+        // Figma DS (Components/Base → Input): bg/surface, border/default, raio 12, padding 16/14.
+        "w-full rounded-xl border border-border-strong bg-bg-card px-4 py-3.5 font-sans text-fg outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-fg-muted",
+        // Foco = borda laranja (Figma: border 2px brand/primary). Borda accent + 1px de sombra accent
+        // = 2px visuais sem reflow de layout.
+        "focus:border-accent focus:shadow-[0_0_0_1px_var(--accent)]",
         className
       )}
       {...props}
