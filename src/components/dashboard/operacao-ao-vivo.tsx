@@ -4,6 +4,7 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
+import { Chip } from "@/components/ui/chip";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -112,31 +113,27 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       }
     >
 
-      {/* HEADER */}
-      <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: isMobile ? 12 : 16, flexWrap: "wrap" }}>
-        {!isMobile && <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
+      {/* HEADER — sem título; seletor de período compacto: colapsado mostra só o
+          período ativo (ex.: "Hoje") e, no hover, revela os demais + o link. */}
+      <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "flex-start" : "flex-end", gap: isMobile ? 12 : 16 }}>
+        <div className="group" style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
           {OPCOES.map((o) => {
             const active = periodo === o.id;
-            const isHover = hover === o.id;
+            // Desktop: só o ativo aparece; hover no grupo revela o resto. Mobile: todos visíveis.
+            const colapsado = !isMobile && !active;
             return (
-              <button
+              <Chip
                 key={o.id}
+                active={active}
                 onClick={() => setPeriodo(o.id)}
-                onMouseEnter={() => setHover(o.id)}
-                onMouseLeave={() => setHover(null)}
-                style={{
-                  padding: "8px 16px", borderRadius: 999, fontSize: 13,
-                  fontWeight: active ? 500 : 400, cursor: "pointer",
-                  whiteSpace: "nowrap", flex: isMobile ? 1 : "0 0 auto",
-                  transition: "background 120ms, border-color 120ms, color 120ms",
-                  background: active ? "var(--accent)" : isHover ? "rgba(255,255,255,0.06)" : "transparent",
-                  border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
-                  color: active ? "var(--accent-fg)" : isHover ? "var(--fg)" : "var(--fg-muted)",
-                }}
+                className={[
+                  "whitespace-nowrap",
+                  isMobile ? "flex-1 justify-center" : "",
+                  colapsado ? "hidden group-hover:inline-flex" : "",
+                ].filter(Boolean).join(" ")}
               >
                 {o.label}
-              </button>
+              </Chip>
             );
           })}
           {!isMobile && (
@@ -144,6 +141,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               href="/dashboard/relatorios"
               onMouseEnter={() => setHover("rel")}
               onMouseLeave={() => setHover(null)}
+              className="hidden group-hover:inline-flex"
               style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
             >
               Ver relatório completo
