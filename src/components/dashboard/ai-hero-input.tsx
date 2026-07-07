@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { Chip } from '@/components/ui/chip'
 
 const SUGGESTIONS_DEFAULT = [
   'Como está meu CMV agora?',
@@ -169,32 +170,13 @@ export function AiHeroInput({
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '16px 20px 18px' }}>
           <span style={{ fontSize: 15, color: 'var(--fg-muted)', flexShrink: 0 }}>Populares:</span>
           {suggestions.map(s => (
-            <button
+            <Chip
               key={s}
-              onClick={() => { setQuestion(s); setTimeout(() => ask(s), 0) }}
-              style={{
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: 9999,
-                padding: '8px 16px',
-                color: 'var(--fg-muted)',
-                fontSize: 13,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'border-color 120ms, color 120ms',
-                lineHeight: 1.4,
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
-                e.currentTarget.style.color = 'var(--fg)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--border)'
-                e.currentTarget.style.color = 'var(--fg-muted)'
-              }}
+              className="whitespace-nowrap"
+              onClick={() => { setQuestion(s); setTimeout(() => ask(s), 0); }}
             >
               {s}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
