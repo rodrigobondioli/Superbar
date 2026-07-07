@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useRef } from "react";
 import { abrirTurno, fecharTurno } from "@/lib/dashboard/turno-actions";
+import { Button } from "@/components/ui/button";
 import type { Turno } from "@/types/database";
 
 type State = { error?: string } | null;
@@ -19,19 +20,9 @@ function AbrirTurnoButton() {
         </p>
       )}
       <form action={action}>
-        <button
-          type="submit"
-          disabled={pending}
-          style={{
-            padding: "10px 20px", borderRadius: 4,
-            background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", fontSize: 13, fontWeight: 600,
-            cursor: pending ? "not-allowed" : "pointer",
-            opacity: pending ? 0.7 : 1,
-          }}
-        >
+        <Button type="submit" variant="primary" disabled={pending}>
           {pending ? "Abrindo…" : "▶ Abrir Turno"}
-        </button>
+        </Button>
       </form>
     </div>
   );
@@ -61,39 +52,19 @@ function FecharTurnoButton({ turnoId }: { turnoId: string }) {
       {confirming ? (
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>Fechar turno agora?</span>
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             disabled={pending}
-            onClick={() => {
-              formRef.current?.requestSubmit();
-            }}
-            style={{
-              padding: "8px 14px", borderRadius: 4,
-              background: "var(--danger)",
-              border: "none",
-              color: "#fff",
-              fontSize: 12, fontWeight: 700,
-              cursor: pending ? "not-allowed" : "pointer",
-              opacity: pending ? 0.7 : 1,
-            }}
+            onClick={() => { formRef.current?.requestSubmit(); }}
           >
             {pending ? "Fechando…" : "Confirmar"}
-          </button>
+          </Button>
           {!pending && (
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              style={{
-                padding: "8px 14px", borderRadius: 4,
-                background: "none",
-                border: "1px solid var(--border)",
-                color: "var(--fg-muted)",
-                fontSize: 12, fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
+            <Button type="button" variant="secondary" size="sm" onClick={() => setConfirming(false)}>
               Cancelar
-            </button>
+            </Button>
           )}
         </div>
       ) : (

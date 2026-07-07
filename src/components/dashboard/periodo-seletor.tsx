@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Chip } from "@/components/ui/chip";
+import { Button } from "@/components/ui/button";
 import type { PeriodoSearchParams } from "@/lib/dashboard/periodo";
 
 const presets = [
@@ -41,24 +43,13 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
       {allOptions.map((opcao) => {
         const isActive = opcao.isCustom ? isCustomAtivo : presetAtivo === opcao.value;
         return (
-          <button
+          <Chip
             key={opcao.value}
-            type="button"
+            active={isActive}
             onClick={() => opcao.isCustom ? setMostrarCustom(v => !v) : aplicarPreset(opcao.value)}
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              padding: "8px 16px",
-              borderRadius: 999,
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.15s",
-              background: isActive ? "var(--accent)" : "var(--bg-card)",
-              color: isActive ? "var(--accent-fg)" : "var(--fg-muted)",
-            }}
           >
             {opcao.label}
-          </button>
+          </Chip>
         );
       })}
 
@@ -90,23 +81,9 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             onChange={(e) => setFim(e.target.value)}
             style={{ fontSize: "13px", background: "transparent", border: "none", color: "var(--fg)", outline: "none", colorScheme: "dark" }}
           />
-          <button
-            type="submit"
-            disabled={!inicio || !fim}
-            style={{
-              fontSize: "12px",
-              fontWeight: 500,
-              padding: "3px 12px",
-              borderRadius: "4px",
-              border: "none",
-              background: "var(--accent)",
-              color: "var(--accent-fg)",
-              cursor: "pointer",
-              opacity: (!inicio || !fim) ? 0.4 : 1,
-            }}
-          >
+          <Button type="submit" variant="primary" size="sm" disabled={!inicio || !fim}>
             Aplicar
-          </button>
+          </Button>
         </form>
       )}
     </div>
