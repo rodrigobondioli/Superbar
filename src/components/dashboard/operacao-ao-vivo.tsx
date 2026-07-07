@@ -109,46 +109,60 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       style={
         isMobile
           ? { display: "flex", flexDirection: "column", padding: "12px 0 24px", gap: 12, boxSizing: "border-box" }
-          : { height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }
+          : { position: "relative", height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }
       }
     >
 
-      {/* HEADER — sem título; seletor de período compacto: colapsado mostra só o
-          período ativo (ex.: "Hoje") e, no hover, revela os demais + o link. */}
-      <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "flex-start" : "flex-end", gap: isMobile ? 12 : 16 }}>
-        <div className="group" style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
-          {OPCOES.map((o) => {
-            const active = periodo === o.id;
-            // Desktop: só o ativo aparece; hover no grupo revela o resto. Mobile: todos visíveis.
-            const colapsado = !isMobile && !active;
-            return (
+      {/* SELETOR DE PERÍODO
+          Mobile: inline, todos os chips visíveis (não há hover).
+          Desktop: pílula FLUTUANTE no canto superior direito (absolute, não ocupa linha),
+          colapsada no período ativo; no hover abre pra baixo, vertical e animado. */}
+      {isMobile ? (
+        <div style={{ display: "flex", alignItems: "stretch", gap: 8, width: "100%" }}>
+          {OPCOES.map((o) => (
+            <Chip
+              key={o.id}
+              active={periodo === o.id}
+              onClick={() => setPeriodo(o.id)}
+              className="flex-1 justify-center whitespace-nowrap"
+            >
+              {o.label}
+            </Chip>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="group"
+          style={{ position: "absolute", top: 14, right: 32, zIndex: 20, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}
+        >
+          {/* Pílula colapsada — período ativo + chevron que gira no hover */}
+          <Chip active className="gap-1.5 whitespace-nowrap shadow-lg shadow-black/20">
+            {OPCOES.find((o) => o.id === periodo)?.label ?? "Hoje"}
+            <span className="text-[10px] leading-none transition-transform duration-200 group-hover:rotate-180">▾</span>
+          </Chip>
+
+          {/* Painel que abre no hover: demais períodos + link (vertical, animado) */}
+          <div className="flex max-h-0 flex-col items-end gap-1.5 overflow-hidden opacity-0 transition-[max-height,opacity] duration-200 ease-out group-hover:max-h-64 group-hover:opacity-100">
+            {OPCOES.filter((o) => o.id !== periodo).map((o) => (
               <Chip
                 key={o.id}
-                active={active}
                 onClick={() => setPeriodo(o.id)}
-                className={[
-                  "whitespace-nowrap",
-                  isMobile ? "flex-1 justify-center" : "",
-                  colapsado ? "hidden group-hover:inline-flex" : "",
-                ].filter(Boolean).join(" ")}
+                className="whitespace-nowrap shadow-lg shadow-black/20"
               >
                 {o.label}
               </Chip>
-            );
-          })}
-          {!isMobile && (
+            ))}
             <Link
               href="/dashboard/relatorios"
               onMouseEnter={() => setHover("rel")}
               onMouseLeave={() => setHover(null)}
-              className="hidden group-hover:inline-flex"
               style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
             >
               Ver relatório completo
             </Link>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ROW 1: KPI CARDS */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1.6fr 1fr 1fr 1fr", gap: isMobile ? 10 : 16, flexShrink: 0 }}>
