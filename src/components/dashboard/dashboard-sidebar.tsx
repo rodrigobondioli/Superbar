@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, BarChart3, History, UtensilsCrossed,
-  TableProperties, Users, MonitorSmartphone, Wallet, Package, Sparkles,
+  TableProperties, Users, MonitorSmartphone, Package, Sparkles,
   HeadphonesIcon, Lightbulb, Contact, PanelLeft,
 } from "lucide-react";
 import type { BarRole, Bar } from "@/types/database";
@@ -24,7 +24,6 @@ const links = [
   { href: "/dashboard/estoque",            label: "Estoque",          icon: Package },
   { href: "/dashboard/clientes",           label: "Clientes",         icon: Contact },
   { href: "/dashboard/equipe",             label: "Equipe",           icon: Users },
-  { href: "/caixa",                        label: "Caixa",            icon: Wallet },
 ];
 
 interface DashboardSidebarProps {
