@@ -245,19 +245,23 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                 <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>Apareceu pouco hoje. Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
               </div>
 
-              <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
+              {/* Impacto direto — só aparece quando há estimativa real (Princípio 9).
+                  Sem valor, esconde a divisória e a coluna inteira, sem título solto. */}
+              {v.impacto !== null && (
+                <>
+                  <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: isMobile ? 0 : 167 }}>
-                <span style={superLabel}>Impacto direto</span>
-                {v.impacto !== null && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                      <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{v.impacto.toLocaleString("pt-BR")}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: isMobile ? 0 : 167 }}>
+                    <span style={superLabel}>Impacto direto</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                        <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{v.impacto.toLocaleString("pt-BR")}</span>
+                      </div>
+                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                     </div>
-                    <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           )}
         </div>

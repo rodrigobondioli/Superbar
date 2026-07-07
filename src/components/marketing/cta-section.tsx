@@ -3,8 +3,10 @@
 import { ArrowRight } from "lucide-react";
 import { useComandaModal } from "@/components/comanda-modal";
 
-const TOP = "M 0,0 L 40,20 L 80,0 L 120,20 L 160,0 L 200,20 L 240,0 L 280,20 L 320,0 L 360,20 L 400,0 L 440,20 L 480,0 L 520,20 L 560,0 L 600,20 L 640,0 L 680,20 L 720,0 L 760,20 L 800,0 L 840,20 L 880,0 L 920,20 L 960,0 L 1000,20 L 1040,0 L 1080,20 L 1120,0 L 1160,20 L 1200,0 L 1240,20 L 1280,0 L 1320,20 L 1360,0 L 1400,20 L 1440,0 Z";
-const BOT = "M 0,20 L 40,0 L 80,20 L 120,0 L 160,20 L 200,0 L 240,20 L 280,0 L 320,20 L 360,0 L 400,20 L 440,0 L 480,20 L 520,0 L 560,20 L 600,0 L 640,20 L 680,0 L 720,20 L 760,0 L 800,20 L 840,0 L 880,20 L 920,0 L 960,20 L 1000,0 L 1040,20 L 1080,0 L 1120,20 L 1160,0 L 1200,20 L 1240,0 L 1280,20 L 1320,0 L 1360,20 L 1400,0 L 1440,20 Z";
+// Onda suave (superfície de líquido) só no TOPO. Curvas Q/T alternando cristas e
+// vales em torno da base (y=20), amplitude ~12. Path com DOIS ciclos (0→2880) pra
+// a animação deslizar meia largura (1440 = 6 ondas) e voltar sem emenda.
+const TOP = "M0,0 L0,20 Q60,8 120,20 T240,20 T360,20 T480,20 T600,20 T720,20 T840,20 T960,20 T1080,20 T1200,20 T1320,20 T1440,20 T1560,20 T1680,20 T1800,20 T1920,20 T2040,20 T2160,20 T2280,20 T2400,20 T2520,20 T2640,20 T2760,20 T2880,20 L2880,0 Z";
 
 export function CtaSection() {
   const { open } = useComandaModal();
@@ -14,17 +16,20 @@ export function CtaSection() {
       className="relative flex items-center justify-center overflow-hidden py-28 md:min-h-[80vh] md:py-0"
       style={{ background: "#FF3500" }}
     >
-      {/* Serrilhado topo */}
-      <div className="absolute left-0 right-0 top-0" style={{ lineHeight: 0 }}>
-        <svg viewBox="0 0 1440 20" preserveAspectRatio="none" className="w-full" style={{ height: 20, display: "block" }}>
+      {/* Onda líquida animada — só no topo (base fica reta). O SVG tem o dobro da
+          largura e desliza -50% em loop: balanço contínuo, sem emenda. */}
+      <style>{`
+        @keyframes ctaOndaSlosh { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .cta-onda { animation: none !important; } }
+      `}</style>
+      <div className="absolute left-0 right-0 top-0 overflow-hidden" style={{ lineHeight: 0 }}>
+        <svg
+          viewBox="0 0 2880 40"
+          preserveAspectRatio="none"
+          className="cta-onda"
+          style={{ width: "200%", height: 32, display: "block", animation: "ctaOndaSlosh 9s linear infinite" }}
+        >
           <path d={TOP} fill="#111113" />
-        </svg>
-      </div>
-
-      {/* Serrilhado base */}
-      <div className="absolute bottom-0 left-0 right-0" style={{ lineHeight: 0 }}>
-        <svg viewBox="0 0 1440 20" preserveAspectRatio="none" className="w-full" style={{ height: 20, display: "block" }}>
-          <path d={BOT} fill="#111113" />
         </svg>
       </div>
 
