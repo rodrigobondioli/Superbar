@@ -68,8 +68,8 @@ Toda decisão de produto, código, preço ou estratégia passa por aqui primeiro
 
 | Plano | Preço | Condição |
 |---|---|---|
-| **Fundador** (10 primeiros bares) | R$ 697/mês travado por 12 meses | Implantação incluída, sem multa |
-| **Padrão** (do 11º em diante) | R$ 997/mês + setup R$ 1.500–2.500 | Setup cobrado só após go-live |
+| **Fundador** (10 primeiros bares) | R$ 697/mês travado por 12 meses | Implantação incluída, sem multa. Após 12 meses migra para o Padrão. |
+| **Padrão** (do 11º em diante) | R$ 1.297/mês + setup R$ 1.800 | Setup cobrado só após go-live |
 
 **Regras de cobrança que viram diferencial:**
 - Tudo incluído — sem cobrar módulo à parte

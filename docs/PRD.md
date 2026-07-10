@@ -187,7 +187,7 @@ Schema completo: `docs/SCHEMA.md`
 | # | Hipótese | Status |
 |---|---|---|
 | H2 | Bartender adota sem sabotar | ⚠️ Não testado em produção |
-| H3 | Dono paga R$ 997/mês | ⚠️ Não validado com cliente real |
+| H3 | Dono paga R$ 1.297/mês | ⚠️ Não validado com cliente real |
 | H1 | A dor existe e é severa | ✅ Confirmado por pesquisa |
 | H4 | Onboarding white-glove funciona | ✅ Forte indício |
 | H5 | NFC/QR serve bar premium | ❓ Em teste |
@@ -198,7 +198,7 @@ Schema completo: `docs/SCHEMA.md`
 
 | Plano | Valor | Condição |
 |---|---|---|
-| Fundador (10 primeiros) | R$ 697/mês | Travado 12 meses · setup incluído · sem multa |
-| Padrão | R$ 997/mês | Setup R$ 1.500–2.500 cobrado após go-live |
+| Fundador (10 primeiros) | R$ 697/mês | Travado 12 meses · setup incluído · sem multa. Após 12 meses migra para o Padrão. |
+| Padrão | R$ 1.297/mês | Setup R$ 1.800 cobrado após go-live |
 
 Tudo incluído. Sem módulo à parte. Sem multa de cancelamento.
