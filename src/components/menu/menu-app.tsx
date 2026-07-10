@@ -951,7 +951,7 @@ function Toast({ visible }: { visible: boolean }) {
       position: "fixed", top: 56, left: "50%",
       transform: `translateX(-50%) translateY(${visible ? 0 : -16}px)`,
       opacity: visible ? 1 : 0,
-      transition: "all 280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+      transition: "transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms cubic-bezier(0.22, 1, 0.36, 1)",
       background: ACCENT, color: "var(--accent-fg)",
       padding: "10px 22px", borderRadius: 8,
       fontSize: 13, fontWeight: 800,
@@ -1288,7 +1288,9 @@ function HomeScreen({
                 </div>
                 <div style={{ position: "relative", height: 192 }}>
                   <div style={{ position: "absolute", left: 0, right: 0, top: 64, height: 64, borderTop: "1px solid var(--border-strong)", borderBottom: "1px solid var(--border-strong)", pointerEvents: "none", zIndex: 2 }}>
+                    {/* impeccable-disable-next-line side-tab -- seta CSS (triângulo border-hack), não aba de card */}
                     <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderLeft: "7px solid var(--fg-subtle)" }} />
+                    {/* impeccable-disable-next-line side-tab -- seta CSS (triângulo border-hack), não aba de card */}
                     <div style={{ position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderRight: "7px solid var(--fg-subtle)" }} />
                   </div>
                   <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--bg)", borderRadius: 14, border: "1px solid var(--border)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)" }}>

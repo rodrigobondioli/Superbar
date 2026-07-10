@@ -356,7 +356,7 @@ function RankingProdutos() {
               <span style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)" }}>{pct.format(p.margemPercentual ?? 0)}%</span>
             </div>
             <div style={{ height: 3, background: "rgba(255,255,255,0.12)", borderRadius: 2, overflow: "hidden" }}>
-              <div style={{ width: `${p.margemPercentual ?? 0}%`, height: "100%", background: "var(--accent)", borderRadius: 2, transition: "width 0.5s ease" }} />
+              <div style={{ width: "100%", height: "100%", background: "var(--accent)", borderRadius: 2, transformOrigin: "left", transform: `scaleX(${Math.min((p.margemPercentual ?? 0) / 100, 1)})`, transition: "transform 0.5s ease" }} />
             </div>
           </div>
         ))}

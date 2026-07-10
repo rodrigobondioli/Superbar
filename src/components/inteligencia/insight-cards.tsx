@@ -54,6 +54,7 @@ function InsightCard({
       style={{
         ...CARD,
         padding: "20px 24px",
+        // impeccable-disable-next-line side-tab -- cor da borda codifica o tipo do insight (intencional, reforça o label colorido)
         borderLeft: `3px solid ${tipoMeta(insight.tipo).borderColor}`,
         display: "flex",
         flexDirection: "column",
