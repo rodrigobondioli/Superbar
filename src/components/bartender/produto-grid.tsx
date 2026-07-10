@@ -435,7 +435,7 @@ export function ProdutoGrid({ cardapio, comandaId, onEnviado }: { cardapio: Cate
         {/* Product grid */}
         <div
           className="flex-1 overflow-y-auto px-5 pt-5"
-          style={{ paddingBottom: cart.size > 0 ? "80px" : "20px", transition: "padding-bottom 0.2s" }}
+          style={{ paddingBottom: cart.size > 0 ? "80px" : "20px" }}
         >
           {buscaAtiva && busca && resultadoBusca.length === 0 ? (
             <p style={{ fontSize: 14, color: "var(--fg-subtle)", textAlign: "center", paddingTop: 48 }}>

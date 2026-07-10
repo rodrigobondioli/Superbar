@@ -79,7 +79,12 @@ export function DashboardLayoutClient({
         {/* Desktop sidebar */}
         <aside
           className="hidden lg:block flex-shrink-0"
-          style={{ width: collapsed ? 52 : 220, height: "100%", transition: "width 200ms ease" }}
+          style={{
+            width: collapsed ? 52 : 220,
+            height: "100%",
+            // impeccable-disable-next-line layout-transition -- colapso push intencional da sidebar (200ms, one-shot)
+            transition: "width 200ms ease",
+          }}
         >
           <DashboardSidebar
             barNome={barNome}

@@ -70,6 +70,7 @@ export function DashboardSidebar({
         overflow: "hidden",
         background: "var(--bg)",
         borderRight: "1px solid var(--border)",
+        // impeccable-disable-next-line layout-transition -- colapso push intencional da sidebar (200ms, one-shot)
         transition: "width 200ms ease",
       }}
     >

@@ -269,8 +269,10 @@ export function LiveBar({
                 height: 2,
                 background: metaAtingida ? "var(--ok)" : "var(--accent)",
                 borderRadius: 2,
-                width: `${Math.min(metaProgresso, 100)}%`,
-                transition: "width 0.6s",
+                width: "100%",
+                transformOrigin: "left",
+                transform: `scaleX(${Math.min(metaProgresso / 100, 1)})`,
+                transition: "transform 0.6s",
               }} />
             </div>
           </div>

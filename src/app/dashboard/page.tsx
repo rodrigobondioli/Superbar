@@ -168,7 +168,7 @@ export default async function DashboardPage() {
                     <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
                   </div>
                   <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: `${Math.min(Math.round((inteligencia.comandas / 30) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(inteligencia.comandas / 30, 1)})`, transition: "transform 0.6s ease" }} />
                   </div>
                 </div>
                 <div>
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
                     <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.diasAtivo} / 7</span>
                   </div>
                   <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: `${Math.min(Math.round((inteligencia.diasAtivo / 7) * 100), 100)}%`, transition: "width 0.6s ease" }} />
+                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(inteligencia.diasAtivo / 7, 1)})`, transition: "transform 0.6s ease" }} />
                   </div>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                   <div style={{ background: "var(--border-strong)", borderRadius: "2px", height: "3px", overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "2px", height: "3px", width: `${metaProgressoFechado}%`, transition: "width 0.6s ease" }} />
+                    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "2px", height: "3px", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(metaProgressoFechado / 100, 1)})`, transition: "transform 0.6s ease" }} />
                   </div>
                   <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 6 }}>
                     {metaAtingidaFechado ? "Meta atingida!" : `falta ${currency.format(metaFaltaFechado)}`}

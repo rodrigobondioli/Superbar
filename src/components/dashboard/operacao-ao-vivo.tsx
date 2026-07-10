@@ -154,7 +154,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
             </span>
           </div>
           <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
-            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: `${v.metaProgresso}%`, transition: "width 260ms ease" }} />
+            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(v.metaProgresso / 100, 1)})`, transition: "transform 260ms ease" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
@@ -284,7 +284,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                       <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
                     </div>
                     <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                      <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transition: "width 320ms cubic-bezier(0.22,1,0.36,1)" }} />
+                      <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(pct / 100, 1)})`, transition: "transform 320ms cubic-bezier(0.22,1,0.36,1)" }} />
                     </div>
                   </div>
                 );
