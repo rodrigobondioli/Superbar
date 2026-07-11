@@ -1529,6 +1529,16 @@ export type Database = {
         }
         Returns: Json
       }
+      criar_pedido_com_itens: {
+        Args: {
+          p_bar_id: string
+          p_comanda_id: string
+          p_turno_id: string
+          p_itens: Json
+          p_criado_por_member_id?: string | null
+        }
+        Returns: Json
+      }
       merge_bar_config: {
         Args: { p_bar_id: string; p_patch: Json }
         Returns: undefined

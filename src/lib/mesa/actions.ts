@@ -245,25 +245,27 @@ export async function criarPedidoCliente(
 
   if (rows.length === 0) return { error: "Itens indisponíveis." };
 
-  // 1. Pedido → cai na fila do bar
-  const { data: pedido, error: pedidoErr } = await supabase
-    .from("pedidos")
-    .insert({ bar_id: barId, turno_id: comanda.turno_id, comanda_id: comandaId, status: "recebido" })
-    .select("id")
-    .single<{ id: string }>();
-  if (pedidoErr || !pedido) {
-    console.error("criarPedidoCliente: erro ao criar pedido", pedidoErr);
+  // Pedido + itens numa transação (P1-2). Falha nos itens reverte o pedido —
+  // sem pedido órfão na fila e sem duplicata no reenvio.
+  const res = await supabase
+    .rpc("criar_pedido_com_itens", {
+      p_bar_id:               barId,
+      p_comanda_id:           comandaId,
+      p_turno_id:             comanda.turno_id,
+      p_itens:                rows,
+      p_criado_por_member_id: null,
+    })
+    .single();
+
+  if (res.error) {
+    console.error("criarPedidoCliente: falha no RPC transacional", res.error);
     return { error: "Não foi possível enviar o pedido. Tente novamente." };
   }
 
-  // 2. Itens vinculados ao pedido
-  const { error: itemsErr } = await supabase
-    .from("comanda_items")
-    .insert(rows.map((r) => ({ ...r, pedido_id: pedido.id })));
-  if (itemsErr) {
-    console.error("criarPedidoCliente: erro ao inserir itens", itemsErr);
+  const out = res.data as { ok: boolean; pedido_id?: string } | null;
+  if (!out?.ok || !out.pedido_id) {
     return { error: "Não foi possível enviar o pedido. Tente novamente." };
   }
 
-  return { ok: true, pedidoId: pedido.id };
+  return { ok: true, pedidoId: out.pedido_id };
 }

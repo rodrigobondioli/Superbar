@@ -504,6 +504,16 @@ export interface Database {
           visitas?: number | null;
         };
       };
+      criar_pedido_com_itens: {
+        Args: {
+          p_bar_id: string;
+          p_comanda_id: string;
+          p_turno_id: string;
+          p_itens: unknown;
+          p_criado_por_member_id?: string | null;
+        };
+        Returns: { ok: boolean; pedido_id?: string; error?: string };
+      };
       merge_bar_config: {
         Args: { p_bar_id: string; p_patch: string };
         Returns: undefined;

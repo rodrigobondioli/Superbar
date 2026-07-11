@@ -410,27 +410,9 @@ export async function criarPedido(
 
   const supabase = await createClient();
 
-  // 1. Cria o pedido
-  const { data: pedido, error: pedidoErr } = await supabase
-    .from("pedidos")
-    .insert({
-      bar_id:               current.bar.id,
-      turno_id:             turno.id,
-      comanda_id:           comandaId,
-      status:               "recebido",
-      criado_por_member_id: current.atribuicaoMemberId,
-    })
-    .select("id")
-    .single<{ id: string }>();
-
-  if (pedidoErr || !pedido) return { error: "Erro ao criar pedido." };
-
-  // 2. Insere comanda_items — uma linha por unidade (compatível com removerItem)
+  // Uma linha por unidade (compatível com removerItem). Preço vem do servidor.
   const rows = itens.flatMap(item =>
     Array.from({ length: item.quantidade }, () => ({
-      comanda_id:               comandaId,
-      bar_id:                   current.bar.id,
-      pedido_id:                pedido.id,
       produto_id:               item.produto_id,
       variante_id:              item.variante_id ?? null,
       variante_nome:            item.variante_nome ?? null,
@@ -443,11 +425,27 @@ export async function criarPedido(
     }))
   );
 
-  const { error: itemsErr } = await supabase.from("comanda_items").insert(rows);
-  if (itemsErr) return { error: "Erro ao inserir itens." };
+  // Pedido + itens numa transação (P1-2). Falha nos itens reverte o pedido.
+  const res = await supabase
+    .rpc("criar_pedido_com_itens", {
+      p_bar_id:               current.bar.id,
+      p_comanda_id:           comandaId,
+      p_turno_id:             turno.id,
+      p_itens:                rows,
+      p_criado_por_member_id: current.atribuicaoMemberId,
+    })
+    .single();
+
+  if (res.error) {
+    console.error("criarPedido: falha no RPC transacional", res.error);
+    return { error: "Erro ao criar pedido." };
+  }
+
+  const out = res.data as { ok: boolean; pedido_id?: string } | null;
+  if (!out?.ok || !out.pedido_id) return { error: "Erro ao criar pedido." };
 
   revalidatePath(`/garcom/${comandaId}`);
-  return { ok: true, pedidoId: pedido.id };
+  return { ok: true, pedidoId: out.pedido_id };
 }
 
 /** Bartender inicia o preparo do pedido. */
