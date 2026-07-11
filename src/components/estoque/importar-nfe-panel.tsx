@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Upload, CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { previewNfe, confirmarNfe, type NfePreview } from "@/lib/nfe/actions";
+import { PassosImport } from "@/components/ui/passos-import";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -110,10 +111,15 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
           )}
 
           {step === "upload" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: 0, lineHeight: 1.5 }}>
-                Suba o <strong style={{ color: "var(--fg)" }}>XML da nota fiscal</strong> da sua compra. A gente lê produto, custo e fornecedor e atualiza teu estoque — sem digitar.
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <p style={{ fontSize: 14, color: "var(--fg)", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                Atualize custo e estoque pela nota da sua compra — sem digitar nada.
               </p>
+              <PassosImport passos={[
+                <>Baixe o arquivo <strong style={{ color: "var(--fg)" }}>XML</strong> da nota no site da distribuidora (ou pegue no e-mail da compra). Foto ou PDF não serve.</>,
+                <>Suba aqui. A gente lê <strong style={{ color: "var(--fg)" }}>fornecedor, produtos e custos</strong> automaticamente.</>,
+                <>Você confere e liga cada item a um insumo (ou cria novo). <strong style={{ color: "var(--fg)" }}>Nada entra sem você confirmar.</strong></>,
+              ]} />
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={loading}
@@ -122,9 +128,6 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
                 <Upload size={18} /> {loading ? "Lendo…" : "Escolher arquivo XML"}
               </button>
               <input ref={fileRef} type="file" accept=".xml,text/xml,application/xml" onChange={handleFile} style={{ display: "none" }} />
-              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
-                É o XML que vem no e-mail da compra ou que tu baixa no site da distribuidora. Foto/PDF não serve — precisa ser o arquivo <code>.xml</code>.
-              </p>
             </div>
           )}
 

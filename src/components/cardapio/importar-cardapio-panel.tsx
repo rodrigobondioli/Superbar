@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Upload, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { mergeImportacao } from "@/lib/cardapio/import-actions";
 import { normalizarNome } from "@/lib/cardapio/import-types";
+import { PassosImport } from "@/components/ui/passos-import";
 import type { ProdutoPreview, ImportarResponse } from "@/lib/cardapio/import-types";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -213,9 +214,16 @@ export function ImportarCardapioPanel({
           {/* ── Upload ── */}
           {panelStep === "upload" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
-                A IA interpreta as colunas automaticamente. Produtos novos são adicionados; os que já
-                existem você decide se atualiza ou ignora.
+              <p style={{ fontSize: 14, color: "var(--fg)", margin: 0, fontWeight: 500, lineHeight: 1.5 }}>
+                Suba seu cardápio e a IA cadastra os produtos pra você.
+              </p>
+              <PassosImport passos={[
+                <>Tenha o cardápio numa <strong style={{ color: "var(--fg)" }}>planilha (.xlsx/.csv)</strong> ou <strong style={{ color: "var(--fg)" }}>PDF</strong> — com nome, categoria e preço.</>,
+                <>Suba aqui. A <strong style={{ color: "var(--fg)" }}>IA identifica as colunas</strong> sozinha.</>,
+                <>Produtos novos entram; os que já existem, <strong style={{ color: "var(--fg)" }}>você escolhe atualizar ou ignorar.</strong></>,
+              ]} />
+              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>
+                Custo por produto aqui é opcional e estimado — o custo <strong style={{ color: "var(--fg-muted)" }}>real</strong> vem da importação da nota fiscal (NF-e) no Estoque.
               </p>
 
               {uploadLoading ? (
