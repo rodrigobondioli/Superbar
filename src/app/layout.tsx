@@ -50,8 +50,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Zoom PERMITIDO por padrão (menu do cliente, dashboard, landing) — WCAG 1.4.4.
+  // O grupo (operacional) sobrescreve e desabilita o zoom nas telas de toque rápido.
   viewportFit: "cover",
   themeColor: "#FF3500",
 };
