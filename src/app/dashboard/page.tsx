@@ -475,34 +475,52 @@ export default async function DashboardPage() {
   const impactoEstimado = insightsSorted[0]?.impactoReais ?? null;
   const horasTurno = Math.max((Date.now() - new Date(turno.aberto_em).getTime()) / 3_600_000, 0.5);
 
-  // ── Períodos (DEMO): "hoje" usa dados reais; ontem/7 dias são simulados. ──
-  // Os 3 são pré-calculados aqui no servidor; o cliente troca sem ida ao servidor.
+  // ── Períodos ──────────────────────────────────────────────────────────────
+  // Só "hoje" tem dado real. Ontem/7 dias ainda não têm query por período —
+  // estado honesto "aguardando dados", nunca número fabricado (Princípio 9).
   const drinksHoraBase = Math.max(1, Math.round(liveStats.drinks / horasTurno));
-  const SIM_MAP = {
-    hoje:   { fator: 1,    ticketMul: 1,    labelFat: "Faturado no turno", drinksHora: drinksHoraBase, petiscosHora: Math.max(1, Math.round(drinksHoraBase * 0.42)), maiorComanda: Math.max(80, Math.round(kpis.ticketMedio * 2.4)), cmv: 34, deltaFat: -15.8, deltaCmv: 18,   deltaTicket: 26.3 },
-    ontem:  { fator: 0.86, ticketMul: 0.94, labelFat: "Faturado ontem",    drinksHora: 47, petiscosHora: 19, maiorComanda: 312, cmv: 37, deltaFat: 8.2,   deltaCmv: -3.5, deltaTicket: 11.5 },
-    "7dias":{ fator: 6.3,  ticketMul: 1.05, labelFat: "Faturado (7 dias)", drinksHora: 52, petiscosHora: 22, maiorComanda: 548, cmv: 33, deltaFat: 12.4,  deltaCmv: 5.2,  deltaTicket: 9.1 },
-  } as const;
-
-  const topShares = [1, 0.83, 0.64, 0.47, 0.36, 0.28];
-  const topTopo = 720; // R$ do 1º colocado (hoje)
 
   function buildView(p: Periodo): PeriodView {
-    const SIM = SIM_MAP[p];
-    const faturado = Math.round(kpis.faturamento * SIM.fator);
-    const ticket = Math.round(kpis.ticketMedio * SIM.ticketMul);
+    if (p !== "hoje") {
+      return {
+        labelFat: p === "ontem" ? "Faturado ontem" : "Faturado (7 dias)",
+        faturado: 0, deltaFat: 0, metaProgresso: 0,
+        margem: null, veredito: { txt: "—", cor: "var(--fg-subtle)" },
+        cmv: null, deltaCmv: 0, ticket: 0, deltaTicket: 0,
+        drinksHora: 0, petiscosHora: null, maiorComanda: null,
+        impacto: null, topDrinks: [], pending: true,
+      };
+    }
+    const cmv = cmvAtual !== null ? Math.round(cmvAtual) : null;
+    const margem = cmv !== null ? 100 - cmv : null;
+    const veredito =
+      margem === null ? { txt: "—", cor: "var(--fg-subtle)" }
+      : margem >= 60 ? { txt: "Saudável", cor: "var(--ok)" }
+      : margem >= 45 ? { txt: "Atenção", cor: "var(--warn)" }
+      : { txt: "Baixa", cor: "var(--danger)" };
+    const faturado = Math.round(kpis.faturamento);
     const metaProgressoView = meta > 0 ? Math.min(100, Math.round((faturado / meta) * 100)) : metaProgresso;
-    const impacto = impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado) * SIM.fator) : null;
-    const cmv = p === "hoje" && cmvAtual !== null ? Math.round(cmvAtual) : SIM.cmv;
-    const margem = 100 - cmv;
-    const veredito = margem >= 60 ? { txt: "Saudável", cor: "var(--ok)" } : margem >= 45 ? { txt: "Atenção", cor: "var(--warn)" } : { txt: "Baixa", cor: "var(--danger)" };
-    const topDrinks = produtosTop5.slice(0, 6).map((prod, i) => {
-      const total = Math.round(topTopo * SIM.fator * (topShares[i] ?? 0.22));
-      const precoUnit = prod.quantidadeVendida > 0 ? prod.faturamento / prod.quantidadeVendida : (prod.faturamento || 25);
-      const qtd = Math.max(1, Math.round(total / Math.max(precoUnit, 5)));
-      return { nome: prod.produtoNome, total, qtd };
-    });
-    return { labelFat: SIM.labelFat, faturado, deltaFat: SIM.deltaFat, metaProgresso: metaProgressoView, margem, veredito, cmv, deltaCmv: SIM.deltaCmv, ticket, deltaTicket: SIM.deltaTicket, drinksHora: SIM.drinksHora, petiscosHora: SIM.petiscosHora, maiorComanda: SIM.maiorComanda, impacto, topDrinks };
+    // R$ e quantidade reais por produto — nada de topo fixo (Princípio 9).
+    const topDrinks = produtosTop5.slice(0, 6).map((prod) => ({
+      nome: prod.produtoNome,
+      total: Math.round(prod.faturamento),
+      qtd: prod.quantidadeVendida,
+    }));
+    return {
+      labelFat: "Faturado no turno",
+      faturado,
+      deltaFat: comparacao.faturamento ?? 0,
+      metaProgresso: metaProgressoView,
+      margem, veredito, cmv,
+      deltaCmv: comparacao.cmv ?? 0,
+      ticket: Math.round(kpis.ticketMedio),
+      deltaTicket: comparacao.ticketMedio ?? 0,
+      drinksHora: drinksHoraBase,
+      petiscosHora: null,   // sem query real ainda
+      maiorComanda: null,   // sem query real ainda
+      impacto: impactoEstimado !== null ? Math.round(Math.abs(impactoEstimado)) : null,
+      topDrinks,
+    };
   }
 
   const views: Record<Periodo, PeriodView> = { hoje: buildView("hoje"), ontem: buildView("ontem"), "7dias": buildView("7dias") };

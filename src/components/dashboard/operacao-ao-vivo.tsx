@@ -34,17 +34,19 @@ export interface PeriodView {
   faturado: number;
   deltaFat: number;
   metaProgresso: number;
-  margem: number;
+  margem: number | null;
   veredito: { txt: string; cor: string };
-  cmv: number;
+  cmv: number | null;
   deltaCmv: number;
   ticket: number;
   deltaTicket: number;
   drinksHora: number;
-  petiscosHora: number;
-  maiorComanda: number;
+  petiscosHora: number | null;
+  maiorComanda: number | null;
   impacto: number | null;
   topDrinks: { nome: string; total: number; qtd: number }[];
+  /** true = período sem dado real ainda (mostra "aguardando dados", nunca número fabricado). */
+  pending?: boolean;
 }
 
 interface Props {
@@ -106,6 +108,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
   }, []);
   const isMobile = useIsMobile();
   const v = views[periodo];
+  const aguardando = !!v.pending;
   const showSuper = superNome !== null && superMargem !== null;
   const kpiCardR: React.CSSProperties = isMobile ? { ...kpiCard, padding: 20 } : kpiCard;
   const kpiMetricR: React.CSSProperties = isMobile ? { ...kpiMetric, fontSize: 36, marginTop: 10 } : kpiMetric;
@@ -146,25 +149,37 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         </div>
       </div>
 
+      {aguardando && (
+        <div style={{ padding: "10px 14px", borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", fontSize: 13, color: "var(--fg-muted)", flexShrink: 0 }}>
+          Aguardando histórico deste período — os números aparecem quando o bar acumular dados.
+        </div>
+      )}
+
       {/* ROW 1: KPI CARDS */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1.6fr 1fr 1fr 1fr", gap: isMobile ? 10 : 16, flexShrink: 0 }}>
 
         {/* Faturado */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: isMobile ? 20 : 32, display: "flex", flexDirection: "column", gridColumn: isMobile ? "1 / -1" : undefined }}>
           <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }}>{v.labelFat}</span>
-          <span style={{ fontSize: isMobile ? 44 : 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}><Cifrao />{v.faturado.toLocaleString("pt-BR")}</span>
+          <span style={{ fontSize: isMobile ? 44 : 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 }}>{aguardando ? <span style={{ color: "var(--fg-subtle)" }}>—</span> : <><Cifrao />{v.faturado.toLocaleString("pt-BR")}</>}</span>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 15 }}>
-            <Tri up={v.deltaFat >= 0} color={v.deltaFat >= 0 ? "var(--accent)" : "var(--danger)"} />
-            <span style={{ color: "var(--fg)" }}>
-              {Math.abs(v.deltaFat).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {v.deltaFat >= 0 ? "maior" : "menor"} vs. sem. passada
-            </span>
+            {aguardando ? (
+              <span style={{ color: "var(--fg-muted)" }} title="Disponível quando o bar acumular histórico">aguardando dados</span>
+            ) : (
+              <>
+                <Tri up={v.deltaFat >= 0} color={v.deltaFat >= 0 ? "var(--accent)" : "var(--danger)"} />
+                <span style={{ color: "var(--fg)" }}>
+                  {Math.abs(v.deltaFat).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {v.deltaFat >= 0 ? "maior" : "menor"} vs. sem. passada
+                </span>
+              </>
+            )}
           </div>
           <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
             <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(v.metaProgresso / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
-            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{v.metaProgresso}%</span>
+            <span style={{ fontSize: 15, fontWeight: 400, color: "var(--accent)" }}>{aguardando ? "—" : `${v.metaProgresso}%`}</span>
           </div>
         </div>
 
@@ -172,7 +187,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Margem</span>
-            <span style={kpiMetricR}>{v.margem}%</span>
+            <span style={kpiMetricR}>{v.margem === null ? "—" : `${v.margem}%`}</span>
           </div>
           <div>
             <div style={kpiDivider} />
@@ -184,11 +199,13 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Custo (CMV)</span>
-            <span style={kpiMetricR}>{v.cmv}%</span>
+            <span style={kpiMetricR}>{v.cmv === null ? "—" : `${v.cmv}%`}</span>
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={v.deltaCmv} invert compact={isMobile} />
+            {v.cmv === null
+              ? <span style={{ fontSize: 13, color: "var(--fg-muted)" }} title={aguardando ? "Disponível quando o bar acumular histórico" : "Disponível quando houver custo cadastrado"}>aguardando dados</span>
+              : <DeltaRow value={v.deltaCmv} invert compact={isMobile} />}
           </div>
         </div>
 
@@ -196,11 +213,13 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
         <div style={isMobile ? { ...kpiCardR, gridColumn: "1 / -1" } : kpiCardR}>
           <div>
             <span style={kpiLabel}>Ticket Médio</span>
-            <span style={kpiMetricR}><Cifrao />{v.ticket.toLocaleString("pt-BR")}</span>
+            <span style={kpiMetricR}>{aguardando ? "—" : <><Cifrao />{v.ticket.toLocaleString("pt-BR")}</>}</span>
           </div>
           <div>
             <div style={kpiDivider} />
-            <DeltaRow value={v.deltaTicket} compact={isMobile} />
+            {aguardando
+              ? <span style={{ fontSize: 13, color: "var(--fg-muted)" }} title="Disponível quando o bar acumular histórico">aguardando dados</span>
+              : <DeltaRow value={v.deltaTicket} compact={isMobile} />}
           </div>
         </div>
       </div>
@@ -208,16 +227,16 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       {/* ROW 2: STAT PILLS */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)", gap: isMobile ? 8 : 12, flexShrink: 0 }}>
         {[
-          { label: "Drinks por hora", value: String(v.drinksHora) },
-          { label: "Petiscos por hora", value: String(v.petiscosHora) },
+          { label: "Drinks por hora", value: aguardando ? "—" : String(v.drinksHora) },
+          { label: "Petiscos por hora", value: v.petiscosHora === null ? "—" : String(v.petiscosHora) },
           { label: "Mesas abertas agora", value: String(comandasAbertas) },
-          { label: "Maior valor de comanda", value: `R$ ${v.maiorComanda.toLocaleString("pt-BR")}` },
+          { label: "Maior valor de comanda", value: v.maiorComanda === null ? "—" : `R$ ${v.maiorComanda.toLocaleString("pt-BR")}` },
         ].map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
-              <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--warn)" }} />
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }} title={s.value === "—" ? "Disponível quando o bar acumular histórico" : undefined}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: s.value === "—" ? "var(--fg-subtle)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
+              {s.value !== "—" && <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--warn)" }} />}
             </span>
           </div>
         ))}
@@ -296,7 +315,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                 );
               })}
               {v.topDrinks.length === 0 && (
-                <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>Sem vendas registradas ainda.</p>
+                <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "12px 0" }}>{aguardando ? "Aguardando dados deste período." : "Sem vendas registradas ainda."}</p>
               )}
             </div>
           </div>

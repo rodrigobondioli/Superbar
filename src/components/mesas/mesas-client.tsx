@@ -20,21 +20,9 @@ const inp: React.CSSProperties = {
   colorScheme: "dark", boxSizing: "border-box", width: "100%",
 };
 
-// ─── Simulação de métricas por mesa (DEMO) ──────────────────────────────────
-// Determinístico pelo número da mesa, então estável entre renders.
-// Trocar por métricas reais por mesa quando o bar estiver operando.
-function simMesa(mesa: Mesa, ocupada: boolean) {
-  const n = mesa.numero || 1;
-  const fat = 800 + ((n * 373) % 3200);
-  const ticket = 180 + ((n * 47) % 180);
-  const giroN = 1 + (n % 4);
-  const giroMin = 30 + ((n * 7) % 40);
-  const lugares = mesa.capacidade ?? (2 + (n % 6));
-  const comanda = ocupada
-    ? { valor: 220 + ((n * 53) % 320), itens: 2 + (n % 5), min: 12 + ((n * 11) % 60) }
-    : null;
-  return { fat, ticket, giroN, giroMin, lugares, comanda };
-}
+// Métricas por mesa (faturamento, ticket, giro, ranking) ainda não têm query
+// real — a UI mostra estado honesto "aguardando dados" (Princípio 9). O que é
+// real aqui: capacidade (lugares) e status ocupada/livre.
 
 // ─── Painel criar/editar mesa (drawer) ──────────────────────────────────────
 function MesaPanel({ mode, mesa, nextNumero, open, onClose }: {
@@ -149,8 +137,8 @@ function MesaCard({ mesa, ocupada, selected, onClick }: { mesa: Mesa; ocupada: b
 }
 
 // ─── Painel de detalhes (direita) ────────────────────────────────────────────
-function DetailPanel({ mesa, ocupada, ranking, total, onEdit, onQR, onDelete }: {
-  mesa: Mesa | null; ocupada: boolean; ranking: number; total: number;
+function DetailPanel({ mesa, ocupada, onEdit, onQR, onDelete }: {
+  mesa: Mesa | null; ocupada: boolean;
   onEdit: () => void; onQR: () => void; onDelete: () => void;
 }) {
   if (!mesa) {
@@ -161,7 +149,8 @@ function DetailPanel({ mesa, ocupada, ranking, total, onEdit, onQR, onDelete }: 
     );
   }
 
-  const s = simMesa(mesa, ocupada);
+  const lugares = mesa.capacidade ?? null;
+  const aguardando = <span style={{ color: "var(--fg-muted)" }} title="Disponível quando houver métricas por mesa">aguardando dados</span>;
   const rowStyle: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, fontSize: 15 };
   const labelStyle: React.CSSProperties = { color: "var(--fg-muted)" };
   const valStyle: React.CSSProperties = { color: "var(--fg)", fontVariantNumeric: "tabular-nums" };
@@ -173,29 +162,30 @@ function DetailPanel({ mesa, ocupada, ranking, total, onEdit, onQR, onDelete }: 
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Faturamento · turno atual</span>
-        <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }}>{currency.format(s.fat)}</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }} title="Disponível quando houver métricas por mesa">—</span>
+        <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>aguardando dados</span>
       </div>
 
       {divider}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={rowStyle}><span style={labelStyle}>Lugares</span><span style={valStyle}>{String(s.lugares).padStart(2, "0")}</span></div>
-        <div style={rowStyle}><span style={labelStyle}>Ticket médio</span><span style={valStyle}>{currency.format(s.ticket)}</span></div>
-        <div style={rowStyle}><span style={labelStyle}>Giro</span><span style={valStyle}>girou {s.giroN}x · {s.giroMin}min</span></div>
-        <div style={rowStyle}><span style={labelStyle}>Ranking</span><span style={valStyle}>#{ranking} de {total}</span></div>
+        <div style={rowStyle}><span style={labelStyle}>Lugares</span><span style={valStyle}>{lugares === null ? <span style={{ color: "var(--fg-subtle)" }} title="Cadastre a capacidade da mesa">—</span> : String(lugares).padStart(2, "0")}</span></div>
+        <div style={rowStyle}><span style={labelStyle}>Ticket médio</span>{aguardando}</div>
+        <div style={rowStyle}><span style={labelStyle}>Giro</span>{aguardando}</div>
+        <div style={rowStyle}><span style={labelStyle}>Ranking</span>{aguardando}</div>
       </div>
 
       {divider}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {ocupada && s.comanda ? (
+        {ocupada ? (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--ok)" }} />
               <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-muted)" }}>Ao vivo</span>
             </div>
             <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Comanda aberta</span>
-            <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>{currency.format(s.comanda.valor)} · {s.comanda.itens} itens · aberta há {s.comanda.min}min</span>
+            <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" }} title="Disponível quando houver métricas por mesa">aguardando dados</span>
           </>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -226,12 +216,6 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
   const [selectedId, setSelectedId] = useState<string | null>(mesas[0]?.id ?? null);
 
   const ocupadasSet = new Set(mesasOcupadas);
-
-  // Ranking por faturamento simulado
-  const ranked = [...mesas]
-    .map((m) => ({ id: m.id, fat: simMesa(m, ocupadasSet.has(m.id)).fat }))
-    .sort((a, b) => b.fat - a.fat);
-  const rankMap = new Map(ranked.map((r, i) => [r.id, i + 1]));
 
   const selected = mesas.find((m) => m.id === selectedId) ?? null;
 
@@ -287,8 +271,6 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
             <DetailPanel
               mesa={selected}
               ocupada={selected ? ocupadasSet.has(selected.id) : false}
-              ranking={selected ? (rankMap.get(selected.id) ?? 1) : 1}
-              total={mesas.length}
               onEdit={() => selected && openEdit(selected)}
               onQR={() => selected && setQrMesa(selected)}
               onDelete={() => {

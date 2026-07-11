@@ -445,6 +445,10 @@ export default function DemoPage() {
 
   return (
     <div data-theme="dark" style={{ display: "flex", height: "100dvh", overflow: "hidden", background: "var(--bg)", fontFamily: "var(--font-sans)" }}>
+      {/* Selo permanente: esta é a tela de demonstração — dados fictícios, nunca reais. */}
+      <div style={{ position: "fixed", top: 12, right: 16, zIndex: 1000, display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 999, background: "var(--accent)", color: "var(--accent-fg)", fontSize: 12, fontWeight: 700, letterSpacing: "0.02em", pointerEvents: "none", boxShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
+        DEMO · dados fictícios
+      </div>
       <DemoSidebar />
 
       <main style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>

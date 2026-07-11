@@ -57,7 +57,7 @@ Slogan da marca: **"Seu bar ficou super inteligente."**
 
 - **Não** construir processamento de pagamento (gateway, adquirente, split, settlement). Só registro do método.
 - **Não** criar paywall/cobrança por módulo operacional. Tudo incluído.
-- **Não** deixar dado-semente (seed) se passar por dado real em telas de demo — separe seed de produção.
+- **Não** deixar dado-semente (seed) se passar por dado real em telas de demo — separe seed de produção. **Regra dura:** dado mockado/fictício vive **só na rota `/demo`** (marcada com selo "DEMO"). Nenhuma tela do app real (`/dashboard`, `/mesas`, etc.) pode fabricar número. Se ainda não há query real, mostre estado honesto de **"aguardando dados"** — nunca invente valor (Princípio 9).
 - **Não** perder dado: cada pedido, comanda e pagamento persistido de forma íntegra.
 - **Não** subordinar a inteligência à operação. Se um atalho operacional sacrifica a captura de dado, está errado.
 - **Não** improvisar UI fora do `DESIGN.md`.
