@@ -46,7 +46,7 @@ export function ContactSection() {
             border: "none",
           }}
         >
-          Agende uma consulta grátis <ArrowRight className="h-4 w-4" />
+          Agendar demonstração <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </section>

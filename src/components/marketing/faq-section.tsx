@@ -9,7 +9,7 @@ const FAQS = [
   {
     num: "/1",
     q: "Quanto custa?",
-    a: "Uma mensalidade única. Sem módulo à parte, sem taxa de instalação, sem surpresa na fatura. O preço que você vê é o que você paga.",
+    a: "Uma mensalidade única. Sem módulo à parte, sem taxa de instalação, sem surpresa na fatura. E a mensalidade só começa quando o sistema está rodando no seu bar — no go-live. Você não paga por promessa.",
   },
   {
     num: "/2",
@@ -18,16 +18,21 @@ const FAQS = [
   },
   {
     num: "/3",
+    q: "Preciso digitar meu estoque todo?",
+    a: "Não. Você sobe a nota fiscal (NF-e) e o SUPERBAR importa produtos, custos e fornecedores automaticamente. O que faltar, você ajusta em segundos. O custo entra junto — que é de onde a margem e o CMV nascem.",
+  },
+  {
+    num: "/4",
     q: "O SUPERBAR processa pagamentos?",
     a: "Não. O sistema registra como o cliente pagou — Pix, dinheiro, débito, crédito ou cortesia. O dinheiro vai direto pra sua maquininha, como sempre foi. A gente não toca no caixa do bar.",
   },
   {
-    num: "/4",
+    num: "/5",
     q: "Posso cancelar quando quiser?",
     a: "Sim. Sem multa, sem contrato de fidelidade. Se o SUPERBAR não entregar valor, você sai. O lock-in tem que vir do produto, não do contrato.",
   },
   {
-    num: "/5",
+    num: "/6",
     q: "Funciona para o meu bar?",
     a: "O SUPERBAR entrega mais valor onde a operação tem complexidade: bartender, garçom e caixa trabalhando ao mesmo tempo, comanda aberta por horas, drinks com variantes, volume alto no fim de semana. Se você tem equipe operando separada e quer saber o que sobra no final da noite — é pra você.",
   },

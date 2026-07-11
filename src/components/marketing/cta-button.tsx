@@ -8,7 +8,7 @@ interface CTAButtonProps {
   className?: string;
 }
 
-export function CTAButton({ label = "Começar agora", className = "" }: CTAButtonProps) {
+export function CTAButton({ label = "Agendar demonstração", className = "" }: CTAButtonProps) {
   const { open } = useComandaModal();
 
   return (

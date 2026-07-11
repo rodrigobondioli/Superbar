@@ -86,7 +86,7 @@ export function CtaSection() {
             minHeight: "44px",
           }}
         >
-          Quero meu Superbar <ArrowRight className="h-4 w-4" />
+          Agendar demonstração <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </section>

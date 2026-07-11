@@ -6,6 +6,8 @@ import { TextRevealSection } from "@/components/marketing/text-reveal";
 import { CTAButton } from "@/components/marketing/cta-button";
 import { ParallaxScene } from "@/components/marketing/parallax-scene";
 import { ProcessoSection } from "@/components/marketing/processo-section";
+import { VejaFuncionandoSection } from "@/components/marketing/veja-funcionando-section";
+import { DiferenciaisSection } from "@/components/marketing/diferenciais-section";
 import { DonoSection } from "@/components/marketing/dono-section";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { FaqSection } from "@/components/marketing/faq-section";
@@ -256,6 +258,12 @@ export default async function Home() {
 
       {/* ─── PROCESSO ─────────────────────────────────────────────────────── */}
       <ProcessoSection />
+
+      {/* ─── VEJA FUNCIONANDO (animação Da nota ao lucro) ─────────────────── */}
+      <VejaFuncionandoSection />
+
+      {/* ─── DIFERENCIAIS (por que o Superbar) ────────────────────────────── */}
+      <DiferenciaisSection />
 
       {/* ─── DONO MÉDIO vs DONO INTELIGENTE ───────────────────────────────── */}
       <DonoSection />
