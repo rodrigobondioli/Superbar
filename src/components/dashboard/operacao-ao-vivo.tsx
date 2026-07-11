@@ -106,7 +106,9 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
     const id = requestAnimationFrame(() => setBarrasVisiveis(true));
     return () => cancelAnimationFrame(id);
   }, []);
-  const isMobile = useIsMobile();
+  // Corte em 1280: iPad (paisagem ~1080–1194) usa o layout que rola e empilha
+  // (não corta nem vaza). Laptop/desktop (≥1280) mantém a grade tela-cheia.
+  const isMobile = useIsMobile(1280);
   const v = views[periodo];
   const aguardando = !!v.pending;
   const showSuper = superNome !== null && superMargem !== null;

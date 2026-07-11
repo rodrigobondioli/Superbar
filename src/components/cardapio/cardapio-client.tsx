@@ -71,13 +71,15 @@ function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
   };
 }
 
-/** Botão do segmentado "Drink (ficha) / Revenda (custo direto)" na categoria. */
+/** Botão do segmentado "Drink / Revenda" — discreto, com cara de toggle. */
 function segBtn(active: boolean): React.CSSProperties {
   return {
-    padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500,
+    padding: "5px 11px", borderRadius: 6, fontSize: 12, fontWeight: 500,
     border: "none", cursor: "pointer", whiteSpace: "nowrap",
-    background: active ? "var(--accent)" : "transparent",
-    color: active ? "var(--accent-fg)" : "var(--fg-muted)",
+    background: active ? "var(--bg-elevated)" : "transparent",
+    color: active ? "var(--fg)" : "var(--fg-subtle)",
+    boxShadow: active ? "0 1px 2px rgba(0,0,0,0.25)" : "none",
+    transition: "background 80ms, color 80ms",
   };
 }
 
@@ -811,6 +813,9 @@ export function CardapioClient({
   const [classicosOpen, setClassicosOpen] = useState(false);
   const [destaquesOpen, setDestaquesOpen] = useState(false);
   const [busca, setBusca] = useState("");
+  // Override local do usa_ficha por categoria — deixa o toggle instantâneo
+  // (troca na hora, persiste no servidor em background).
+  const [usaFichaOverride, setUsaFichaOverride] = useState<Record<string, boolean>>({});
 
   // Drag-and-drop para ordenar categorias (a ordem reflete no app do cliente).
   // `order` guarda a preferência do usuário; a ordem renderizada é derivada no
@@ -852,6 +857,14 @@ export function CardapioClient({
     .filter((p) => p.ativo && (p.produto_variantes ?? []).filter((v) => v.ativo).length === 0 && statusFicha(p, fichaSet) !== "confirmada").length;
 
   const selectedGrupo = cardapio.find(g => g.categoria.id === selectedId);
+
+  const usaFichaDe = (id: string, base: boolean) => usaFichaOverride[id] ?? base;
+  function toggleFicha(value: boolean) {
+    if (!selectedGrupo) return;
+    const id = selectedGrupo.categoria.id;
+    setUsaFichaOverride(o => ({ ...o, [id]: value })); // instantâneo
+    void definirUsaFicha(id, value);                    // persiste em background
+  }
 
   // Busca: quando preenchida, achata produtos de TODAS as categorias.
   const buscaQ = busca.trim().toLowerCase();
@@ -1030,15 +1043,26 @@ export function CardapioClient({
 
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
-          {/* Busca de produto (em todo o cardápio) */}
-          <div style={{ position: "relative", marginBottom: 16 }}>
-            <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
-            <input
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar produto no cardápio…"
-              style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
-            />
+          {/* Busca + toggle ficha/revenda da categoria selecionada */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+            <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+              <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
+              <input
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                placeholder="Buscar produto no cardápio…"
+                style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
+              />
+            </div>
+            {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
+              <div
+                style={{ display: "flex", gap: 2, background: "var(--bg-inset)", borderRadius: 8, padding: 3, flexShrink: 0 }}
+                title="Drink usa ficha (receita); revenda usa custo direto (águas, cervejas)."
+              >
+                <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Drink</button>
+                <button type="button" onClick={() => toggleFicha(false)} style={segBtn(!usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Revenda</button>
+              </div>
+            )}
           </div>
 
           {buscaQ ? (
@@ -1054,23 +1078,17 @@ export function CardapioClient({
                 resultadosBusca.map(({ produto, categoriaId, categoriaNome, usaFicha }) => (
                   <div key={produto.id}>
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "0 0 -2px 14px" }}>{categoriaNome}</p>
-                    <ProdutoRow produto={produto} categoriaId={categoriaId} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={usaFicha} />
+                    <ProdutoRow produto={produto} categoriaId={categoriaId} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={usaFichaDe(categoriaId, usaFicha)} />
                   </div>
                 ))
               )}
             </>
           ) : !selectedGrupo ? null : (
             <>
-              <div style={{ marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ marginBottom: 16 }}>
                 <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
                   {selectedGrupo.categoria.nome}
                 </h2>
-                {selectedGrupo.categoria.id !== "__sem__" && (
-                  <div style={{ display: "flex", gap: 3, background: "var(--bg-inset)", borderRadius: 999, padding: 3 }} title="Drink usa ficha (receita); revenda usa custo direto (ex: águas, cervejas).">
-                    <button type="button" onClick={() => { void definirUsaFicha(selectedGrupo.categoria.id, true); }} style={segBtn(selectedGrupo.categoria.usa_ficha)}>Drink (ficha)</button>
-                    <button type="button" onClick={() => { void definirUsaFicha(selectedGrupo.categoria.id, false); }} style={segBtn(!selectedGrupo.categoria.usa_ficha)}>Revenda (custo direto)</button>
-                  </div>
-                )}
               </div>
 
               {addingProduto && (
@@ -1102,7 +1120,7 @@ export function CardapioClient({
                 />
               ) : (
                 selectedGrupo.produtos.map(p => (
-                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={selectedGrupo.categoria.usa_ficha} />
+                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha)} />
                 ))
               )}
             </>

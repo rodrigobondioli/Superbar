@@ -83,7 +83,7 @@ export function DashboardSidebar({
       {/* ── Logo + toggle ── */}
       {!hideHeader && (
         <div style={{
-          padding: collapsed ? "14px 0" : "28px 20px 24px",
+          padding: collapsed ? "14px 0" : "16px 20px 14px",
           background: "var(--bg-card)",
           borderBottom: "1px solid var(--border)",
           display: "flex",
@@ -106,7 +106,7 @@ export function DashboardSidebar({
                 </button>
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon.svg" alt={barNome} style={{ width: 72, height: 72, borderRadius: "50%", display: "block", marginBottom: 12 }} />
+              <img src="/favicon.svg" alt={barNome} style={{ width: 48, height: 48, borderRadius: "50%", display: "block", marginBottom: 8 }} />
               <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", textAlign: "center", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {barNome}
               </span>
