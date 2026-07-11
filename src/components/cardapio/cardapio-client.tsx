@@ -1044,12 +1044,12 @@ export function CardapioClient({
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
           {/* Busca (padrão Clientes: 360px, sem ícone) + toggle ficha/revenda */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, justifyContent: "flex-end", flexWrap: "wrap" }}>
             <input
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar produto no cardápio…"
-              style={{ width: "100%", maxWidth: 360, boxSizing: "border-box", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark" }}
+              style={{ flex: "1 1 260px", maxWidth: 360, minWidth: 0, boxSizing: "border-box", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark" }}
             />
             {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
               <div
