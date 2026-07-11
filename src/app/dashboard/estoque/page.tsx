@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
-import { getEstoque, getMovimentosRecentes } from "@/lib/estoque/queries";
+import { getEstoque, getMovimentosRecentes, getDinheiroParado } from "@/lib/estoque/queries";
 import { EstoqueClient } from "@/components/estoque/estoque-client";
+import { DinheiroParadoCard } from "@/components/estoque/dinheiro-parado-card";
 
 export default async function EstoquePage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
 
-  const [itens, movimentos] = await Promise.all([
+  const [itens, movimentos, dinheiroParado] = await Promise.all([
     getEstoque(current.bar.id),
     getMovimentosRecentes(current.bar.id),
+    getDinheiroParado(current.bar.id),
   ]);
 
   const zerados = itens.filter(i => i.quantidadeAtual <= 0).length;
@@ -44,6 +46,13 @@ export default async function EstoquePage() {
           </div>
         ))}
       </div>
+
+      {/* Dinheiro parado — só quando há sinal */}
+      {dinheiroParado.itens.length > 0 && (
+        <div className="max-w-xl">
+          <DinheiroParadoCard dados={dinheiroParado} />
+        </div>
+      )}
 
       {/* Lista */}
       <EstoqueClient itens={itens} movimentos={movimentos} />

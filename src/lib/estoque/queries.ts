@@ -49,6 +49,75 @@ export async function getEstoque(barId: string): Promise<ItemEstoque[]> {
   }));
 }
 
+// ── Dinheiro parado (excess / slow-moving inventory) ────────────────────────
+// Capital dormindo na prateleira: insumo valorizado que NÃO teve saída ('venda')
+// nos últimos DIAS_PARADO dias. Guardrails: só insumo com custo e estoque > 0
+// (valorizável, honesto); gate anti-falso-positivo — se o bar não teve nenhuma
+// venda de insumo no período, é bar sem operação, não estoque encalhado (não
+// alarma); silencioso sem dado.
+
+export interface InsumoParado {
+  id: string;
+  nome: string;
+  unidade: string;
+  estoqueAtual: number;
+  custoUnitario: number;
+  valorParado: number;   // estoqueAtual * custoUnitario
+}
+
+export interface DinheiroParado {
+  total: number;              // R$ total parado
+  dias: number;               // janela sem giro considerada
+  itens: InsumoParado[];      // top N por valor
+}
+
+const DIAS_PARADO = 60;
+const VALOR_MIN_PARADO = 30;  // R$ — abaixo disso não vale puxar a atenção
+
+export async function getDinheiroParado(barId: string): Promise<DinheiroParado> {
+  const supabase = await createClient();
+  const desde = new Date(Date.now() - DIAS_PARADO * 86_400_000).toISOString();
+
+  const [{ data: insumos }, { data: vendas }] = await Promise.all([
+    supabase
+      .from("ingredientes")
+      .select("id, nome, unidade, estoque_atual, custo_atual")
+      .eq("bar_id", barId)
+      .eq("ativo", true)
+      .gt("estoque_atual", 0)
+      .gt("custo_atual", 0)
+      .returns<{ id: string; nome: string; unidade: string; estoque_atual: number; custo_atual: number }[]>(),
+    supabase
+      .from("ingrediente_movimentos")
+      .select("ingrediente_id")
+      .eq("bar_id", barId)
+      .eq("tipo", "venda")
+      .gte("criado_em", desde)
+      .returns<{ ingrediente_id: string }[]>(),
+  ]);
+
+  // Gate: bar sem NENHUMA venda de insumo no período não é "encalhe" — não alarma.
+  if (!vendas || vendas.length === 0) return { total: 0, dias: DIAS_PARADO, itens: [] };
+
+  const giraram = new Set(vendas.map((v) => v.ingrediente_id));
+
+  const parados = (insumos ?? [])
+    .filter((i) => !giraram.has(i.id))                         // não saiu no período
+    .map((i) => ({
+      id: i.id,
+      nome: i.nome,
+      unidade: i.unidade,
+      estoqueAtual: Number(i.estoque_atual),
+      custoUnitario: Number(i.custo_atual),
+      valorParado: Number(i.estoque_atual) * Number(i.custo_atual),
+    }))
+    .filter((i) => i.valorParado >= VALOR_MIN_PARADO)          // só o que pesa
+    .sort((a, b) => b.valorParado - a.valorParado);
+
+  const total = parados.reduce((s, i) => s + i.valorParado, 0);
+  return { total, dias: DIAS_PARADO, itens: parados.slice(0, 6) };
+}
+
 export interface MovimentoRecente {
   id: string;
   tipo: string;
