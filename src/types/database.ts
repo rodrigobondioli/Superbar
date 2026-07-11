@@ -484,6 +484,26 @@ export interface Database {
         Args: { p_comanda_id: string; p_bar_id: string };
         Returns: { ok: boolean; total?: number };
       };
+      registrar_pagamento: {
+        Args: {
+          p_comanda_id: string;
+          p_bar_id: string;
+          p_turno_id: string;
+          p_metodo: string;
+          p_incluir_servico: boolean;
+          p_taxa_pct: number;
+          p_user_id: string;
+          p_member_id: string | null;
+          p_referencia?: string | null;
+        };
+        Returns: {
+          ok: boolean;
+          total?: number;
+          total_pago?: number;
+          cliente_id?: string | null;
+          visitas?: number | null;
+        };
+      };
       merge_bar_config: {
         Args: { p_bar_id: string; p_patch: string };
         Returns: undefined;

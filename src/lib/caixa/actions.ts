@@ -2,9 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
+import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getOuCriarTurno } from "@/lib/dashboard/turno-actions";
 import type { PagamentoMetodo } from "@/types/database";
+
+type CaixaClient = Awaited<ReturnType<typeof createClient>>;
+
+type RegistrarPagamentoResult = {
+  ok: boolean;
+  total?: number;
+  total_pago?: number;
+  cliente_id?: string | null;
+  visitas?: number | null;
+} | null;
 
 export async function registrarPagamento(
   comandaId: string,
@@ -19,124 +29,38 @@ export async function registrarPagamento(
   if (!turno) return { error: "Erro ao iniciar turno." };
 
   const supabase = await createClient();
+  const taxaPct = current.bar.configuracoes?.taxa_servico_pct ?? 10;
 
-  // Atualiza status de forma atômica — elimina race condition de pagamento duplo.
-  // Se dois requests chegarem ao mesmo tempo, apenas o primeiro encontra
-  // status = "aguardando_pagamento"; o segundo recebe ok: false.
-  const { data: rpc } = await supabase
-    .rpc("marcar_comanda_paga", {
-      p_comanda_id: comandaId,
-      p_bar_id:     current.bar.id,
+  // Pagamento TRANSACIONAL (P0-1): marca comanda paga + registra pagamento +
+  // incrementa turno + agregados do cliente numa transação só. Falha parcial
+  // reverte tudo — nunca fica comanda paga sem lançamento. Mantém a guarda
+  // anti-pagamento-duplo (a 2ª chamada simultânea recebe ok:false).
+  const res = await supabase
+    .rpc("registrar_pagamento", {
+      p_comanda_id:      comandaId,
+      p_bar_id:          current.bar.id,
+      p_turno_id:        turno.id,
+      p_metodo:          metodo,
+      p_incluir_servico: incluirServico,
+      p_taxa_pct:        taxaPct,
+      p_user_id:         current.userId,
+      p_member_id:       current.atribuicaoMemberId,
+      p_referencia:      motivo ?? null,
     })
-    .single() as { data: { ok: boolean; total?: number } | null };
+    .single();
 
+  if (res.error) {
+    console.error("registrarPagamento: falha no RPC transacional", res.error);
+    return { error: "Não foi possível registrar o pagamento. Tente novamente." };
+  }
+
+  const rpc = res.data as RegistrarPagamentoResult;
   if (!rpc?.ok) return { error: "Comanda não encontrada ou já foi paga." };
 
-  const totalComanda = rpc.total ?? 0;
-
-  // Taxa de serviço — lê do bar, nunca hardcode
-  const taxaPct        = current.bar.configuracoes?.taxa_servico_pct ?? 10;
-  const aplicarServico = incluirServico && metodo !== "cortesia";
-  const servicoValor   = aplicarServico
-    ? Math.round(totalComanda * (taxaPct / 100) * 100) / 100
-    : null;
-  const totalPago = totalComanda + (servicoValor ?? 0);
-
-  // Insere pagamento
-  await supabase.from("pagamentos").insert({
-    comanda_id: comandaId,
-    bar_id: current.bar.id,
-    turno_id: turno.id,
-    valor: totalComanda,
-    taxa_servico_pct:   aplicarServico ? taxaPct : null,
-    taxa_servico_valor: servicoValor,
-    metodo,
-    status: "confirmado",
-    processado_por:           current.userId,
-    processado_por_member_id: current.atribuicaoMemberId,
-    processado_em: new Date().toISOString(),
-    referencia: motivo ?? null,
-  });
-
-  // Atualiza totais do turno (inclui taxa de serviço no faturado)
-  await supabase.rpc("incrementar_total_turno", {
-    p_turno_id: turno.id,
-    p_valor: totalPago,
-  });
-
-  // Atualiza agregados do cliente (se comanda tiver cliente vinculado)
-  const { data: cmdCliente } = await supabase
-    .from("comandas")
-    .select("cliente_id")
-    .eq("id", comandaId)
-    .single<{ cliente_id: string | null }>();
-
-  if (cmdCliente?.cliente_id) {
-    const cid = cmdCliente.cliente_id;
-    const { data: cli } = await supabase
-      .from("clientes")
-      .select("total_visitas, total_gasto")
-      .eq("id", cid)
-      .single<{ total_visitas: number; total_gasto: number }>();
-
-    if (cli) {
-      const novoTotal    = (cli.total_gasto ?? 0) + totalComanda;
-      const novasVisitas = (cli.total_visitas ?? 0) + 1;
-
-      // ── Detectar drink favorito automaticamente ──────────────────────────
-      // Lógica: se o produto mais pedido aparece em ≥5 comandas pagas
-      // E representa ≥50% das visitas → registra como drink_favorito.
-      // Só atualiza se o threshold for atingido; mantém o valor manual caso não seja.
-      let drinkFavorito: string | null = null;
-
-      if (novasVisitas >= 5) {
-        const { data: cmdIds } = await supabase
-          .from("comandas")
-          .select("id")
-          .eq("cliente_id", cid)
-          .eq("bar_id", current.bar.id)
-          .eq("status", "paga");
-
-        const ids = (cmdIds ?? []).map((c) => c.id);
-
-        if (ids.length >= 5) {
-          type ItemRow = { produto_id: string | null; comanda_id: string | null; produtos: { nome: string } | null };
-          const { data: items } = await supabase
-            .from("comanda_items")
-            .select("produto_id, comanda_id, produtos(nome)")
-            .in("comanda_id", ids)
-            .neq("status", "cancelado") as { data: ItemRow[] | null };
-
-          // Contar em quantas comandas distintas cada produto apareceu
-          const porcComanda = new Map<string, Set<string>>();
-          for (const item of items ?? []) {
-            const nome = item.produtos?.nome;
-            if (!nome || !item.comanda_id) continue;
-            if (!porcComanda.has(nome)) porcComanda.set(nome, new Set());
-            porcComanda.get(nome)!.add(item.comanda_id);
-          }
-
-          let topNome = "";
-          let topCount = 0;
-          for (const [nome, set] of porcComanda) {
-            if (set.size > topCount) { topCount = set.size; topNome = nome; }
-          }
-
-          // Threshold: ≥5 comandas absolutas E ≥50% das visitas
-          if (topNome && topCount >= 5 && topCount / ids.length >= 0.5) {
-            drinkFavorito = topNome;
-          }
-        }
-      }
-
-      await supabase.from("clientes").update({
-        total_visitas: novasVisitas,
-        total_gasto:   novoTotal,
-        ticket_medio:  Math.round((novoTotal / novasVisitas) * 100) / 100,
-        ultima_visita: new Date().toISOString(),
-        ...(drinkFavorito ? { drink_favorito: drinkFavorito } : {}),
-      }).eq("id", cid);
-    }
+  // Drink favorito — best-effort, NÃO-crítico (fora da transação financeira).
+  // Se falhar, nenhum valor é afetado.
+  if (rpc.cliente_id && (rpc.visitas ?? 0) >= 5) {
+    await detectarDrinkFavorito(supabase, current.bar.id, rpc.cliente_id);
   }
 
   revalidatePath("/caixa");
@@ -146,9 +70,9 @@ export async function registrarPagamento(
 }
 
 /**
- * Paga todas as comandas de uma mesa de uma vez.
- * Chama a lógica de registrarPagamento para cada comanda_id em série.
- * Erros parciais são tolerados (ex: comanda já paga por race condition).
+ * Paga todas as comandas de uma mesa. Cada comanda é paga por uma transação
+ * atômica independente (registrar_pagamento). Erros parciais são tolerados
+ * (ex.: comanda já paga por race) sem afetar as demais.
  */
 export async function registrarPagamentosMesa(
   comandaIds: string[],
@@ -168,50 +92,30 @@ export async function registrarPagamentosMesa(
   const taxaPct = current.bar.configuracoes?.taxa_servico_pct ?? 10;
 
   for (const comandaId of comandaIds) {
-    const { data: rpc } = await supabase
-      .rpc("marcar_comanda_paga", { p_comanda_id: comandaId, p_bar_id: current.bar.id })
-      .single() as { data: { ok: boolean; total?: number } | null };
+    const res = await supabase
+      .rpc("registrar_pagamento", {
+        p_comanda_id:      comandaId,
+        p_bar_id:          current.bar.id,
+        p_turno_id:        turno.id,
+        p_metodo:          metodo,
+        p_incluir_servico: incluirServico,
+        p_taxa_pct:        taxaPct,
+        p_user_id:         current.userId,
+        p_member_id:       current.atribuicaoMemberId,
+        p_referencia:      motivo ?? null,
+      })
+      .single();
 
+    if (res.error) {
+      console.error("registrarPagamentosMesa: falha no RPC", comandaId, res.error);
+      continue; // não interrompe as demais comandas da mesa
+    }
+
+    const rpc = res.data as RegistrarPagamentoResult;
     if (!rpc?.ok) continue; // já paga ou não encontrada — tolera
 
-    const totalComanda = rpc.total ?? 0;
-    const aplicarServico = incluirServico && metodo !== "cortesia";
-    const servicoValor   = aplicarServico ? Math.round(totalComanda * (taxaPct / 100) * 100) / 100 : null;
-    const totalPago      = totalComanda + (servicoValor ?? 0);
-
-    await supabase.from("pagamentos").insert({
-      comanda_id: comandaId,
-      bar_id: current.bar.id,
-      turno_id: turno.id,
-      valor: totalComanda,
-      taxa_servico_pct:   aplicarServico ? taxaPct : null,
-      taxa_servico_valor: servicoValor,
-      metodo, status: "confirmado",
-      processado_por:           current.userId,
-      processado_por_member_id: current.atribuicaoMemberId,
-      processado_em: new Date().toISOString(),
-      referencia: motivo ?? null,
-    });
-
-    await supabase.rpc("incrementar_total_turno", { p_turno_id: turno.id, p_valor: totalPago });
-
-    // Atualiza agregados de cliente (se houver vínculo)
-    const { data: cmdCliente } = await supabase
-      .from("comandas").select("cliente_id").eq("id", comandaId)
-      .single<{ cliente_id: string | null }>();
-
-    if (cmdCliente?.cliente_id) {
-      const { data: cli } = await supabase
-        .from("clientes").select("total_visitas, total_gasto").eq("id", cmdCliente.cliente_id)
-        .single<{ total_visitas: number; total_gasto: number }>();
-      if (cli) {
-        await supabase.from("clientes").update({
-          total_visitas: (cli.total_visitas ?? 0) + 1,
-          total_gasto:   (cli.total_gasto ?? 0) + totalComanda,
-          ticket_medio:  Math.round(((cli.total_gasto ?? 0) + totalComanda) / ((cli.total_visitas ?? 0) + 1) * 100) / 100,
-          ultima_visita: new Date().toISOString(),
-        }).eq("id", cmdCliente.cliente_id);
-      }
+    if (rpc.cliente_id && (rpc.visitas ?? 0) >= 5) {
+      await detectarDrinkFavorito(supabase, current.bar.id, rpc.cliente_id);
     }
   }
 
@@ -219,4 +123,51 @@ export async function registrarPagamentosMesa(
   revalidatePath("/dashboard/caixa");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/clientes");
+}
+
+/**
+ * Detecta o drink favorito do cliente (best-effort, não-financeiro):
+ * se o produto mais pedido aparece em ≥5 comandas pagas E em ≥50% das visitas,
+ * grava como drink_favorito. Só sobrescreve quando o threshold é atingido.
+ */
+async function detectarDrinkFavorito(
+  supabase: CaixaClient,
+  barId: string,
+  clienteId: string,
+) {
+  const { data: cmdIds } = await supabase
+    .from("comandas")
+    .select("id")
+    .eq("cliente_id", clienteId)
+    .eq("bar_id", barId)
+    .eq("status", "paga");
+
+  const ids = (cmdIds ?? []).map((c) => c.id);
+  if (ids.length < 5) return;
+
+  type ItemRow = { produto_id: string | null; comanda_id: string | null; produtos: { nome: string } | null };
+  const { data: items } = await supabase
+    .from("comanda_items")
+    .select("produto_id, comanda_id, produtos(nome)")
+    .in("comanda_id", ids)
+    .neq("status", "cancelado") as { data: ItemRow[] | null };
+
+  // Conta em quantas comandas distintas cada produto apareceu.
+  const porComanda = new Map<string, Set<string>>();
+  for (const item of items ?? []) {
+    const nome = item.produtos?.nome;
+    if (!nome || !item.comanda_id) continue;
+    if (!porComanda.has(nome)) porComanda.set(nome, new Set());
+    porComanda.get(nome)!.add(item.comanda_id);
+  }
+
+  let topNome = "";
+  let topCount = 0;
+  for (const [nome, set] of porComanda) {
+    if (set.size > topCount) { topCount = set.size; topNome = nome; }
+  }
+
+  if (topNome && topCount >= 5 && topCount / ids.length >= 0.5) {
+    await supabase.from("clientes").update({ drink_favorito: topNome }).eq("id", clienteId);
+  }
 }
