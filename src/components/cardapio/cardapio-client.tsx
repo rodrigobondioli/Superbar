@@ -1044,7 +1044,7 @@ export function CardapioClient({
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
           {/* Busca (padrão Clientes: 360px, sem ícone) + toggle ficha/revenda */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, justifyContent: "flex-end" }}>
             <input
               value={busca}
               onChange={e => setBusca(e.target.value)}
@@ -1054,10 +1054,10 @@ export function CardapioClient({
             {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
               <div
                 style={{ display: "flex", gap: 2, background: "transparent", border: "1px solid var(--border)", borderRadius: 999, padding: 3, flexShrink: 0 }}
-                title="Drink usa ficha (receita); revenda usa custo direto (águas, cervejas)."
+                title="Com ficha = drink montado (receita). Sem ficha = custo direto (águas, cervejas, comida)."
               >
-                <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Drink</button>
-                <button type="button" onClick={() => toggleFicha(false)} style={segBtn(!usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Revenda</button>
+                <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Com ficha</button>
+                <button type="button" onClick={() => toggleFicha(false)} style={segBtn(!usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Sem ficha</button>
               </div>
             )}
           </div>
