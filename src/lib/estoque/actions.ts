@@ -2,9 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { traduzirErro } from "@/lib/utils";
 import type { MovimentoTipo } from "@/types/database";
+
+/** Quem conta estoque: quem lida com a prateleira. Garçom/caixa ficam de fora. */
+const ROLES_CONTAGEM = ["dono", "gerente", "bar_manager", "bartender"];
 
 export type EstoqueResult = { ok: true } | { error: string } | null;
 
@@ -70,6 +74,102 @@ export async function registrarMovimento(
   revalidatePath("/dashboard/estoque");
   revalidatePath("/dashboard");
   return { ok: true };
+}
+
+// ── Contagem de insumos (re-baseline do estoque) ────────────────────────────
+
+export interface ContagemLinha {
+  ingredienteId: string;
+  contado: number;
+}
+
+export interface ContagemResultado {
+  nome: string;
+  unidade: string;
+  anterior: number;
+  contado: number;
+  diff: number;      // contado − anterior (negativo = sistema tinha a mais)
+  impacto: number;   // diff × custo_atual (R$)
+}
+
+export type SalvarContagemResult =
+  | { ok: true; itens: ContagemResultado[]; totalImpacto: number; ajustados: number }
+  | { error: string };
+
+/**
+ * Salva uma contagem física: ajusta ingredientes.estoque_atual para o valor
+ * contado e grava um movimento 'ajuste' (audit trail imutável). Só mexe nos
+ * insumos efetivamente enviados — insumo não contado NÃO é zerado.
+ */
+export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarContagemResult> {
+  const current = await getCurrentBar();
+  if (!current) return { error: "Não autenticado." };
+  if (!ROLES_CONTAGEM.includes(current.role)) return { error: "Sem permissão para contar estoque." };
+
+  const validas = linhas.filter((l) => Number.isFinite(l.contado) && l.contado >= 0);
+  if (validas.length === 0) return { error: "Nenhum insumo contado." };
+
+  // Admin client (untyped) — mesmo padrão das actions de NF-e para as tabelas de
+  // insumo. Segurança garantida pelo guard de role + escopo explícito por bar_id.
+  const admin = createAdminClient();
+  const ids = validas.map((l) => l.ingredienteId);
+
+  const { data: insumos } = await admin
+    .from("ingredientes")
+    .select("id, nome, unidade, estoque_atual, custo_atual")
+    .eq("bar_id", current.bar.id)
+    .in("id", ids)
+    .returns<{ id: string; nome: string; unidade: string; estoque_atual: number; custo_atual: number }[]>();
+
+  const porId = new Map((insumos ?? []).map((i) => [i.id, i]));
+  const agora = new Date().toISOString();
+
+  const itens: ContagemResultado[] = [];
+  for (const l of validas) {
+    const ins = porId.get(l.ingredienteId);
+    if (!ins) continue;
+
+    const anterior = Number(ins.estoque_atual);
+    const contado = Number(l.contado);
+    const diff = contado - anterior;
+
+    const { error: upErr } = await admin
+      .from("ingredientes")
+      .update({ estoque_atual: contado, atualizado_em: agora })
+      .eq("id", ins.id)
+      .eq("bar_id", current.bar.id);
+    if (upErr) return { error: traduzirErro(upErr.message) };
+
+    if (diff !== 0) {
+      await admin.from("ingrediente_movimentos").insert({
+        bar_id: current.bar.id,
+        ingrediente_id: ins.id,
+        tipo: "ajuste",
+        quantidade: diff,
+        custo_unitario: ins.custo_atual,
+        criado_por: current.userId,
+        motivo: "Contagem física",
+        criado_em: agora,
+      });
+    }
+
+    itens.push({
+      nome: ins.nome,
+      unidade: ins.unidade,
+      anterior,
+      contado,
+      diff,
+      impacto: diff * Number(ins.custo_atual),
+    });
+  }
+
+  itens.sort((a, b) => Math.abs(b.impacto) - Math.abs(a.impacto));
+  const totalImpacto = itens.reduce((s, r) => s + r.impacto, 0);
+  const ajustados = itens.filter((r) => r.diff !== 0).length;
+
+  revalidatePath("/dashboard/estoque");
+  revalidatePath("/dashboard");
+  return { ok: true, itens, totalImpacto, ajustados };
 }
 
 export async function atualizarMinimo(

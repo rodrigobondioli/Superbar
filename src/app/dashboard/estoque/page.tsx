@@ -31,6 +31,12 @@ export default async function EstoquePage() {
       <div className="max-lg:pb-4" style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
         <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Estoque</h1>
         <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Controle de estoque e reposição inteligente</p>
+        <a
+          href="/dashboard/estoque/contagem"
+          style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, alignSelf: "center", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 500, color: "var(--fg)", textDecoration: "none", whiteSpace: "nowrap" }}
+        >
+          Fazer contagem
+        </a>
       </div>
 
       {/* Semáforo */}

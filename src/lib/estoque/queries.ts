@@ -118,6 +118,29 @@ export async function getDinheiroParado(barId: string): Promise<DinheiroParado> 
   return { total, dias: DIAS_PARADO, itens: parados.slice(0, 6) };
 }
 
+// ── Contagem de insumos (inventário físico) ─────────────────────────────────
+// Contagem CEGA: o cliente recebe só id/nome/unidade — nunca o estoque esperado.
+// Assim a pessoa conta a realidade, não carimba o número do sistema (Princípio 12).
+// A diferença é calculada no servidor, depois de salvar.
+
+export interface InsumoContagem {
+  id: string;
+  nome: string;
+  unidade: string;
+}
+
+export async function getInsumosParaContagem(barId: string): Promise<InsumoContagem[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("ingredientes")
+    .select("id, nome, unidade")
+    .eq("bar_id", barId)
+    .eq("ativo", true)
+    .order("nome", { ascending: true })
+    .returns<InsumoContagem[]>();
+  return data ?? [];
+}
+
 export interface MovimentoRecente {
   id: string;
   tipo: string;
