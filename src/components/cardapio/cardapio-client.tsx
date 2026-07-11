@@ -74,11 +74,10 @@ function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
 /** Botão do segmentado "Drink / Revenda" — discreto, com cara de toggle. */
 function segBtn(active: boolean): React.CSSProperties {
   return {
-    padding: "5px 11px", borderRadius: 6, fontSize: 12, fontWeight: 500,
+    padding: "6px 14px", borderRadius: 999, fontSize: 12, fontWeight: 500,
     border: "none", cursor: "pointer", whiteSpace: "nowrap",
-    background: active ? "var(--bg-elevated)" : "transparent",
+    background: active ? "var(--bg-card)" : "transparent",
     color: active ? "var(--fg)" : "var(--fg-subtle)",
-    boxShadow: active ? "0 1px 2px rgba(0,0,0,0.25)" : "none",
     transition: "background 80ms, color 80ms",
   };
 }
@@ -547,22 +546,23 @@ function ProdutoRow({
             <FlaskConical style={{ width: 13, height: 13 }} />
             <span className="hidden sm:inline">Ficha</span>
           </button>
-        ) : (
+        ) : produto.custo == null ? (
+          // Revenda sem custo: só um recado discreto (margem cega aqui). Custo
+          // com valor não fica exposto na lista — edita no ⋯ → Editar.
           <button
             type="button"
             onClick={() => setEditing(true)}
-            title={produto.custo != null ? "Custo direto — clique para editar" : "Definir custo direto"}
+            title="Definir custo direto"
             style={{
               display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
               padding: "5px 12px", borderRadius: 999, fontSize: 13, cursor: "pointer",
               border: "1px solid var(--border-strong)", background: "transparent",
-              color: produto.custo != null ? "var(--fg-muted)" : "var(--warn)",
-              whiteSpace: "nowrap",
+              color: "var(--warn)", whiteSpace: "nowrap",
             }}
           >
-            {produto.custo != null ? `custo ${currency.format(produto.custo)}` : "definir custo"}
+            definir custo
           </button>
-        )}
+        ) : null}
 
         {/* Menu de ações — tudo consolidado no ⋯ (variantes, editar, ativar, deletar) */}
         <div style={{ position: "relative", flexShrink: 0 }}>
@@ -1046,17 +1046,17 @@ export function CardapioClient({
           {/* Busca + toggle ficha/revenda da categoria selecionada */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
             <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
-              <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
+              <Search size={15} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
               <input
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 placeholder="Buscar produto no cardápio…"
-                style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
+                style={{ width: "100%", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px 10px 40px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
               />
             </div>
             {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
               <div
-                style={{ display: "flex", gap: 2, background: "var(--bg-inset)", borderRadius: 8, padding: 3, flexShrink: 0 }}
+                style={{ display: "flex", gap: 2, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 999, padding: 3, flexShrink: 0 }}
                 title="Drink usa ficha (receita); revenda usa custo direto (águas, cervejas)."
               >
                 <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Drink</button>
@@ -1085,8 +1085,8 @@ export function CardapioClient({
             </>
           ) : !selectedGrupo ? null : (
             <>
-              <div style={{ marginBottom: 16 }}>
-                <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
+              <div style={{ margin: "6px 0 20px" }}>
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
                   {selectedGrupo.categoria.nome}
                 </h2>
               </div>
