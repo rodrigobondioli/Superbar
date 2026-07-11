@@ -33,43 +33,6 @@ function fromDateInput(val: string): string | null {
   return new Date(val + "T12:00:00").toISOString();
 }
 
-// ─── Follow-up badge ──────────────────────────────────────────────────────────
-
-function FollowUpChip({ date }: { date: string }) {
-  const d = new Date(date);
-  const diffDays = Math.ceil((d.getTime() - Date.now()) / 86_400_000);
-  const color = diffDays < 0 ? "var(--danger)" : diffDays <= 2 ? "var(--warn)" : "var(--fg-subtle)";
-  const label = diffDays < 0 ? `${Math.abs(diffDays)}d atrasado`
-    : diffDays === 0 ? "Hoje"
-    : diffDays === 1 ? "Amanhã"
-    : `${diffDays}d`;
-  return (
-    <span style={{ fontSize: 12, color, fontWeight: diffDays <= 0 ? 600 : 400 }}>
-      {label}
-    </span>
-  );
-}
-
-// ─── Origem: inbound (veio sozinho) vs ativo (você foi atrás) ──────────────────
-
-function OrigemChip({ origem }: { origem: string | null }) {
-  if (!origem) return null;
-  const inbound = origem === "Site";
-  const label = inbound ? "Inbound" : origem === "Prospecção ativa" ? "Ativo" : origem;
-  return (
-    <span style={{
-      fontSize: 12,
-      color: inbound ? "var(--accent)" : "var(--fg-muted)",
-      background: inbound
-        ? "color-mix(in srgb, var(--accent) 14%, transparent)"
-        : "color-mix(in srgb, var(--fg) 6%, transparent)",
-      borderRadius: 999, padding: "2px 8px",
-    }}>
-      {label}
-    </span>
-  );
-}
-
 // ─── Ordenação manual ──────────────────────────────────────────────────────────
 
 function ordemOf(l: Lead): number {
@@ -109,37 +72,16 @@ function LeadCard({
         transition: "opacity 150ms, border-color 150ms",
       }}
     >
-      <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: "0 0 2px", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: "0 0 4px", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {lead.nome_bar}
       </p>
-      <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {[lead.cidade, lead.tipo_bar].filter(Boolean).join(" · ")}
-      </p>
-
-      {lead.nome_responsavel && (
-        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 6px" }}>{lead.nome_responsavel}</p>
-      )}
-
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-        {lead.whatsapp && (
-          <a href={`https://wa.me/${lead.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer"
-            onClick={e => e.stopPropagation()}
-            style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>
-            {lead.whatsapp}
-          </a>
-        )}
-        {lead.email && (
-          <a href={`mailto:${lead.email}`} onClick={e => e.stopPropagation()}
-            style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 140 }}>
-            {lead.email}
-          </a>
-        )}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        {lead.follow_up_at && <FollowUpChip date={lead.follow_up_at} />}
-        <OrigemChip origem={lead.origem} />
-        <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums" }}>
+      {/* Card enxuto: nome, cidade · tipo e data. O resto (responsável, contatos,
+          origem, follow-up) vive só no painel de detalhe. */}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {[lead.cidade, lead.tipo_bar].filter(Boolean).join(" · ")}
+        </p>
+        <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
           {new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
         </span>
       </div>
@@ -240,7 +182,7 @@ function LeadPanel({
       {/* Panel */}
       <div style={{
         position: "fixed", top: 0, right: 0, bottom: 0,
-        width: 440, zIndex: 201,
+        width: 520, zIndex: 201,
         background: "var(--bg-elevated)",
         borderLeft: "1px solid var(--border)",
         display: "flex", flexDirection: "column",
