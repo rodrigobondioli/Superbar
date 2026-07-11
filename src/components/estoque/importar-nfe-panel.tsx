@@ -8,7 +8,7 @@ import { PassosImport } from "@/components/ui/passos-import";
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const inp: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 4,
+  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
   padding: "7px 9px", fontSize: 13, color: "var(--fg)", outline: "none",
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };
@@ -125,7 +125,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={loading}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "28px 16px", borderRadius: 12, border: "1px dashed var(--border-strong)", background: "var(--bg-card)", color: "var(--fg-muted)", cursor: loading ? "wait" : "pointer", fontSize: 14 }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "28px 16px", borderRadius: 16, border: "1px dashed var(--border-strong)", background: "var(--bg-card)", color: "var(--fg-muted)", cursor: loading ? "wait" : "pointer", fontSize: 14 }}
               >
                 <Upload size={18} /> {loading ? "Lendo…" : "Escolher arquivo XML"}
               </button>
@@ -147,7 +147,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {preview.itens.map((it, i) => (
-                  <div key={i} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 12, opacity: match[i] === "ignorar" ? 0.5 : 1 }}>
+                  <div key={i} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 12, opacity: match[i] === "ignorar" ? 0.5 : 1 }}>
                     <p style={{ fontSize: 14, color: "var(--fg)", margin: "0 0 8px", fontWeight: 500 }}>{it.nome}</p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px", gap: 8, alignItems: "center" }}>
                       <select value={match[i]} onChange={e => setMatch(m => m.map((v, j) => j === i ? e.target.value : v))} style={{ ...inp, cursor: "pointer" }}>

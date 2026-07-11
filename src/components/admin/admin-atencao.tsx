@@ -80,7 +80,7 @@ export function AdminAtencao({ bares }: { bares: BarResumo[] }) {
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)" }}>
               🔴 Ação imediata
             </span>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--danger-bg)", padding: "1px 8px", borderRadius: 99, border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)" }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--danger-bg)", padding: "1px 8px", borderRadius: 999, border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)" }}>
               {imediata.length}
             </span>
           </div>
@@ -99,7 +99,7 @@ export function AdminAtencao({ bares }: { bares: BarResumo[] }) {
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--warn)" }}>
               🟡 Verificar
             </span>
-            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--warn-bg)", padding: "1px 8px", borderRadius: 99, border: "1px solid color-mix(in srgb, var(--warn) 20%, transparent)" }}>
+            <span style={{ fontSize: 11, color: "var(--fg-subtle)", background: "var(--warn-bg)", padding: "1px 8px", borderRadius: 999, border: "1px solid color-mix(in srgb, var(--warn) 20%, transparent)" }}>
               {verificar.length}
             </span>
           </div>
@@ -143,7 +143,7 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
       {/* Avatar */}
       <div style={{
         width: 36, height: 36, margin: "14px 14px 14px 14px",
-        borderRadius: 6,
+        borderRadius: 8,
         background: `hsl(${hashCode(bar.id) % 360}, 40%, 18%)`,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 12, fontWeight: 700,
@@ -175,7 +175,7 @@ function ActionItem({ bar, urgency }: { bar: BarResumo; urgency: "imediata" | "v
         {bar.alertas.slice(0, 2).map((a, i) => (
           <span key={i} style={{
             fontSize: 10, fontWeight: 600,
-            padding: "2px 7px", borderRadius: 99,
+            padding: "2px 7px", borderRadius: 999,
             background: a.level === "red" ? "var(--danger-bg)" : "var(--warn-bg)",
             color: a.level === "red" ? "var(--danger)" : "var(--warn)",
             border: `1px solid color-mix(in srgb, ${a.level === "red" ? "var(--danger)" : "var(--warn)"} 20%, transparent)`,

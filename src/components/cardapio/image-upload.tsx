@@ -116,7 +116,7 @@ export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", on
             <div style={{
               position: "absolute", bottom: 4, left: 4,
               background: "color-mix(in srgb, var(--accent) 85%, transparent)",
-              borderRadius: 4, padding: "2px 5px",
+              borderRadius: 8, padding: "2px 5px",
               display: "flex", alignItems: "center", gap: 3,
             }}>
               <Sparkles style={{ width: 9, height: 9, color: "var(--accent-bright)" }} />
@@ -143,7 +143,7 @@ export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", on
             onClick={() => inputRef.current?.click()}
             style={{
               position: "absolute", bottom: 4, right: 4,
-              background: "var(--bg-inset)", border: "none", borderRadius: 4,
+              background: "var(--bg-inset)", border: "none", borderRadius: 8,
               color: "var(--fg-muted)", cursor: "pointer", padding: "3px 5px",
               fontSize: 10,
             }}

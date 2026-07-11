@@ -457,7 +457,7 @@ function ProductsScreen({
                 cursor: "pointer", textAlign: "left", fontFamily: FONT, opacity: esg ? 0.55 : 1,
               }}
             >
-              <div style={{ width: 78, height: 78, borderRadius: 12, flexShrink: 0, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD, filter: esg ? "grayscale(1)" : "none" }} />
+              <div style={{ width: 78, height: 78, borderRadius: 16, flexShrink: 0, background: produto.imagem_url ? `url(${produto.imagem_url}) center/cover` : CARD, filter: esg ? "grayscale(1)" : "none" }} />
               <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
                 <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", lineHeight: 1.25 }}>
                   {produto.nome}
@@ -517,7 +517,7 @@ function ProductDetailScreen({
     : semAlcool ? "Sem álcool" : null;
 
   const stat = (label: string, value: string) => (
-    <div key={label} style={{ flex: 1, minWidth: 0, background: CARD2, borderRadius: 14, padding: "12px 14px" }}>
+    <div key={label} style={{ flex: 1, minWidth: 0, background: CARD2, borderRadius: 16, padding: "12px 14px" }}>
       <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</p>
       <p style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>{value}</p>
     </div>
@@ -1147,7 +1147,7 @@ function HomeScreen({
           <div style={{ marginBottom: 22 }}>
             <p style={{ margin: "0 0 10px", fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 600 }}>Da última vez</p>
             <button onClick={() => onSelectProduto(ultimoProduto)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: CARD2, borderRadius: 16, padding: 12, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
-              <div style={{ width: 52, height: 52, borderRadius: 12, background: ultimoProduto.imagem_url ? `url(${ultimoProduto.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>{ultimoProduto.imagem_url ? "" : "🍸"}</div>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: ultimoProduto.imagem_url ? `url(${ultimoProduto.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>{ultimoProduto.imagem_url ? "" : "🍸"}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ultimoProduto.nome}</p>
                 {ultimoProduto.descricao && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ultimoProduto.descricao}</p>}
@@ -1181,7 +1181,7 @@ function HomeScreen({
                   setHeroDragging(false); setHeroDrag(0);
                   if (Math.abs(dx) > 48) setHeroIdx((i) => (i + (dx < 0 ? 1 : heroItems.length - 1)) % heroItems.length);
                 }}
-                style={{ overflow: "hidden", borderRadius: 20, touchAction: "pan-y" }}>
+                style={{ overflow: "hidden", borderRadius: 16, touchAction: "pan-y" }}>
                 <div style={{ display: "flex", transform: `translateX(calc(${-cur * 100}% + ${heroDrag}px))`, transition: heroDragging ? "none" : "transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1)", willChange: "transform" }}>
                   {heroItems.map((h, i) => (
                     <button
@@ -1267,7 +1267,7 @@ function HomeScreen({
 
         {/* Hub de decisão */}
         {N > 0 && (
-          <div style={{ background: CARD2, borderRadius: 22, padding: "18px 16px", marginBottom: 24 }}>
+          <div style={{ background: CARD2, borderRadius: 24, padding: "18px 16px", marginBottom: 24 }}>
             <p style={{ margin: "0 0 3px", fontSize: 18, fontWeight: 900, color: "var(--fg)", letterSpacing: "-0.4px", textAlign: "center" }}>Não sabe o que beber?</p>
             <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--fg-subtle)", textAlign: "center" }}>{mode === "surp" ? "Dois giros e a casa decide por você." : "Três perguntas. A casa acha o seu drink."}</p>
             <div style={{ display: "flex", gap: 4, background: "var(--bg)", borderRadius: 999, padding: 4, marginBottom: 16 }}>
@@ -1293,13 +1293,13 @@ function HomeScreen({
                     {/* impeccable-disable-next-line side-tab -- seta CSS (triângulo border-hack), não aba de card */}
                     <div style={{ position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderRight: "7px solid var(--fg-subtle)" }} />
                   </div>
-                  <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--bg)", borderRadius: 14, border: "1px solid var(--border)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)" }}>
+                  <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--bg)", borderRadius: 16, border: "1px solid var(--border)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%)" }}>
                     <div ref={reelRef} style={{ position: "absolute", left: 0, right: 0, top: 0 }}>
                       {Array.from({ length: N * copies }).map((_, i) => {
                         const p = pool[i % N];
                         return (
                           <div key={i} style={{ height: rowH, display: "flex", alignItems: "center", gap: 13, padding: "0 12px" }}>
-                            <div style={{ width: 44, height: 44, borderRadius: 12, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                            <div style={{ width: 44, height: 44, borderRadius: 16, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
                             <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg-subtle)" }}>{fmt(p.preco)}</span>
                           </div>
@@ -1331,7 +1331,7 @@ function HomeScreen({
                     <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px", textAlign: "center" }}>{VIBE_STEPS[step].q}</p>
                     {VIBE_STEPS[step].o.map((o) => (
                       <button key={o} onClick={() => { setPicks((prev) => { const n = [...prev]; n[step] = o; return n; }); setStep(step + 1); }}
-                        style={{ width: "100%", textAlign: "left", padding: "13px 15px", border: "1px solid var(--border)", borderRadius: 13, background: "var(--bg)", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT, marginBottom: 8 }}>
+                        style={{ width: "100%", textAlign: "left", padding: "13px 15px", border: "1px solid var(--border)", borderRadius: 16, background: "var(--bg)", color: "var(--fg)", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: FONT, marginBottom: 8 }}>
                         {o}
                       </button>
                     ))}
@@ -1341,8 +1341,8 @@ function HomeScreen({
                     <p style={{ margin: "0 0 4px", fontSize: 12, color: "var(--fg-subtle)" }}>Pra {(picks[0] ?? "").toLowerCase()}, {(picks[1] ?? "").toLowerCase()}:</p>
                     <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "var(--fg)" }}>A casa recomenda</p>
                     {recs.map((p) => (
-                      <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", gap: 11, alignItems: "center", background: "var(--bg)", borderRadius: 13, padding: 12, marginBottom: 8, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
-                        <div style={{ width: 42, height: 42, borderRadius: 11, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                      <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", gap: 11, alignItems: "center", background: "var(--bg)", borderRadius: 16, padding: 12, marginBottom: 8, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
+                        <div style={{ width: 42, height: 42, borderRadius: 8, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--fg)" }}>{p.nome}</p>
                           <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.descricao ?? "sugestão da casa"}</p>
@@ -1366,9 +1366,9 @@ function HomeScreen({
             <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "var(--fg)", letterSpacing: "-0.2px" }}>Os mais pedidos</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {topDrinks.map((p, i) => (
-                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: CARD2, borderRadius: 14, padding: 12, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
+                <button key={p.id} onClick={() => onSelectProduto(p)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: CARD2, borderRadius: 16, padding: 12, border: "none", cursor: "pointer", textAlign: "left", fontFamily: FONT }}>
                   <span style={{ fontSize: 18, fontWeight: 900, color: ACCENT, width: 22, flexShrink: 0, textAlign: "center" }}>{i + 1}</span>
-                  <div style={{ width: 44, height: 44, borderRadius: 11, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, background: p.imagem_url ? `url(${p.imagem_url}) center/cover` : CARD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{p.imagem_url ? "" : "🍸"}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nome}</p>
                     {p.descricao && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.descricao}</p>}
@@ -1470,13 +1470,13 @@ function ConsumacaoScreen({
 
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 22px 120px" }}>
         {justOrdered && (
-          <div style={{ background: "color-mix(in srgb, var(--ok) 16%, var(--bg))", border: "1px solid var(--ok)", color: "var(--ok)", borderRadius: 14, padding: "14px 16px", fontSize: 14, fontWeight: 800, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ background: "color-mix(in srgb, var(--ok) 16%, var(--bg))", border: "1px solid var(--ok)", color: "var(--ok)", borderRadius: 16, padding: "14px 16px", fontSize: 14, fontWeight: 800, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
             Pedido enviado — já foi pro bar!
           </div>
         )}
         {pedidoErro && !justOrdered && (
-          <div style={{ background: "var(--bg-card-hi, #242426)", border: "1px solid var(--danger)", color: "var(--fg)", borderRadius: 12, padding: "12px 14px", fontSize: 13, fontWeight: 600, marginBottom: 16, textAlign: "center" }}>{pedidoErro}</div>
+          <div style={{ background: "var(--bg-card-hi, #242426)", border: "1px solid var(--danger)", color: "var(--fg)", borderRadius: 16, padding: "12px 14px", fontSize: 13, fontWeight: 600, marginBottom: 16, textAlign: "center" }}>{pedidoErro}</div>
         )}
 
         {itens.length === 0 ? (

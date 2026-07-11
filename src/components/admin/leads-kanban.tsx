@@ -68,7 +68,7 @@ function LeadCard({
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderRadius: 12,
+        borderRadius: 16,
         padding: "14px 14px 12px",
         cursor: "grab",
         userSelect: "none",
@@ -614,7 +614,7 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
                 gap: 8,
                 background: isOver ? `color-mix(in srgb, ${stage.id === "convertido" ? "var(--ok)" : "var(--accent)"} 7%, transparent)` : "color-mix(in srgb, var(--fg) 2%, transparent)",
                 border: isOver ? `1px dashed ${stage.id === "convertido" ? "var(--ok)" : "var(--accent)"}` : "1px solid var(--border)",
-                borderRadius: 12,
+                borderRadius: 16,
                 padding: "0 10px 10px",
                 transition: "background 120ms, border-color 120ms",
                 minHeight: 120,
@@ -642,7 +642,7 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
                       style={{
                         flex: 1, minWidth: 0, fontSize: 13, fontWeight: 500, color: "var(--fg)",
                         background: "var(--bg-card-hi)", border: "1px solid var(--accent)",
-                        borderRadius: 6, padding: "2px 6px", outline: "none",
+                        borderRadius: 8, padding: "2px 6px", outline: "none",
                       }}
                     />
                   ) : (

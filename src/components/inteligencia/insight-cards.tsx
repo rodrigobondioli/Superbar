@@ -105,7 +105,7 @@ function InsightCard({
           style={{
             background: "none",
             border: "1px solid var(--border-strong)",
-            borderRadius: 4,
+            borderRadius: 8,
             padding: "6px 14px",
             fontSize: 12,
             fontWeight: 500,

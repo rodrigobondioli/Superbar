@@ -125,7 +125,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
             {filtrados.map((i) => {
               const embalagem = contaPorEmbalagem(i);
               return (
-                <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, flexWrap: "wrap" }}>
+                <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, flexWrap: "wrap" }}>
                   <span style={{ flex: 1, fontSize: 14, color: "var(--fg)", minWidth: 120 }}>{i.nome}</span>
 
                   {/* Contagem */}
@@ -232,7 +232,7 @@ function formatarEstoque(valorBase: number, r: ContagemResultado): string {
 
 function campo(w: number): React.CSSProperties {
   return {
-    width: w, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 6,
+    width: w, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
     padding: "8px 10px", fontSize: 14, color: "var(--fg)", outline: "none", colorScheme: "dark",
     textAlign: "right", fontVariantNumeric: "tabular-nums", flexShrink: 0,
   };

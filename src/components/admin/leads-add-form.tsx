@@ -143,7 +143,7 @@ export function LeadsAddForm() {
           <div style={{
             background: "var(--bg-elevated)",
             border: "1px solid var(--border)",
-            borderRadius: 12,
+            borderRadius: 16,
             padding: "28px 28px",
             width: 440,
             maxWidth: "90vw",

@@ -152,7 +152,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
       </div>
 
       {aguardando && (
-        <div style={{ padding: "10px 14px", borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", fontSize: 13, color: "var(--fg-muted)", flexShrink: 0 }}>
+        <div style={{ padding: "10px 14px", borderRadius: 16, background: "var(--bg-card)", border: "1px solid var(--border)", fontSize: 13, color: "var(--fg-muted)", flexShrink: 0 }}>
           Aguardando histórico deste período — os números aparecem quando o bar acumular dados.
         </div>
       )}
@@ -234,7 +234,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
           { label: "Mesas abertas agora", value: String(comandasAbertas) },
           { label: "Maior valor de comanda", value: v.maiorComanda === null ? "—" : `R$ ${v.maiorComanda.toLocaleString("pt-BR")}` },
         ].map((s) => (
-          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }} title={s.value === "—" ? "Disponível quando o bar acumular histórico" : undefined}>
               <span style={{ fontSize: 14, fontWeight: 600, color: s.value === "—" ? "var(--fg-subtle)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
@@ -254,7 +254,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
           <AiHeroInput fill={!isMobile} barId={barId} alertCount={alertCount} />
 
           {showSuper && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 20, padding: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "stretch", gap: isMobile ? 18 : 32, flexShrink: 0 }}>
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "stretch", gap: isMobile ? 18 : 32, flexShrink: 0 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 24, flex: "0 0 auto", minWidth: isMobile ? 0 : 150 }}>
                 <span style={superLabel}>Super ação</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

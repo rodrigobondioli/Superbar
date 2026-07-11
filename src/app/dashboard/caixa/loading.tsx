@@ -2,7 +2,7 @@
 export default function DashboardCaixaLoading() {
   const pulse: React.CSSProperties = {
     background: "color-mix(in srgb, var(--border) 60%, transparent)",
-    borderRadius: 6,
+    borderRadius: 8,
     animation: "pulse 1.4s ease-in-out infinite",
   };
 
@@ -55,7 +55,7 @@ export default function DashboardCaixaLoading() {
               </div>
               <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ ...pulse, height: 13, width: 50 }} />
-                <div style={{ ...pulse, height: 28, width: 110, borderRadius: 6 }} />
+                <div style={{ ...pulse, height: 28, width: 110, borderRadius: 8 }} />
               </div>
             </div>
           ))}

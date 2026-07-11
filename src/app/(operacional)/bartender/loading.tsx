@@ -2,7 +2,7 @@
 export default function BartenderLoading() {
   const pulse: React.CSSProperties = {
     background: "color-mix(in srgb, var(--border) 60%, transparent)",
-    borderRadius: 6,
+    borderRadius: 8,
     animation: "pulse 1.4s ease-in-out infinite",
   };
 

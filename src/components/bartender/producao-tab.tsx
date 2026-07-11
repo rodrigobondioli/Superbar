@@ -287,7 +287,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
               onClick={() => toggle(i)}
               style={{
                 background: "var(--bg-card)", border: `1px solid ${done ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
-                borderRadius: 14, padding: 16, cursor: "pointer",
+                borderRadius: 16, padding: 16, cursor: "pointer",
                 opacity: done ? 0.55 : 1, transition: "opacity 150ms, border-color 150ms",
               }}
             >

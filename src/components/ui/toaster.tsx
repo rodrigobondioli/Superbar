@@ -69,7 +69,7 @@ export function Toaster() {
               role="status"
               style={{
                 display: "flex", alignItems: "center", gap: 10,
-                padding: "13px 16px", borderRadius: 10,
+                padding: "13px 16px", borderRadius: 8,
                 background: "var(--bg-card-hi, #242426)",
                 border: "1px solid var(--border-strong)",
                 color: "var(--fg)",

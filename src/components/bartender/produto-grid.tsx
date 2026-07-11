@@ -81,7 +81,7 @@ function VariantePicker({
           <button
             type="button"
             onClick={onClose}
-            style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "none", borderRadius: 4, color: "var(--fg-muted)", cursor: "pointer", padding: 6, display: "flex", alignItems: "center" }}
+            style={{ background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "none", borderRadius: 8, color: "var(--fg-muted)", cursor: "pointer", padding: 6, display: "flex", alignItems: "center" }}
           >
             <X style={{ width: 14, height: 14 }} />
           </button>
@@ -100,7 +100,7 @@ function VariantePicker({
               }}
             >
               <div style={{
-                width: 48, height: 48, borderRadius: 4, flexShrink: 0,
+                width: 48, height: 48, borderRadius: 8, flexShrink: 0,
                 background: v.imagem_url ? `url(${v.imagem_url}) center/cover` : "var(--bg-inset)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
@@ -152,7 +152,7 @@ function ProdutoCard({
         border: qtdNoCarrinho > 0
           ? "1px solid color-mix(in srgb, var(--accent-bright) 40%, transparent)"
           : "none",
-        borderRadius: 12, padding: 12, textAlign: "left", cursor: "pointer",
+        borderRadius: 16, padding: 12, textAlign: "left", cursor: "pointer",
         transition: "background 0.15s, border-color 0.15s", position: "relative",
       }}
     >
@@ -169,7 +169,7 @@ function ProdutoCard({
       </div>
 
       {temVariantes && (
-        <div style={{ position: "absolute", top: 8, right: 8, background: "var(--accent-bright)", borderRadius: 4, padding: "2px 8px", fontSize: 9, fontWeight: 800, color: "#fff", letterSpacing: "0.04em" }}>
+        <div style={{ position: "absolute", top: 8, right: 8, background: "var(--accent-bright)", borderRadius: 8, padding: "2px 8px", fontSize: 9, fontWeight: 800, color: "#fff", letterSpacing: "0.04em" }}>
           {produto.produto_variantes.length} opções
         </div>
       )}
@@ -270,7 +270,7 @@ function CartBar({
                     value={e.observacao ?? ""}
                     onChange={ev => onChangeObs(key, ev.target.value)}
                     placeholder="Observação (ex: sem gelo)"
-                    style={{ width: "100%", marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 6, padding: "7px 10px", fontSize: 12, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 10px", fontSize: 12, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
               );
@@ -378,7 +378,7 @@ export function ProdutoGrid({ cardapio, comandaId, onEnviado }: { cardapio: Cate
           <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: "0 0 4px" }}>Nenhum produto cadastrado</p>
           <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Adicione produtos no cardápio para começar</p>
         </div>
-        <a href="/dashboard/cardapio" style={{ marginTop: 8, display: "inline-block", padding: "8px 16px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", textDecoration: "none" }}>
+        <a href="/dashboard/cardapio" style={{ marginTop: 8, display: "inline-block", padding: "8px 16px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 13, fontWeight: 500, color: "var(--fg-muted)", textDecoration: "none" }}>
           Ir para Cardápio →
         </a>
       </div>
@@ -409,7 +409,7 @@ export function ProdutoGrid({ cardapio, comandaId, onEnviado }: { cardapio: Cate
               </div>
               <button
                 onClick={() => setBuscaAtiva(true)}
-                style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 4, border: "none", background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 8, border: "none", background: "color-mix(in srgb, var(--fg) 6%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 <Search style={{ width: 15, height: 15 }} />
               </button>

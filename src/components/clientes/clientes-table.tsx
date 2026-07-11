@@ -76,7 +76,7 @@ export function ClientesTable({ clientes }: Props) {
   if (clientes.length === 0) {
     return (
       <div style={{
-        border: "1px solid var(--border)", borderRadius: 12,
+        border: "1px solid var(--border)", borderRadius: 16,
         padding: "48px 24px", textAlign: "center",
         color: "var(--fg-subtle)", fontSize: 14,
       }}>
@@ -159,7 +159,7 @@ export function ClientesTable({ clientes }: Props) {
                       style={{
                         width: "100%", boxSizing: "border-box",
                         background: "var(--bg)", border: "1px solid var(--border)",
-                        borderRadius: 6, padding: "6px 10px", fontSize: 13,
+                        borderRadius: 8, padding: "6px 10px", fontSize: 13,
                         color: "var(--fg)", outline: "none",
                       }}
                     />
@@ -177,7 +177,7 @@ export function ClientesTable({ clientes }: Props) {
                     style={{
                       width: "100%", boxSizing: "border-box",
                       background: "var(--bg)", border: "1px solid var(--border)",
-                      borderRadius: 6, padding: "6px 10px", fontSize: 13,
+                      borderRadius: 8, padding: "6px 10px", fontSize: 13,
                       color: "var(--fg)", outline: "none",
                     }}
                   />

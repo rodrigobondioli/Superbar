@@ -85,7 +85,7 @@ function PedidoCard({
           </p>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 4,
+          fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
           background: STATUS_BG[localStatus],
           color: STATUS_COLORS[localStatus],
           letterSpacing: "0.03em",

@@ -86,7 +86,7 @@ export function ClassicosPicker({
                       }}
                     >
                       <span style={{
-                        width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+                        width: 20, height: 20, borderRadius: 8, flexShrink: 0,
                         border: `1.5px solid ${on ? "var(--fg-muted)" : "var(--border-strong)"}`,
                         background: on ? "var(--fg-muted)" : "transparent",
                         display: "flex", alignItems: "center", justifyContent: "center",
@@ -104,7 +104,7 @@ export function ClassicosPicker({
                           inputMode="decimal"
                           placeholder="preço"
                           style={{
-                            width: 96, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 4,
+                            width: 96, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
                             padding: "7px 8px 7px 28px", fontSize: 13, color: "var(--fg)", outline: "none",
                             colorScheme: "dark", boxSizing: "border-box",
                           }}

@@ -177,7 +177,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
                   <td style={{ padding: "16px 16px 16px 0", borderBottom: "1px solid var(--border-strong)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{
-                        width: 34, height: 34, borderRadius: 6,
+                        width: 34, height: 34, borderRadius: 8,
                         background: `hsl(${hashCode(bar.id) % 360}, 40%, 18%)`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: 13, fontWeight: 700,

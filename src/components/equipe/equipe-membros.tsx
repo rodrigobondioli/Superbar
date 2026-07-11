@@ -269,7 +269,7 @@ function MembroItem({
               style={{
                 flex: 1, minWidth: 0, fontSize: 14, fontWeight: 500,
                 background: "var(--bg-inset)", border: "1px solid var(--border)",
-                borderRadius: 4, padding: "2px 8px", color: "var(--fg)", outline: "none",
+                borderRadius: 8, padding: "2px 8px", color: "var(--fg)", outline: "none",
               }}
             />
             <button onClick={saveNome} disabled={savingNome} style={{ ...BTN_ICON, color: "var(--ok)", padding: 3 }}>
@@ -302,7 +302,7 @@ function MembroItem({
             onChange={e => setRole(e.target.value as BarRole)}
             style={{
               flex: 1, background: "var(--bg-inset)", border: "1px solid var(--border)",
-              borderRadius: 4, padding: "4px 8px", fontSize: 12, color: "var(--fg)",
+              borderRadius: 8, padding: "4px 8px", fontSize: 12, color: "var(--fg)",
               outline: "none", colorScheme: "dark",
             }}
           >

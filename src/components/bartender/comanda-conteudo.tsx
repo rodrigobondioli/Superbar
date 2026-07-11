@@ -160,7 +160,7 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
             width: "100%", padding: "14px",
             background: "color-mix(in srgb, var(--danger) 10%, transparent)",
             border: "1px solid color-mix(in srgb, var(--danger) 25%, transparent)",
-            borderRadius: 12, textAlign: "center",
+            borderRadius: 16, textAlign: "center",
             color: "var(--danger)", fontSize: 14, fontWeight: 700,
           }}>
             Aguardando pagamento no caixa

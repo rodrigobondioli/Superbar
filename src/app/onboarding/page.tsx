@@ -28,7 +28,7 @@ const inp: React.CSSProperties = {
   width: "100%",
   background: "var(--bg-inset)",
   border: "1px solid var(--border)",
-  borderRadius: "4px",
+  borderRadius: "8px",
   padding: "12px 14px",
   color: "var(--fg)",
   fontSize: "14px",
@@ -41,7 +41,7 @@ const btnPrimary: React.CSSProperties = {
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: "4px",
+  borderRadius: "8px",
   padding: "12px 20px",
   fontSize: "14px",
   fontWeight: 600,
@@ -257,7 +257,7 @@ export default function OnboardingPage() {
                 maxWidth: "440px",
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border)",
-                borderRadius: "4px",
+                borderRadius: "8px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "20px",
@@ -300,7 +300,7 @@ export default function OnboardingPage() {
                     color: "var(--danger)",
                     background: "color-mix(in srgb, var(--danger) 10%, transparent)",
                     border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)",
-                    borderRadius: "4px",
+                    borderRadius: "8px",
                     padding: "10px 14px",
                     margin: 0,
                   }}
@@ -363,7 +363,7 @@ export default function OnboardingPage() {
                 maxWidth: "480px",
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border)",
-                borderRadius: "4px",
+                borderRadius: "8px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "20px",
@@ -379,7 +379,7 @@ export default function OnboardingPage() {
                     gap: 12,
                     padding: "40px 24px",
                     border: "1px dashed var(--border-strong)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                   }}
                 >
                   <div
@@ -409,7 +409,7 @@ export default function OnboardingPage() {
                     gap: 12,
                     padding: "40px 24px",
                     border: "1px dashed var(--border)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     background: "transparent",
                     cursor: "pointer",
                     width: "100%",
@@ -449,7 +449,7 @@ export default function OnboardingPage() {
                     color: "var(--danger)",
                     background: "color-mix(in srgb, var(--danger) 10%, transparent)",
                     border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     padding: "10px 12px",
                   }}
                 >
@@ -534,7 +534,7 @@ export default function OnboardingPage() {
                   padding: "10px 14px",
                   background: "color-mix(in srgb, var(--warn) 8%, transparent)",
                   border: "1px solid color-mix(in srgb, var(--warn) 20%, transparent)",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   fontSize: "13px",
                   color: "var(--fg-muted)",
                 }}
@@ -556,7 +556,7 @@ export default function OnboardingPage() {
               style={{
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border)",
-                borderRadius: 4,
+                borderRadius: 8,
                 overflow: "hidden",
                 marginBottom: 20,
               }}
@@ -710,7 +710,7 @@ export default function OnboardingPage() {
                 style={{
                   ...btnGhost,
                   border: "1px solid var(--border-strong)",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -772,7 +772,7 @@ export default function OnboardingPage() {
                   padding: "5px 10px",
                   background: "color-mix(in srgb, var(--ok) 12%, transparent)",
                   border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   fontSize: "12px",
                   fontWeight: 500,
                   color: "var(--ok)",
@@ -788,7 +788,7 @@ export default function OnboardingPage() {
               style={{
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border)",
-                borderRadius: 4,
+                borderRadius: 8,
                 overflow: "hidden",
                 marginBottom: 20,
               }}

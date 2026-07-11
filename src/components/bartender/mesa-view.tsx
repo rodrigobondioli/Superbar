@@ -122,7 +122,7 @@ export function MesaDrawer({
                   const nome = c.nome_cliente ?? `Pessoa ${i + 1}`;
                   const pagando = c.status === "aguardando_pagamento";
                   return (
-                    <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 14, padding: "12px 14px" }}>
+                    <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: "12px 14px" }}>
                       <div style={{ width: 38, height: 38, borderRadius: "50%", flexShrink: 0, background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "var(--fg-muted)" }}>
                         {nome.charAt(0).toUpperCase()}
                       </div>
@@ -171,7 +171,7 @@ export function MesaDrawer({
                 <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid var(--border-strong)" }}>
                   {!fechando ? (
                     <button onClick={abrirFechar} className="hover:brightness-110"
-                      style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg)", borderRadius: 12, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                      style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg)", borderRadius: 16, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
                       Fechar conta · enviar pro caixa
                     </button>
                   ) : (
@@ -188,8 +188,8 @@ export function MesaDrawer({
                               style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", cursor: "pointer",
                                 background: marcada ? "color-mix(in srgb, var(--accent) 8%, transparent)" : "var(--bg-card)",
                                 border: `1px solid ${marcada ? "color-mix(in srgb, var(--accent) 45%, transparent)" : "var(--border)"}`,
-                                borderRadius: 12, padding: "11px 14px" }}>
-                              <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                                borderRadius: 16, padding: "11px 14px" }}>
+                              <span style={{ width: 22, height: 22, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                                 background: marcada ? "var(--accent)" : "transparent", border: marcada ? "none" : "1.5px solid var(--border-strong)",
                                 color: "var(--accent-fg)", fontSize: 13, fontWeight: 800 }}>{marcada ? "✓" : ""}</span>
                               <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nome}</span>
@@ -199,11 +199,11 @@ export function MesaDrawer({
                         })}
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                        <button onClick={() => setFechando(false)} style={{ flexShrink: 0, background: "none", border: "1px solid var(--border)", borderRadius: 12, padding: "13px 18px", color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                        <button onClick={() => setFechando(false)} style={{ flexShrink: 0, background: "none", border: "1px solid var(--border)", borderRadius: 16, padding: "13px 18px", color: "var(--fg-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
                           Cancelar
                         </button>
                         <button onClick={() => enviarCaixa([...selFechar])} disabled={enviando || selFechar.size === 0} className="hover:brightness-110"
-                          style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: selFechar.size === 0 ? 0.5 : 1 }}>
+                          style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 16, padding: "13px", fontSize: 15, fontWeight: 700, cursor: "pointer", opacity: selFechar.size === 0 ? 0.5 : 1 }}>
                           {enviando ? "Enviando…" : `Enviar pro caixa (${selFechar.size})`}
                         </button>
                       </div>
@@ -221,7 +221,7 @@ export function MesaDrawer({
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 12 }}>
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <button key={n} onClick={() => { setSlots(Array(n).fill("")); setMode("slots"); }} className="hover:!border-[var(--accent)]"
-                    style={{ height: 60, borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 20, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-mono)" }}>
+                    style={{ height: 60, borderRadius: 16, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 20, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-mono)" }}>
                     {n}
                   </button>
                 ))}
@@ -261,7 +261,7 @@ export function MesaDrawer({
               </button>
               {erro && <p style={{ fontSize: 13, color: "var(--danger)", margin: "12px 0 0" }}>{erro}</p>}
               <button onClick={() => abrir(slots)} disabled={saving} className="hover:brightness-110"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginTop: 20, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 12, padding: "15px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginTop: 20, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 16, padding: "15px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 {saving ? <><Loader2 style={{ width: 16, height: 16 }} className="animate-spin" /> Abrindo…</> : "Abrir comandas"}
               </button>
             </>

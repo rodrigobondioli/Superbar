@@ -40,7 +40,7 @@ const lbl: React.CSSProperties = {
 
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)", border: "1px solid var(--border)",
-  borderRadius: 4, padding: "9px 12px", fontSize: 15,
+  borderRadius: 8, padding: "9px 12px", fontSize: 15,
   color: "var(--fg)", outline: "none", width: "100%",
   boxSizing: "border-box", colorScheme: "dark" as React.CSSProperties["colorScheme"],
 };
@@ -85,7 +85,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
         style={{
           background: "var(--bg-elevated)",
           border: "1px solid var(--border)",
-          borderRadius: 6,
+          borderRadius: 8,
           padding: 24,
           width: "100%",
           maxWidth: 440,
@@ -127,7 +127,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
                       background: sel ? "var(--bg)" : "transparent",
                       color: sel ? "var(--fg)" : "var(--fg-muted)",
                       border: sel ? "1px solid var(--border-strong)" : "1px solid var(--border)",
-                      borderRadius: 4, cursor: "pointer",
+                      borderRadius: 8, cursor: "pointer",
                       transition: "background 100ms, color 100ms",
                     }}
                   >
@@ -175,7 +175,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
           {/* Feedback */}
           {result && (
             <p style={{
-              fontSize: 12, padding: "8px 12px", borderRadius: 4,
+              fontSize: 12, padding: "8px 12px", borderRadius: 8,
               background: "ok" in result
                 ? "color-mix(in srgb, var(--ok) 10%, transparent)"
                 : "color-mix(in srgb, var(--danger) 10%, transparent)",
@@ -191,14 +191,14 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
           {/* Ações */}
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <button type="button" onClick={onClose} style={{
-              background: "none", border: "1px solid var(--border)", borderRadius: 4,
+              background: "none", border: "1px solid var(--border)", borderRadius: 8,
               padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
             }}>
               Cancelar
             </button>
             <button type="submit" disabled={pending || !qtd} style={{
               background: "var(--accent)", color: "var(--accent-fg)",
-              border: "none", borderRadius: 4,
+              border: "none", borderRadius: 8,
               padding: "9px 18px", fontSize: 13, fontWeight: 600,
               cursor: pending || !qtd ? "not-allowed" : "pointer",
               opacity: pending || !qtd ? 0.6 : 1,
@@ -318,7 +318,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                   background: "var(--danger)",
                   color: "#fff",
                   fontSize: 10, fontWeight: 700,
-                  borderRadius: 10, padding: "1px 5px",
+                  borderRadius: 8, padding: "1px 5px",
                 }}>
                   {count}
                 </span>
@@ -346,7 +346,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                       ? "color-mix(in srgb, var(--ok) 12%, transparent)"
                       : "none",
                     border: `1px solid ${copiadoLista ? "color-mix(in srgb, var(--ok) 30%, transparent)" : "var(--border)"}`,
-                    borderRadius: 4, padding: "5px 12px",
+                    borderRadius: 8, padding: "5px 12px",
                     fontSize: 12,
                     color: copiadoLista ? "var(--ok)" : "var(--fg-muted)",
                     cursor: "pointer", transition: "all 150ms",
@@ -418,7 +418,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                   <div key={item.id} style={{
                     background: "var(--bg-elevated)",
                     border: "1px solid var(--border)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     display: "flex", alignItems: "center",
                     gap: 12, padding: "12px 20px",
                   }}>
@@ -433,7 +433,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
                       onClick={() => setModalItem(item)}
                       style={{
                         background: "none", border: "1px solid var(--border)",
-                        borderRadius: 4, padding: "5px 12px",
+                        borderRadius: 8, padding: "5px 12px",
                         fontSize: 12, color: "var(--fg-muted)", cursor: "pointer",
                         whiteSpace: "nowrap",
                       }}
@@ -459,7 +459,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
             <div style={{
               background: "var(--bg-elevated)",
               border: "1px solid var(--border)",
-              borderRadius: 4,
+              borderRadius: 8,
               overflow: "hidden",
             }}>
               {movimentos.map((mov, i) => {

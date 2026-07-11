@@ -34,7 +34,7 @@ export function SettingsButton({
           style={{
             display: "flex", alignItems: "center", gap: touchMode ? 12 : 8, width: "100%", textAlign: "left",
             padding: touchMode ? "12px 14px" : "7px 10px", background: "none", border: "none", cursor: "pointer",
-            fontSize: touchMode ? 14 : 12, color: touchMode ? "var(--fg-muted)" : "var(--fg-subtle)", borderRadius: 6,
+            fontSize: touchMode ? 14 : 12, color: touchMode ? "var(--fg-muted)" : "var(--fg-subtle)", borderRadius: 8,
           }}
           className="hover:!text-[var(--fg-muted)]"
         >
@@ -50,7 +50,7 @@ export function SettingsButton({
           display: "flex", alignItems: "center", gap: 4,
           background: "none", border: "none",
           cursor: "pointer", padding: 0,
-          borderRadius: 4,
+          borderRadius: 8,
         }}
       >
         <div style={{ position: "relative", flexShrink: 0 }}>

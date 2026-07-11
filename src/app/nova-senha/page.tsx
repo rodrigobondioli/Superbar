@@ -89,7 +89,7 @@ export default function NovaSenhaPage() {
 
           <div
             className="p-6 sm:p-10"
-            style={{ width: "100%", maxWidth: "420px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "4px" }}
+            style={{ width: "100%", maxWidth: "420px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "8px" }}
           >
 
             {expirado ? (
@@ -126,7 +126,7 @@ export default function NovaSenhaPage() {
                 />
 
                 {erro && (
-                  <p style={{ fontSize: 13, borderRadius: 4, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
+                  <p style={{ fontSize: 13, borderRadius: 8, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
                     {erro}
                   </p>
                 )}

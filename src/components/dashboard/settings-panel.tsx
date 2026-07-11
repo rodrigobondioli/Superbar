@@ -376,7 +376,7 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px",
         background: "var(--bg-inset)",
-        borderRadius: 6,
+        borderRadius: 8,
         gap: 16,
       }}>
         <div>
@@ -400,7 +400,7 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
           style={{
             flexShrink: 0,
             width: 44, height: 24,
-            borderRadius: 12,
+            borderRadius: 16,
             border: "none",
             cursor: saving ? "default" : "pointer",
             background: enabled ? "var(--accent)" : "rgba(255,255,255,0.15)",
@@ -422,7 +422,7 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
       </div>
 
       {/* Toggle fluxo_pronto */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", marginTop: 10, background: "var(--bg-inset)", borderRadius: 6, gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", marginTop: 10, background: "var(--bg-inset)", borderRadius: 8, gap: 16 }}>
         <div>
           <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: "0 0 3px" }}>
             Garçom retira o drink pronto
@@ -434,7 +434,7 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
           </p>
         </div>
         <button type="button" role="switch" aria-checked={pronto} onClick={handleProntoToggle} disabled={prontoSaving}
-          style={{ flexShrink: 0, width: 44, height: 24, borderRadius: 12, border: "none", cursor: prontoSaving ? "default" : "pointer", background: pronto ? "var(--accent)" : "rgba(255,255,255,0.15)", position: "relative", transition: "background 200ms", opacity: prontoSaving ? 0.7 : 1 }}>
+          style={{ flexShrink: 0, width: 44, height: 24, borderRadius: 16, border: "none", cursor: prontoSaving ? "default" : "pointer", background: pronto ? "var(--accent)" : "rgba(255,255,255,0.15)", position: "relative", transition: "background 200ms", opacity: prontoSaving ? 0.7 : 1 }}>
           <span style={{ position: "absolute", top: 3, left: pronto ? 23 : 3, width: 18, height: 18, borderRadius: "50%", background: "#ffffff", transition: "left 200ms", display: "block" }} />
         </button>
       </div>
@@ -444,7 +444,7 @@ function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { b
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px", marginTop: 10,
         background: "var(--bg-inset)",
-        borderRadius: 6,
+        borderRadius: 8,
         gap: 16,
       }}>
         <div style={{ flex: 1 }}>
@@ -505,7 +505,7 @@ function DispositivosSection() {
 
       <div style={{
         background: "var(--bg-inset)",
-        borderRadius: 6, padding: "16px",
+        borderRadius: 8, padding: "16px",
         display: "flex", flexDirection: "column", gap: 12,
       }}>
         <div>
@@ -595,7 +595,7 @@ export function SettingsPanel({
             onClick={onClose}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 36, height: 36, borderRadius: 4,
+              width: 36, height: 36, borderRadius: 8,
               background: "transparent", border: "1px solid var(--border)",
               color: "var(--fg-muted)", cursor: "pointer",
               transition: "border-color 150ms, color 150ms",
@@ -646,7 +646,7 @@ export function SettingsPanel({
                 style={{
                   background: "transparent",
                   border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   padding: "9px 18px",
                   fontSize: 13,
                   fontWeight: 500,

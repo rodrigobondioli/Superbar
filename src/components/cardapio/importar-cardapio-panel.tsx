@@ -12,7 +12,7 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)",
   border: "1px solid var(--border)",
-  borderRadius: 4,
+  borderRadius: 8,
   padding: "9px 12px",
   fontSize: 13,
   color: "var(--fg)",
@@ -192,7 +192,7 @@ export function ImportarCardapioPanel({
               justifyContent: "center",
               width: 36,
               height: 36,
-              borderRadius: 4,
+              borderRadius: 8,
               background: "transparent",
               border: "1px solid var(--border)",
               color: "var(--fg-muted)",
@@ -235,7 +235,7 @@ export function ImportarCardapioPanel({
                     gap: 12,
                     padding: "40px 24px",
                     border: "1px dashed var(--border-strong)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                   }}
                 >
                   <div
@@ -264,7 +264,7 @@ export function ImportarCardapioPanel({
                     gap: 10,
                     padding: "32px 20px",
                     border: "1px dashed var(--border)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     background: "transparent",
                     cursor: "pointer",
                     width: "100%",
@@ -301,7 +301,7 @@ export function ImportarCardapioPanel({
                     color: "var(--danger)",
                     background: "color-mix(in srgb, var(--danger) 10%, transparent)",
                     border: "1px solid color-mix(in srgb, var(--danger) 20%, transparent)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     padding: "10px 12px",
                   }}
                 >
@@ -321,7 +321,7 @@ export function ImportarCardapioPanel({
                   style={{
                     fontSize: 12,
                     padding: "4px 10px",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     background: "color-mix(in srgb, var(--ok) 10%, transparent)",
                     border: "1px solid color-mix(in srgb, var(--ok) 20%, transparent)",
                     color: "var(--ok)",
@@ -335,7 +335,7 @@ export function ImportarCardapioPanel({
                     style={{
                       fontSize: 12,
                       padding: "4px 10px",
-                      borderRadius: 4,
+                      borderRadius: 8,
                       background: "color-mix(in srgb, var(--warn) 10%, transparent)",
                       border: "1px solid color-mix(in srgb, var(--warn) 20%, transparent)",
                       color: "var(--warn)",
@@ -358,7 +358,7 @@ export function ImportarCardapioPanel({
                     color: "var(--fg-muted)",
                     background: "color-mix(in srgb, var(--warn) 6%, transparent)",
                     border: "1px solid color-mix(in srgb, var(--warn) 15%, transparent)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     padding: "10px 12px",
                   }}
                 >
@@ -375,7 +375,7 @@ export function ImportarCardapioPanel({
               <div
                 style={{
                   border: "1px solid var(--border)",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   overflow: "hidden",
                 }}
               >
@@ -432,7 +432,7 @@ export function ImportarCardapioPanel({
                             display: "flex",
                             flexShrink: 0,
                             border: "1px solid var(--border)",
-                            borderRadius: 4,
+                            borderRadius: 8,
                             overflow: "hidden",
                           }}
                         >
@@ -478,7 +478,7 @@ export function ImportarCardapioPanel({
                             padding: "4px 8px",
                             background: "color-mix(in srgb, var(--ok) 10%, transparent)",
                             border: "1px solid color-mix(in srgb, var(--ok) 20%, transparent)",
-                            borderRadius: 4,
+                            borderRadius: 8,
                           }}
                         >
                           Novo
@@ -503,7 +503,7 @@ export function ImportarCardapioPanel({
                     padding: "10px",
                     background: "transparent",
                     border: "1px solid var(--border-strong)",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     color: "var(--fg-muted)",
                     fontSize: 13,
                     cursor: "pointer",
@@ -521,7 +521,7 @@ export function ImportarCardapioPanel({
                     background: "var(--accent)",
                     color: "var(--accent-fg)",
                     border: "none",
-                    borderRadius: 4,
+                    borderRadius: 8,
                     fontSize: 13,
                     fontWeight: 600,
                     cursor:
@@ -580,7 +580,7 @@ export function ImportarCardapioPanel({
                   background: "var(--accent)",
                   color: "var(--accent-fg)",
                   border: "none",
-                  borderRadius: 4,
+                  borderRadius: 8,
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: "pointer",

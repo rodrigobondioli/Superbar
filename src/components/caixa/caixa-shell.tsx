@@ -181,7 +181,7 @@ function ComandaPagamentoSheet({
       }}>
         {/* Handle + Header */}
         <div style={{ padding: "16px 20px 0", flexShrink: 0 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 16px" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 8, background: "var(--border-strong)", margin: "0 auto 16px" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
             <div>
               <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 2px" }}>
@@ -332,7 +332,7 @@ function TabMesas({ mesas, barNome, taxaServicoPct = 10 }: { mesas: MesaComStatu
           </p>
           {aguardandoCount > 0 && (
             <span style={{
-              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 4,
+              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 8,
               background: "var(--warn-bg)",
               border: "1px solid color-mix(in srgb, var(--warn) 35%, transparent)",
               color: "var(--warn)",
@@ -342,7 +342,7 @@ function TabMesas({ mesas, barNome, taxaServicoPct = 10 }: { mesas: MesaComStatu
           )}
           {livreCount > 0 && (
             <span style={{
-              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 4,
+              fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 8,
               background: "color-mix(in srgb, var(--fg) 5%, transparent)",
               border: "1px solid var(--border)",
               color: "var(--fg-subtle)",
@@ -403,7 +403,7 @@ function TabMesas({ mesas, barNome, taxaServicoPct = 10 }: { mesas: MesaComStatu
                       <span style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)" }}>{label}</span>
                       {querPagar && (
                         <span style={{
-                          fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
+                          fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8,
                           background: "var(--warn-bg)", color: "var(--warn)",
                           textTransform: "uppercase" as const, letterSpacing: "0.06em",
                         }}>
@@ -626,7 +626,7 @@ export function CaixaShell({
               {badge ? (
                 <span style={{
                   position: "absolute", top: 8, right: 8,
-                  minWidth: 18, height: 18, borderRadius: 9,
+                  minWidth: 18, height: 18, borderRadius: 8,
                   background: "var(--danger)",
                   color: "#fff", fontSize: 10, fontWeight: 700,
                   display: "flex", alignItems: "center", justifyContent: "center",

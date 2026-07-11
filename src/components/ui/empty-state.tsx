@@ -66,7 +66,7 @@ export function EmptyStateButton({
     alignItems: "center",
     gap: 6,
     padding: "10px 20px",
-    borderRadius: 4,
+    borderRadius: 8,
     fontSize: 13,
     fontWeight: 600,
     cursor: "pointer",

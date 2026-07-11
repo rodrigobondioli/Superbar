@@ -25,7 +25,7 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
     <div style={{
       background: "var(--bg-elevated)",
       border: "1px solid var(--border-strong)",
-      borderRadius: "4px",
+      borderRadius: "8px",
       padding: "8px 12px",
     }}>
       <p style={{ fontSize: "11px", fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.6px", margin: 0 }}>

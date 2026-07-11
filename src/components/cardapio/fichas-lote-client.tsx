@@ -186,7 +186,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
                     value={i.custoUnitario != null ? String(i.custoUnitario) : ""}
                     onChange={(e) => setCusto(i.key, e.target.value)}
                     inputMode="decimal" placeholder="—"
-                    style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px 8px 8px 28px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box", textAlign: "right" }}
+                    style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 8px 8px 28px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box", textAlign: "right" }}
                   />
                 </div>
               </div>

@@ -85,7 +85,7 @@ function segBtn(active: boolean): React.CSSProperties {
 const input: React.CSSProperties = {
   background: "var(--bg-inset)",
   border: "1px solid var(--border)",
-  borderRadius: 4,
+  borderRadius: 8,
   padding: "9px 12px",
   fontSize: 13,
   color: "var(--fg)",
@@ -136,7 +136,7 @@ const iconBtn: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   padding: 6,
-  borderRadius: 4,
+  borderRadius: 8,
   color: "var(--fg-subtle)",
 };
 
@@ -244,7 +244,7 @@ function VarianteRow({ variante, produtoId, produtoNome, produtoDescricao, ficha
         onClick={!variante.imagem_url ? () => setEditing(true) : undefined}
         title={!variante.imagem_url ? "Adicionar imagem" : undefined}
         style={{
-          width: 48, height: 48, borderRadius: 4, flexShrink: 0,
+          width: 48, height: 48, borderRadius: 8, flexShrink: 0,
           background: variante.imagem_url
             ? `url(${variante.imagem_url}) center/cover`
             : "var(--bg-inset)",
@@ -329,7 +329,7 @@ function ProdutoForm({
     <div className="produto-form max-lg:!border-0 max-lg:!bg-transparent max-lg:!p-0 max-lg:!mb-0" style={{
       background: "var(--bg-elevated)",
       border: "1px solid var(--border)",
-      borderRadius: 4,
+      borderRadius: 8,
       padding: 16,
       marginBottom: 10,
     }}>
@@ -585,7 +585,7 @@ function ProdutoRow({
                 style={{
                   position: "absolute", top: "calc(100% + 4px)", right: 0, zIndex: 41,
                   minWidth: 200, background: "var(--bg-elevated)",
-                  border: "1px solid var(--border)", borderRadius: 10,
+                  border: "1px solid var(--border)", borderRadius: 8,
                   boxShadow: "0 8px 28px rgba(0,0,0,0.4)", overflow: "hidden", padding: "4px 0",
                 }}
               >
@@ -1149,7 +1149,7 @@ export function CardapioClient({
             style={{
               position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
               zIndex: 100, width: "min(94vw, 600px)", maxHeight: "88vh", overflowY: "auto",
-              background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12,
+              background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 16,
               padding: 28,
             }}
           >

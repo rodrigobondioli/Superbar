@@ -97,7 +97,7 @@ function QRModal({ mesa, onClose }: { mesa: Mesa; onClose: () => void }) {
       <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }} />
       <div style={{ position: "fixed", inset: 0, zIndex: 201, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, pointerEvents: "none" }}>
         <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 16, padding: "28px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, pointerEvents: "all", maxWidth: 340, width: "100%", position: "relative" }}>
-          <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, background: "transparent", border: "none", cursor: "pointer", color: "var(--fg-subtle)", display: "flex", padding: 6, borderRadius: 6 }}><X style={{ width: 16, height: 16 }} /></button>
+          <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, background: "transparent", border: "none", cursor: "pointer", color: "var(--fg-subtle)", display: "flex", padding: 6, borderRadius: 8 }}><X style={{ width: 16, height: 16 }} /></button>
           <p style={{ fontSize: 11, fontWeight: 600, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>QR Code</p>
           <p style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{label}</p>
           <div style={{ background: "#fff", padding: 16, borderRadius: 8 }}>

@@ -72,7 +72,7 @@ function FecharTurnoButton({ turnoId }: { turnoId: string }) {
           type="button"
           onClick={() => setConfirming(true)}
           style={{
-            padding: "10px 20px", borderRadius: 4,
+            padding: "10px 20px", borderRadius: 8,
             background: "var(--danger-bg)",
             border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
             color: "var(--danger)",

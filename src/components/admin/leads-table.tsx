@@ -47,7 +47,7 @@ export function LeadsTable({ leads: initial }: { leads: Lead[] }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
       {leads.map((lead, i) => (
         <div
           key={lead.id}
@@ -132,7 +132,7 @@ export function LeadsTable({ leads: initial }: { leads: Lead[] }) {
                 background: "color-mix(in srgb, " + (STATUS_COLOR[lead.status] ?? "var(--fg-subtle)") + " 12%, transparent)",
                 color: STATUS_COLOR[lead.status] ?? "var(--fg-subtle)",
                 border: "1px solid " + (STATUS_COLOR[lead.status] ?? "var(--border)"),
-                borderRadius: 6,
+                borderRadius: 8,
                 padding: "4px 10px",
                 fontSize: 12,
                 fontWeight: 600,

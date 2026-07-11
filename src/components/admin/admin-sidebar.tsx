@@ -36,7 +36,7 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
       {/* Header */}
       <div style={{ padding: "28px 20px 24px", background: "var(--bg-card)", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 72, height: 72, borderRadius: 18, display: "block", marginBottom: 12 }} />
+        <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 72, height: 72, borderRadius: 16, display: "block", marginBottom: 12 }} />
         <span style={{ display: "block", fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", marginBottom: 8 }}>
           SUPERBAR
         </span>

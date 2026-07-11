@@ -98,7 +98,7 @@ export function DashboardSidebar({
                 <button onClick={onToggleCollapse} aria-label="Colapsar menu" style={{
                   position: "absolute", top: 14, right: 14,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 28, height: 28, borderRadius: 6,
+                  width: 28, height: 28, borderRadius: 8,
                   background: "none", border: "none", cursor: "pointer",
                   color: "var(--fg-subtle)", flexShrink: 0,
                 }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
@@ -122,11 +122,11 @@ export function DashboardSidebar({
           {collapsed && (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 7, display: "block" }} />
+              <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 8, display: "block" }} />
               {onToggleCollapse && (
                 <button onClick={onToggleCollapse} aria-label="Expandir menu" style={{
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 28, height: 28, borderRadius: 6,
+                  width: 28, height: 28, borderRadius: 8,
                   background: "none", border: "none", cursor: "pointer",
                   color: "var(--fg-subtle)",
                 }} className="hover:!text-[var(--fg)] hover:!bg-white/[0.06]">
@@ -174,7 +174,7 @@ export function DashboardSidebar({
               {!collapsed && "badge" in link && link.badge && insightCount > 0 && (
                 <span style={{
                   fontSize: 10, fontWeight: 700,
-                  padding: "2px 6px", borderRadius: 10,
+                  padding: "2px 6px", borderRadius: 8,
                   background: "var(--danger)",
                   color: "#fff",
                   minWidth: 18,
@@ -240,7 +240,7 @@ export function DashboardSidebar({
                   background: "none", border: "none", cursor: "pointer",
                   fontSize: touchMode ? "14px" : "12px",
                   color: "var(--fg-subtle)",
-                  borderRadius: 6,
+                  borderRadius: 8,
                 }}
                 className="hover:!text-[var(--fg-muted)]"
               >

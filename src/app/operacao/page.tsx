@@ -40,7 +40,7 @@ export default async function OperacaoPage() {
               }}
             >
               <span style={{
-                width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+                width: 52, height: 52, borderRadius: 16, flexShrink: 0,
                 background: "color-mix(in srgb, var(--accent) 16%, transparent)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>

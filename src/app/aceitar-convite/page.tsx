@@ -111,7 +111,7 @@ export default function AceitarConvitePage() {
                 Escolha uma senha para acessar o SUPERBAR.
               </p>
 
-              <div style={{ width: "100%", maxWidth: "420px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "4px", padding: "40px" }}>
+              <div style={{ width: "100%", maxWidth: "420px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "8px", padding: "40px" }}>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <Input
                     type="password"
@@ -129,7 +129,7 @@ export default function AceitarConvitePage() {
                   />
 
                   {erro && (
-                    <p style={{ fontSize: 13, borderRadius: 4, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
+                    <p style={{ fontSize: 13, borderRadius: 8, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
                       {erro}
                     </p>
                   )}

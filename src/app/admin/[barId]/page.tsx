@@ -89,7 +89,7 @@ function QuestionSection({
         <span style={{
           fontSize: 12, fontWeight: 600,
           color: answerColor ?? "var(--fg-muted)",
-          padding: "1px 8px", borderRadius: 4,
+          padding: "1px 8px", borderRadius: 8,
           background: answerColor ? `${answerColor}15` : "var(--bg)",
           border: `1px solid ${answerColor ? `${answerColor}30` : "var(--border)"}`,
         }}>
@@ -229,7 +229,7 @@ export default async function AdminBarPage({
               {bar.nome}
             </h1>
             {!bar.ativo && (
-              <span style={{ fontSize: 9, background: "rgba(239,68,68,0.15)", color: "#ef4444", borderRadius: 4, padding: "2px 7px", fontWeight: 700, letterSpacing: "0.08em" }}>
+              <span style={{ fontSize: 9, background: "rgba(239,68,68,0.15)", color: "#ef4444", borderRadius: 8, padding: "2px 7px", fontWeight: 700, letterSpacing: "0.08em" }}>
                 SUSPENSO
               </span>
             )}
@@ -436,19 +436,19 @@ export default async function AdminBarPage({
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
 
           <a href={`/dashboard?_admin_bar=${bar.id}`} target="_blank" rel="noopener noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 4, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
             ↗ Abrir dashboard
           </a>
 
           {bar.ativo ? (
             <form action={async () => { "use server"; await suspenderBar(bar.id); }}>
-              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Suspender bar
               </button>
             </form>
           ) : (
             <form action={async () => { "use server"; await reativarBar(bar.id); }}>
-              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--ok)", border: "1px solid rgba(101,163,13,0.4)", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--ok)", border: "1px solid rgba(101,163,13,0.4)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Reativar bar
               </button>
             </form>
@@ -456,7 +456,7 @@ export default async function AdminBarPage({
 
           {bar.assinatura_id && bar.assinatura_status !== "inadimplente" && (
             <form action={async () => { "use server"; await alterarStatusAssinatura(bar.assinatura_id!, "inadimplente", bar.id); }}>
-              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--fg-muted)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--fg-muted)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Marcar inadimplente
               </button>
             </form>
@@ -464,7 +464,7 @@ export default async function AdminBarPage({
 
           {bar.assinatura_id && (bar.assinatura_status === "inadimplente" || bar.assinatura_status === "cancelada") && (
             <form action={async () => { "use server"; await alterarStatusAssinatura(bar.assinatura_id!, "ativa", bar.id); }}>
-              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--ok)", border: "1px solid rgba(101,163,13,0.4)", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--ok)", border: "1px solid rgba(101,163,13,0.4)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Reativar assinatura
               </button>
             </form>

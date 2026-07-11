@@ -142,7 +142,7 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
         {prontos.map(p => (
           <div key={p.id} style={{
             flex: "0 0 auto", minWidth: 220, background: "var(--bg-card)",
-            border: "1px solid var(--border-strong)", borderRadius: 14, padding: 14,
+            border: "1px solid var(--border-strong)", borderRadius: 16, padding: 14,
             display: "flex", flexDirection: "column", gap: 10,
           }}>
             <div>

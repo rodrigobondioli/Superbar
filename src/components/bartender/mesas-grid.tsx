@@ -63,7 +63,7 @@ function SeletorPessoas({
       }}>
       <div style={{
         background: "var(--bg-elevated)", border: "1px solid var(--border)",
-        borderRadius: 12, padding: "28px 28px 24px",
+        borderRadius: 16, padding: "28px 28px 24px",
         width: "100%", maxWidth: 480,
         pointerEvents: "all",
       }}>
@@ -126,7 +126,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, 
         className="hover:!border-[color-mix(in_srgb,var(--accent)_50%,transparent)] hover:!bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
-          borderRadius: 12, padding: "14px 16px",
+          borderRadius: 16, padding: "14px 16px",
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
           cursor: "pointer", width: "100%", textAlign: "left",
@@ -164,7 +164,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, 
       style={{
         background: bg,
         border: `1px solid ${borderColor}`,
-        borderRadius: 14, overflow: "hidden",
+        borderRadius: 16, overflow: "hidden",
       }}
     >
       {/* Banner de chamada */}
@@ -564,7 +564,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           <div style={{ position: "fixed", inset: 0, zIndex: 61, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{
               background: "var(--bg-elevated)", border: "1px solid var(--border)",
-              borderRadius: 12, padding: "28px 36px",
+              borderRadius: 16, padding: "28px 36px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
             }}>
               <div style={{
@@ -585,7 +585,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
           <div style={{ position: "fixed", inset: 0, zIndex: 61, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
             <div style={{
               background: "var(--bg-elevated)", border: "1px solid var(--danger)",
-              borderRadius: 12, padding: "24px 28px", maxWidth: 360, width: "100%",
+              borderRadius: 16, padding: "24px 28px", maxWidth: 360, width: "100%",
               display: "flex", flexDirection: "column", gap: 16,
             }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: "var(--danger)", margin: 0 }}>⚠ Erro ao abrir comanda</p>

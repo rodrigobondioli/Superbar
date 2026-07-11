@@ -483,7 +483,7 @@ function TelaAberta({
                                 return (
                                   <div key={v.id} style={{
                                     display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
-                                    padding: "8px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)",
+                                    padding: "8px 10px", borderRadius: 8, background: "rgba(255,255,255,0.04)",
                                   }}>
                                     <p style={{ fontSize: 13, color: "var(--fg)", margin: 0 }}>
                                       {v.nome} <span style={{ color: "var(--fg-subtle)", fontFamily: "var(--font-mono)" }}>· {currency.format(v.preco)}</span>

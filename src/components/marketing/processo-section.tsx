@@ -97,7 +97,7 @@ export function ProcessoSection() {
               key={step.num}
               style={{
                 background: "#1C1C1E",
-                borderRadius: 20,
+                borderRadius: 16,
                 padding: "28px 24px",
                 border: "1px solid #2C2C2E",
                 boxShadow: "0 8px 24px rgba(0,0,0,0.25)",

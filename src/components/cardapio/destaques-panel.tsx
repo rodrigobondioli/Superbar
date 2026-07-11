@@ -8,7 +8,7 @@ import { criarDestaque, editarDestaque, deletarDestaque } from "@/lib/destaques/
 import type { Destaque } from "@/types/database";
 
 const input: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 4,
+  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
   padding: "10px 12px", fontSize: 14, color: "var(--fg)", outline: "none",
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };
@@ -167,7 +167,7 @@ function DestaqueRow({ d, produtos }: { d: Destaque; produtos: { id: string; nom
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 10 }}>
-      <div style={{ width: 64, height: 44, borderRadius: 6, flexShrink: 0, background: d.imagem_url ? `url(${d.imagem_url}) center/cover` : "var(--bg-inset)" }} />
+      <div style={{ width: 64, height: 44, borderRadius: 8, flexShrink: 0, background: d.imagem_url ? `url(${d.imagem_url}) center/cover` : "var(--bg-inset)" }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.titulo}</p>
         {d.subtitulo && <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--fg-subtle)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.subtitulo}</p>}

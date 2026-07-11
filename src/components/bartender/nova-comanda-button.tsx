@@ -79,7 +79,7 @@ export function NovaComandaButton() {
                   width: "100%", boxSizing: "border-box",
                   background: "var(--bg-inset)",
                   border: "1px solid var(--border)",
-                  borderRadius: 4, padding: "12px 14px",
+                  borderRadius: 8, padding: "12px 14px",
                   fontSize: 16, color: "var(--fg)", outline: "none",
                   colorScheme: "dark", marginBottom: 20,
                 } as React.CSSProperties}

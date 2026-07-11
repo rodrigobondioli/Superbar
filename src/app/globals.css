@@ -238,3 +238,12 @@
 @media (min-width: 768px)  { :root { --page-x: 32px; } }
 @media (min-width: 1280px) { :root { --page-x: 56px; } }
 .page-x { padding-left: var(--page-x); padding-right: var(--page-x); }
+
+/* ── Raio de card — escala do DESIGN.md (use SEMPRE isto, nada de valor solto) ─
+   8 = inputs/thumbs · 16 = card padrão (KPI/insight/status) · 24 = card hero. */
+:root {
+  --r-input: 8px;
+  --r-card:  16px;
+  --r-hero:  24px;
+  --r-pill:  9999px;
+}

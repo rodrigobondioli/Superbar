@@ -93,7 +93,7 @@ function MesaCard({ group, selected, pago, onSelect }: {
   if (pago) {
     return (
       <button onClick={onSelect} className="[-webkit-tap-highlight-color:transparent]" style={{
-        aspectRatio: "1", borderRadius: 12, border: "1px solid var(--border)",
+        aspectRatio: "1", borderRadius: 16, border: "1px solid var(--border)",
         background: "color-mix(in srgb, var(--ok) 6%, transparent)",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         cursor: "pointer", padding: 12, opacity: 0.5,
@@ -106,7 +106,7 @@ function MesaCard({ group, selected, pago, onSelect }: {
 
   return (
     <button onClick={onSelect} className="[-webkit-tap-highlight-color:transparent]" style={{
-      aspectRatio: "1", borderRadius: 12,
+      aspectRatio: "1", borderRadius: 16,
       border: `1px solid ${selected ? "var(--border-strong)" : "var(--border)"}`,
       background: "var(--bg-elevated)",
       display: "flex", flexDirection: "column",
@@ -135,13 +135,13 @@ function CortesiaModal({ mesaNome, onConfirm, onClose }: {
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 70 }} />
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--bg-elevated)", borderTop: "1px solid var(--border)", borderRadius: "12px 12px 0 0", padding: "24px 24px 44px", zIndex: 71 }}>
-        <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 20px" }} />
+        <div style={{ width: 36, height: 4, borderRadius: 8, background: "var(--border-strong)", margin: "0 auto 20px" }} />
         <p style={{ fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.10em", margin: "0 0 4px" }}>Cortesia — {mesaNome}</p>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 20px" }}>Qual o motivo?</h2>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
           {MOTIVOS_RAPIDOS.map(m => (
             <button key={m} onClick={() => setMotivo(m)} className="[-webkit-tap-highlight-color:transparent]" style={{
-              padding: "7px 14px", borderRadius: 6,
+              padding: "7px 14px", borderRadius: 8,
               border: `1px solid ${motivo === m ? "var(--accent)" : "var(--border)"}`,
               background: motivo === m ? "color-mix(in srgb, var(--accent) 12%, transparent)" : "transparent",
               color: motivo === m ? "var(--accent)" : "var(--fg-muted)",
@@ -295,7 +295,7 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
                   <button onClick={() => toggleComanda(comanda.id)} aria-label={marcada ? "Desmarcar" : "Marcar"} className="[-webkit-tap-highlight-color:transparent]"
                     style={{ display: "flex", alignItems: "center", padding: "0 2px 0 16px", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
                     <span style={{
-                      width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                      width: 22, height: 22, borderRadius: 8, flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       background: marcada ? "var(--accent)" : "transparent",
                       border: marcada ? "none" : "1.5px solid var(--border-strong)",
@@ -561,7 +561,7 @@ export function CaixaTela({
         <div className="md:hidden">
           <div onClick={() => setSelecionada(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 60 }} />
           <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 61, background: "var(--bg-elevated)", borderTop: "1px solid var(--border)", borderRadius: "12px 12px 0 0", maxHeight: "92dvh", display: "flex", flexDirection: "column" }}>
-            <div style={{ width: 36, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "12px auto 0", flexShrink: 0 }} />
+            <div style={{ width: 36, height: 4, borderRadius: 8, background: "var(--border-strong)", margin: "12px auto 0", flexShrink: 0 }} />
             <DetailPanel key={grupoSelecionado.key + "|" + grupoSelecionado.comandas.map(c => c.id).join(",")} group={grupoSelecionado} barNome={barNome}
               taxaServicoPct={taxaServicoPct}
               onPago={(metodo, pagas, pagouTudo) => handlePago(grupoSelecionado, metodo, pagas, pagouTudo)}

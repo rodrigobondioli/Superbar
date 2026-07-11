@@ -104,7 +104,7 @@ function DemoSidebar() {
       <div style={{ padding: "18px 20px 16px", borderBottom: "1px solid var(--border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
           <div style={{
-            width: 28, height: 28, borderRadius: 7,
+            width: 28, height: 28, borderRadius: 8,
             background: "var(--accent)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
@@ -115,14 +115,14 @@ function DemoSidebar() {
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ fontSize: 11, color: "var(--fg-subtle)", flex: 1 }}>{MOCK.barNome}</span>
           <span style={{
-            fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20,
+            fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 16,
             background: "color-mix(in srgb, var(--accent) 14%, transparent)",
             color: "var(--accent)", flexShrink: 0,
           }}>Dono</span>
         </div>
         {/* Demo badge */}
         <div style={{
-          marginTop: 8, padding: "3px 8px", borderRadius: 4,
+          marginTop: 8, padding: "3px 8px", borderRadius: 8,
           background: "color-mix(in srgb, var(--warn) 12%, transparent)",
           border: "1px solid color-mix(in srgb, var(--warn) 30%, transparent)",
           display: "inline-flex", alignItems: "center", gap: 5,
@@ -154,7 +154,7 @@ function DemoSidebar() {
               />
               <span style={{ flex: 1 }}>{link.label}</span>
               {link.label === "Inteligência" && (
-                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10, background: "var(--danger)", color: "#fff" }}>2</span>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 8, background: "var(--danger)", color: "#fff" }}>2</span>
               )}
             </div>
           );
@@ -174,7 +174,7 @@ function DemoSidebar() {
         </div>
         <div style={{ padding: "4px 10px" }}>
           {["Suporte", "Sugestão"].map(label => (
-            <div key={label} style={{ padding: "7px 10px", fontSize: 12, color: "var(--fg-subtle)", borderRadius: 6 }}>
+            <div key={label} style={{ padding: "7px 10px", fontSize: 12, color: "var(--fg-subtle)", borderRadius: 8 }}>
               {label}
             </div>
           ))}
@@ -382,7 +382,7 @@ function DemoAiInput() {
   }
 
   const chipBase: React.CSSProperties = {
-    background: "transparent", border: "1px solid var(--border)", borderRadius: 4,
+    background: "transparent", border: "1px solid var(--border)", borderRadius: 8,
     padding: "3px 8px", color: "var(--fg-subtle)", fontSize: 11, cursor: "pointer",
     whiteSpace: "nowrap", fontFamily: "var(--font-mono)",
   };
@@ -418,7 +418,7 @@ function DemoAiInput() {
           />
           <button
             onClick={() => ask(question)}
-            style={{ background: "var(--accent)", border: "none", borderRadius: 4, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+            style={{ background: "var(--accent)", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>

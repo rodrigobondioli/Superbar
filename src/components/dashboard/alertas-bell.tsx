@@ -77,7 +77,7 @@ export function AlertasBell({ alertas }: AlertasBellProps) {
           width: 360,
           background: "var(--bg-elevated)",
           border: "1px solid var(--border)",
-          borderRadius: 4,
+          borderRadius: 8,
           overflow: "hidden",
           zIndex: 100,
         }}>
@@ -121,7 +121,7 @@ export function AlertasBell({ alertas }: AlertasBellProps) {
                 className="hover:bg-[color-mix(in_srgb,var(--fg)_3%,transparent)]"
               >
                 <div style={{
-                  width: 32, height: 32, borderRadius: 4, flexShrink: 0,
+                  width: 32, height: 32, borderRadius: 8, flexShrink: 0,
                   background: "var(--warn-bg)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>

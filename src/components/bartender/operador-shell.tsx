@@ -172,7 +172,7 @@ function PinPad({
       {error && (
         <p style={{
           fontSize: 12, color: "var(--danger)", margin: "0 0 20px",
-          background: "var(--danger-bg)", padding: "8px 16px", borderRadius: 6,
+          background: "var(--danger-bg)", padding: "8px 16px", borderRadius: 8,
         }}>
           {error}
         </p>
@@ -192,7 +192,7 @@ function PinPad({
               onClick={() => isBack ? handleBackspace() : handleDigit(k)}
               disabled={checking}
               style={{
-                height: 64, borderRadius: 12,
+                height: 64, borderRadius: 16,
                 background: isBack ? "transparent" : "color-mix(in srgb, var(--fg) 8%, transparent)",
                 border: isBack ? "none" : "1px solid var(--border)",
                 fontSize: isBack ? 20 : 22, fontWeight: isBack ? 400 : 600,

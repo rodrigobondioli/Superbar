@@ -62,7 +62,7 @@ export function DashboardLayoutClient({
                   display: "flex", alignItems: "center", justifyContent: "center",
                   width: 36, height: 36,
                   background: "none", border: "1px solid var(--border)",
-                  borderRadius: 4, cursor: "pointer",
+                  borderRadius: 8, cursor: "pointer",
                   color: "var(--fg-muted)",
                 }}
               >
@@ -194,7 +194,7 @@ export function DashboardLayoutClient({
                 width: 40, height: 40,
                 background: "none", border: "none",
                 cursor: "pointer", color: "var(--fg-muted)",
-                borderRadius: 4,
+                borderRadius: 8,
               }}
             >
               <X style={{ width: 20, height: 20 }} strokeWidth={1.75} />

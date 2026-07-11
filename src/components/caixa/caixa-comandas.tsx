@@ -103,7 +103,7 @@ function ComandaCard({ comanda, taxaServicoPct = 10 }: { comanda: ComandaPendent
               onClick={() => setIncluirServico(v => !v)}
               aria-pressed={incluirServico}
               style={{
-                width: 36, height: 20, borderRadius: 10, border: "none",
+                width: 36, height: 20, borderRadius: 8, border: "none",
                 background: incluirServico
                   ? "color-mix(in srgb, var(--accent) 80%, transparent)"
                   : "rgba(255,255,255,0.12)",

@@ -21,7 +21,7 @@ export function ConvidarForm() {
         <div style={{
           background: "var(--danger-bg)",
           border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)",
-          borderRadius: 4, padding: "10px 14px", marginBottom: 14,
+          borderRadius: 8, padding: "10px 14px", marginBottom: 14,
         }}>
           <p style={{ fontSize: 13, color: "var(--danger)", margin: 0 }}>{state.error}</p>
         </div>
@@ -31,7 +31,7 @@ export function ConvidarForm() {
         <div style={{
           background: "var(--ok-bg)",
           border: "1px solid color-mix(in srgb, var(--ok) 30%, transparent)",
-          borderRadius: 4, padding: "10px 14px", marginBottom: 14,
+          borderRadius: 8, padding: "10px 14px", marginBottom: 14,
         }}>
           <p style={{ fontSize: 13, color: "var(--ok)", margin: 0 }}>Membro adicionado com sucesso!</p>
         </div>

@@ -2,7 +2,7 @@
 export default function CaixaOperacionalLoading() {
   const pulse: React.CSSProperties = {
     background: "color-mix(in srgb, var(--border) 60%, transparent)",
-    borderRadius: 6,
+    borderRadius: 8,
     animation: "pulse 1.4s ease-in-out infinite",
   };
 
@@ -32,7 +32,7 @@ export default function CaixaOperacionalLoading() {
             {/* Total */}
             <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ ...pulse, height: 12, width: 60 }} />
-              <div style={{ ...pulse, height: 32, width: 120, borderRadius: 6 }} />
+              <div style={{ ...pulse, height: 32, width: 120, borderRadius: 8 }} />
             </div>
           </div>
         ))}

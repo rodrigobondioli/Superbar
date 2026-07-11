@@ -83,6 +83,8 @@ Escala em uso no dashboard (alinhada ao Figma):
 
 Não use 4/12/20 em card ou botão — são resíduos do sistema antigo.
 
+**Tokens (globals.css):** `--r-input: 8px` · `--r-card: 16px` · `--r-hero: 24px` · `--r-pill: 9999px`. Todo raio de card/input/botão vem da escala 8/16/24/pill — nada de valor solto (6, 10, 12, 14, 20…). Varredura feita jul/2026: 59 arquivos snapados pra escala.
+
 ---
 
 ## Sombras
