@@ -251,11 +251,11 @@ export function DashboardSidebar({
           </div>
         )}
 
-        {/* Modo Bartender */}
+        {/* Abrir operação (seletor de estação) */}
         <Link
-          href="/garcom"
+          href="/operacao"
           onClick={onNavigate}
-          title={collapsed ? "Modo Bartender" : undefined}
+          title={collapsed ? "Abrir operação" : undefined}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: collapsed ? 0 : 7,
             padding: collapsed ? "12px 0" : touchMode ? "16px 0" : "12px 0",
@@ -269,7 +269,7 @@ export function DashboardSidebar({
           }}
         >
           <MonitorSmartphone style={{ width: touchMode ? 15 : 13, height: touchMode ? 15 : 13 }} />
-          {!collapsed && "Modo Bartender"}
+          {!collapsed && "Abrir operação"}
         </Link>
       </div>
 

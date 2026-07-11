@@ -107,10 +107,10 @@ export function DashboardLayoutClient({
         {/* Main */}
         <main className="px-6 lg:px-0" style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
           {children}
-          {/* Modo Garçom — mobile only, sticky bottom */}
+          {/* Abrir operação — mobile only, sticky bottom */}
           <div className="lg:hidden" style={{ padding: "16px 0 24px" }}>
             <Link
-              href="/garcom"
+              href="/operacao"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 padding: "16px 0",
