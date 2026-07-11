@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Categoria, ProdutoComVariantes } from "@/types/database";
 
+export type CategoriaAdmin = Categoria & { usa_ficha: boolean };
+
 export interface CategoriaComProdutosAdmin {
-  categoria: Categoria;
+  categoria: CategoriaAdmin;
   produtos: ProdutoComVariantes[]; // inclui inativos para gestão
 }
 
@@ -16,7 +18,7 @@ export async function getCardapioAdmin(barId: string): Promise<CategoriaComProdu
       .eq("bar_id", barId)
       .eq("ativo", true)
       .order("ordem", { ascending: true })
-      .returns<Categoria[]>(),
+      .returns<CategoriaAdmin[]>(),
     supabase
       .from("produtos")
       .select("*, produto_variantes(*)")
@@ -42,7 +44,7 @@ export async function getCardapioAdmin(barId: string): Promise<CategoriaComProdu
     let chave = p.categoria_id ?? "__sem__";
     if (!map.has(chave)) chave = "__sem__";
     if (!map.has(chave)) map.set(chave, {
-      categoria: { id: "__sem__", bar_id: barId, nome: "Sem categoria", ordem: 999, ativo: true, imagem_url: null, created_at: "" },
+      categoria: { id: "__sem__", bar_id: barId, nome: "Sem categoria", ordem: 999, ativo: true, imagem_url: null, created_at: "", usa_ficha: false },
       produtos: [],
     });
     map.get(chave)!.produtos.push(p);

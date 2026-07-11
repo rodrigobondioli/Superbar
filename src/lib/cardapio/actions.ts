@@ -41,13 +41,29 @@ export async function criarCategoria(formData: FormData) {
     .limit(1)
     .maybeSingle<{ ordem: number }>();
 
+  // Categoria de drink já nasce com ficha; o resto, custo direto.
   await supabase.from("categorias").insert({
     bar_id: current.bar.id,
     nome,
     ordem: (ultima?.ordem ?? 0) + 1,
     ativo: true,
-  });
+    usa_ficha: pareceDrink(nome),
+  } as never);
 
+  await invalidarCardapio();
+}
+
+/** Palpite: a categoria é de drink (usa ficha)? Baseado no nome. Só drink usa ficha. */
+function pareceDrink(nome: string): boolean {
+  const n = nome.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return /(drink|coquet|cocktail|mocktail|autora|caipir|aperitiv|classic)/.test(n);
+}
+
+/** Marca a categoria como drink (usa ficha) ou revenda (custo direto). */
+export async function definirUsaFicha(id: string, usaFicha: boolean) {
+  const supabase = await createClient();
+  // cast: coluna nova ainda não está nos tipos gerados.
+  await supabase.from("categorias").update({ usa_ficha: usaFicha } as never).eq("id", id);
   await invalidarCardapio();
 }
 

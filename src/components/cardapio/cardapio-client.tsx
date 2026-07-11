@@ -13,6 +13,7 @@ import type { Destaque } from "@/types/database";
 import {
   criarCategoria,
   editarCategoria,
+  definirUsaFicha,
   atualizarFotoCategoria,
   reordenarCategorias,
   desativarCategoria,
@@ -67,6 +68,16 @@ function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
     background: c.bg, border: "none", borderRadius: 999,
     padding: compact ? "5px 12px" : "7px 14px",
     color: c.fg, fontSize: compact ? 12 : 13, fontWeight: 500, cursor: "pointer",
+  };
+}
+
+/** Botão do segmentado "Drink (ficha) / Revenda (custo direto)" na categoria. */
+function segBtn(active: boolean): React.CSSProperties {
+  return {
+    padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500,
+    border: "none", cursor: "pointer", whiteSpace: "nowrap",
+    background: active ? "var(--accent)" : "transparent",
+    color: active ? "var(--accent-fg)" : "var(--fg-muted)",
   };
 }
 
@@ -414,11 +425,13 @@ function ProdutoRow({
   categoriaId,
   fichaSet,
   categorias,
+  usaFicha = true,
 }: {
   produto: ProdutoComVariantes;
   categoriaId: string;
   fichaSet: Set<string>;
   categorias: { id: string; nome: string }[];
+  usaFicha?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -485,11 +498,11 @@ function ProdutoRow({
           background: hovered || variantesOpen
             ? "color-mix(in srgb, var(--fg) 4%, transparent)"
             : "transparent",
-          opacity: produto.ativo ? 1 : 0.45,
           transition: "background 0.1s",
         }}
       >
-        {/* Thumb */}
+        {/* Thumb — o esmaecido do inativo vai no conteúdo, NÃO na linha (opacity
+            na linha cria stacking context e prende o menu ⋯ atrás das outras). */}
         <div
           onClick={!produto.imagem_url ? () => setEditing(true) : undefined}
           title={!produto.imagem_url ? "Adicionar imagem" : undefined}
@@ -501,11 +514,12 @@ function ProdutoRow({
               : "var(--bg-card)",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: produto.imagem_url ? "default" : "pointer",
+            opacity: produto.ativo ? 1 : 0.45,
           }}>
           {!produto.imagem_url && <ImageIcon style={{ width: 24, height: 24, color: "var(--fg-subtle)" }} />}
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, opacity: produto.ativo ? 1 : 0.45 }}>
           <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {produto.nome}
           </p>
@@ -516,21 +530,37 @@ function ProdutoRow({
           )}
         </div>
 
-        <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+        <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0, opacity: produto.ativo ? 1 : 0.45 }}>
           {currency.format(produto.preco)}
         </span>
 
-        {/* Ficha — sempre visível (feature-chave: sinal de custo/margem que o dono
-            varre de relance). Com variantes abre o painel; sem variantes, o editor. */}
-        <button
-          type="button"
-          onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
-          style={fichaPill(statusFicha(produto, fichaSet))}
-          title={TITULO_FICHA[statusFicha(produto, fichaSet)]}
-        >
-          <FlaskConical style={{ width: 13, height: 13 }} />
-          <span className="hidden sm:inline">Ficha</span>
-        </button>
+        {/* Drink → ficha (receita). Revenda → custo direto (sem ficha). */}
+        {usaFicha ? (
+          <button
+            type="button"
+            onClick={() => (variantes.length > 0 ? setVariantesOpen(true) : setFichaOpen(true))}
+            style={fichaPill(statusFicha(produto, fichaSet))}
+            title={TITULO_FICHA[statusFicha(produto, fichaSet)]}
+          >
+            <FlaskConical style={{ width: 13, height: 13 }} />
+            <span className="hidden sm:inline">Ficha</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            title={produto.custo != null ? "Custo direto — clique para editar" : "Definir custo direto"}
+            style={{
+              display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
+              padding: "5px 12px", borderRadius: 999, fontSize: 13, cursor: "pointer",
+              border: "1px solid var(--border-strong)", background: "transparent",
+              color: produto.custo != null ? "var(--fg-muted)" : "var(--warn)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {produto.custo != null ? `custo ${currency.format(produto.custo)}` : "definir custo"}
+          </button>
+        )}
 
         {/* Menu de ações — tudo consolidado no ⋯ (variantes, editar, ativar, deletar) */}
         <div style={{ position: "relative", flexShrink: 0 }}>
@@ -829,7 +859,7 @@ export function CardapioClient({
     ? cardapio.flatMap(g =>
         g.produtos
           .filter(p => p.nome.toLowerCase().includes(buscaQ))
-          .map(p => ({ produto: p, categoriaId: g.categoria.id, categoriaNome: g.categoria.nome })),
+          .map(p => ({ produto: p, categoriaId: g.categoria.id, categoriaNome: g.categoria.nome, usaFicha: g.categoria.usa_ficha })),
       )
     : [];
 
@@ -1021,20 +1051,26 @@ export function CardapioClient({
               {resultadosBusca.length === 0 ? (
                 <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "20px 0" }}>Nenhum produto encontrado.</p>
               ) : (
-                resultadosBusca.map(({ produto, categoriaId, categoriaNome }) => (
+                resultadosBusca.map(({ produto, categoriaId, categoriaNome, usaFicha }) => (
                   <div key={produto.id}>
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "0 0 -2px 14px" }}>{categoriaNome}</p>
-                    <ProdutoRow produto={produto} categoriaId={categoriaId} fichaSet={fichaSet} categorias={categoriasFlat} />
+                    <ProdutoRow produto={produto} categoriaId={categoriaId} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={usaFicha} />
                   </div>
                 ))
               )}
             </>
           ) : !selectedGrupo ? null : (
             <>
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
                   {selectedGrupo.categoria.nome}
                 </h2>
+                {selectedGrupo.categoria.id !== "__sem__" && (
+                  <div style={{ display: "flex", gap: 3, background: "var(--bg-inset)", borderRadius: 999, padding: 3 }} title="Drink usa ficha (receita); revenda usa custo direto (ex: águas, cervejas).">
+                    <button type="button" onClick={() => { void definirUsaFicha(selectedGrupo.categoria.id, true); }} style={segBtn(selectedGrupo.categoria.usa_ficha)}>Drink (ficha)</button>
+                    <button type="button" onClick={() => { void definirUsaFicha(selectedGrupo.categoria.id, false); }} style={segBtn(!selectedGrupo.categoria.usa_ficha)}>Revenda (custo direto)</button>
+                  </div>
+                )}
               </div>
 
               {addingProduto && (
@@ -1066,7 +1102,7 @@ export function CardapioClient({
                 />
               ) : (
                 selectedGrupo.produtos.map(p => (
-                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} categorias={categoriasFlat} />
+                  <ProdutoRow key={p.id} produto={p} categoriaId={selectedGrupo.categoria.id} fichaSet={fichaSet} categorias={categoriasFlat} usaFicha={selectedGrupo.categoria.usa_ficha} />
                 ))
               )}
             </>
