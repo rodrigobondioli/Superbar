@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ImportarNfePanel } from "@/components/estoque/importar-nfe-panel";
 import { registrarMovimento, type EstoqueResult } from "@/lib/estoque/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import type { ItemEstoque, MovimentoRecente } from "@/lib/estoque/queries";
@@ -223,6 +224,7 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
   const [tab, setTab]           = useState<"atencao" | "movimentacoes">("atencao");
   const [modalItem, setModalItem] = useState<ItemEstoque | null>(null);
   const [copiadoLista, setCopiadoLista] = useState(false);
+  const [nfeAberto, setNfeAberto] = useState(false);
 
   const alertas = itens
     .filter(i => i.abaixoDoMinimo)
@@ -257,12 +259,20 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
 
   if (itens.length === 0) {
     return (
-      <EmptyState
-        icon="📦"
-        title="Nenhum produto com estoque ativo"
-        description="Ative o controle de estoque em cada produto no Cardápio para monitorar quantidade e receber alertas de mínimo."
-        action={<EmptyStateButton href="/dashboard/cardapio">Ir para o Cardápio →</EmptyStateButton>}
-      />
+      <>
+        <ImportarNfePanel open={nfeAberto} onClose={() => setNfeAberto(false)} />
+        <EmptyState
+          icon="📦"
+          title="Nenhum produto com estoque ativo"
+          description="Suba a nota fiscal da sua compra e a gente puxa produtos, custos e fornecedor pro estoque — sem digitar. Ou ative o controle por produto no Cardápio."
+          action={
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+              <button onClick={() => setNfeAberto(true)} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer" }}>Importar nota fiscal</button>
+              <EmptyStateButton href="/dashboard/cardapio">Ir para o Cardápio →</EmptyStateButton>
+            </div>
+          }
+        />
+      </>
     );
   }
 
@@ -273,10 +283,17 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
         <MovimentoModal item={modalItem} onClose={() => setModalItem(null)} />
       )}
 
-      {/* Aviso de versão */}
-      <p style={{ fontSize: 12, color: "var(--fg-subtle)", marginTop: -8 }}>
-        Estoque atual por produto. O controle inteligente por ingredientes será ativado quando as receitas estiverem configuradas.
-      </p>
+      <ImportarNfePanel open={nfeAberto} onClose={() => setNfeAberto(false)} />
+
+      {/* Aviso + ação de importar NF-e */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: -8 }}>
+        <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, maxWidth: 520 }}>
+          Estoque atual por produto. O controle inteligente por ingredientes será ativado quando as receitas estiverem configuradas.
+        </p>
+        <button onClick={() => setNfeAberto(true)} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer", flexShrink: 0 }}>
+          Importar nota fiscal (NF-e)
+        </button>
+      </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
