@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { signOut } from "@/lib/auth/actions";
 import { checkPin, definirOperador, limparOperador } from "@/lib/kiosk/actions";
 import { AppHeader } from "@/components/ui/app-header";
@@ -221,6 +222,7 @@ export function OperadorShell({
   roleLabel = "Operador",
   isKiosk = false,
   contagemHref,
+  voltarHref,
   children,
 }: {
   membros: MembroSimples[];
@@ -230,6 +232,8 @@ export function OperadorShell({
   isKiosk?: boolean;
   /** Se setado, mostra um atalho pra contagem de estoque (ex: bartender). */
   contagemHref?: string;
+  /** Se setado, mostra "Voltar" pro seletor de estação (só admin que abriu pelo /operacao). */
+  voltarHref?: string;
   children: React.ReactNode;
 }) {
   const [operador, setOperador] = useState<MembroSimples | null>(null);
@@ -328,12 +332,19 @@ export function OperadorShell({
               Trocar
             </button>
           ) : (
-            /* Kiosk: sem Sair. Auth normal: mostra Sair */
-            !isKiosk ? (
-              <form action={signOut}>
-                <Button variant="ghost" size="sm" type="submit">Sair</Button>
-              </form>
-            ) : null
+            /* Nenhum operador escolhido: Voltar (admin, volta pro seletor) + Sair (auth normal) */
+            <>
+              {voltarHref && (
+                <Link href={voltarHref}>
+                  <Button variant="ghost" size="sm">← Voltar</Button>
+                </Link>
+              )}
+              {!isKiosk && (
+                <form action={signOut}>
+                  <Button variant="ghost" size="sm" type="submit">Sair</Button>
+                </form>
+              )}
+            </>
           )
         }
       />

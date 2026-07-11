@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
+import { podeVerAdminDashboard } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { OperadorShell } from "@/components/bartender/operador-shell";
 import type { MembroSimples } from "@/components/bartender/operador-shell";
@@ -55,6 +56,7 @@ export default async function CaixaLayout({
       barNome={current.bar.nome}
       roleLabel="Caixa"
       isKiosk={current.isKiosk}
+      voltarHref={!current.isKiosk && podeVerAdminDashboard(current.role) ? "/operacao" : undefined}
     >
       {children}
     </OperadorShell>
