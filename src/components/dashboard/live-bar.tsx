@@ -124,6 +124,13 @@ export function LiveBar({
     drinks: drinksInicial,
   });
 
+  // Barra de meta cresce uma vez ao montar; depois transiciona nos updates.
+  const [barrasVisiveis, setBarrasVisiveis] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setBarrasVisiveis(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const fetchLiveData = useCallback(async () => {
     const supabase = createClient();
     const { data: comandas } = await supabase
@@ -271,8 +278,8 @@ export function LiveBar({
                 borderRadius: 2,
                 width: "100%",
                 transformOrigin: "left",
-                transform: `scaleX(${Math.min(metaProgresso / 100, 1)})`,
-                transition: "transform 0.6s",
+                transform: `scaleX(${barrasVisiveis ? Math.min(metaProgresso / 100, 1) : 0})`,
+                transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)",
               }} />
             </div>
           </div>

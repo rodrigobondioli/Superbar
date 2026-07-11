@@ -98,6 +98,12 @@ const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-s
 export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superMargem, barId, alertCount, turnoId }: Props) {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [hover, setHover] = useState<string | null>(null);
+  // Barras nascem em scaleX(0) e crescem uma vez ao montar; depois só transicionam nos updates.
+  const [barrasVisiveis, setBarrasVisiveis] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setBarrasVisiveis(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
   const isMobile = useIsMobile();
   const v = views[periodo];
   const showSuper = superNome !== null && superMargem !== null;
@@ -154,7 +160,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
             </span>
           </div>
           <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
-            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(v.metaProgresso / 100, 1)})`, transition: "transform 260ms ease" }} />
+            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(v.metaProgresso / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
@@ -284,7 +290,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
                       <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
                     </div>
                     <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                      <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(pct / 100, 1)})`, transition: "transform 320ms cubic-bezier(0.22,1,0.36,1)" }} />
+                      <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(pct / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)", transitionDelay: `${i * 70}ms` }} />
                     </div>
                   </div>
                 );

@@ -1,4 +1,5 @@
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
+import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 import { OperacaoAoVivo, type Periodo, type PeriodView } from "@/components/dashboard/operacao-ao-vivo";
 import {
   getCurrentBar,
@@ -167,9 +168,7 @@ export default async function DashboardPage() {
                     </span>
                     <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.comandas} / 30</span>
                   </div>
-                  <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(inteligencia.comandas / 30, 1)})`, transition: "transform 0.6s ease" }} />
-                  </div>
+                  <BarraProgresso valor={inteligencia.comandas / 30} raio={2} corBarra="rgba(255,255,255,0.5)" />
                 </div>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
@@ -178,9 +177,7 @@ export default async function DashboardPage() {
                     </span>
                     <span style={{ fontSize: 11, color: "var(--fg-muted)" }}>{inteligencia.diasAtivo} / 7</span>
                   </div>
-                  <div style={{ background: "var(--border-strong)", borderRadius: 2, height: 2, overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.5)", borderRadius: 2, height: 2, width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(inteligencia.diasAtivo / 7, 1)})`, transition: "transform 0.6s ease" }} />
-                  </div>
+                  <BarraProgresso valor={inteligencia.diasAtivo / 7} raio={2} corBarra="rgba(255,255,255,0.5)" />
                 </div>
               </div>
               <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>
@@ -286,9 +283,7 @@ export default async function DashboardPage() {
                       {metaProgressoFechado}%
                     </span>
                   </div>
-                  <div style={{ background: "var(--border-strong)", borderRadius: "2px", height: "3px", overflow: "hidden" }}>
-                    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "2px", height: "3px", width: "100%", transformOrigin: "left", transform: `scaleX(${Math.min(metaProgressoFechado / 100, 1)})`, transition: "transform 0.6s ease" }} />
-                  </div>
+                  <BarraProgresso valor={metaProgressoFechado / 100} altura={3} raio={2} corBarra="rgba(255,255,255,0.6)" />
                   <p style={{ fontSize: 11, color: "var(--fg-subtle)", marginTop: 6 }}>
                     {metaAtingidaFechado ? "Meta atingida!" : `falta ${currency.format(metaFaltaFechado)}`}
                     {!metaConfiguradaFechado && (
