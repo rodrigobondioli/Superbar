@@ -36,8 +36,11 @@ export async function getCardapioAdmin(barId: string): Promise<CategoriaComProdu
       .filter(v => v.ativo)
       .sort((a, b) => a.ordem - b.ordem);
 
-    const chave = p.categoria_id ?? "__sem__";
-    if (!map.has(chave) && p.categoria_id) continue;
+    // Categoria inativa/apagada → o produto vira órfão. No ADMIN ele NÃO pode
+    // sumir (some do produto que ainda vende): cai em "Sem categoria" pra ser
+    // visto, editado e reatribuído.
+    let chave = p.categoria_id ?? "__sem__";
+    if (!map.has(chave)) chave = "__sem__";
     if (!map.has(chave)) map.set(chave, {
       categoria: { id: "__sem__", bar_id: barId, nome: "Sem categoria", ordem: 999, ativo: true, imagem_url: null, created_at: "" },
       produtos: [],

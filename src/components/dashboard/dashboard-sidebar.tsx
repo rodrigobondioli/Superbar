@@ -115,7 +115,7 @@ export function DashboardSidebar({
                 padding: "3px 10px", borderRadius: 999,
                 background: "var(--bg-card-hi)", color: "var(--fg-muted)",
               }}>
-                Dono
+                {ROLE_LABEL[role] ?? role}
               </span>
             </>
           )}
@@ -139,7 +139,7 @@ export function DashboardSidebar({
       )}
 
       {/* ── Nav ── */}
-      <nav style={{ padding: touchMode ? "12px" : collapsed ? "10px 8px 0" : "10px 10px 0", flex: 1 }}>
+      <nav style={{ padding: touchMode ? "12px" : collapsed ? "10px 8px 0" : "10px 10px 0", flex: 1, overflowY: "auto", minHeight: 0 }}>
         {linksVisiveis.map((link) => {
           const active = isActive(link.href);
           return (
