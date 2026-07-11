@@ -1,0 +1,129 @@
+import { BarraProgresso } from "@/components/dashboard/barra-progresso";
+
+export interface PassoConfig {
+  /** Rótulo do passo (ex.: "Cardápio — 12 produtos"). */
+  label: string;
+  /** Linha de apoio opcional (ex.: "sem custo, a margem é cega"). */
+  apoio?: string;
+  /** Passo concluído? */
+  done: boolean;
+  /** Destino do CTA; null = sem ação (ex.: "Conta criada"). */
+  href: string | null;
+  /** Texto do CTA (default: "Configurar"). */
+  cta?: string;
+  /** Passo crítico para a inteligência — destaca mesmo quando o resto avança. */
+  critico?: boolean;
+}
+
+interface GuiaConfiguracaoProps {
+  passos: PassoConfig[];
+  /** "hero" = tela cheia (bar novo); "card" = bloco compacto no dashboard. */
+  variante?: "hero" | "card";
+  titulo?: string;
+  subtitulo?: string;
+}
+
+/**
+ * Guia de configuração do bar — checklist com % de progresso.
+ * O guia leva o dono até o DADO LIMPO (cardápio → custo → mesas → equipe → turno),
+ * não só até a operação. O passo de custo é cidadão de primeira classe (Princípio 10).
+ */
+export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo }: GuiaConfiguracaoProps) {
+  const feitos = passos.filter((p) => p.done).length;
+  const total = passos.length;
+  const pct = total > 0 ? feitos / total : 0;
+  const hero = variante === "hero";
+
+  const cabecalho = (
+    <div style={{ marginBottom: 16, textAlign: hero ? "center" : "left" }}>
+      <h2 style={{ fontSize: hero ? 22 : 15, fontWeight: hero ? 700 : 600, color: "var(--fg)", margin: "0 0 6px" }}>
+        {titulo ?? "Vamos configurar seu bar"}
+      </h2>
+      {subtitulo && (
+        <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 16px", lineHeight: 1.6 }}>
+          {subtitulo}
+        </p>
+      )}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: hero ? "center" : "space-between", gap: 12 }}>
+        <span style={{ fontSize: 12, color: "var(--fg-muted)", flexShrink: 0 }}>
+          {feitos} de {total} concluídos
+        </span>
+        <div style={{ flex: hero ? undefined : 1, width: hero ? "100%" : undefined, maxWidth: hero ? undefined : 180, marginTop: hero ? 6 : 0 }}>
+          <BarraProgresso valor={pct} altura={4} raio={2} corBarra="var(--accent)" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const lista = passos.map((p, i) => (
+    <div
+      key={i}
+      style={{
+        display: "flex", alignItems: "center", gap: 12,
+        padding: hero ? "14px 20px" : "12px 4px",
+        borderBottom: i < passos.length - 1 ? "1px solid var(--border)" : "none",
+      }}
+    >
+      <div
+        style={{
+          width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+          background: p.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
+          border: `1.5px solid ${p.done ? "var(--ok)" : p.critico ? "var(--accent)" : "var(--border)"}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 11, fontWeight: 700, color: "var(--fg)",
+        }}
+      >
+        {p.done ? "✓" : ""}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ fontSize: 13, color: p.done ? "var(--fg-muted)" : "var(--fg)" }}>{p.label}</span>
+        {p.apoio && !p.done && (
+          <p style={{ fontSize: 11, color: p.critico ? "var(--accent)" : "var(--fg-subtle)", margin: "2px 0 0", lineHeight: 1.4 }}>
+            {p.apoio}
+          </p>
+        )}
+      </div>
+      {p.href && !p.done && (
+        <a
+          href={p.href}
+          style={{
+            fontSize: 12, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
+            whiteSpace: "nowrap", flexShrink: 0,
+          }}
+        >
+          {p.cta ?? "Configurar"} →
+        </a>
+      )}
+    </div>
+  ));
+
+  if (hero) {
+    return (
+      <div style={wrapHero}>
+        <div style={{ width: "100%", maxWidth: 448 }}>
+          {cabecalho}
+          <div style={{ ...cardBase }}>{lista}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Card compacto: um único container (cabeçalho + lista).
+  return (
+    <div>
+      {cabecalho}
+      <div>{lista}</div>
+    </div>
+  );
+}
+
+const wrapHero: React.CSSProperties = {
+  padding: "32px 24px", display: "flex", flexDirection: "column",
+  alignItems: "center", justifyContent: "center", minHeight: "70vh",
+};
+
+const cardBase: React.CSSProperties = {
+  background: "var(--bg-elevated)",
+  border: "1px solid var(--border)",
+  borderRadius: 16,
+};

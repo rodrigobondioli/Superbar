@@ -1,5 +1,6 @@
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
+import { GuiaConfiguracao, type PassoConfig } from "@/components/dashboard/guia-configuracao";
 import { OperacaoAoVivo, type Periodo, type PeriodView } from "@/components/dashboard/operacao-ao-vivo";
 import {
   getCurrentBar,
@@ -13,6 +14,7 @@ import {
   getPrimeirosPassos,
   getUltimoTurnoFechado,
   getHistoricoTurnos,
+  type PrimeirosPassosData,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
 import { categorizarProdutos, calcularCmv, calcularCoberturaReceita } from "@/lib/dashboard/menu-engineering";
@@ -52,6 +54,44 @@ const card: React.CSSProperties = {
   padding: "20px 24px",
 };
 
+/** Passos do guia de configuração, na hierarquia da inteligência: cardápio → custo → mesas → equipe → turno. */
+function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
+  const custoOk = p.nProdutos > 0 && p.nProdutosComCusto >= p.nProdutos;
+  return [
+    { label: "Conta criada", done: true, href: null },
+    {
+      label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,
+      done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar",
+    },
+    {
+      label: p.nProdutos === 0
+        ? "Custo dos produtos"
+        : `Custo — ${p.nProdutosComCusto} de ${p.nProdutos} com ficha`,
+      apoio: "Sem custo, a margem é chute. Suba uma nota (NF-e) ou cadastre a ficha.",
+      done: custoOk, href: "/dashboard/cardapio", cta: "Cadastrar custo", critico: true,
+    },
+    {
+      label: `Mesas — ${p.nMesas} ${p.nMesas === 1 ? "mesa" : "mesas"}`,
+      done: p.nMesas > 0, href: "/dashboard/mesas", cta: "Cadastrar",
+    },
+    {
+      label: p.nEquipe === 0
+        ? "Equipe — só você por enquanto"
+        : `Equipe — ${p.nEquipe} ${p.nEquipe === 1 ? "membro" : "membros"}`,
+      done: p.nEquipe > 0, href: "/dashboard/equipe", cta: "Convidar",
+    },
+    {
+      label: "Abrir o primeiro turno no Caixa",
+      done: p.nTurnos > 0, href: "/dashboard/caixa", cta: "Ver Caixa",
+    },
+  ];
+}
+
+/** Setup ainda aberto? Falta cardápio, custo em algum produto, ou mesas. */
+function setupIncompleto(p: PrimeirosPassosData): boolean {
+  return p.nProdutos === 0 || p.nProdutosComCusto < p.nProdutos || p.nMesas === 0;
+}
+
 export default async function DashboardPage() {
   const current = await getCurrentBar();
   if (!current) return null;
@@ -67,49 +107,14 @@ export default async function DashboardPage() {
       getMetaMes(current.bar.id, current.bar.configuracoes?.meta_mensal ?? undefined),
     ]);
 
-    // ── Bar novo: nunca teve turno → setup checklist ────────────────────────
+    // ── Bar novo: nunca teve turno → guia de configuração ───────────────────
     if (passos.nTurnos === 0) {
-      const steps = [
-        { label: "Conta criada",           done: true,                   href: null },
-        { label: `Cardápio — ${passos.nProdutos} ${passos.nProdutos === 1 ? "produto" : "produtos"}`,
-          done: passos.nProdutos > 0,   href: "/dashboard/cardapio" },
-        { label: `Mesas — ${passos.nMesas} ${passos.nMesas === 1 ? "mesa" : "mesas"}`,
-          done: passos.nMesas > 0,      href: "/dashboard/mesas" },
-        { label: passos.nEquipe === 0
-            ? "Equipe — só você por enquanto"
-            : `Equipe — ${passos.nEquipe} ${passos.nEquipe === 1 ? "membro" : "membros"}`,
-          done: passos.nEquipe > 0,     href: "/dashboard/equipe" },
-      ];
-
       return (
-        <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "70vh" }}>
-          <div style={{ width: "100%", maxWidth: 440 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", textAlign: "center" }}>
-              Vamos configurar seu bar
-            </h2>
-            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 28px", textAlign: "center", lineHeight: 1.6 }}>
-              Complete os passos abaixo. Quando tudo estiver pronto, peça ao caixa para abrir o primeiro turno.
-            </p>
-            <div style={{ ...card, padding: 0, marginBottom: 20 }}>
-              {steps.map((step, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: i < steps.length - 1 ? "1px solid var(--border)" : "none" }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: step.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)", border: `1.5px solid ${step.done ? "var(--ok)" : "var(--border)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "white" }}>
-                    {step.done ? "✓" : ""}
-                  </div>
-                  <span style={{ flex: 1, fontSize: 13, color: step.done ? "var(--fg-muted)" : "var(--fg)" }}>{step.label}</span>
-                  {step.href && !step.done && (
-                    <a href={step.href} style={{ fontSize: 12, fontWeight: 600, color: "white", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>Configurar →</a>
-                  )}
-                </div>
-              ))}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px" }}>
-                <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: "color-mix(in srgb, var(--fg) 5%, transparent)", border: "1.5px solid var(--border)" }} />
-                <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>Peça ao caixa para abrir o primeiro turno</span>
-                <a href="/dashboard/caixa" style={{ fontSize: 12, fontWeight: 600, color: "white", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>Ver Caixa →</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <GuiaConfiguracao
+          variante="hero"
+          passos={montarPassosSetup(passos)}
+          subtitulo="Complete os passos abaixo. Quando o cardápio tiver custo, sua margem deixa de ser chute."
+        />
       );
     }
 
@@ -150,9 +155,21 @@ export default async function DashboardPage() {
 
           {/* 0. SUPERBAR AI — acesso rápido no topo */}
           <section>
-          
+
             <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
           </section>
+
+          {/* 0.5. Guia de configuração — persiste enquanto o setup (incl. custo) não fecha */}
+          {setupIncompleto(passos) && (
+            <section style={{ ...card }}>
+              <GuiaConfiguracao
+                variante="card"
+                passos={montarPassosSetup(passos)}
+                titulo="Termine de configurar seu bar"
+                subtitulo="Enquanto faltar custo, sua margem e seu CMV ficam cegos."
+              />
+            </section>
+          )}
 
           {/* 1. APRENDIZADO (stage 1) ou ATENÇÃO (stage 2) */}
           {inteligencia.stage === 1 ? (
