@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 import { GuiaConfiguracao, type PassoConfig } from "@/components/dashboard/guia-configuracao";
@@ -97,6 +99,8 @@ function setupIncompleto(p: PrimeirosPassosData): boolean {
 export default async function DashboardPage() {
   const current = await getCurrentBar();
   if (!current) return null;
+  // Só o dono vê o financeiro. Bar Manager cai no Estoque.
+  if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
   const turno = await getTurnoAtual(current.bar.id);
 

@@ -1,7 +1,9 @@
 import { LineChart } from "@/components/ui/line-chart";
 import { PeriodoSeletor } from "@/components/dashboard/periodo-seletor";
+import { redirect } from "next/navigation";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 import { getCurrentBar } from "@/lib/dashboard/queries";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { resolvePeriodo, type PeriodoSearchParams } from "@/lib/dashboard/periodo";
 import {
   getFaturamentoPorDia,
@@ -50,6 +52,7 @@ export default async function RelatoriosPage({
 
   const current = await getCurrentBar();
   if (!current) return null;
+  if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
   const [pontos, comparacao, kpis, produtos, vendasGarcom] = await Promise.all([
     getFaturamentoPorDia(current.bar.id, periodo),

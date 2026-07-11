@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentBar } from "@/lib/dashboard/queries";
+import { homePath } from "@/lib/auth/roles";
 import { traduzirErro } from "@/lib/utils";
 
 export async function signIn(formData: FormData) {
@@ -15,7 +17,9 @@ export async function signIn(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(traduzirErro(error.message))}`);
   }
 
-  redirect("/dashboard");
+  // Cada papel cai na sua casa (dono → dashboard; operacional → sua tela).
+  const current = await getCurrentBar();
+  redirect(current ? homePath(current.role) : "/dashboard");
 }
 
 export async function signOut() {

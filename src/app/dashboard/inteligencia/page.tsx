@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { getInsightsPendentes } from "@/lib/inteligencia/queries";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { InsightCards } from "@/components/inteligencia/insight-cards";
 
 export default async function InteligenciaPage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
+  if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
   const insights = await getInsightsPendentes(current.bar.id);
 

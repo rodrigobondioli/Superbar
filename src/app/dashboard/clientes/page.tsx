@@ -1,6 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { listarClientes, getClientesStats, getAniversariantesDoMes, getClientesInativos } from "@/lib/clientes/queries";
 import { ClientesTable } from "@/components/clientes/clientes-table";
 import { NovoClienteButton } from "@/components/clientes/novo-cliente-button";
@@ -19,6 +20,7 @@ const insightMetric: React.CSSProperties = { fontSize: 32, fontWeight: 700, colo
 export default async function ClientesPage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
+  if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
   const [clientes, stats, aniversariantes, inativos] = await Promise.all([
     listarClientes(),

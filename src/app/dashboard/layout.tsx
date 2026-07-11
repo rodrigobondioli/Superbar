@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBar, getAlertasEstoque } from "@/lib/dashboard/queries";
 import { countInsightsPendentes } from "@/lib/inteligencia/queries";
+import { isOperacional, homePath } from "@/lib/auth/roles";
 import { DashboardLayoutClient } from "@/components/dashboard/dashboard-layout-client";
 
 export default async function DashboardLayout({
@@ -15,6 +16,9 @@ export default async function DashboardLayout({
 
   const current = await getCurrentBar();
   if (!current) redirect("/onboarding");
+
+  // Papéis operacionais (bartender/garçom/caixa) não entram no dashboard do dono.
+  if (isOperacional(current.role)) redirect(homePath(current.role));
 
   const [alertas, insightCount] = await Promise.all([
     getAlertasEstoque(current.bar.id),

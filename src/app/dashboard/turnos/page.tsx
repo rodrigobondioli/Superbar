@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChevronsRight } from "lucide-react";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { getTurnos } from "@/lib/dashboard/turnos";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -35,6 +37,7 @@ const td: React.CSSProperties = {
 export default async function TurnosPage() {
   const current = await getCurrentBar();
   if (!current) return null;
+  if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
   const [turnos] = await Promise.all([
     getTurnos(current.bar.id),

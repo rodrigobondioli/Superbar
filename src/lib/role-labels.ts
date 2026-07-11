@@ -4,8 +4,8 @@
  */
 export const ROLE_LABEL: Record<string, string> = {
   dono:        "Dono",
-  gerente:     "Gerente",
-  bar_manager: "Gerente",
+  bar_manager: "Bar Manager",
+  gerente:     "Bar Manager", // legado — consolidado em bar_manager
   bartender:   "Bartender",
   garcom:      "Garçom",
   caixa:       "Caixa",
