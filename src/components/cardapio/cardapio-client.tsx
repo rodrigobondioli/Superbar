@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
@@ -76,7 +76,7 @@ function segBtn(active: boolean): React.CSSProperties {
   return {
     padding: "6px 14px", borderRadius: 999, fontSize: 12, fontWeight: 500,
     border: "none", cursor: "pointer", whiteSpace: "nowrap",
-    background: active ? "var(--bg-card)" : "transparent",
+    background: active ? "var(--bg-elevated)" : "transparent",
     color: active ? "var(--fg)" : "var(--fg-subtle)",
     transition: "background 80ms, color 80ms",
   };
@@ -1043,20 +1043,17 @@ export function CardapioClient({
 
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
-          {/* Busca + toggle ficha/revenda da categoria selecionada */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
-              <Search size={15} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
-              <input
-                value={busca}
-                onChange={e => setBusca(e.target.value)}
-                placeholder="Buscar produto no cardápio…"
-                style={{ width: "100%", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px 10px 40px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
-              />
-            </div>
+          {/* Busca (padrão Clientes: 360px, sem ícone) + toggle ficha/revenda */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar produto no cardápio…"
+              style={{ width: "100%", maxWidth: 360, boxSizing: "border-box", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark" }}
+            />
             {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
               <div
-                style={{ display: "flex", gap: 2, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 999, padding: 3, flexShrink: 0 }}
+                style={{ display: "flex", gap: 2, background: "transparent", border: "1px solid var(--border)", borderRadius: 999, padding: 3, flexShrink: 0 }}
                 title="Drink usa ficha (receita); revenda usa custo direto (águas, cervejas)."
               >
                 <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Drink</button>
@@ -1085,8 +1082,8 @@ export function CardapioClient({
             </>
           ) : !selectedGrupo ? null : (
             <>
-              <div style={{ margin: "6px 0 20px" }}>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
+              <div style={{ margin: "0 0 16px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>
                   {selectedGrupo.categoria.nome}
                 </h2>
               </div>

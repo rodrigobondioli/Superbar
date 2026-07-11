@@ -89,11 +89,18 @@ Retorne APENAS JSON, sem explicação:
         quantidade: Number(i.quantidade),
         unidade: String(i.unidade ?? "un"),
       }));
-  } catch {
-    return NextResponse.json(
-      { error: "Não consegui sugerir a ficha agora. Tente de novo ou cadastre manual." },
-      { status: 502 },
-    );
+  } catch (e) {
+    const err = e as { status?: number; message?: string };
+    // Loga o motivo real (aparece nos logs da Vercel) — antes era engolido.
+    console.error("sugerir-ficha: falha na IA", err?.status, err?.message);
+    const semChave  = err?.status === 401 || err?.status === 403;
+    const semCredito = err?.status === 429;
+    const msg = semChave
+      ? "A IA está sem chave válida. Confira a ANTHROPIC_API_KEY nas variáveis do projeto."
+      : semCredito
+      ? "A IA está sem crédito ou no limite de uso. Confira o saldo da conta da API."
+      : "Não consegui sugerir a ficha agora. Tente de novo ou cadastre manual.";
+    return NextResponse.json({ error: msg }, { status: 502 });
   }
 
   if (sugeridos.length === 0) {
