@@ -109,6 +109,10 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
   // Corte em 1280: iPad (paisagem ~1080–1194) usa o layout que rola e empilha
   // (não corta nem vaza). Laptop/desktop (≥1280) mantém a grade tela-cheia.
   const isMobile = useIsMobile(1280);
+  const isPhone = useIsMobile(1024);
+  // iPad (1024–1279): o layout do dashboard tira o padding lateral no ≥1024,
+  // mas aqui ainda é "mobile" — então PRECISA de margem própria, senão gruda na borda.
+  const isTablet = isMobile && !isPhone;
   const v = views[periodo];
   const aguardando = !!v.pending;
   const showSuper = superNome !== null && superMargem !== null;
@@ -119,7 +123,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
     <div
       style={
         isMobile
-          ? { display: "flex", flexDirection: "column", padding: "12px 0 24px", gap: 12, boxSizing: "border-box" }
+          ? { display: "flex", flexDirection: "column", padding: `12px ${isTablet ? 24 : 0}px 24px`, gap: 12, boxSizing: "border-box" }
           : { height: "100%", display: "flex", flexDirection: "column", padding: "14px 32px 16px", gap: 12, overflow: "hidden", boxSizing: "border-box" }
       }
     >
