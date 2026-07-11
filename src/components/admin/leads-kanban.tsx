@@ -2,13 +2,17 @@
 
 import { useState, useTransition, useRef, useEffect, Fragment } from "react";
 import type { Lead, Stage } from "@/lib/admin/queries";
-import { updateLead, deleteLead, updateStageLabel } from "@/lib/admin/actions";
+import { updateLead, deleteLead, updateStageLabel, listarAtividades, adicionarAtividade, type LeadAtividade } from "@/lib/admin/actions";
 import { createClient } from "@/lib/supabase/client";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
 const ORIGEM_OPTIONS = ["Site", "Prospecção ativa", "Indicação", "Evento", "Instagram", "Outro"];
+
+const ATIVIDADE_LABEL: Record<string, string> = {
+  nota: "Nota", call: "Call", whatsapp: "WhatsApp", reuniao: "Reunião", estagio: "Estágio",
+};
 const TIPO_OPTIONS   = ["Coquetelaria", "Wine Bar", "Speakeasy", "Gastrobar", "Outro"];
 
 const inputStyle: React.CSSProperties = {
@@ -110,12 +114,30 @@ function LeadPanel({
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [atividades, setAtividades] = useState<LeadAtividade[]>([]);
+  const [novaAtividade, setNovaAtividade] = useState("");
+  const [tipoAtividade, setTipoAtividade] = useState("nota");
+  const [addingAtividade, setAddingAtividade] = useState(false);
 
   // Animate in
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
 
-  // Reset form when lead changes
-  useEffect(() => { setForm({ ...lead }); setDeleteConfirm(false); setError(null); }, [lead.id]);
+  // Reset form + carrega a timeline quando o lead muda
+  useEffect(() => {
+    setForm({ ...lead }); setDeleteConfirm(false); setError(null);
+    listarAtividades(lead.id).then(setAtividades);
+  }, [lead.id]);
+
+  async function handleAddAtividade() {
+    const texto = novaAtividade.trim();
+    if (!texto || addingAtividade) return;
+    setAddingAtividade(true);
+    const res = await adicionarAtividade(lead.id, tipoAtividade, texto);
+    setAddingAtividade(false);
+    if ("error" in res) { setError(res.error); return; }
+    setAtividades(prev => [res.atividade, ...prev]);
+    setNovaAtividade("");
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -152,6 +174,12 @@ function LeadPanel({
       if ("error" in result) {
         setError(result.error);
       } else {
+        // Auto-log de mudança de estágio na timeline.
+        if (form.status !== lead.status) {
+          const label = stages.find(s => s.id === form.status)?.label ?? form.status;
+          const r = await adicionarAtividade(lead.id, "estagio", `Movido para ${label}`);
+          if ("ok" in r) setAtividades(prev => [r.atividade, ...prev]);
+        }
         onUpdate({ ...lead, ...payload, follow_up_at: payload.follow_up_at });
       }
       setSaving(false);
@@ -322,6 +350,56 @@ function LeadPanel({
               Lead desde {new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
             </p>
 
+            {/* ── Timeline de atividades ── */}
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+              <label style={labelStyle}>Atividades</label>
+
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <select
+                  value={tipoAtividade}
+                  onChange={e => setTipoAtividade(e.target.value)}
+                  style={{ ...inputStyle, width: 118, cursor: "pointer" }}
+                >
+                  <option value="nota">Nota</option>
+                  <option value="call">Call</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="reuniao">Reunião</option>
+                </select>
+                <input
+                  value={novaAtividade}
+                  onChange={e => setNovaAtividade(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") handleAddAtividade(); }}
+                  placeholder="O que aconteceu?"
+                  style={{ ...inputStyle, flex: 1 }}
+                />
+                <button
+                  onClick={handleAddAtividade}
+                  disabled={addingAtividade || !novaAtividade.trim()}
+                  style={{ ...BTN_SECONDARY, flexShrink: 0, cursor: addingAtividade || !novaAtividade.trim() ? "not-allowed" : "pointer", opacity: addingAtividade || !novaAtividade.trim() ? 0.5 : 1 }}
+                >
+                  Registrar
+                </button>
+              </div>
+
+              {atividades.length === 0 ? (
+                <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "2px 0 0" }}>Nenhuma atividade ainda.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 2 }}>
+                  {atividades.map(a => (
+                    <div key={a.id} style={{ display: "flex", gap: 10 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: a.tipo === "estagio" ? "var(--accent)" : "var(--border-strong)", marginTop: 6, flexShrink: 0 }} />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <p style={{ fontSize: 14, color: "var(--fg)", margin: 0, lineHeight: 1.4, wordBreak: "break-word" }}>{a.descricao}</p>
+                        <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
+                          {ATIVIDADE_LABEL[a.tipo] ?? a.tipo} · {new Date(a.criado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} {new Date(a.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {error && <p style={{ fontSize: 12, color: "var(--danger)", margin: 0 }}>{error}</p>}
 
           </div>
@@ -490,7 +568,15 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
     if (lead.status === stageId && lead.ordem === novaOrdem) return;
 
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status: stageId, ordem: novaOrdem } : l));
-    startTransition(async () => { await updateLead(id, { status: stageId, ordem: novaOrdem }); });
+    const mudouEstagio = lead.status !== stageId;
+    startTransition(async () => {
+      await updateLead(id, { status: stageId, ordem: novaOrdem });
+      // Auto-log de mudança de estágio na timeline do lead.
+      if (mudouEstagio) {
+        const label = stagesState.find(s => s.id === stageId)?.label ?? stageId;
+        await adicionarAtividade(id, "estagio", `Movido para ${label}`);
+      }
+    });
   }
 
   function handleLeadUpdate(updated: Lead) {
@@ -526,8 +612,8 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
                 display: "flex",
                 flexDirection: "column",
                 gap: 8,
-                background: isOver ? "color-mix(in srgb, var(--accent) 6%, transparent)" : "color-mix(in srgb, var(--fg) 2%, transparent)",
-                border: isOver ? "1px dashed var(--accent)" : "1px solid var(--border)",
+                background: isOver ? `color-mix(in srgb, ${stage.id === "convertido" ? "var(--ok)" : "var(--accent)"} 7%, transparent)` : "color-mix(in srgb, var(--fg) 2%, transparent)",
+                border: isOver ? `1px dashed ${stage.id === "convertido" ? "var(--ok)" : "var(--accent)"}` : "1px solid var(--border)",
                 borderRadius: 12,
                 padding: "0 10px 10px",
                 transition: "background 120ms, border-color 120ms",

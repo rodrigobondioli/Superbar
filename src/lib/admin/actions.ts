@@ -151,3 +151,42 @@ export async function updateLeadStatus(
   if (error) return { error: error.message };
   return { ok: true };
 }
+
+// ─── Atividades do lead (timeline) ────────────────────────────────────────────
+
+export interface LeadAtividade {
+  id: string;
+  lead_id: string;
+  tipo: string;
+  descricao: string;
+  criado_em: string;
+}
+
+export async function listarAtividades(leadId: string): Promise<LeadAtividade[]> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("lead_atividades")
+    .select("id, lead_id, tipo, descricao, criado_em")
+    .eq("lead_id", leadId)
+    .order("criado_em", { ascending: false });
+  return (data as LeadAtividade[] | null) ?? [];
+}
+
+export async function adicionarAtividade(
+  leadId: string,
+  tipo: string,
+  descricao: string,
+): Promise<{ ok: true; atividade: LeadAtividade } | { error: string }> {
+  await assertAdmin();
+  const texto = descricao.trim();
+  if (!texto) return { error: "Descrição vazia." };
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("lead_atividades")
+    .insert({ lead_id: leadId, tipo, descricao: texto })
+    .select("id, lead_id, tipo, descricao, criado_em")
+    .single();
+  if (error) return { error: error.message };
+  return { ok: true, atividade: data as LeadAtividade };
+}
