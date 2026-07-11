@@ -105,7 +105,7 @@ export function DashboardLayoutClient({
         </aside>
 
         {/* Main */}
-        <main className="px-6 lg:px-0" style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
+        <main className="page-x" style={{ flex: 1, height: "100%", overflowY: "auto", background: "var(--bg)" }}>
           {children}
           {/* Abrir operação — mobile only, sticky bottom */}
           <div className="lg:hidden" style={{ padding: "16px 0 24px" }}>

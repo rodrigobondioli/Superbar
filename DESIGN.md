@@ -93,6 +93,24 @@ Exceção: tooltips podem usar `box-shadow: 0 4px 16px rgba(0,0,0,0.4)`.
 
 ---
 
+## Margem de página (REGRA — vale pra TODAS as telas)
+
+Margem lateral (horizontal) de toda tela — dashboard **e** landing. **Regra dura, sem exceção por tela:**
+
+| Tela | Largura | Margem lateral |
+|---|---|---|
+| Celular | `< 768px` | **24px** |
+| iPad / tablet | `768–1279px` | **32px** |
+| Desktop | `≥ 1280px` | **56px** |
+
+**Como aplicar:** use a classe **`.page-x`** (definida em `globals.css` via `--page-x` + media queries). Uma fonte só — muda lá, muda em todo lugar.
+
+- Dashboard: o `.page-x` fica no `<main>` do `dashboard-layout-client`. As páginas **não** põem `px-*` próprio (senão dobra).
+- Landing: cada seção usa `.page-x`.
+- **Nunca** hardcode `px-6`, `lg:px-10`, `lg:px-8` etc. pra margem de página. Isso foi centralizado de propósito (custava horas de retrabalho no responsivo).
+
+---
+
 ## Grid do Dashboard
 
 ```

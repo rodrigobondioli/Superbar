@@ -9,7 +9,7 @@ export default async function FichasLotePage() {
 
   const drinks = await getDrinksParaFicha(current.bar.id);
   return (
-    <div className="py-6 lg:px-10 lg:py-8">
+    <div className="py-6 lg:py-8">
       <FichasLoteClient drinks={drinks} />
     </div>
   );

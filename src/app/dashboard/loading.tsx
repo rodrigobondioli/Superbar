@@ -16,7 +16,7 @@ export default function DashboardLoading() {
         }
       `}</style>
 
-      <div className="py-6 lg:px-8 lg:py-10" style={{ maxWidth: 1200 }}>
+      <div className="py-6 lg:py-10" style={{ maxWidth: 1200 }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ ...pulse, height: 14, width: 120, marginBottom: 10 }} />

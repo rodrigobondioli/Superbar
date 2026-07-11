@@ -158,7 +158,7 @@ export default async function DashboardPage() {
     return (
       <div className="flex flex-col" style={{ overflowX: "hidden", width: "100%" }}>
 
-        <div className="lg:px-8" style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "40px" }}>
+        <div style={{ paddingTop: "24px", paddingBottom: "48px", display: "flex", flexDirection: "column", gap: "40px" }}>
 
           {/* 0. SUPERBAR AI — acesso rápido no topo */}
           <section>

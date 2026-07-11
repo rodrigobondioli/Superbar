@@ -45,7 +45,7 @@ export default async function MesasPage() {
     mesaList.length > 0 ? Math.max(...mesaList.map(m => m.numero)) + 1 : 1;
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8">
+    <div className="py-6 lg:py-8">
       <MesasClient
         mesas={mesaList}
         barId={current.bar.id}

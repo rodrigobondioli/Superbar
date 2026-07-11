@@ -41,7 +41,7 @@ export default async function Home() {
 
       {/* ─── HERO ─────────────────────────────────────────────────────────── */}
       <section
-        className="relative flex min-h-dvh w-full flex-col items-center justify-center px-4 text-center md:px-8 lg:px-14"
+        className="relative flex min-h-dvh w-full flex-col items-center justify-center page-x text-center"
         style={{ background: "linear-gradient(to bottom, #0A0A0B 0%, #111113 100%)" }}
       >
         {/* Badge */}
@@ -96,7 +96,7 @@ export default async function Home() {
       {/* ─── DORES ─────────────────────────────────────────────────────────── */}
       <section className="py-10 md:py-[120px]">
         {/* Header */}
-        <div className="mx-auto mb-10 max-w-4xl px-4 md:mb-16 md:px-8 md:text-center lg:px-14">
+        <div className="mx-auto mb-10 max-w-4xl page-x md:mb-16 md:text-center">
           <h2
             className="mb-4 text-white text-balance md:mb-5 lg:whitespace-nowrap"
             style={{
@@ -124,7 +124,7 @@ export default async function Home() {
         </div>
 
         {/* Grid: mobile = 1 col (mascote entre os cards), desktop = 3 col */}
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-14">
+        <div className="mx-auto max-w-[1440px] page-x">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_420px_1fr] lg:items-center lg:gap-x-8">
 
             {/* Left cards */}
@@ -190,7 +190,7 @@ export default async function Home() {
 
       {/* ─── PARA QUEM É ──────────────────────────────────────────────────── */}
       <section id="produto" className="py-10 md:py-[120px]">
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-14">
+        <div className="mx-auto max-w-[1440px] page-x">
           <div className="grid grid-cols-1 gap-10 lg:items-stretch lg:gap-20 lg:grid-cols-[1fr_2fr]">
 
             {/* Foto */}
@@ -272,7 +272,7 @@ export default async function Home() {
       {/* ─── FOOTER ────────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.1)", background: "#111113" }}>
         <div
-          className="flex flex-col items-center gap-0 px-4 py-6 text-center md:flex-row md:items-center md:justify-between md:px-8 md:py-6 md:text-left lg:px-14"
+          className="flex flex-col items-center gap-0 page-x py-6 text-center md:flex-row md:items-center md:justify-between md:py-6 md:text-left"
         >
           <span
             style={{

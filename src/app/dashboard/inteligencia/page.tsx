@@ -15,7 +15,7 @@ export default async function InteligenciaPage() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 
       {/* ── Header — padrão Figma ── */}
-      <div className="py-6 lg:px-10 lg:py-8">
+      <div className="py-6 lg:py-8">
         <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Inteligência</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>O que precisa da sua atenção</p>

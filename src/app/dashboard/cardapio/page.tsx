@@ -15,7 +15,7 @@ export default async function CardapioPage() {
   ]);
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col lg:h-full lg:overflow-hidden">
+    <div className="py-6 lg:py-8 flex flex-col lg:h-full lg:overflow-hidden">
       <CardapioClient cardapio={cardapio} barId={current.bar.id} fichaIds={[...fichaIds]} destaques={destaques} />
     </div>
   );

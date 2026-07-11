@@ -15,7 +15,7 @@ export default function DashboardCaixaLoading() {
         }
       `}</style>
 
-      <div className="py-6 lg:px-10 lg:py-8">
+      <div className="py-6 lg:py-8">
         {/* Header */}
         <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>

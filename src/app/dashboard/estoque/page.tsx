@@ -26,7 +26,7 @@ export default async function EstoquePage() {
   ];
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-4 lg:gap-6">
+    <div className="py-6 lg:py-8 flex flex-col gap-4 lg:gap-6">
 
       {/* Header — padrão Figma */}
       <div className="max-lg:pb-4" style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>

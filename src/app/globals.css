@@ -230,3 +230,11 @@
 .animate-live-pulse {
   animation: live-pulse 2s ease-in-out infinite;
 }
+
+/* ── Margem de página — REGRA ÚNICA (ver DESIGN.md) ─────────────────────────
+   Toda tela (dashboard + landing) usa .page-x pra margem lateral.
+   celular 24 · iPad 32 · desktop 56. Muda aqui = muda em todo lugar. */
+:root { --page-x: 24px; }
+@media (min-width: 768px)  { :root { --page-x: 32px; } }
+@media (min-width: 1280px) { :root { --page-x: 56px; } }
+.page-x { padding-left: var(--page-x); padding-right: var(--page-x); }

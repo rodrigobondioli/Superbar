@@ -45,7 +45,7 @@ export default async function TurnosPage() {
   ]);
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8 flex flex-col gap-4 lg:gap-6">
+    <div className="py-6 lg:py-8 flex flex-col gap-4 lg:gap-6">
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>

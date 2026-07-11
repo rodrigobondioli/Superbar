@@ -15,7 +15,7 @@ export default async function EquipePage() {
   const isDono = current.role === "dono";
 
   return (
-    <div className="py-6 lg:px-10 lg:py-8">
+    <div className="py-6 lg:py-8">
 
       {/* ── Header — padrão Figma ── */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, marginBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
