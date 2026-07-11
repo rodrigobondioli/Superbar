@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers } from "lucide-react";
+import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers, Search } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
@@ -780,6 +780,7 @@ export function CardapioClient({
   const [importPanelOpen, setImportPanelOpen] = useState(false);
   const [classicosOpen, setClassicosOpen] = useState(false);
   const [destaquesOpen, setDestaquesOpen] = useState(false);
+  const [busca, setBusca] = useState("");
 
   // Drag-and-drop para ordenar categorias (a ordem reflete no app do cliente).
   // `order` guarda a preferência do usuário; a ordem renderizada é derivada no
@@ -821,6 +822,16 @@ export function CardapioClient({
     .filter((p) => p.ativo && (p.produto_variantes ?? []).filter((v) => v.ativo).length === 0 && statusFicha(p, fichaSet) !== "confirmada").length;
 
   const selectedGrupo = cardapio.find(g => g.categoria.id === selectedId);
+
+  // Busca: quando preenchida, achata produtos de TODAS as categorias.
+  const buscaQ = busca.trim().toLowerCase();
+  const resultadosBusca = buscaQ
+    ? cardapio.flatMap(g =>
+        g.produtos
+          .filter(p => p.nome.toLowerCase().includes(buscaQ))
+          .map(p => ({ produto: p, categoriaId: g.categoria.id, categoriaNome: g.categoria.nome })),
+      )
+    : [];
 
   return (
     <div className="flex flex-col lg:h-full lg:overflow-hidden">
@@ -930,7 +941,7 @@ export function CardapioClient({
 
         {/* ── Categories: horizontal scroll strip on mobile, vertical sidebar on desktop ── */}
         <div
-          className="flex flex-row overflow-x-auto gap-1 pb-3 border-b lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:w-[240px] lg:border-b-0 lg:border-r lg:pr-4 lg:pb-4 shrink-0"
+          className="flex flex-row overflow-x-auto gap-1 pb-3 border-b lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:w-[300px] lg:border-b-0 lg:border-r lg:pr-4 lg:pb-4 shrink-0"
           style={{ borderColor: "var(--border)" }}
         >
           <p className="hidden lg:block shrink-0" style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", marginBottom: 16 }}>Categorias</p>
@@ -989,7 +1000,36 @@ export function CardapioClient({
 
         {/* ── Product list ── */}
         <div className="flex-1 pt-4 lg:pt-0 lg:pl-7 lg:overflow-y-auto">
-          {!selectedGrupo ? null : (
+          {/* Busca de produto (em todo o cardápio) */}
+          <div style={{ position: "relative", marginBottom: 16 }}>
+            <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar produto no cardápio…"
+              style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {buscaQ ? (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
+                  {resultadosBusca.length} {resultadosBusca.length === 1 ? "resultado" : "resultados"} para “{busca.trim()}”
+                </h2>
+              </div>
+              {resultadosBusca.length === 0 ? (
+                <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "20px 0" }}>Nenhum produto encontrado.</p>
+              ) : (
+                resultadosBusca.map(({ produto, categoriaId, categoriaNome }) => (
+                  <div key={produto.id}>
+                    <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "0 0 -2px 14px" }}>{categoriaNome}</p>
+                    <ProdutoRow produto={produto} categoriaId={categoriaId} fichaSet={fichaSet} categorias={categoriasFlat} />
+                  </div>
+                ))
+              )}
+            </>
+          ) : !selectedGrupo ? null : (
             <>
               <div style={{ marginBottom: 16 }}>
                 <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg-muted)", margin: 0 }}>
