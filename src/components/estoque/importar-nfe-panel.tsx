@@ -70,6 +70,8 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
         quantidade: parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0,
         gtin: it.gtin,
         cprod: it.cprod,
+        tamanhoEmbalagem: it.tamanhoEmbalagem,
+        unidadeCompra: it.unidadeCompra,
       }));
 
     if (itens.length === 0) { setError("Nenhum item selecionado para importar."); setLoading(false); return; }
@@ -159,6 +161,9 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "6px 0 0" }}>
                       Nota: {it.quantidade} {it.unidadeNota || "un"} · {currency.format(it.custoUnitario)} un
                       {it.custoAtual !== null && <> · custo atual {currency.format(it.custoAtual)}</>}
+                      {it.tamanhoEmbalagem && (
+                        <> · {it.unidadeCompra ?? "garrafa"} {it.tamanhoEmbalagem}{it.unidadeCompra === "pacote" ? "g" : "ml"}</>
+                      )}
                     </p>
                   </div>
                 ))}

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentBar } from "@/lib/dashboard/queries";
-import { parseNfe, unidadeBase } from "@/lib/nfe/parse";
+import { parseNfe, unidadeBase, extrairTamanho, rotuloCompra } from "@/lib/nfe/parse";
 
 const ROLES_OK = ["dono", "gerente", "bar_manager"];
 
@@ -24,6 +24,8 @@ export interface PreviewItem {
   custoUnitario: number;
   sugeridoIngredienteId: string | null;  // casamento automático (GTIN/nome)
   custoAtual: number | null;              // custo hoje do insumo casado
+  tamanhoEmbalagem: number | null;        // ml/g por embalagem, puxado do xProd
+  unidadeCompra: string | null;           // "garrafa" | "lata" | "pacote"
 }
 
 export interface NfePreview {
@@ -84,6 +86,7 @@ export async function previewNfe(xml: string): Promise<{ ok: true; preview: NfeP
       const match = porNome.get(normalizar(it.nome));
       if (match) sugerido = match.id;
     }
+    const tam = extrairTamanho(it.nome);
     return {
       cprod: it.cprod,
       gtin: it.gtin,
@@ -94,6 +97,8 @@ export async function previewNfe(xml: string): Promise<{ ok: true; preview: NfeP
       custoUnitario: it.custoUnitario,
       sugeridoIngredienteId: sugerido,
       custoAtual: sugerido ? (custoById.get(sugerido) ?? null) : null,
+      tamanhoEmbalagem: tam?.valor ?? null,
+      unidadeCompra: tam ? rotuloCompra(it.nome) : null,
     };
   });
 
@@ -111,6 +116,8 @@ export interface ConfirmarItem {
   quantidade: number;
   gtin: string | null;
   cprod: string | null;
+  tamanhoEmbalagem: number | null;  // ml/g por embalagem (referência p/ contagem)
+  unidadeCompra: string | null;
 }
 
 export async function confirmarNfe(payload: {
@@ -132,13 +139,15 @@ export async function confirmarNfe(payload: {
     p_chave_nfe:       payload.chaveNfe,
     p_user_id:         current.userId,
     p_itens: payload.itens.map(i => ({
-      ingrediente_id: i.ingredienteId,
-      nome:           i.nome,
-      unidade:        i.unidade,
-      custo_unitario: i.custoUnitario,
-      quantidade:     i.quantidade,
-      gtin:           i.gtin,
-      cprod:          i.cprod,
+      ingrediente_id:    i.ingredienteId,
+      nome:              i.nome,
+      unidade:           i.unidade,
+      custo_unitario:    i.custoUnitario,
+      quantidade:        i.quantidade,
+      gtin:              i.gtin,
+      cprod:             i.cprod,
+      tamanho_embalagem: i.tamanhoEmbalagem,
+      unidade_compra:    i.unidadeCompra,
     })),
   });
 

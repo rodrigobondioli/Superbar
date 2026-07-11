@@ -33,6 +33,34 @@ function gtinValido(v: unknown): string | null {
   return s;
 }
 
+/**
+ * Extrai o tamanho da embalagem da descrição do produto (xProd) — praticidade:
+ * toda garrafa traz o volume no texto ("...750ML", "1L", "5KG"). Retorna em
+ * ml (líquido) ou g (sólido). null quando não há volume (ex: "LIMÃO KG").
+ */
+export function extrairTamanho(xProd: string): { valor: number; base: "ml" | "g" } | null {
+  const s = String(xProd ?? "").toLowerCase();
+  const m = s.match(/(\d+(?:[.,]\d+)?)\s*(ml|cl|lt|litros?|l|kg|gr|g)\b/);
+  if (!m) return null;
+  const valor = parseFloat(m[1].replace(",", "."));
+  if (!isFinite(valor) || valor <= 0) return null;
+  const u = m[2];
+  if (u === "ml") return { valor, base: "ml" };
+  if (u === "cl") return { valor: valor * 10, base: "ml" };
+  if (u === "l" || u === "lt" || u.startsWith("litro")) return { valor: valor * 1000, base: "ml" };
+  if (u === "kg") return { valor: valor * 1000, base: "g" };
+  if (u === "g" || u === "gr") return { valor, base: "g" };
+  return null;
+}
+
+/** Rótulo da unidade de compra a partir da descrição (garrafa por padrão). */
+export function rotuloCompra(xProd: string): string {
+  const s = String(xProd ?? "").toLowerCase();
+  if (/\blata(s)?\b|\blt\b/.test(s)) return "lata";
+  if (/\bpacote(s)?\b|\bpct\b|\bsaco(s)?\b/.test(s)) return "pacote";
+  return "garrafa";
+}
+
 /** Mapeia a unidade comercial da nota para a unidade-base do insumo. */
 export function unidadeBase(uCom: string): "un" | "ml" | "l" | "g" | "kg" {
   const u = uCom.trim().toLowerCase();
