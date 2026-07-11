@@ -3,16 +3,19 @@ import type { UnidadeInsumo } from "@/lib/ficha/sugestao-types";
 import type { CustoStatus } from "@/types/database";
 
 /** Drink (produto sem variante) que ainda não tem ficha/custo confirmado.
- *  Alvos do lote-guiado. Produtos com variante ficam de fora (ficha é por variante). */
+ *  Alvos do lote-guiado. Produtos com variante ficam de fora (ficha é por variante).
+ *  quantidadeVendida: total já vendido — usado para PRIORIZAR (mais vendido sem
+ *  ficha é onde a margem cega mais dói; o dono resolve esse primeiro). */
 export interface DrinkParaFicha {
   id: string;
   nome: string;
   preco: number;
+  quantidadeVendida: number;
 }
 
 export async function getDrinksParaFicha(barId: string): Promise<DrinkParaFicha[]> {
   const supabase = await createClient();
-  const [{ data }, { data: receitas }] = await Promise.all([
+  const [{ data }, { data: receitas }, { data: vendas }] = await Promise.all([
     supabase
       .from("produtos")
       .select("id, nome, preco, custo_status, produto_variantes ( id, ativo )")
@@ -26,15 +29,34 @@ export async function getDrinksParaFicha(barId: string): Promise<DrinkParaFicha[
       .eq("bar_id", barId)
       .is("variante_id", null)
       .returns<{ produto_id: string }[]>(),
+    supabase
+      .from("comanda_items")
+      .select("produto_id, quantidade")
+      .eq("bar_id", barId)
+      .is("cancelado_em", null)
+      .returns<{ produto_id: string; quantidade: number }[]>(),
   ]);
 
   // "Tem ficha de verdade" = existe receita E o custo está confirmado.
   const comFichaOk = new Set((receitas ?? []).map((r) => r.produto_id));
 
+  // Volume vendido por produto (para priorizar).
+  const vendidoPorProduto = new Map<string, number>();
+  for (const v of vendas ?? []) {
+    vendidoPorProduto.set(v.produto_id, (vendidoPorProduto.get(v.produto_id) ?? 0) + Number(v.quantidade));
+  }
+
   return (data ?? [])
     .filter((p) => !(p.produto_variantes ?? []).some((v) => v.ativo)) // só sem variante
     .filter((p) => !(comFichaOk.has(p.id) && p.custo_status === "confirmada")) // pendente = sem ficha real confirmada
-    .map((p) => ({ id: p.id, nome: p.nome, preco: Number(p.preco) }));
+    .map((p) => ({
+      id: p.id,
+      nome: p.nome,
+      preco: Number(p.preco),
+      quantidadeVendida: vendidoPorProduto.get(p.id) ?? 0,
+    }))
+    // Mais vendido primeiro; empate resolve por nome (ordem estável do fetch).
+    .sort((a, b) => b.quantidadeVendida - a.quantidadeVendida);
 }
 
 /** Uma linha da ficha, do jeito que o editor precisa. */

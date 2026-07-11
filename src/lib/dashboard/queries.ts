@@ -128,6 +128,90 @@ export async function getAlertasEstoque(barId: string): Promise<AlertaEstoque[]>
   }));
 }
 
+// ── Variação de custo do insumo (variance alert) ────────────────────────────
+// Compara as DUAS últimas entradas (compra) do mesmo insumo. Se o custo subiu
+// acima do limiar, a margem dos drinks com esse insumo está sendo comida.
+// Guardrails: funciona pra entrada manual OU NF-e (não exige nota); só fala de
+// insumo com 2 compras custeadas (parcial, honesto); silencioso sem dado.
+
+export interface VariacaoCusto {
+  ingredienteId: string;
+  ingredienteNome: string;
+  unidade: string;
+  custoAnterior: number;
+  custoAtual: number;
+  pctChange: number;         // 0.18 = +18%
+  fornecedorNome: string | null;
+}
+
+/** Alta mínima (fração) para virar alerta. +10% já dói na margem. */
+const LIMIAR_VARIACAO_CUSTO = 0.10;
+
+export async function getVariacaoCusto(barId: string, limiar = LIMIAR_VARIACAO_CUSTO): Promise<VariacaoCusto[]> {
+  const supabase = await createClient();
+
+  // Só colunas escalares (sem embed) — tipagem limpa e independente das relações
+  // novas da NF-e. Nome do insumo vem numa segunda query enxuta.
+  const { data: movs } = await supabase
+    .from("ingrediente_movimentos")
+    .select("ingrediente_id, custo_unitario")
+    .eq("bar_id", barId)
+    .eq("tipo", "entrada")
+    .gt("custo_unitario", 0)
+    .order("criado_em", { ascending: false })
+    .limit(500)
+    .returns<{ ingrediente_id: string; custo_unitario: number | null }[]>();
+
+  if (!movs || movs.length === 0) return [];
+
+  // Agrupa por insumo, guardando só as 2 entradas mais recentes (já vem desc).
+  const porInsumo = new Map<string, number[]>();
+  for (const row of movs) {
+    if (row.custo_unitario == null) continue;
+    const arr = porInsumo.get(row.ingrediente_id);
+    if (!arr) porInsumo.set(row.ingrediente_id, [Number(row.custo_unitario)]);
+    else if (arr.length < 2) arr.push(Number(row.custo_unitario));
+  }
+
+  // Calcula a variação por insumo (precisa de 2 compras custeadas).
+  const variacoes = new Map<string, { custoAnterior: number; custoAtual: number; pctChange: number }>();
+  for (const [ingredienteId, custos] of porInsumo) {
+    if (custos.length < 2) continue;                    // parcial, honesto
+    const [custoAtual, custoAnterior] = custos;
+    if (!(custoAnterior > 0)) continue;
+    const pctChange = (custoAtual - custoAnterior) / custoAnterior;
+    if (pctChange < limiar) continue;                   // só alta relevante
+    variacoes.set(ingredienteId, { custoAnterior, custoAtual, pctChange });
+  }
+
+  if (variacoes.size === 0) return [];
+
+  // Nomes/unidades dos insumos que dispararam.
+  const { data: ings } = await supabase
+    .from("ingredientes")
+    .select("id, nome, unidade")
+    .in("id", [...variacoes.keys()]);
+
+  const nomePorId = new Map((ings ?? []).map((i) => [i.id, { nome: i.nome, unidade: i.unidade }]));
+
+  const out: VariacaoCusto[] = [];
+  for (const [ingredienteId, v] of variacoes) {
+    const info = nomePorId.get(ingredienteId);
+    out.push({
+      ingredienteId,
+      ingredienteNome: info?.nome ?? "Insumo",
+      unidade: info?.unidade ?? "",
+      custoAnterior: v.custoAnterior,
+      custoAtual: v.custoAtual,
+      pctChange: v.pctChange,
+      fornecedorNome: null,
+    });
+  }
+
+  out.sort((a, b) => b.pctChange - a.pctChange);
+  return out.slice(0, 5);
+}
+
 export interface TopDrink {
   produtoId: string;
   produtoNome: string;

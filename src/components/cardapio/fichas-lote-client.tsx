@@ -28,6 +28,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
   const [fichasPorDrink, setFichasPorDrink] = useState<Record<string, InsumoSugerido[]>>({});
   const [insumos, setInsumos] = useState<InsumoConsolidado[]>([]);
   const [resultados, setResultados] = useState<FichaLoteResult[]>([]);
+  const temVendas = drinks.some((d) => d.quantidadeVendida > 0);
 
   async function gerar() {
     setPhase("gerando");
@@ -123,12 +124,24 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
       {/* ── LISTA ── */}
       {phase === "lista" && (
         <>
-          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 14px" }}>
+          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 4px" }}>
             {drinks.length} drink{drinks.length !== 1 ? "s" : ""} sem ficha:
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+          {temVendas && (
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 14px", lineHeight: 1.5 }}>
+              Ordenados pelos mais vendidos — comece por eles, é onde a margem cega mais pesa.
+            </p>
+          )}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, marginTop: temVendas ? 0 : 10 }}>
             {drinks.map((d) => (
-              <span key={d.id} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>{d.nome}</span>
+              <span key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>
+                {d.nome}
+                {d.quantidadeVendida > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>
+                    {d.quantidadeVendida} vend.
+                  </span>
+                )}
+              </span>
             ))}
           </div>
           <button onClick={gerar} style={cta()}>

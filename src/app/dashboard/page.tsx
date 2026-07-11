@@ -1,6 +1,7 @@
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 import { GuiaConfiguracao, type PassoConfig } from "@/components/dashboard/guia-configuracao";
+import { AlertaVariacaoCusto } from "@/components/dashboard/alerta-variacao-custo";
 import { OperacaoAoVivo, type Periodo, type PeriodView } from "@/components/dashboard/operacao-ao-vivo";
 import {
   getCurrentBar,
@@ -14,6 +15,7 @@ import {
   getPrimeirosPassos,
   getUltimoTurnoFechado,
   getHistoricoTurnos,
+  getVariacaoCusto,
   type PrimeirosPassosData,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
@@ -68,7 +70,7 @@ function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
         ? "Custo dos produtos"
         : `Custo — ${p.nProdutosComCusto} de ${p.nProdutos} com ficha`,
       apoio: "Sem custo, a margem é chute. Suba uma nota (NF-e) ou cadastre a ficha.",
-      done: custoOk, href: "/dashboard/cardapio", cta: "Cadastrar custo", critico: true,
+      done: custoOk, href: "/dashboard/cardapio/fichas", cta: "Cadastrar custo", critico: true,
     },
     {
       label: `Mesas — ${p.nMesas} ${p.nMesas === 1 ? "mesa" : "mesas"}`,
@@ -99,12 +101,13 @@ export default async function DashboardPage() {
   const turno = await getTurnoAtual(current.bar.id);
 
   if (!turno) {
-    const [passos, ultimoTurno, inteligencia, alertas, metaMes] = await Promise.all([
+    const [passos, ultimoTurno, inteligencia, alertas, metaMes, variacaoCusto] = await Promise.all([
       getPrimeirosPassos(current.bar.id, current.userId),
       getUltimoTurnoFechado(current.bar.id),
       getInteligenciaStage(current.bar.id),
       getAlertasEstoque(current.bar.id),
       getMetaMes(current.bar.id, current.bar.configuracoes?.meta_mensal ?? undefined),
+      getVariacaoCusto(current.bar.id),
     ]);
 
     // ── Bar novo: nunca teve turno → guia de configuração ───────────────────
@@ -320,6 +323,13 @@ export default async function DashboardPage() {
                 className="hover:!text-[var(--fg-muted)]">
                 Ver detalhes do turno →
               </a>
+            </section>
+          )}
+
+          {/* 2.5. CUSTO SUBINDO — variance alert (só quando há sinal) */}
+          {variacaoCusto.length > 0 && (
+            <section>
+              <AlertaVariacaoCusto itens={variacaoCusto} />
             </section>
           )}
 
