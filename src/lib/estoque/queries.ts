@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { EstoqueUnidade, MovimentoTipo } from "@/types/database";
 
 export interface ItemEstoque {
@@ -126,19 +127,30 @@ export async function getDinheiroParado(barId: string): Promise<DinheiroParado> 
 export interface InsumoContagem {
   id: string;
   nome: string;
-  unidade: string;
+  unidade: string;                    // base: ml/g/un/l/kg
+  tamanhoEmbalagem: number | null;    // base por embalagem (ex: 750 = garrafa 750ml); null = conta direto
+  unidadeCompra: string | null;       // rótulo: "garrafa", "lata"…
 }
 
 export async function getInsumosParaContagem(barId: string): Promise<InsumoContagem[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
+  // Admin (untyped): as colunas tamanho_embalagem/unidade_compra são novas e ainda
+  // não estão nos tipos gerados. Read escopado por bar_id.
+  const admin = createAdminClient();
+  const { data } = await admin
     .from("ingredientes")
-    .select("id, nome, unidade")
+    .select("id, nome, unidade, tamanho_embalagem, unidade_compra")
     .eq("bar_id", barId)
     .eq("ativo", true)
     .order("nome", { ascending: true })
-    .returns<InsumoContagem[]>();
-  return data ?? [];
+    .returns<{ id: string; nome: string; unidade: string; tamanho_embalagem: number | null; unidade_compra: string | null }[]>();
+
+  return (data ?? []).map((i) => ({
+    id: i.id,
+    nome: i.nome,
+    unidade: i.unidade,
+    tamanhoEmbalagem: i.tamanho_embalagem,
+    unidadeCompra: i.unidade_compra,
+  }));
 }
 
 export interface MovimentoRecente {

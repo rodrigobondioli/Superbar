@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ClipboardCheck, Loader2, Check, Search } from "lucide-react";
-import { salvarContagem, type ContagemResultado } from "@/lib/estoque/actions";
+import { salvarContagem, type ContagemLinha, type ContagemResultado } from "@/lib/estoque/actions";
 import type { InsumoContagem } from "@/lib/estoque/queries";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -11,10 +11,23 @@ const qtd = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 type Phase = "contando" | "salvando" | "resumo";
 
+/** Insumo contado por embalagem (garrafa/lata) quando não é unidade avulsa. */
+function contaPorEmbalagem(i: InsumoContagem) {
+  return i.unidade !== "un";
+}
+function rotuloEmbalagem(i: InsumoContagem) {
+  return i.unidadeCompra ?? "garrafa";
+}
+
 export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("contando");
   const [valores, setValores] = useState<Record<string, string>>({});
+  const [tamanhos, setTamanhos] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      insumos.filter((i) => i.tamanhoEmbalagem != null).map((i) => [i.id, String(i.tamanhoEmbalagem)]),
+    ),
+  );
   const [busca, setBusca] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [resultado, setResultado] = useState<{ itens: ContagemResultado[]; totalImpacto: number; ajustados: number } | null>(null);
@@ -30,11 +43,33 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
   }, [insumos, busca]);
 
   async function salvar() {
-    const linhas = insumos
-      .filter((i) => (valores[i.id] ?? "").trim() !== "")
-      .map((i) => ({ ingredienteId: i.id, contado: parseFloat((valores[i.id] ?? "").replace(",", ".")) }))
-      .filter((l) => Number.isFinite(l.contado) && l.contado >= 0);
+    const linhas: ContagemLinha[] = [];
+    const semTamanho: string[] = [];
 
+    for (const i of insumos) {
+      const raw = (valores[i.id] ?? "").trim();
+      if (raw === "") continue;
+      const count = parseFloat(raw.replace(",", "."));
+      if (!Number.isFinite(count) || count < 0) continue;
+
+      if (!contaPorEmbalagem(i)) {
+        linhas.push({ ingredienteId: i.id, contado: count });
+        continue;
+      }
+      const size = parseFloat((tamanhos[i.id] ?? "").replace(",", "."));
+      if (!Number.isFinite(size) || size <= 0) { semTamanho.push(i.nome); continue; }
+      linhas.push({
+        ingredienteId: i.id,
+        contado: count * size,
+        tamanhoEmbalagem: size,
+        unidadeCompra: rotuloEmbalagem(i),
+      });
+    }
+
+    if (semTamanho.length > 0) {
+      setErro(`Diga o tamanho da embalagem de: ${semTamanho.join(", ")} (ex: 750 ml por garrafa).`);
+      return;
+    }
     if (linhas.length === 0) { setErro("Conte pelo menos um insumo."); return; }
 
     setErro(null);
@@ -69,7 +104,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
       {phase === "contando" && (
         <>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 4px", lineHeight: 1.5 }}>
-            Conte o que está na prateleira, insumo por insumo. O que você não contar fica como está.
+            Conte em garrafas (ou latas). Garrafa aberta pela metade? Ponha 0,5. O que não contar fica como está.
           </p>
           <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 16px" }}>
             Depois de salvar, ajusto o estoque pra bater com sua contagem.
@@ -88,18 +123,38 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
             {filtrados.map((i) => {
-              const preenchido = (valores[i.id] ?? "").trim() !== "";
+              const embalagem = contaPorEmbalagem(i);
               return (
-                <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", background: "var(--bg-card)", border: `1px solid ${preenchido ? "var(--accent)" : "var(--border)"}`, borderRadius: 10 }}>
-                  <span style={{ flex: 1, fontSize: 14, color: "var(--fg)", minWidth: 0 }}>{i.nome}</span>
+                <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, flexWrap: "wrap" }}>
+                  <span style={{ flex: 1, fontSize: 14, color: "var(--fg)", minWidth: 120 }}>{i.nome}</span>
+
+                  {/* Contagem */}
                   <input
                     value={valores[i.id] ?? ""}
                     onChange={(e) => setValores((v) => ({ ...v, [i.id]: e.target.value }))}
                     inputMode="decimal"
                     placeholder="—"
-                    style={{ width: 88, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 6, padding: "8px 10px", fontSize: 14, color: "var(--fg)", outline: "none", colorScheme: "dark", textAlign: "right", fontVariantNumeric: "tabular-nums" }}
+                    style={campo(76)}
                   />
-                  <span style={{ width: 28, fontSize: 12, color: "var(--fg-subtle)", flexShrink: 0 }}>{i.unidade}</span>
+                  <span style={{ fontSize: 12, color: "var(--fg-subtle)", width: 54, flexShrink: 0 }}>
+                    {embalagem ? rotuloEmbalagem(i) : i.unidade}
+                  </span>
+
+                  {/* Tamanho da embalagem (só p/ quem conta por garrafa) */}
+                  {embalagem && (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                      <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>de</span>
+                      <input
+                        value={tamanhos[i.id] ?? ""}
+                        onChange={(e) => setTamanhos((t) => ({ ...t, [i.id]: e.target.value }))}
+                        inputMode="decimal"
+                        placeholder="750"
+                        title="Tamanho da embalagem"
+                        style={campo(64)}
+                      />
+                      <span style={{ fontSize: 12, color: "var(--fg-subtle)", width: 20 }}>{i.unidade}</span>
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -135,7 +190,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
             </p>
           </div>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 20px" }}>
-            Diferença de estoque em relação ao que o sistema tinha:{" "}
+            Diferença em relação ao que o sistema tinha:{" "}
             <strong style={{ color: resultado.totalImpacto < 0 ? "var(--warn)" : "var(--fg)" }}>
               {currency.format(resultado.totalImpacto)}
             </strong>
@@ -146,7 +201,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", borderRadius: 8, padding: "10px 14px" }}>
                 <span style={{ flex: 1, fontSize: 14, color: "var(--fg)", minWidth: 0 }}>{r.nome}</span>
                 <span style={{ fontSize: 12, color: "var(--fg-subtle)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-                  {qtd.format(r.anterior)} → {qtd.format(r.contado)} {r.unidade}
+                  {formatarEstoque(r.anterior, r)} → {formatarEstoque(r.contado, r)}
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: r.impacto < 0 ? "var(--warn)" : "var(--ok)", fontVariantNumeric: "tabular-nums", minWidth: 84, textAlign: "right" }}>
                   {r.impacto > 0 ? "+" : ""}{currency.format(r.impacto)}
@@ -167,6 +222,22 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
   );
 }
 
+/** Mostra o estoque na unidade natural: garrafa quando há tamanho, senão unidade-base. */
+function formatarEstoque(valorBase: number, r: ContagemResultado): string {
+  if (r.tamanho && r.tamanho > 0) {
+    return `${qtd.format(valorBase / r.tamanho)} ${r.unidadeCompra ?? "garrafa"}`;
+  }
+  return `${qtd.format(valorBase)} ${r.unidade}`;
+}
+
+function campo(w: number): React.CSSProperties {
+  return {
+    width: w, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 6,
+    padding: "8px 10px", fontSize: 14, color: "var(--fg)", outline: "none", colorScheme: "dark",
+    textAlign: "right", fontVariantNumeric: "tabular-nums", flexShrink: 0,
+  };
+}
+
 function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () => void }) {
   return (
     <div>
@@ -177,7 +248,7 @@ function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () 
         <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Contagem de insumos</h1>
         <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Conte a prateleira e o sistema acerta o estoque.</p>
       </div>
-      <div style={{ maxWidth: 640 }}>{children}</div>
+      <div style={{ maxWidth: 680 }}>{children}</div>
     </div>
   );
 }

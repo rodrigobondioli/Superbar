@@ -80,12 +80,16 @@ export async function registrarMovimento(
 
 export interface ContagemLinha {
   ingredienteId: string;
-  contado: number;
+  contado: number;                    // já na unidade-base
+  tamanhoEmbalagem?: number | null;   // persistir no insumo (se informado na tela)
+  unidadeCompra?: string | null;
 }
 
 export interface ContagemResultado {
   nome: string;
   unidade: string;
+  unidadeCompra: string | null;       // rótulo ("garrafa") pra exibir o diff na unidade natural
+  tamanho: number | null;             // base por embalagem
   anterior: number;
   contado: number;
   diff: number;      // contado − anterior (negativo = sistema tinha a mais)
@@ -116,10 +120,10 @@ export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarCon
 
   const { data: insumos } = await admin
     .from("ingredientes")
-    .select("id, nome, unidade, estoque_atual, custo_atual")
+    .select("id, nome, unidade, estoque_atual, custo_atual, tamanho_embalagem, unidade_compra")
     .eq("bar_id", current.bar.id)
     .in("id", ids)
-    .returns<{ id: string; nome: string; unidade: string; estoque_atual: number; custo_atual: number }[]>();
+    .returns<{ id: string; nome: string; unidade: string; estoque_atual: number; custo_atual: number; tamanho_embalagem: number | null; unidade_compra: string | null }[]>();
 
   const porId = new Map((insumos ?? []).map((i) => [i.id, i]));
   const agora = new Date().toISOString();
@@ -133,9 +137,17 @@ export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarCon
     const contado = Number(l.contado);
     const diff = contado - anterior;
 
+    // Persiste o tamanho da embalagem informado na tela (pra lembrar da próxima vez).
+    const patch: Record<string, unknown> = { estoque_atual: contado, atualizado_em: agora };
+    const tamanhoInformado = l.tamanhoEmbalagem != null && l.tamanhoEmbalagem > 0;
+    if (tamanhoInformado) {
+      patch.tamanho_embalagem = l.tamanhoEmbalagem;
+      patch.unidade_compra = l.unidadeCompra ?? "garrafa";
+    }
+
     const { error: upErr } = await admin
       .from("ingredientes")
-      .update({ estoque_atual: contado, atualizado_em: agora })
+      .update(patch)
       .eq("id", ins.id)
       .eq("bar_id", current.bar.id);
     if (upErr) return { error: traduzirErro(upErr.message) };
@@ -156,6 +168,8 @@ export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarCon
     itens.push({
       nome: ins.nome,
       unidade: ins.unidade,
+      unidadeCompra: tamanhoInformado ? (l.unidadeCompra ?? "garrafa") : ins.unidade_compra,
+      tamanho: tamanhoInformado ? Number(l.tamanhoEmbalagem) : ins.tamanho_embalagem,
       anterior,
       contado,
       diff,
