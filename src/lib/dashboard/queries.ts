@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import type { Bar, BarRole, Turno, CustoStatus } from "@/types/database";
@@ -24,7 +25,9 @@ export interface CurrentBar {
   isKiosk?: boolean;
 }
 
-export async function getCurrentBar(): Promise<CurrentBar | null> {
+// cache(): dedupe por request — layout e page chamam getCurrentBar no mesmo
+// request; sem isso a checagem de auth+bar (2 viagens ao Supabase) roda 2x.
+export const getCurrentBar = cache(async (): Promise<CurrentBar | null> => {
   const supabase = await createClient();
   const cookieStore = await cookies();
   const opCookie = cookieStore.get(OPERADOR_COOKIE)?.value || null;
@@ -66,7 +69,7 @@ export async function getCurrentBar(): Promise<CurrentBar | null> {
   // Se nenhum usuário estiver autenticado, as superfícies operacionais mandam
   // pro /login.
   return null;
-}
+});
 
 export async function getTurnoAtual(barId: string): Promise<Turno | null> {
   const supabase = await createClient();

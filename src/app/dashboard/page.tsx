@@ -365,7 +365,8 @@ export default async function DashboardPage() {
     );
   }
 
-  const [kpis, alertas, produtosVendidos, metaMes, liveStats, pontosHora, rankingMesas, mixPgto, tempos, inteligencia, historicoTurnos] = await Promise.all([
+  const periodoSemana = resolvePeriodo({ preset: "7d" });
+  const [kpis, alertas, produtosVendidos, metaMes, liveStats, pontosHora, rankingMesas, mixPgto, tempos, inteligencia, historicoTurnos, pontosReceita, receitaSemana] = await Promise.all([
     getKpisTurno(turno),
     getAlertasEstoque(current.bar.id),
     getProdutosVendidosTurno(current.bar.id, turno.id),
@@ -377,6 +378,9 @@ export default async function DashboardPage() {
     getTempoMedioPreparo(current.bar.id, turno.id),
     getInteligenciaStage(current.bar.id),
     getHistoricoTurnos(current.bar.id),
+    // Receita da semana não depende de turno/kpis — roda junto pra evitar mais uma viagem.
+    getFaturamentoPorDia(current.bar.id, periodoSemana, "diaSemana"),
+    getComparacaoPeriodo(current.bar.id, periodoSemana),
   ]);
 
   const comparacao = await getKpisComparacao(
@@ -392,12 +396,6 @@ export default async function DashboardPage() {
     .sort((a, b) => (b.margemPercentual ?? -Infinity) - (a.margemPercentual ?? -Infinity))
     .slice(0, TOP_DRINKS_LIMIT);
   const cmvAtual = calcularCmv(produtosVendidos);
-
-  const periodoSemana = resolvePeriodo({ preset: "7d" });
-  const [pontosReceita, receitaSemana] = await Promise.all([
-    getFaturamentoPorDia(current.bar.id, periodoSemana, "diaSemana"),
-    getComparacaoPeriodo(current.bar.id, periodoSemana),
-  ]);
 
   const agora = new Date();
   const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
