@@ -1,5 +1,6 @@
 import { LineChart } from "@/components/ui/line-chart";
 import { PeriodoSeletor } from "@/components/dashboard/periodo-seletor";
+import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { resolvePeriodo, type PeriodoSearchParams } from "@/lib/dashboard/periodo";
 import {
@@ -122,9 +123,7 @@ export default async function RelatoriosPage({
                   {margem !== null && <span className="hidden sm:inline" style={{ fontSize: 13, color: "var(--fg-muted)", flexShrink: 0, minWidth: 96, textAlign: "right" }}>Margem {margem}%</span>}
                   <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0, minWidth: 96, textAlign: "right" }}>{currency.format(p.faturamento)}</span>
                 </div>
-                <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                  <div style={{ height: 3, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transformOrigin: "left", animation: "barGrow 0.85s cubic-bezier(0.22,1,0.36,1) both", animationDelay: `${i * 70}ms` }} />
-                </div>
+                <BarraProgresso valor={pct / 100} altura={3} corBarra="linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)" delayMs={i * 70} />
               </div>
             );
           })}
@@ -156,9 +155,7 @@ export default async function RelatoriosPage({
                     <span className="hidden sm:inline" style={{ fontSize: 13, color: "var(--fg-muted)", flexShrink: 0, minWidth: 64, textAlign: "right" }}>{g.qtdItens} {g.qtdItens === 1 ? "item" : "itens"}</span>
                     <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0, minWidth: 96, textAlign: "right" }}>{currency.format(g.totalVendido)}</span>
                   </div>
-                  <div style={{ height: 3, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                    <div style={{ height: 3, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: `${pct}%`, transformOrigin: "left", animation: "barGrow 0.85s cubic-bezier(0.22,1,0.36,1) both", animationDelay: `${i * 70}ms` }} />
-                  </div>
+                  <BarraProgresso valor={pct / 100} altura={3} corBarra="linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)" delayMs={i * 70} />
                 </div>
               );
             })}

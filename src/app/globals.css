@@ -230,9 +230,3 @@
 .animate-live-pulse {
   animation: live-pulse 2s ease-in-out infinite;
 }
-
-/* Crescimento das barras (Top drinks) — escala horizontal da esquerda */
-@keyframes barGrow {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
