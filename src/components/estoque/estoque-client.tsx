@@ -283,16 +283,11 @@ export function EstoqueClient({ itens, movimentos }: EstoqueClientProps) {
         <MovimentoModal item={modalItem} onClose={() => setModalItem(null)} />
       )}
 
-      <ImportarNfePanel open={nfeAberto} onClose={() => setNfeAberto(false)} />
-
-      {/* Aviso + ação de importar NF-e */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: -8 }}>
+      {/* Aviso */}
+      <div style={{ marginTop: -8 }}>
         <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, maxWidth: 520 }}>
           Estoque atual por produto. O controle inteligente por ingredientes será ativado quando as receitas estiverem configuradas.
         </p>
-        <button onClick={() => setNfeAberto(true)} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer", flexShrink: 0 }}>
-          Importar nota fiscal (NF-e)
-        </button>
       </div>
 
       {/* Tabs */}
