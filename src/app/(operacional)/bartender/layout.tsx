@@ -44,8 +44,9 @@ export default async function BartenderLayout({
     <OperadorShell
       membros={membros}
       barNome={current.bar.nome}
-      roleLabel="Garçom"
+      roleLabel="Bartender"
       isKiosk={current.isKiosk}
+      contagemHref="/contagem"
     >
       {children}
     </OperadorShell>

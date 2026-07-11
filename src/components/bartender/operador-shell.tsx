@@ -220,6 +220,7 @@ export function OperadorShell({
   barNome,
   roleLabel = "Operador",
   isKiosk = false,
+  contagemHref,
   children,
 }: {
   membros: MembroSimples[];
@@ -227,6 +228,8 @@ export function OperadorShell({
   roleLabel?: string;
   /** true = acesso via cookie kiosk, sem auth do dono */
   isKiosk?: boolean;
+  /** Se setado, mostra um atalho pra contagem de estoque (ex: bartender). */
+  contagemHref?: string;
   children: React.ReactNode;
 }) {
   const [operador, setOperador] = useState<MembroSimples | null>(null);
@@ -335,10 +338,25 @@ export function OperadorShell({
         }
       />
       <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        {operador
-          ? children
-          : <QuemEVoce membros={membros} onSelect={selecionar} />
-        }
+        {operador ? (
+          <>
+            {contagemHref && (
+              <a
+                href={contagemHref}
+                style={{
+                  flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  padding: "11px", background: "var(--bg-card)", borderBottom: "1px solid var(--border)",
+                  color: "var(--accent)", fontSize: 14, fontWeight: 600, textDecoration: "none",
+                }}
+              >
+                Fazer contagem de estoque →
+              </a>
+            )}
+            {children}
+          </>
+        ) : (
+          <QuemEVoce membros={membros} onSelect={selecionar} />
+        )}
       </main>
     </div>
   );

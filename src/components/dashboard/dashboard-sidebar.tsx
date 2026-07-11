@@ -13,16 +13,18 @@ import { Drawer } from "@/components/ui/drawer";
 import { SettingsButton } from "./settings-button";
 import type { AlertaEstoque } from "@/lib/dashboard/queries";
 import { ROLE_LABEL } from "@/lib/role-labels";
+import { podeVerFinanceiro } from "@/lib/auth/roles";
 
+// financeiro: true → só o dono vê (faturamento, inteligência, relatórios, CRM).
 const links = [
-  { href: "/dashboard",                    label: "Operação ao vivo", icon: LayoutDashboard },
-  { href: "/dashboard/inteligencia",       label: "Inteligência",     icon: Sparkles, badge: true },
-  { href: "/dashboard/relatorios",         label: "Relatórios",       icon: BarChart3 },
-  { href: "/dashboard/turnos",             label: "Turnos",           icon: History },
+  { href: "/dashboard",                    label: "Operação ao vivo", icon: LayoutDashboard, financeiro: true },
+  { href: "/dashboard/inteligencia",       label: "Inteligência",     icon: Sparkles, badge: true, financeiro: true },
+  { href: "/dashboard/relatorios",         label: "Relatórios",       icon: BarChart3, financeiro: true },
+  { href: "/dashboard/turnos",             label: "Turnos",           icon: History, financeiro: true },
   { href: "/dashboard/cardapio",           label: "Cardápio",         icon: UtensilsCrossed },
   { href: "/dashboard/mesas",              label: "Mesas",            icon: TableProperties },
   { href: "/dashboard/estoque",            label: "Estoque",          icon: Package },
-  { href: "/dashboard/clientes",           label: "Clientes",         icon: Contact },
+  { href: "/dashboard/clientes",           label: "Clientes",         icon: Contact, financeiro: true },
   { href: "/dashboard/equipe",             label: "Equipe",           icon: Users },
 ];
 
@@ -58,6 +60,9 @@ export function DashboardSidebar({
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href);
+
+  // Bar Manager não vê os itens financeiros (mesma régua dos guards de página).
+  const linksVisiveis = links.filter((l) => !l.financeiro || podeVerFinanceiro(role));
 
   const iconSize = touchMode ? "h-5 w-5" : "h-4 w-4";
 
@@ -135,7 +140,7 @@ export function DashboardSidebar({
 
       {/* ── Nav ── */}
       <nav style={{ padding: touchMode ? "12px" : collapsed ? "10px 8px 0" : "10px 10px 0", flex: 1 }}>
-        {links.map((link) => {
+        {linksVisiveis.map((link) => {
           const active = isActive(link.href);
           return (
             <Link

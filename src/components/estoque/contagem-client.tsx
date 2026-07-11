@@ -19,7 +19,7 @@ function rotuloEmbalagem(i: InsumoContagem) {
   return i.unidadeCompra ?? "garrafa";
 }
 
-export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
+export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: { insumos: InsumoContagem[]; voltarHref?: string }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("contando");
   const [valores, setValores] = useState<Record<string, string>>({});
@@ -83,7 +83,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
   // ─── Sem insumos ───
   if (insumos.length === 0) {
     return (
-      <Wrap onVoltar={() => router.push("/dashboard/estoque")}>
+      <Wrap onVoltar={() => router.push(voltarHref)}>
         <div style={{ textAlign: "center", padding: "60px 0" }}>
           <p style={{ fontSize: 16, color: "var(--fg)", margin: "0 0 6px" }}>Nenhum insumo cadastrado</p>
           <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>Suba uma nota (NF-e) ou monte fichas pra ter insumos pra contar.</p>
@@ -93,7 +93,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
   }
 
   return (
-    <Wrap onVoltar={() => router.push("/dashboard/estoque")}>
+    <Wrap onVoltar={() => router.push(voltarHref)}>
       {erro && (
         <div style={{ background: "color-mix(in srgb, var(--danger) 12%, transparent)", border: "1px solid var(--danger)", borderRadius: 8, padding: "10px 12px", marginBottom: 16, fontSize: 13, color: "var(--fg)" }}>
           {erro}
@@ -215,7 +215,7 @@ export function ContagemClient({ insumos }: { insumos: InsumoContagem[] }) {
             )}
           </div>
 
-          <button onClick={() => router.push("/dashboard/estoque")} style={cta(false)}>Voltar ao estoque</button>
+          <button onClick={() => router.push(voltarHref)} style={cta(false)}>Voltar ao estoque</button>
         </>
       )}
     </Wrap>
