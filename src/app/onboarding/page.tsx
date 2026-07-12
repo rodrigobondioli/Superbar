@@ -4,10 +4,13 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { criarBarOnboarding } from "@/lib/onboarding/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // Onboarding = SÓ o fundamental: criar o bar. Cardápio, custo, mesas, equipe e
 // turno viram itens do checklist na home (Guia de configuração) — cada um um
 // clique pra sua tela. Fricção mínima na largada; o painel guia o resto.
+// Componentes do DS: <Button> (pill) e <Input> (rounded-xl) — nada de inline.
 
 const lbl: React.CSSProperties = {
   fontSize: "11px",
@@ -17,31 +20,6 @@ const lbl: React.CSSProperties = {
   letterSpacing: "0.08em",
   display: "block",
   marginBottom: "6px",
-};
-
-const inp: React.CSSProperties = {
-  width: "100%",
-  background: "var(--bg-hover)",
-  border: "1px solid var(--border)",
-  borderRadius: "8px",
-  padding: "12px 14px",
-  color: "var(--fg)",
-  fontSize: "14px",
-  outline: "none",
-  boxSizing: "border-box",
-  colorScheme: "dark",
-};
-
-const btnPrimary: React.CSSProperties = {
-  background: "var(--accent)",
-  color: "var(--accent-fg)",
-  border: "none",
-  borderRadius: "8px",
-  padding: "12px 20px",
-  fontSize: "14px",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "opacity 150ms",
 };
 
 export default function OnboardingPage() {
@@ -132,7 +110,7 @@ export default function OnboardingPage() {
             <label htmlFor="nome" style={lbl}>
               Nome do bar
             </label>
-            <input
+            <Input
               id="nome"
               name="nome"
               placeholder="Ex: Aurora Bar"
@@ -140,7 +118,6 @@ export default function OnboardingPage() {
               onChange={(e) => setNomeBar(e.target.value)}
               required
               autoFocus
-              style={inp}
             />
           </div>
 
@@ -148,13 +125,12 @@ export default function OnboardingPage() {
             <label htmlFor="nome_usuario" style={lbl}>
               Seu nome
             </label>
-            <input
+            <Input
               id="nome_usuario"
               name="nome_usuario"
               placeholder="Como você quer ser chamado"
               value={nomeUsuario}
               onChange={(e) => setNomeUsuario(e.target.value)}
-              style={inp}
             />
           </div>
 
@@ -174,17 +150,9 @@ export default function OnboardingPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={criarLoading || !nomeBar.trim()}
-            style={{
-              ...btnPrimary,
-              opacity: criarLoading || !nomeBar.trim() ? 0.6 : 1,
-              cursor: criarLoading || !nomeBar.trim() ? "not-allowed" : "pointer",
-            }}
-          >
+          <Button type="submit" variant="primary" size="lg" disabled={criarLoading || !nomeBar.trim()} className="w-full">
             {criarLoading ? "Criando..." : "Criar meu bar →"}
-          </button>
+          </Button>
         </form>
 
       </div>
