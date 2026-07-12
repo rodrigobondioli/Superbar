@@ -1,3 +1,5 @@
+import type { Database as GeneratedDatabase } from "./supabase";
+
 export type BarRole = "dono" | "gerente" | "bar_manager" | "bartender" | "garcom" | "caixa";
 
 export type ComandaStatus =
@@ -430,51 +432,14 @@ type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Relationships: never[];
 };
 
-export interface Database {
-  public: {
-    Tables: {
-      profiles: TableDef<Profile>;
-      planos: TableDef<Plano>;
-      bars: TableDef<Bar>;
-      assinaturas: TableDef<Assinatura>;
-      bar_members: TableDef<BarMember>;
-      mesas: TableDef<Mesa>;
-      categorias: TableDef<Categoria>;
-      produtos: TableDef<Produto>;
-      produto_variantes: TableDef<ProdutoVariante>;
-      destaques: TableDef<Destaque>;
-      ingredientes: TableDef<Ingrediente>;
-      receitas: TableDef<Receita>;
-      fornecedores: TableDef<Fornecedor>;
-      estoque: TableDef<Estoque>;
-      compras: TableDef<Compra>;
-      compra_items: TableDef<CompraItem>;
-      turnos: TableDef<Turno>;
-      comandas: TableDef<Comanda>;
-      comanda_items: TableDef<ComandaItem>;
-      pagamentos: TableDef<Pagamento>;
-      estoque_movimentos: TableDef<EstoqueMovimento>;
-      chamadas: TableDef<Chamada>;
-      pedidos: TableDef<Pedido>;
-      insights: TableDef<Insight>;
-      clientes: TableDef<Cliente>;
-      pedidos_cliente: {
-        Row: PedidoCliente & Record<string, unknown>;
-        Insert: {
-          id?: string;
-          bar_id: string;
-          mesa_id?: string | null;
-          nome_cliente?: string | null;
-          itens: ItemPedidoCliente[];
-          total?: number;
-          status?: string;
-          created_at?: string;
-        } & Record<string, unknown>;
-        Update: Partial<PedidoCliente> & Record<string, unknown>;
-        Relationships: never[];
-      };
-    };
-    Views: Record<string, never>;
+// Fonte de verdade da tipagem do banco (Princípio 12).
+// TABELAS / ENUMS / VIEWS vêm dos tipos GERADOS (`supabase.ts`, `supabase gen types`):
+//   schema real → inferência de query automática → sem casts manuais `.returns<>()`.
+// As FUNÇÕES (RPCs) ficam tipadas À MÃO aqui: o gerador devolve `Json` genérico e
+// a gente quer o shape preciso do retorno de cada RPC (ex: registrar_pagamento).
+// Regenerar os tipos: `npx supabase gen types typescript --project-id <ref> > src/types/supabase.ts`.
+export type Database = {
+  public: Omit<GeneratedDatabase["public"], "Functions"> & {
     Functions: {
       incrementar_total_turno: {
         Args: { p_turno_id: string; p_valor: number };

@@ -27,11 +27,11 @@ export async function getHorarioPico(
 
   const { data } = await supabase
     .from("comanda_items")
-    .select("quantidade, adicionado_em")
+    .select("quantidade, adicionado_em, comandas!inner(turno_id)")
     .eq("bar_id", barId)
-    .eq("turno_id", turnoId)
+    .eq("comandas.turno_id", turnoId)
     .eq("status", "ativo")
-    .returns<{ quantidade: number; adicionado_em: string }[]>();
+    .returns<{ quantidade: number; adicionado_em: string; comandas: { turno_id: string } }[]>();
 
   const porHora = new Map<number, number>();
   for (const item of data ?? []) {
@@ -77,11 +77,12 @@ export async function getRankingMesas(
       comandas!inner (
         id,
         mesa_id,
+        turno_id,
         mesas ( numero, nome )
       )
     `)
     .eq("bar_id", barId)
-    .eq("turno_id", turnoId)
+    .eq("comandas.turno_id", turnoId)
     .eq("status", "ativo")
     .returns<{
       quantidade: number;
@@ -89,6 +90,7 @@ export async function getRankingMesas(
       comandas: {
         id: string;
         mesa_id: string | null;
+        turno_id: string;
         mesas: { numero: number; nome: string | null } | null;
       };
     }[]>();

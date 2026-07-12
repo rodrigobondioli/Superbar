@@ -162,7 +162,7 @@ export async function mergeImportacao(
   // Atualizar existentes (só preço e custo)
   let atualizados = 0;
   for (const { id, produto } of atualizacoes) {
-    const campos: Record<string, unknown> = {};
+    const campos: { preco?: number; custo?: number; custo_status?: string } = {};
     if (produto.preco_venda !== null) campos.preco = produto.preco_venda;
     if (produto.custo !== null) { campos.custo = produto.custo; campos.custo_status = "confirmada"; }
     if (Object.keys(campos).length > 0) {

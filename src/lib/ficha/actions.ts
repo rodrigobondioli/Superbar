@@ -168,9 +168,13 @@ export async function salvarFicha(
   const status: CustoStatus =
     resolvidas.length === 0 ? "sem" : custoCompleto ? "confirmada" : "sugerida";
 
-  const tabela = varianteId ? "produto_variantes" : "produtos";
-  const alvoId = varianteId ?? produtoId;
-  await supabase.from(tabela).update({ custo, custo_status: status }).eq("id", alvoId).eq("bar_id", barId);
+  // produto_variantes não tem bar_id (escopo vem via produto_id) — não dá pra
+  // filtrar por bar_id nela; produtos tem. Por isso dois caminhos concretos.
+  if (varianteId) {
+    await supabase.from("produto_variantes").update({ custo, custo_status: status }).eq("id", varianteId);
+  } else {
+    await supabase.from("produtos").update({ custo, custo_status: status }).eq("id", produtoId).eq("bar_id", barId);
+  }
 
   revalidatePath("/dashboard/cardapio");
   revalidatePath("/dashboard");

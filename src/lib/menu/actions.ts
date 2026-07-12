@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { ItemPedidoCliente } from "@/types/database";
+import type { Json } from "@/types/supabase";
 
 interface SubmeterPedidoInput {
   barId: string;
@@ -25,7 +26,7 @@ export async function submeterPedido({
       bar_id: barId,
       mesa_id: mesaId,
       nome_cliente: nomeCliente,
-      itens,
+      itens: itens as unknown as Json, // coluna jsonb — shape validado no app
       total,
       status: "pendente",
     })

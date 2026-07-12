@@ -77,8 +77,10 @@ export type Database = {
           bar_id: string
           convidado_por: string | null
           created_at: string
+          foto_url: string | null
           id: string
           nome: string | null
+          ordem: number
           pin: string | null
           role: Database["public"]["Enums"]["bar_role"]
           user_id: string | null
@@ -88,8 +90,10 @@ export type Database = {
           bar_id: string
           convidado_por?: string | null
           created_at?: string
+          foto_url?: string | null
           id?: string
           nome?: string | null
+          ordem?: number
           pin?: string | null
           role: Database["public"]["Enums"]["bar_role"]
           user_id?: string | null
@@ -99,8 +103,10 @@ export type Database = {
           bar_id?: string
           convidado_por?: string | null
           created_at?: string
+          foto_url?: string | null
           id?: string
           nome?: string | null
+          ordem?: number
           pin?: string | null
           role?: Database["public"]["Enums"]["bar_role"]
           user_id?: string | null
@@ -137,6 +143,7 @@ export type Database = {
           created_at: string
           endereco: Json | null
           id: string
+          kiosk_token: string
           logo_url: string | null
           nome: string
           slug: string
@@ -150,6 +157,7 @@ export type Database = {
           created_at?: string
           endereco?: Json | null
           id?: string
+          kiosk_token?: string
           logo_url?: string | null
           nome: string
           slug: string
@@ -163,6 +171,7 @@ export type Database = {
           created_at?: string
           endereco?: Json | null
           id?: string
+          kiosk_token?: string
           logo_url?: string | null
           nome?: string
           slug?: string
@@ -177,24 +186,30 @@ export type Database = {
           bar_id: string
           created_at: string
           id: string
+          imagem_url: string | null
           nome: string
           ordem: number
+          usa_ficha: boolean
         }
         Insert: {
           ativo?: boolean
           bar_id: string
           created_at?: string
           id?: string
+          imagem_url?: string | null
           nome: string
           ordem?: number
+          usa_ficha?: boolean
         }
         Update: {
           ativo?: boolean
           bar_id?: string
           created_at?: string
           id?: string
+          imagem_url?: string | null
           nome?: string
           ordem?: number
+          usa_ficha?: boolean
         }
         Relationships: [
           {
@@ -258,10 +273,75 @@ export type Database = {
           },
         ]
       }
+      clientes: {
+        Row: {
+          bar_id: string
+          created_at: string
+          data_nascimento: string | null
+          drink_favorito: string | null
+          email: string | null
+          id: string
+          identificador: string | null
+          nome: string
+          notas: string | null
+          restricoes: string | null
+          telefone: string | null
+          ticket_medio: number | null
+          total_gasto: number
+          total_visitas: number
+          ultima_visita: string | null
+          updated_at: string
+        }
+        Insert: {
+          bar_id: string
+          created_at?: string
+          data_nascimento?: string | null
+          drink_favorito?: string | null
+          email?: string | null
+          id?: string
+          identificador?: string | null
+          nome: string
+          notas?: string | null
+          restricoes?: string | null
+          telefone?: string | null
+          ticket_medio?: number | null
+          total_gasto?: number
+          total_visitas?: number
+          ultima_visita?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bar_id?: string
+          created_at?: string
+          data_nascimento?: string | null
+          drink_favorito?: string | null
+          email?: string | null
+          id?: string
+          identificador?: string | null
+          nome?: string
+          notas?: string | null
+          restricoes?: string | null
+          telefone?: string | null
+          ticket_medio?: number | null
+          total_gasto?: number
+          total_visitas?: number
+          ultima_visita?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: false
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comanda_items: {
         Row: {
           adicionado_em: string
-          adicionado_por: string
+          adicionado_por: string | null
           adicionado_por_member_id: string | null
           bar_id: string
           cancelado_em: string | null
@@ -282,7 +362,7 @@ export type Database = {
         }
         Insert: {
           adicionado_em?: string
-          adicionado_por: string
+          adicionado_por?: string | null
           adicionado_por_member_id?: string | null
           bar_id: string
           cancelado_em?: string | null
@@ -303,7 +383,7 @@ export type Database = {
         }
         Update: {
           adicionado_em?: string
-          adicionado_por?: string
+          adicionado_por?: string | null
           adicionado_por_member_id?: string | null
           bar_id?: string
           cancelado_em?: string | null
@@ -393,7 +473,8 @@ export type Database = {
           aberta_em: string
           aberta_por_member_id: string | null
           bar_id: string
-          bartender_id: string
+          bartender_id: string | null
+          cliente_id: string | null
           created_at: string
           fechada_em: string | null
           id: string
@@ -410,7 +491,8 @@ export type Database = {
           aberta_em?: string
           aberta_por_member_id?: string | null
           bar_id: string
-          bartender_id: string
+          bartender_id?: string | null
+          cliente_id?: string | null
           created_at?: string
           fechada_em?: string | null
           id?: string
@@ -427,7 +509,8 @@ export type Database = {
           aberta_em?: string
           aberta_por_member_id?: string | null
           bar_id?: string
-          bartender_id?: string
+          bartender_id?: string | null
+          cliente_id?: string | null
           created_at?: string
           fechada_em?: string | null
           id?: string
@@ -460,6 +543,13 @@ export type Database = {
             columns: ["bartender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comandas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
           {
@@ -587,6 +677,75 @@ export type Database = {
           },
         ]
       }
+      crm_stages: {
+        Row: {
+          id: string
+          label: string
+          ordem: number
+        }
+        Insert: {
+          id: string
+          label: string
+          ordem: number
+        }
+        Update: {
+          id?: string
+          label?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
+      destaques: {
+        Row: {
+          ativo: boolean
+          bar_id: string
+          criado_em: string
+          id: string
+          imagem_url: string | null
+          ordem: number
+          produto_id: string | null
+          subtitulo: string | null
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          bar_id: string
+          criado_em?: string
+          id?: string
+          imagem_url?: string | null
+          ordem?: number
+          produto_id?: string | null
+          subtitulo?: string | null
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          bar_id?: string
+          criado_em?: string
+          id?: string
+          imagem_url?: string | null
+          ordem?: number
+          produto_id?: string | null
+          subtitulo?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destaques_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: false
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destaques_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estoque: {
         Row: {
           abaixo_minimo: boolean | null
@@ -640,9 +799,10 @@ export type Database = {
           bar_id: string
           criado_em: string
           criado_por: string | null
+          custo_unitario: number | null
           id: string
           motivo: string | null
-          produto_id: string
+          produto_id: string | null
           quantidade: number
           quantidade_anterior: number
           quantidade_posterior: number
@@ -654,9 +814,10 @@ export type Database = {
           bar_id: string
           criado_em?: string
           criado_por?: string | null
+          custo_unitario?: number | null
           id?: string
           motivo?: string | null
-          produto_id: string
+          produto_id?: string | null
           quantidade: number
           quantidade_anterior: number
           quantidade_posterior: number
@@ -668,9 +829,10 @@ export type Database = {
           bar_id?: string
           criado_em?: string
           criado_por?: string | null
+          custo_unitario?: number | null
           id?: string
           motivo?: string | null
-          produto_id?: string
+          produto_id?: string | null
           quantidade?: number
           quantidade_anterior?: number
           quantidade_posterior?: number
@@ -709,6 +871,7 @@ export type Database = {
           cnpj: string | null
           contato: string | null
           created_at: string
+          criado_em: string
           email: string | null
           id: string
           nome: string
@@ -720,6 +883,7 @@ export type Database = {
           cnpj?: string | null
           contato?: string | null
           created_at?: string
+          criado_em?: string
           email?: string | null
           id?: string
           nome: string
@@ -731,6 +895,7 @@ export type Database = {
           cnpj?: string | null
           contato?: string | null
           created_at?: string
+          criado_em?: string
           email?: string | null
           id?: string
           nome?: string
@@ -749,11 +914,13 @@ export type Database = {
       ingrediente_movimentos: {
         Row: {
           bar_id: string
+          chave_nfe: string | null
           comanda_item_id: string | null
           criado_em: string
           criado_por: string | null
           criado_por_member_id: string | null
           custo_unitario: number | null
+          fornecedor_id: string | null
           id: string
           ingrediente_id: string
           motivo: string | null
@@ -763,11 +930,13 @@ export type Database = {
         }
         Insert: {
           bar_id: string
+          chave_nfe?: string | null
           comanda_item_id?: string | null
           criado_em?: string
           criado_por?: string | null
           criado_por_member_id?: string | null
           custo_unitario?: number | null
+          fornecedor_id?: string | null
           id?: string
           ingrediente_id: string
           motivo?: string | null
@@ -777,11 +946,13 @@ export type Database = {
         }
         Update: {
           bar_id?: string
+          chave_nfe?: string | null
           comanda_item_id?: string | null
           criado_em?: string
           criado_por?: string | null
           criado_por_member_id?: string | null
           custo_unitario?: number | null
+          fornecedor_id?: string | null
           id?: string
           ingrediente_id?: string
           motivo?: string | null
@@ -819,6 +990,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "ingrediente_movimentos_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ingrediente_movimentos_ingrediente_id_fkey"
             columns: ["ingrediente_id"]
             isOneToOne: false
@@ -845,7 +1023,9 @@ export type Database = {
           estoque_minimo: number
           id: string
           nome: string
+          tamanho_embalagem: number | null
           unidade: string
+          unidade_compra: string | null
         }
         Insert: {
           ativo?: boolean
@@ -857,7 +1037,9 @@ export type Database = {
           estoque_minimo?: number
           id?: string
           nome: string
+          tamanho_embalagem?: number | null
           unidade: string
+          unidade_compra?: string | null
         }
         Update: {
           ativo?: boolean
@@ -869,7 +1051,9 @@ export type Database = {
           estoque_minimo?: number
           id?: string
           nome?: string
+          tamanho_embalagem?: number | null
           unidade?: string
+          unidade_compra?: string | null
         }
         Relationships: [
           {
@@ -928,6 +1112,95 @@ export type Database = {
           },
         ]
       }
+      lead_atividades: {
+        Row: {
+          criado_em: string
+          criado_por: string | null
+          descricao: string
+          id: string
+          lead_id: string
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          criado_por?: string | null
+          descricao: string
+          id?: string
+          lead_id: string
+          tipo?: string
+        }
+        Update: {
+          criado_em?: string
+          criado_por?: string | null
+          descricao?: string
+          id?: string
+          lead_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_atividades_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          cidade: string
+          created_at: string | null
+          email: string | null
+          follow_up_at: string | null
+          id: string
+          instagram: string | null
+          nome_bar: string
+          nome_responsavel: string | null
+          notas: string | null
+          ordem: number | null
+          origem: string | null
+          site: string | null
+          status: string
+          tipo_bar: string
+          whatsapp: string | null
+        }
+        Insert: {
+          cidade: string
+          created_at?: string | null
+          email?: string | null
+          follow_up_at?: string | null
+          id?: string
+          instagram?: string | null
+          nome_bar: string
+          nome_responsavel?: string | null
+          notas?: string | null
+          ordem?: number | null
+          origem?: string | null
+          site?: string | null
+          status?: string
+          tipo_bar: string
+          whatsapp?: string | null
+        }
+        Update: {
+          cidade?: string
+          created_at?: string | null
+          email?: string | null
+          follow_up_at?: string | null
+          id?: string
+          instagram?: string | null
+          nome_bar?: string
+          nome_responsavel?: string | null
+          notas?: string | null
+          ordem?: number | null
+          origem?: string | null
+          site?: string | null
+          status?: string
+          tipo_bar?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       mesas: {
         Row: {
           ativo: boolean
@@ -965,6 +1238,84 @@ export type Database = {
             columns: ["bar_id"]
             isOneToOne: false
             referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nfe_importadas: {
+        Row: {
+          bar_id: string
+          chave_nfe: string
+          criado_em: string
+          id: string
+        }
+        Insert: {
+          bar_id: string
+          chave_nfe: string
+          criado_em?: string
+          id?: string
+        }
+        Update: {
+          bar_id?: string
+          chave_nfe?: string
+          criado_em?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nfe_importadas_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: false
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nfe_item_map: {
+        Row: {
+          bar_id: string
+          chave: string
+          criado_em: string
+          fornecedor_id: string | null
+          id: string
+          ingrediente_id: string
+        }
+        Insert: {
+          bar_id: string
+          chave: string
+          criado_em?: string
+          fornecedor_id?: string | null
+          id?: string
+          ingrediente_id: string
+        }
+        Update: {
+          bar_id?: string
+          chave?: string
+          criado_em?: string
+          fornecedor_id?: string | null
+          id?: string
+          ingrediente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nfe_item_map_bar_id_fkey"
+            columns: ["bar_id"]
+            isOneToOne: false
+            referencedRelation: "bars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nfe_item_map_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nfe_item_map_ingrediente_id_fkey"
+            columns: ["ingrediente_id"]
+            isOneToOne: false
+            referencedRelation: "ingredientes"
             referencedColumns: ["id"]
           },
         ]
@@ -1066,6 +1417,7 @@ export type Database = {
       pedidos: {
         Row: {
           bar_id: string
+          cancelado_em: string | null
           comanda_id: string
           criado_em: string
           criado_por_member_id: string | null
@@ -1080,6 +1432,7 @@ export type Database = {
         }
         Insert: {
           bar_id: string
+          cancelado_em?: string | null
           comanda_id: string
           criado_em?: string
           criado_por_member_id?: string | null
@@ -1094,6 +1447,7 @@ export type Database = {
         }
         Update: {
           bar_id?: string
+          cancelado_em?: string | null
           comanda_id?: string
           criado_em?: string
           criado_por_member_id?: string | null
@@ -1286,46 +1640,55 @@ export type Database = {
         Row: {
           ativo: boolean
           bar_id: string
+          calorias: number | null
           categoria_id: string | null
           controla_estoque: boolean
           created_at: string
           custo: number | null
           custo_status: string
           descricao: string | null
+          destaque: boolean
           id: string
           imagem_url: string | null
           nome: string
           preco: number
+          tempo_preparo: number | null
           updated_at: string
         }
         Insert: {
           ativo?: boolean
           bar_id: string
+          calorias?: number | null
           categoria_id?: string | null
           controla_estoque?: boolean
           created_at?: string
           custo?: number | null
           custo_status?: string
           descricao?: string | null
+          destaque?: boolean
           id?: string
           imagem_url?: string | null
           nome: string
           preco: number
+          tempo_preparo?: number | null
           updated_at?: string
         }
         Update: {
           ativo?: boolean
           bar_id?: string
+          calorias?: number | null
           categoria_id?: string | null
           controla_estoque?: boolean
           created_at?: string
           custo?: number | null
           custo_status?: string
           descricao?: string | null
+          destaque?: boolean
           id?: string
           imagem_url?: string | null
           nome?: string
           preco?: number
+          tempo_preparo?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1425,6 +1788,13 @@ export type Database = {
             referencedRelation: "produtos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "receitas_variante_id_fkey"
+            columns: ["variante_id"]
+            isOneToOne: false
+            referencedRelation: "produto_variantes"
+            referencedColumns: ["id"]
+          },
         ]
       }
       turnos: {
@@ -1496,8 +1866,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      criar_pedido_com_itens: {
+        Args: {
+          p_bar_id: string
+          p_comanda_id: string
+          p_criado_por_member_id?: string
+          p_itens: Json
+          p_turno_id: string
+        }
+        Returns: Json
+      }
       fn_entregar_pedido: {
         Args: { p_member_id?: string; p_pedido_id: string; p_user_id: string }
+        Returns: Json
+      }
+      importar_nfe: {
+        Args: {
+          p_bar_id: string
+          p_chave_nfe: string
+          p_cnpj: string
+          p_fornecedor_nome: string
+          p_itens: Json
+          p_user_id?: string
+        }
         Returns: Json
       }
       incrementar_total_turno: {
@@ -1515,35 +1906,26 @@ export type Database = {
         Args: { p_bar_id: string; p_comanda_id: string }
         Returns: Json
       }
-      registrar_pagamento: {
-        Args: {
-          p_comanda_id: string
-          p_bar_id: string
-          p_turno_id: string
-          p_metodo: string
-          p_incluir_servico: boolean
-          p_taxa_pct: number
-          p_user_id: string
-          p_member_id: string | null
-          p_referencia?: string | null
-        }
-        Returns: Json
-      }
-      criar_pedido_com_itens: {
-        Args: {
-          p_bar_id: string
-          p_comanda_id: string
-          p_turno_id: string
-          p_itens: Json
-          p_criado_por_member_id?: string | null
-        }
-        Returns: Json
-      }
       merge_bar_config: {
         Args: { p_bar_id: string; p_patch: Json }
         Returns: undefined
       }
       my_bar_ids: { Args: never; Returns: string[] }
+      my_role_in_bar: { Args: { p_bar_id: string }; Returns: string }
+      registrar_pagamento: {
+        Args: {
+          p_bar_id: string
+          p_comanda_id: string
+          p_incluir_servico: boolean
+          p_member_id: string
+          p_metodo: Database["public"]["Enums"]["pagamento_metodo"]
+          p_referencia?: string
+          p_taxa_pct: number
+          p_turno_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       assinatura_status: "trial" | "ativa" | "cancelada" | "inadimplente"

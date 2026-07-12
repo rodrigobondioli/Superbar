@@ -55,10 +55,13 @@ export async function registrarMovimento(
 
   if (updateError) return { error: traduzirErro(updateError.message) };
 
-  // Registra movimento (log imutável)
-  await supabase.from("estoque_movimentos").insert({
+  // Registra movimento (log imutável). O estoque é por INSUMO, não por produto,
+  // então não há produto_id aqui — a coluna precisa ser nullable (ver migration
+  // 20260712_estoque_mov_produto_nullable.sql). Erro do insert é tratado pra não
+  // perder o log em silêncio (Princípio 12).
+  const { error: movError } = await supabase.from("estoque_movimentos").insert({
     bar_id: current.bar.id,
-    produto_id: null, // preenchido via join no estoque
+    produto_id: null, // estoque é por insumo — sem produto (coluna nullable pós-migration)
     tipo,
     quantidade,
     quantidade_anterior: anterior,
@@ -70,6 +73,7 @@ export async function registrarMovimento(
     criado_por: current.userId,
     criado_em: new Date().toISOString(),
   });
+  if (movError) console.error("registrarMovimento: falha ao gravar movimento", movError);
 
   revalidatePath("/dashboard/estoque");
   revalidatePath("/dashboard");
