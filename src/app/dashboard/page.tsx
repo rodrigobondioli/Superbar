@@ -117,7 +117,7 @@ export default async function DashboardPage() {
         <GuiaConfiguracao
           variante="hero"
           passos={montarPassosSetup(passos)}
-          subtitulo="Complete os passos abaixo. Quando o cardápio tiver custo, sua margem deixa de ser chute."
+          subtitulo="Um passo por vez — a gente te mostra por onde começar. Sem pressa."
         />
       );
     }

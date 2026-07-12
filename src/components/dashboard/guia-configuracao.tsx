@@ -55,47 +55,64 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
     </div>
   );
 
-  const lista = passos.map((p, i) => (
-    <div
-      key={i}
-      style={{
-        display: "flex", alignItems: "center", gap: 12,
-        padding: hero ? "14px 20px" : "12px 4px",
-        borderBottom: i < passos.length - 1 ? "1px solid var(--border)" : "none",
-      }}
-    >
+  // Guia UM PASSO POR VEZ (clareza): só o PRÓXIMO passo pendente fica aceso
+  // (destaque + CTA laranja + "comece por aqui"). Os demais pendentes ficam
+  // apagados, sem CTA — some a paralisia de "5 botões acesos, por onde começo?".
+  // Quem quiser pular usa o menu lateral livremente.
+  const proximoIdx = passos.findIndex((p) => !p.done);
+
+  const lista = passos.map((p, i) => {
+    const ativo = i === proximoIdx;
+    const depois = !p.done && !ativo;
+    return (
       <div
+        key={i}
         style={{
-          width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-          background: p.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
-          border: `1.5px solid ${p.done ? "var(--ok)" : p.critico ? "var(--accent)" : "var(--border)"}`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 11, fontWeight: 700, color: "var(--fg)",
+          display: "flex", alignItems: "flex-start", gap: 12,
+          padding: hero ? "14px 20px" : "12px 4px",
+          borderBottom: i < passos.length - 1 ? "1px solid var(--border)" : "none",
+          background: ativo && hero ? "color-mix(in srgb, var(--accent) 7%, transparent)" : undefined,
+          opacity: depois ? 0.5 : 1,
         }}
       >
-        {p.done ? "✓" : ""}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 13, color: p.done ? "var(--fg-muted)" : "var(--fg)" }}>{p.label}</span>
-        {p.apoio && !p.done && (
-          <p style={{ fontSize: 11, color: p.critico ? "var(--accent)" : "var(--fg-subtle)", margin: "2px 0 0", lineHeight: 1.4 }}>
-            {p.apoio}
-          </p>
-        )}
-      </div>
-      {p.href && !p.done && (
-        <a
-          href={p.href}
+        <div
           style={{
-            fontSize: 12, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
-            whiteSpace: "nowrap", flexShrink: 0,
+            width: 22, height: 22, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+            background: p.done ? "var(--ok-bg)" : "color-mix(in srgb, var(--fg) 5%, transparent)",
+            border: `1.5px solid ${p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--border)"}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 700, color: "var(--fg)",
           }}
         >
-          {p.cta ?? "Configurar"} →
-        </a>
-      )}
-    </div>
-  ));
+          {p.done ? "✓" : ""}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {ativo && (
+            <span style={{ display: "block", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 3 }}>
+              Comece por aqui
+            </span>
+          )}
+          <span style={{ fontSize: 13, color: p.done || depois ? "var(--fg-muted)" : "var(--fg)" }}>{p.label}</span>
+          {p.apoio && ativo && (
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "2px 0 0", lineHeight: 1.4 }}>
+              {p.apoio}
+            </p>
+          )}
+        </div>
+        {p.href && ativo && (
+          <a
+            href={p.href}
+            style={{
+              fontSize: 12, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
+              whiteSpace: "nowrap", flexShrink: 0, marginTop: 1,
+            }}
+          >
+            {p.cta ?? "Configurar"} →
+          </a>
+        )}
+      </div>
+    );
+  });
 
   if (hero) {
     return (
