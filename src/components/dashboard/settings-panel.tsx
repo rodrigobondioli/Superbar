@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { signOut } from "@/lib/auth/actions";
 import type { Bar } from "@/types/database";
@@ -22,9 +22,18 @@ interface SettingsPanelProps {
   taxaServicoPct?: number;
 }
 
+type Aba = "perfil" | "conta" | "operacao";
+const ABAS: { id: Aba; label: string }[] = [
+  { id: "perfil",   label: "Perfil do bar" },
+  { id: "conta",    label: "Minha conta" },
+  { id: "operacao", label: "Operação" },
+];
+
 export function SettingsPanel({
   open, onClose, bar, barId, userId, userNome, userEmail, userAvatarUrl, autoPedido = false, taxaServicoPct = 10,
 }: SettingsPanelProps) {
+  const [aba, setAba] = useState<Aba>("perfil");
+
   useEffect(() => {
     const handle = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     if (open) document.addEventListener("keydown", handle);
@@ -65,13 +74,9 @@ export function SettingsPanel({
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "16px 20px",
-          borderBottom: "1px solid var(--border)",
           flexShrink: 0,
         }}>
-          <h2 style={{
-            fontSize: 15, fontWeight: 600, color: "var(--fg)",
-            fontFamily: "var(--font-mono)", margin: 0,
-          }}>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
             Configurações
           </h2>
           <button
@@ -90,59 +95,86 @@ export function SettingsPanel({
           </button>
         </div>
 
+        {/* Abas */}
+        <div style={{
+          display: "flex", gap: 4, padding: "0 20px",
+          borderBottom: "1px solid var(--border)", flexShrink: 0,
+        }}>
+          {ABAS.map((t) => {
+            const ativa = aba === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setAba(t.id)}
+                style={{
+                  appearance: "none", background: "transparent", border: "none",
+                  padding: "12px 8px", cursor: "pointer",
+                  fontSize: 14, fontWeight: ativa ? 600 : 400,
+                  color: ativa ? "var(--fg)" : "var(--fg-muted)",
+                  borderBottom: `2px solid ${ativa ? "var(--accent)" : "transparent"}`,
+                  marginBottom: -1,
+                  transition: "color 150ms",
+                }}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Body */}
         <div style={{
           flex: 1, overflowY: "auto",
           padding: "28px 20px",
-          display: "flex", flexDirection: "column", gap: 40,
+          display: "flex", flexDirection: "column", gap: 32,
         }}>
-          <PerfilDoBar bar={bar} barId={barId} />
+          {aba === "perfil" && <PerfilDoBar bar={bar} barId={barId} />}
 
-          {/* Divider */}
-          <div style={{ height: 1, background: "var(--border)" }} />
+          {aba === "conta" && (
+            <>
+              <MinhaConta
+                userId={userId}
+                userNome={userNome}
+                userEmail={userEmail}
+                userAvatarUrl={userAvatarUrl}
+              />
 
-          <MinhaConta
-            userId={userId}
-            userNome={userNome}
-            userEmail={userEmail}
-            userAvatarUrl={userAvatarUrl}
-          />
+              <div style={{ height: 1, background: "var(--border)" }} />
 
-          {/* Divider */}
-          <div style={{ height: 1, background: "var(--border)" }} />
+              {/* Logout */}
+              <section>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    style={{
+                      background: "transparent",
+                      border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)",
+                      borderRadius: 8,
+                      padding: "9px 18px",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "var(--danger)",
+                      cursor: "pointer",
+                      transition: "background 150ms, border-color 150ms",
+                    }}
+                    className="hover:bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] hover:border-[var(--danger)]"
+                  >
+                    Sair da conta
+                  </button>
+                </form>
+              </section>
+            </>
+          )}
 
-          <OperacaoSection barId={barId} autoPedido={autoPedido} fluxoPronto={bar.configuracoes?.fluxo_pronto ?? true} taxaServicoPct={taxaServicoPct} />
+          {aba === "operacao" && (
+            <>
+              <OperacaoSection barId={barId} autoPedido={autoPedido} fluxoPronto={bar.configuracoes?.fluxo_pronto ?? true} taxaServicoPct={taxaServicoPct} />
 
-          {/* Divider */}
-          <div style={{ height: 1, background: "var(--border)" }} />
+              <div style={{ height: 1, background: "var(--border)" }} />
 
-          <DispositivosSection />
-
-          {/* Divider */}
-          <div style={{ height: 1, background: "var(--border)" }} />
-
-          {/* Logout */}
-          <section>
-            <form action={signOut}>
-              <button
-                type="submit"
-                style={{
-                  background: "transparent",
-                  border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)",
-                  borderRadius: 8,
-                  padding: "9px 18px",
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--danger)",
-                  cursor: "pointer",
-                  transition: "background 150ms, border-color 150ms",
-                }}
-                className="hover:bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] hover:border-[var(--danger)]"
-              >
-                Sair da conta
-              </button>
-            </form>
-          </section>
+              <DispositivosSection />
+            </>
+          )}
         </div>
       </div>
     </>

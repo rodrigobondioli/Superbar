@@ -84,6 +84,9 @@ export function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
             bucket="bar-logos"
             onUpload={handleLogoUpload}
           />
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "8px 0 0" }}>
+            A marca do bar. Aparece no cardápio que o cliente vê e no topo do seu painel.
+          </p>
         </div>
 
         {/* Nome */}

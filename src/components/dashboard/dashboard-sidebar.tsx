@@ -105,8 +105,14 @@ export function DashboardSidebar({
                   <PanelLeft style={{ width: 15, height: 15 }} strokeWidth={1.75} />
                 </button>
               )}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon.svg" alt={barNome} style={{ width: 48, height: 48, borderRadius: "50%", display: "block", marginBottom: 8 }} />
+              {bar?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={bar.logo_url} alt={barNome} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", display: "block", marginBottom: 8 }} />
+              ) : (
+                <div style={{ width: 48, height: 48, borderRadius: "50%", marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card-hi)", color: "var(--fg-muted)", fontSize: 16, fontWeight: 700 }}>
+                  {barNome.slice(0, 2).toUpperCase()}
+                </div>
+              )}
               <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.01em", textAlign: "center", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {barNome}
               </span>
@@ -121,8 +127,14 @@ export function DashboardSidebar({
           )}
           {collapsed && (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon.svg" alt="SUPERBAR" style={{ width: 28, height: 28, borderRadius: 8, display: "block" }} />
+              {bar?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={bar.logo_url} alt={barNome} style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover", display: "block" }} />
+              ) : (
+                <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card-hi)", color: "var(--fg-muted)", fontSize: 11, fontWeight: 700 }}>
+                  {barNome.slice(0, 2).toUpperCase()}
+                </div>
+              )}
               {onToggleCollapse && (
                 <button onClick={onToggleCollapse} aria-label="Expandir menu" style={{
                   display: "flex", alignItems: "center", justifyContent: "center",

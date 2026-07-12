@@ -55,6 +55,9 @@ export function MinhaConta({
             bucket="avatars"
             onUpload={handleAvatarUpload}
           />
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "8px 0 0" }}>
+            A sua foto. Aparece no painel e na seleção de operador do iPad — só para a equipe, nunca para o cliente.
+          </p>
         </div>
 
         {/* Nome */}
