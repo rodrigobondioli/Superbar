@@ -189,24 +189,25 @@ function DemoSidebar() {
 }
 
 // ─── Hero / LiveBar mock ──────────────────────────────────────────
+// Seta + % de comparação — escopo de módulo pra não ser recriado a cada render.
+function Delta({ pct: p }: { pct: number }) {
+  const pos = p >= 0;
+  const color = pos ? "var(--ok)" : "var(--danger)";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11 }}>
+      <svg width="6" height="6" viewBox="0 0 6 6" style={{ flexShrink: 0 }}>
+        {pos
+          ? <path d="M3 0.5L5.8 5.5H0.2L3 0.5Z" fill={color} />
+          : <path d="M3 5.5L0.2 0.5H5.8L3 5.5Z" fill={color} />}
+      </svg>
+      <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700, color }}>{Math.abs(p).toFixed(1)}%</span>
+      <span style={{ fontWeight: 400, color: "var(--fg-subtle)" }}>vs ontem</span>
+    </span>
+  );
+}
+
 function DemoHeroBar() {
   const ticketMedio = MOCK.faturamento / MOCK.comandasAbertas;
-
-  const Delta = ({ pct: p }: { pct: number }) => {
-    const pos = p >= 0;
-    const color = pos ? "var(--ok)" : "var(--danger)";
-    return (
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11 }}>
-        <svg width="6" height="6" viewBox="0 0 6 6" style={{ flexShrink: 0 }}>
-          {pos
-            ? <path d="M3 0.5L5.8 5.5H0.2L3 0.5Z" fill={color} />
-            : <path d="M3 5.5L0.2 0.5H5.8L3 5.5Z" fill={color} />}
-        </svg>
-        <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700, color }}>{Math.abs(p).toFixed(1)}%</span>
-        <span style={{ fontWeight: 400, color: "var(--fg-subtle)" }}>vs ontem</span>
-      </span>
-    );
-  };
 
   const kpis = [
     { label: "Faturamento",  value: currency.format(MOCK.faturamento),  sub: <Delta pct={MOCK.comparacaoFaturamento} />, color: "var(--fg)" },
