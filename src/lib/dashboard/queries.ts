@@ -516,6 +516,7 @@ export async function getUltimoTurnoFechado(barId: string): Promise<UltimoTurnoR
 export interface PrimeirosPassosData {
   nProdutos: number;
   nProdutosComCusto: number;  // produtos ativos com custo_status != 'sem' (margem real — Princípio 10)
+  nInsumosComCusto: number;   // insumos com custo > 0 (NF-e importada) — o passo de custo
   nMesas: number;
   nEquipe: number;    // membros ativos excluindo o próprio dono
   nTurnos: number;    // total de turnos já abertos (0 = bar novo)
@@ -524,9 +525,10 @@ export interface PrimeirosPassosData {
 export async function getPrimeirosPassos(barId: string, userId: string): Promise<PrimeirosPassosData> {
   const supabase = await createClient();
 
-  const [produtos, produtosComCusto, mesas, equipe, turnos] = await Promise.all([
+  const [produtos, produtosComCusto, insumosComCusto, mesas, equipe, turnos] = await Promise.all([
     supabase.from("produtos").select("id", { count: "exact", head: true }).eq("bar_id", barId).eq("ativo", true),
     supabase.from("produtos").select("id", { count: "exact", head: true }).eq("bar_id", barId).eq("ativo", true).neq("custo_status", "sem"),
+    supabase.from("ingredientes").select("id", { count: "exact", head: true }).eq("bar_id", barId).eq("ativo", true).gt("custo_atual", 0),
     supabase.from("mesas").select("id", { count: "exact", head: true }).eq("bar_id", barId).eq("ativo", true),
     supabase.from("bar_members").select("id", { count: "exact", head: true }).eq("bar_id", barId).eq("ativo", true).neq("user_id", userId),
     supabase.from("turnos").select("id", { count: "exact", head: true }).eq("bar_id", barId),
@@ -535,6 +537,7 @@ export async function getPrimeirosPassos(barId: string, userId: string): Promise
   return {
     nProdutos:        produtos.count        ?? 0,
     nProdutosComCusto: produtosComCusto.count ?? 0,
+    nInsumosComCusto: insumosComCusto.count  ?? 0,
     nMesas:           mesas.count           ?? 0,
     nEquipe:          equipe.count          ?? 0,
     nTurnos:          turnos.count          ?? 0,

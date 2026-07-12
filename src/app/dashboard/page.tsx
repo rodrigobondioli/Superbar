@@ -54,22 +54,24 @@ const card: React.CSSProperties = {
   padding: "20px 24px",
 };
 
-/** Passos do guia de configuração, na hierarquia da inteligência: cardápio → custo → mesas → equipe → turno. */
+/** Passos do guia — NF-e PRIMEIRO (o custo dos insumos), pra o cardápio já nascer
+ *  com margem: conta → custo (NF-e) → cardápio → mesas → equipe → turno. */
 function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
-  const custoOk = p.nProdutos > 0 && p.nProdutosComCusto >= p.nProdutos;
   return [
     { label: "Conta criada", done: true, href: null },
     {
-      label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,
-      apoio: "O que você vende. Monte pelos clássicos, suba seu cardápio (PDF/planilha) ou adicione na mão.",
-      done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar",
+      label: p.nInsumosComCusto === 0
+        ? "Custo dos insumos (comece pela nota)"
+        : `Custo — ${p.nInsumosComCusto} ${p.nInsumosComCusto === 1 ? "insumo" : "insumos"} com custo`,
+      apoio: "Suba a nota (NF-e) da sua compra — o custo dos insumos entra pronto, já convertido. Aí, quando você montar os drinks, a ficha JÁ VEM com custo. Sem digitar.",
+      done: p.nInsumosComCusto > 0, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true,
     },
     {
-      label: p.nProdutos === 0
-        ? "Custo dos produtos"
-        : `Custo — ${p.nProdutosComCusto} de ${p.nProdutos} com ficha`,
-      apoio: "O jeito rápido: suba a nota (NF-e) da sua compra — o custo dos insumos vem pronto. As fichas dos drinks você monta depois, aos poucos.",
-      done: custoOk, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true,
+      label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,
+      apoio: p.nInsumosComCusto > 0
+        ? "O que você vende. Monte pelos clássicos ou suba o PDF — a ficha já vem com o custo da nota que você subiu."
+        : "O que você vende. Monte pelos clássicos, suba o PDF ou adicione na mão.",
+      done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar",
     },
     {
       label: `Mesas — ${p.nMesas} ${p.nMesas === 1 ? "mesa" : "mesas"}`,

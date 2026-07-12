@@ -187,17 +187,6 @@ export default function OnboardingPage() {
           </button>
         </form>
 
-        <p
-          style={{
-            marginTop: "24px",
-            fontSize: "12px",
-            color: "var(--fg-subtle)",
-            textAlign: "center",
-            maxWidth: 380,
-          }}
-        >
-          Cardápio, custo, mesas e equipe você adiciona depois — o painel te guia passo a passo.
-        </p>
       </div>
     </div>
   );

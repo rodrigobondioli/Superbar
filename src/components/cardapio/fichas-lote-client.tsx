@@ -28,12 +28,18 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
   const [fichasPorDrink, setFichasPorDrink] = useState<Record<string, InsumoSugerido[]>>({});
   const [insumos, setInsumos] = useState<InsumoConsolidado[]>([]);
   const [resultados, setResultados] = useState<FichaLoteResult[]>([]);
+  const [erro, setErro] = useState<string | null>(null);
+  // Entrada por EMBALAGEM (o que o dono sabe): preço + tamanho. O sistema
+  // converte pra custo por unidade base — nunca pede "custo por ml".
+  const [emb, setEmb] = useState<Record<string, { preco: string; tam: string }>>({});
   const temVendas = drinks.some((d) => d.quantidadeVendida > 0);
 
   async function gerar() {
     setPhase("gerando");
+    setErro(null);
     setProgresso({ done: 0, total: drinks.length });
     const porDrink: Record<string, InsumoSugerido[]> = {};
+    let ultimoErro: string | null = null;
 
     for (let i = 0; i < drinks.length; i++) {
       const d = drinks[i];
@@ -45,8 +51,9 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
         });
         const data = (await res.json()) as SugerirFichaResponse & { error?: string };
         if (res.ok && !data.error) porDrink[d.id] = data.insumos;
+        else if (data.error) ultimoErro = data.error;
       } catch {
-        /* drink sem sugestão — segue */
+        /* falha de rede — segue, mensagem genérica no fim se nada gerar */
       }
       setProgresso({ done: i + 1, total: drinks.length });
     }
@@ -67,14 +74,29 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
       }
     }
 
+    // Nada gerou → mostra o motivo real (sem chave / sem crédito / genérico),
+    // em vez da tela vazia "0 fichas montadas" que confundia (Princípio 9).
+    if (Object.keys(porDrink).length === 0) {
+      setErro(ultimoErro ?? "Não consegui gerar as fichas agora. Tente de novo ou cadastre a ficha manual no cardápio.");
+      setPhase("lista");
+      return;
+    }
+
     setFichasPorDrink(porDrink);
     setInsumos([...map.values()]);
     setPhase("revisar");
   }
 
-  function setCusto(key: string, valor: string) {
-    const v = valor.replace(",", ".");
-    setInsumos((prev) => prev.map((i) => (i.key === key ? { ...i, custoUnitario: v === "" ? null : parseFloat(v) || 0 } : i)));
+  // Preço da embalagem + tamanho → custo por unidade base (preço ÷ tamanho).
+  // Para "un" o tamanho é 1 (custo = preço direto). Nunca pede conta ao dono.
+  function onEmb(key: string, campo: "preco" | "tam", valor: string, unidade: string) {
+    const base = emb[key] ?? { preco: "", tam: unidade === "un" ? "1" : "" };
+    const cur = { ...base, [campo]: valor };
+    setEmb((prev) => ({ ...prev, [key]: cur }));
+    const preco = parseFloat(cur.preco.replace(",", "."));
+    const tam = parseFloat(cur.tam.replace(",", "."));
+    const custo = preco > 0 && tam > 0 ? Math.round((preco / tam) * 10000) / 10000 : null;
+    setInsumos((prev) => prev.map((i) => (i.key === key ? { ...i, custoUnitario: custo } : i)));
   }
 
   async function salvar() {
@@ -144,8 +166,13 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
               </span>
             ))}
           </div>
+          {erro && (
+            <div style={{ marginBottom: 16, padding: "10px 14px", background: "var(--warn-bg)", border: "1px solid color-mix(in srgb, var(--warn) 25%, transparent)", borderRadius: 8, fontSize: 13, color: "var(--warn)", lineHeight: 1.45 }}>
+              {erro}
+            </div>
+          )}
           <button onClick={gerar} style={cta()}>
-            <Sparkles style={{ width: 16, height: 16 }} /> Gerar fichas com IA
+            <Sparkles style={{ width: 16, height: 16 }} /> {erro ? "Tentar de novo" : "Gerar fichas com IA"}
           </button>
         </>
       )}
@@ -165,32 +192,40 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
           <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 4px" }}>
             {drinksComSugestao} ficha{drinksComSugestao !== 1 ? "s" : ""} montada{drinksComSugestao !== 1 ? "s" : ""}. Precifique os {insumos.length} insumos — cada um vale pra todos os drinks que o usam.
           </p>
-          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 20px" }}>
-            Custo por unidade (ex: garrafa de 750ml por R$ 34 → 0,045 por ml). Insumos que já estão no estoque vêm preenchidos.
+          <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 20px", lineHeight: 1.5 }}>
+            Diga o que você paga na <strong>embalagem</strong> — a gente calcula o custo por unidade. Ex: garrafa de <em>750ml por R$ 34</em> → R$ 0,045/ml. Insumos que já vieram da sua nota fiscal aparecem prontos.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 60px 110px", gap: 8, marginBottom: 8 }}>
-            <span style={lbl}>Insumo</span><span style={lbl}>Un.</span><span style={lbl}>Custo/un.</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
-            {insumos.map((i) => (
-              <div key={i.key} style={{ display: "grid", gridTemplateColumns: "1fr 60px 110px", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 14, color: "var(--fg)", display: "flex", alignItems: "center", gap: 6 }}>
-                  {i.nome}
-                  {i.ingredienteId && <span title="Já no estoque" style={{ fontSize: 10, color: "var(--ok)" }}>• no estoque</span>}
-                </span>
-                <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>{i.unidade}</span>
-                <div style={{ position: "relative" }}>
-                  <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "var(--fg-subtle)", pointerEvents: "none" }}>R$</span>
-                  <input
-                    value={i.custoUnitario != null ? String(i.custoUnitario) : ""}
-                    onChange={(e) => setCusto(i.key, e.target.value)}
-                    inputMode="decimal" placeholder="—"
-                    style={{ width: "100%", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 8px 8px 28px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box", textAlign: "right" }}
-                  />
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 24 }}>
+            {insumos.map((i) => {
+              const naEstoque = !!i.ingredienteId && i.custoUnitario != null;
+              const e = emb[i.key];
+              return (
+                <div key={i.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+                  <span style={{ fontSize: 14, color: "var(--fg)" }}>
+                    {i.nome} <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>({i.unidade})</span>
+                  </span>
+                  {naEstoque ? (
+                    <span style={{ fontSize: 13, color: "var(--ok)" }}>• da nota · R$ {i.custoUnitario}/{i.unidade}</span>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--fg-muted)" }}>
+                      <span>R$</span>
+                      <input value={e?.preco ?? ""} onChange={(ev) => onEmb(i.key, "preco", ev.target.value, i.unidade)} inputMode="decimal" placeholder="preço" style={inpMini} />
+                      {i.unidade !== "un" && (
+                        <>
+                          <span>por</span>
+                          <input value={e?.tam ?? ""} onChange={(ev) => onEmb(i.key, "tam", ev.target.value, i.unidade)} inputMode="decimal" placeholder={i.unidade === "ml" || i.unidade === "l" ? "750" : "1000"} style={inpMini} />
+                          <span>{i.unidade}</span>
+                        </>
+                      )}
+                      {i.custoUnitario != null && (
+                        <span style={{ color: "var(--ok)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>= R$ {i.custoUnitario}/{i.unidade}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "flex-end" }}>
@@ -259,8 +294,10 @@ function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () 
   );
 }
 
-const lbl: React.CSSProperties = {
-  fontSize: 10, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500,
+const inpMini: React.CSSProperties = {
+  width: 64, background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
+  padding: "7px 8px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark",
+  boxSizing: "border-box", textAlign: "right",
 };
 
 function cta(): React.CSSProperties {
