@@ -166,6 +166,9 @@
   }
 
   a { color: inherit; text-decoration: none; }
+
+  /* Botão clicável mostra a mãozinha (o default do CSS é seta). Desabilitado não. */
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: pointer; }
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -148,14 +148,18 @@ export async function getVendasPorGarcom(barId: string, periodo: PeriodoRange): 
   if (porMembro.size === 0) return [];
 
   const ids = [...porMembro.keys()];
+  // Só GARÇOM entra no ranking — filtra por cargo no banco. Quem lançou pedido
+  // mas é dono/gerente/bartender/caixa não aparece (decisão do Rodrigo).
   const { data: membros } = await supabase
     .from("bar_members")
     .select("id, nome, foto_url")
     .in("id", ids)
+    .eq("role", "garcom")
     .returns<{ id: string; nome: string | null; foto_url: string | null }[]>();
   const membroMap = new Map((membros ?? []).map(m => [m.id, m]));
 
   return ids
+    .filter(id => membroMap.has(id))   // descarta quem não é garçom
     .map(id => {
       const v = porMembro.get(id)!;
       const m = membroMap.get(id);
