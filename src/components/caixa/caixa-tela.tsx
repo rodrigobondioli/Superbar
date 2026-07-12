@@ -400,7 +400,7 @@ function notificarNovaMesa() {
 // ─── CaixaTela ────────────────────────────────────────────────────────────────
 
 export function CaixaTela({
-  comandas, insights, barNome, barId, turnoId, embedded = false, taxaServicoPct = 10,
+  comandas, insights, barNome, barId, embedded = false, taxaServicoPct = 10,
 }: {
   comandas: ComandaPendente[];
   insights: CaixaInsights;

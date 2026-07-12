@@ -441,13 +441,6 @@ export interface Receita {
   criado_em: string;
 }
 
-type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
-  Row: Row & Record<string, unknown>;
-  Insert: Insert & Record<string, unknown>;
-  Update: Update & Record<string, unknown>;
-  Relationships: never[];
-};
-
 // Fonte de verdade da tipagem do banco (Princípio 12).
 // TABELAS / ENUMS / VIEWS vêm dos tipos GERADOS (`supabase.ts`, `supabase gen types`):
 //   schema real → inferência de query automática → sem casts manuais ``.

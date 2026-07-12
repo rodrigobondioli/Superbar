@@ -166,13 +166,6 @@ export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[
   const t       = termo.trim();
   if (!t) return [];
 
-  type Row = {
-    id: string;
-    nome_cliente: string | null;
-    identificador: string | null;
-    mesas: { nome: string | null; numero: number | null } | null;
-  };
-
   // 1. Identificador exato
   const { data: porCartao } = await supabase
     .from("comandas")
@@ -369,7 +362,7 @@ export async function cancelarComanda(
 }
 
 // Usado por NovaComandaButton via form action — abre comanda de balcão (sem mesa)
-export async function criarComanda(formData: FormData) {
+export async function criarComanda(_formData: FormData) {
   return abrirComanda(null);
 }
 

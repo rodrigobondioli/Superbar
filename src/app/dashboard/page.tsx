@@ -16,14 +16,11 @@ import {
   getLiveStats,
   getPrimeirosPassos,
   getUltimoTurnoFechado,
-  getHistoricoTurnos,
   getVariacaoCusto,
   type PrimeirosPassosData,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
 import { categorizarProdutos, calcularCmv, calcularCoberturaReceita, escolherSuperAcao } from "@/lib/dashboard/menu-engineering";
-import { getFaturamentoPorDia, getComparacaoPeriodo } from "@/lib/dashboard/relatorios";
-import { resolvePeriodo } from "@/lib/dashboard/periodo";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
 import {
   getHorarioPico,
@@ -37,7 +34,6 @@ import { currency } from "@/lib/format";
 
 const TOP_DRINKS_LIMIT = 5;
 const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
-const dataLongaFmt = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
 function capitalizarPrimeiraLetra(texto: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
@@ -143,8 +139,6 @@ export default async function DashboardPage() {
       return { dia, horas };
     }
 
-    const agora = new Date();
-    const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
     const label = ultimoTurno ? labelTurno(ultimoTurno.abertoEm, ultimoTurno.fechadoEm) : null;
 
     // Meta do mês para o bloco Negócio
@@ -396,8 +390,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const periodoSemana = resolvePeriodo({ preset: "7d" });
-  const [kpis, alertas, produtosVendidos, metaMes, liveStats, pontosHora, rankingMesas, mixPgto, tempos, inteligencia, historicoTurnos, pontosReceita, receitaSemana] = await Promise.all([
+  const [kpis, alertas, produtosVendidos, metaMes, liveStats, pontosHora, rankingMesas, mixPgto, tempos, inteligencia] = await Promise.all([
     getKpisTurno(turno),
     getAlertasEstoque(current.bar.id),
     getProdutosVendidosTurno(current.bar.id, turno.id),
@@ -408,10 +401,6 @@ export default async function DashboardPage() {
     getMixPagamento(current.bar.id, turno.id),
     getTempoMedioPreparo(current.bar.id, turno.id),
     getInteligenciaStage(current.bar.id),
-    getHistoricoTurnos(current.bar.id),
-    // Receita da semana não depende de turno/kpis — roda junto pra evitar mais uma viagem.
-    getFaturamentoPorDia(current.bar.id, periodoSemana, "diaSemana"),
-    getComparacaoPeriodo(current.bar.id, periodoSemana),
   ]);
 
   const comparacao = await getKpisComparacao(
@@ -431,29 +420,9 @@ export default async function DashboardPage() {
     .slice(0, TOP_DRINKS_LIMIT);
   const cmvAtual = calcularCmv(produtosVendidos);
 
-  const agora = new Date();
-  const dataFormatada = capitalizarPrimeiraLetra(dataExtenso.format(agora));
-
   const coberturaReceita = calcularCoberturaReceita(produtosVendidos);
   const cmvParcial = coberturaReceita.status !== "confiavel";
 
-  // Veredictos semânticos — "estou melhor ou pior?"
-  const cmvVeredito = coberturaReceita.status === "indisponivel" || cmvAtual === null
-    ? null
-    : cmvAtual < 30 ? "Margem excelente"
-    : cmvAtual < 36 ? "Margem saudável"
-    : cmvAtual < 42 ? "Custo elevado"
-    : "CMV crítico"
-  const cmvCorVeredito: string = cmvVeredito === "Margem excelente" || cmvVeredito === "Margem saudável"
-    ? "white"
-    : cmvVeredito === "Custo elevado" ? "white"
-    : cmvVeredito === "CMV crítico" ? "white"
-    : "var(--fg-muted)"
-  const ticketDelta = comparacao?.ticketMedio ?? null
-  const ticketVeredito = ticketDelta !== null && Math.abs(ticketDelta) > 5
-    ? ticketDelta > 0 ? "Ticket crescendo" : "Ticket caindo"
-    : null
-  const ticketCorVeredito: string = "white"
 
   const insights: InsightItem[] = gerarInsight({
     produtosCategorizado: produtosCategorizados,
@@ -478,34 +447,10 @@ export default async function DashboardPage() {
     ...todosInsights.filter(i => i.tipo === "opportunity"),
     ...todosInsights.filter(i => i.tipo === "info"),
   ];
-  const nAction = todosInsights.filter(i => i.tipo === "action").length;
-  const nOpportunity = todosInsights.filter(i => i.tipo === "opportunity").length;
-  const nInfo = todosInsights.filter(i => i.tipo === "info").length;
   const metaConfigurada = current.bar.configuracoes?.meta_mensal;
   const meta = metaConfigurada ?? metaMes.meta;
   const metaAtual = metaMes.faturamentoAtual;
   const metaProgresso = meta > 0 ? Math.min(Math.round((metaAtual / meta) * 100), 100) : 0;
-  const metaFalta = Math.max(meta - metaAtual, 0);
-  const metaAtingida = metaAtual >= meta && meta > 0;
-
-  // Natural language ticket impact (linguagem de dono)
-  const ticketDeltaPct = comparacao.ticketMedio;
-  let ritmoLabel: string | null = null;
-  if (ticketDeltaPct !== null && Math.abs(ticketDeltaPct) > 3 && kpis.comandasAbertas > 0) {
-    const impacto = Math.abs(kpis.ticketMedio * (ticketDeltaPct / 100) * kpis.comandasAbertas);
-    ritmoLabel = ticketDeltaPct < 0
-      ? `Ticket caiu ${Math.abs(ticketDeltaPct).toFixed(1)}% — projeta ${currency.format(impacto)} a menos no turno`
-      : `Ticket subiu ${ticketDeltaPct.toFixed(1)}% — projeta +${currency.format(impacto)} no turno`;
-  }
-  const proximaAcaoTexto = inteligencia.stage === 2 && insightsSorted.length > 0 ? insightsSorted[0].texto : null;
-
-  // Alertas críticos de AI (tipo "action")
-  const alertasAction = insightsSorted.filter(i => i.tipo === "action");
-  const temAlertas = alertas.length > 0 || alertasAction.length > 0;
-
-  const filaAtual = tempos.totalRecebidos - tempos.totalEntregues;
-  const cortesiaTotal = mixPgto.find(m => m.metodo === "cortesia")?.valor ?? 0;
-  const cortesiaPct = kpis.faturamento > 0 ? (cortesiaTotal / kpis.faturamento) * 100 : 0;
   const impactoEstimado = insightsSorted[0]?.impactoReais ?? null;
   const horasTurno = Math.max((Date.now() - new Date(turno.aberto_em).getTime()) / 3_600_000, 0.5);
 

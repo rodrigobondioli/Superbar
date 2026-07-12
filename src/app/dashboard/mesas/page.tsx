@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { MesasClient } from "@/components/mesas/mesas-client";
 import { createClient } from "@/lib/supabase/server";
-import type { Mesa } from "@/types/database";
 
 const dataLonga = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

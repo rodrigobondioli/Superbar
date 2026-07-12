@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2, GripVertical } from "lucide-react";
 import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro, renomearMembro, reordenarEquipe } from "@/lib/equipe/actions";
-import { formatBRL } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
@@ -27,10 +26,6 @@ export type MembroRow = {
 const ROLE_LABELS: Record<BarRole, string> = {
   dono: "Dono", gerente: "Gerente", bar_manager: "Bar Manager", bartender: "Bartender", garcom: "Garçom", caixa: "Caixa",
 };
-
-const fmt = formatBRL;
-
-const lbl: React.CSSProperties = { ...LABEL, margin: 0 };
 
 // ─── Avatar clicável com upload de foto ──────────────────────────────────────
 function MemberAvatar({
@@ -174,7 +169,6 @@ function MembroItem({
   const [savingNome, setSavingNome] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [removing, setRemoving] = useState(false);
-  const [, startTransition] = useTransition();
   const isOwn   = m.userId === currentUserId;
   const canEdit = isDono && !isOwn;
 

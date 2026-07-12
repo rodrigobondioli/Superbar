@@ -7,7 +7,6 @@ import {
   type InsumoSugerido,
   type SugerirFichaResponse,
   type UnidadeInsumo,
-  type IngredienteRef,
 } from "@/lib/ficha/sugestao-types";
 
 const UNIDADES: UnidadeInsumo[] = ["un", "ml", "l", "g", "kg"];

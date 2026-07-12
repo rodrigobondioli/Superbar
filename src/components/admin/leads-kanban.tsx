@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect, Fragment } from "react";
+import { useState, useTransition, useEffect, Fragment } from "react";
 import type { Lead, Stage } from "@/lib/admin/queries";
 import { updateLead, deleteLead, updateStageLabel, listarAtividades, adicionarAtividade, type LeadAtividade } from "@/lib/admin/actions";
 import { createClient } from "@/lib/supabase/client";

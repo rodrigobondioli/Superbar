@@ -1002,7 +1002,7 @@ function sugerirPorVibe(picks: string[], ativos: Produto[], cardapio: CategoriaC
 }
 
 function HomeScreen({
-  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, topPedidos, destaques, cartCount, onCart, onSelectCategoria, onSelectProduto,
+  cliente, mesaLabel, barId, mesaId, cardapio, allProdutos, ultimoProduto, topPedidos, destaques, onCart, onSelectCategoria, onSelectProduto,
 }: {
   cliente: ClienteLocal | null;
   mesaLabel: string;
@@ -1541,7 +1541,7 @@ export function MenuApp({
   const [selectedCategoria, setSelectedCategoria] = useState<CategoriaComProdutos | null>(null);
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [toast, setToast] = useState(false);
+  const [toast] = useState(false);
   const [pedindo, setPedindo] = useState(false);
   const [pedidoErro, setPedidoErro] = useState<string | null>(null);
   const [justOrdered, setJustOrdered] = useState(false);
@@ -1553,11 +1553,6 @@ export function MenuApp({
     const stored = readCliente(bar.slug);
     if (stored) setCliente(stored);
   }, [bar.slug, initialNome]);
-
-  const showToast = () => {
-    setToast(true);
-    setTimeout(() => setToast(false), 2000);
-  };
 
   const handleSplashNext = useCallback(() => {
     if (cliente) {

@@ -4,7 +4,7 @@ import { getMesaPublica, getEsgotados } from "@/lib/mesa/queries";
 import { getTopPedidos } from "@/lib/menu/queries";
 import { getDestaques } from "@/lib/destaques/queries";
 import { MesaApp } from "@/components/mesa/mesa-app";
-import type { Bar, Mesa, Categoria, Produto } from "@/types/database";
+import type { Bar, Mesa } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 

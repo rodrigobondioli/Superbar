@@ -27,6 +27,13 @@ const eslintConfig = defineConfig([
     rules: {
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/purity": "warn",
+      // Args/vars prefixados com _ são intencionalmente não usados (placeholder
+      // de assinatura de action, destructure parcial). Convenção padrão.
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      }],
     },
   },
 ]);

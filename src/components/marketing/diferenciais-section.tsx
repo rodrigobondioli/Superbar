@@ -9,7 +9,6 @@ import { Lines, Reveal, SectionRule } from "@/components/marketing/motion-primit
    ──────────────────────────────────────────────────────────────────────── */
 
 const ACCENT = "#FF3500";
-const BORDER = "#2C2C2E";
 
 const LINHAS = [
   {

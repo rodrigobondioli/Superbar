@@ -41,7 +41,6 @@ function buildSuggestions({
 
 export function AiHeroInput({
   barId,
-  alertCount,
   cmvAlto,
   ticketCaindo,
   produtoSugerido,
