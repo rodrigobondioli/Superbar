@@ -94,8 +94,7 @@ export async function listarComandasMesa(mesaId: string): Promise<PessoaComandaL
     .eq("bar_id", current.bar.id)
     .eq("mesa_id", mesaId)
     .in("status", ["aberta", "aguardando_pagamento"])
-    .order("aberta_em", { ascending: true })
-    .returns<PessoaComandaLite[]>();
+    .order("aberta_em", { ascending: true });
   return data ?? [];
 }
 
@@ -181,8 +180,7 @@ export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
     .eq("identificador", t)
-    .in("status", ["aberta", "aguardando_pagamento"])
-    .returns<Row[]>();
+    .in("status", ["aberta", "aguardando_pagamento"]);
 
   if (porCartao?.length) {
     return porCartao.map(c => ({
@@ -198,8 +196,7 @@ export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
     .ilike("nome_cliente", `%${t}%`)
-    .in("status", ["aberta", "aguardando_pagamento"])
-    .returns<Row[]>();
+    .in("status", ["aberta", "aguardando_pagamento"]);
 
   if (porNome?.length) {
     return porNome.map(c => ({ id: c.id, label: buildLabel(c) }));
@@ -216,7 +213,7 @@ export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[
     ? mesaQuery.ilike("nome", `%${t}%`)
     : mesaQuery.or(`nome.ilike.%${t}%,numero.eq.${numMesa}`);
 
-  const { data: mesas } = await mesaFilter.returns<{ id: string }[]>();
+  const { data: mesas } = await mesaFilter;
   const mesaIds = (mesas ?? []).map(m => m.id);
 
   if (!mesaIds.length) return [];
@@ -227,8 +224,7 @@ export async function buscarComandaAtiva(termo: string): Promise<ResultadoBusca[
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
     .in("mesa_id", mesaIds)
-    .in("status", ["aberta", "aguardando_pagamento"])
-    .returns<Row[]>();
+    .in("status", ["aberta", "aguardando_pagamento"]);
 
   return (porMesa ?? []).map(c => ({ id: c.id, label: buildLabel(c) }));
 }

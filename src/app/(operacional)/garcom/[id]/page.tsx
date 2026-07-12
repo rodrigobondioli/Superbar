@@ -34,8 +34,7 @@ export default async function GarcomComandaPage({ params }: Props) {
       supabase.from("comandas").select("id, nome_cliente, status")
         .eq("bar_id", current.bar.id).eq("mesa_id", comanda.mesa_id)
         .in("status", ["aberta", "aguardando_pagamento"])
-        .order("aberta_em", { ascending: true })
-        .returns<PessoaTab[]>(),
+        .order("aberta_em", { ascending: true }),
     ]);
     if (mesa) mesaLabel = mesa.nome ?? `Mesa ${mesa.numero}`;
     pessoas = irmas ?? [];

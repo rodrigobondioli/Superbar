@@ -423,12 +423,7 @@ export function CaixaTela({
       .select("id, total, aberta_em, fechada_em, mesa_id, nome_cliente, total_pessoas, mesas(numero, nome)")
       .eq("bar_id", barId)
       .eq("status", "aguardando_pagamento")
-      .order("fechada_em", { ascending: true })
-      .returns<{
-        id: string; total: number; aberta_em: string; fechada_em: string | null;
-        mesa_id: string | null; nome_cliente: string | null; total_pessoas: number | null;
-        mesas: { numero: number; nome: string | null } | null;
-      }[]>();
+      .order("fechada_em", { ascending: true });
 
     if (!raw?.length) { setListaAtual([]); return; }
 
@@ -436,8 +431,7 @@ export function CaixaTela({
     const { data: itensRaw } = await supabase
       .from("comanda_items")
       .select("comanda_id, quantidade, preco_total, variante_nome, produtos(nome)")
-      .in("comanda_id", ids).eq("status", "ativo")
-      .returns<{ comanda_id: string; quantidade: number; preco_total: number; variante_nome: string | null; produtos: { nome: string } | null }[]>();
+      .in("comanda_id", ids).eq("status", "ativo");
 
     const itensPorComanda = new Map<string, ComandaPendente["itens"]>();
     for (const item of itensRaw ?? []) {

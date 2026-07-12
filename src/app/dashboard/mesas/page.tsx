@@ -17,8 +17,7 @@ export default async function MesasPage() {
     .select("*")
     .eq("bar_id", current.bar.id)
     .eq("ativo", true)
-    .order("ordem", { ascending: true, nullsFirst: false })
-    .returns<Mesa[]>();
+    .order("ordem", { ascending: true, nullsFirst: false });
 
   const mesaList = mesas ?? [];
 
@@ -30,8 +29,7 @@ export default async function MesasPage() {
       .from("comandas")
       .select("mesa_id")
       .in("mesa_id", mesaIds)
-      .eq("status", "aberta")
-      .returns<{ mesa_id: string }[]>();
+      .eq("status", "aberta");
     mesasOcupadas = [
       ...new Set(
         (ocupadas ?? [])

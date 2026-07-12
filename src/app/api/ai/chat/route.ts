@@ -82,13 +82,7 @@ export async function POST(req: NextRequest) {
           .select('quantidade, preco_total, produto_id, produtos(nome, preco, custo), comandas!inner(turno_id)')
           .eq('bar_id', barId)
           .eq('status', 'ativo')
-          .eq('comandas.turno_id', turno.id)
-          .returns<Array<{
-            quantidade: number
-            preco_total: number
-            produto_id: string
-            produtos: { nome: string; preco: number; custo: number | null } | null
-          }>>(),
+          .eq('comandas.turno_id', turno.id),
       ])
 
       comandasAbertas = count ?? 0
@@ -146,7 +140,6 @@ export async function POST(req: NextRequest) {
       .select('produtos(nome)')
       .eq('bar_id', barId)
       .eq('abaixo_minimo', true)  // coluna gerada no banco — sem filtro em app
-      .returns<Array<{ produtos: { nome: string } | null }>>()
 
     const alertas = (estoqueData ?? []).map(r => r.produtos?.nome ?? 'produto')
 

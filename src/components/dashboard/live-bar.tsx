@@ -137,8 +137,7 @@ export function LiveBar({
       .from("comandas")
       .select("id")
       .eq("turno_id", turnoId)
-      .eq("status", "aberta")
-      .returns<{ id: string }[]>();
+      .eq("status", "aberta");
     const pessoas = (comandas ?? []).length;
     const ids = (comandas ?? []).map(c => c.id);
     if (!ids.length) { setData(d => ({ ...d, pessoas: 0 })); return; }
@@ -146,8 +145,7 @@ export function LiveBar({
       .from("comanda_items")
       .select("quantidade, preco_total")
       .in("comanda_id", ids)
-      .eq("status", "ativo")
-      .returns<{ quantidade: number; preco_total: number }[]>();
+      .eq("status", "ativo");
     const faturamento = (items ?? []).reduce((s, i) => s + Number(i.preco_total), 0);
     const drinks = (items ?? []).reduce((s, i) => s + Number(i.quantidade), 0);
     setData({ faturamento, pessoas, drinks });

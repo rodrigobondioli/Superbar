@@ -126,8 +126,7 @@ export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarCon
     .from("ingredientes")
     .select("id, nome, unidade, estoque_atual, custo_atual, tamanho_embalagem, unidade_compra")
     .eq("bar_id", current.bar.id)
-    .in("id", ids)
-    .returns<{ id: string; nome: string; unidade: string; estoque_atual: number; custo_atual: number; tamanho_embalagem: number | null; unidade_compra: string | null }[]>();
+    .in("id", ids);
 
   const porId = new Map((insumos ?? []).map((i) => [i.id, i]));
   const agora = new Date().toISOString();

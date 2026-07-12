@@ -46,8 +46,7 @@ export async function getTurnos(barId: string, limit = 20): Promise<TurnoResumo[
     .select(TURNO_SELECT)
     .eq("bar_id", barId)
     .order("aberto_em", { ascending: false })
-    .limit(limit)
-    .returns<TurnoRow[]>();
+    .limit(limit);
 
   return (data ?? []).map(toResumo);
 }

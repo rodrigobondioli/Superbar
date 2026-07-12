@@ -22,8 +22,8 @@ export default async function MesaPage({
   const [{ data: bar }, { data: mesaRow }, { data: categorias }, { data: produtos }] = await Promise.all([
     supabase.from("bars").select("*").eq("id", mesa.bar.id).maybeSingle<Bar>(),
     supabase.from("mesas").select("*").eq("id", mesaId).maybeSingle<Mesa>(),
-    supabase.from("categorias").select("*").eq("bar_id", mesa.bar.id).eq("ativo", true).order("ordem", { ascending: true }).returns<Categoria[]>(),
-    supabase.from("produtos").select("*").eq("bar_id", mesa.bar.id).eq("ativo", true).returns<Produto[]>(),
+    supabase.from("categorias").select("*").eq("bar_id", mesa.bar.id).eq("ativo", true).order("ordem", { ascending: true }),
+    supabase.from("produtos").select("*").eq("bar_id", mesa.bar.id).eq("ativo", true),
   ]);
   if (!bar || !mesaRow) notFound();
 

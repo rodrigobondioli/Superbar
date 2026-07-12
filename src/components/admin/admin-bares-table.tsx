@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { BarResumo, RiskAlert, HealthScore } from "@/lib/admin/queries";
+import type { BarResumo, HealthScore } from "@/lib/admin/queries";
 import type { AssinaturaStatus } from "@/types/database";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -37,42 +37,6 @@ function relDate(iso: string | null): string {
 }
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
-
-function HealthBadge({ score, alertas }: { score: HealthScore; alertas: RiskAlert[] }) {
-  const config = {
-    green:  { label: "Saudável", color: "var(--ok)",     },
-    yellow: { label: "Atenção",  color: "var(--warn)",   },
-    red:    { label: "Risco",    color: "var(--danger)", },
-  }[score];
-
-  const topAlert = alertas[0];
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{
-        display: "inline-flex", alignItems: "center", gap: 6,
-        fontSize: 12, fontWeight: 600, color: config.color,
-        whiteSpace: "nowrap",
-      }}>
-        <span style={{
-          width: 7, height: 7, borderRadius: "50%",
-          background: config.color, flexShrink: 0,
-        }} />
-        {config.label}
-      </span>
-      {topAlert && (
-        <span style={{
-          fontSize: 10,
-          color: topAlert.level === "red" ? "var(--danger)" : "var(--warn)",
-          paddingLeft: 13,
-        }}>
-          {topAlert.label}
-          {alertas.length > 1 && <span style={{ color: "var(--fg-subtle)" }}> +{alertas.length - 1}</span>}
-        </span>
-      )}
-    </div>
-  );
-}
 
 function StatusPill({ status }: { status: AssinaturaStatus | null }) {
   if (!status) return <span style={{ color: "var(--fg-subtle)", fontSize: 12 }}>—</span>;

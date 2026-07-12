@@ -270,8 +270,7 @@ export async function criarProdutosClassicos(
   const { data: existentes } = await supabase
     .from("categorias")
     .select("id, nome")
-    .eq("bar_id", current.bar.id)
-    .returns<{ id: string; nome: string }[]>();
+    .eq("bar_id", current.bar.id);
   const existentesN = (existentes ?? []).map((c) => ({ id: c.id, n: norm(c.nome) }));
 
   const { data: ultima } = await supabase

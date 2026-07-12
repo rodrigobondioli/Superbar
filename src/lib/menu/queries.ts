@@ -11,8 +11,7 @@ export async function getTopPedidos(barId: string, limit = 5): Promise<string[]>
     .select("produto_id, quantidade")
     .eq("bar_id", barId)
     .eq("status", "ativo")
-    .gte("adicionado_em", desde)
-    .returns<{ produto_id: string; quantidade: number }[]>();
+    .gte("adicionado_em", desde);
 
   const total = new Map<string, number>();
   for (const it of data ?? []) {

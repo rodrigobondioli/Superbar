@@ -21,8 +21,7 @@ export default async function CaixaLayout({
     .eq("ativo", true)
     .not("nome", "is", null)
     .in("role", ["caixa", "dono", "gerente", "bar_manager"])
-    .order("created_at", { ascending: true })
-    .returns<{ id: string; nome: string | null; role: string; pin: string | null; foto_url: string | null }[]>();
+    .order("created_at", { ascending: true });
 
   let membros: MembroSimples[] = (rows ?? []).map(r => ({
     id: r.id,

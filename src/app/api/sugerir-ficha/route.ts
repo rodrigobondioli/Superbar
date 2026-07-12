@@ -113,8 +113,7 @@ Retorne APENAS JSON, sem explicação:
     .from("ingredientes")
     .select("id, nome, custo_atual")
     .eq("bar_id", current.bar.id)
-    .eq("ativo", true)
-    .returns<(IngredienteRef & { custo_atual: number })[]>();
+    .eq("ativo", true);
   const ingredientes = ingData ?? [];
   const custoPorId = new Map(ingredientes.map((i) => [i.id, Number(i.custo_atual)]));
 

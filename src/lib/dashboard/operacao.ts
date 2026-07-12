@@ -30,8 +30,7 @@ export async function getHorarioPico(
     .select("quantidade, adicionado_em, comandas!inner(turno_id)")
     .eq("bar_id", barId)
     .eq("comandas.turno_id", turnoId)
-    .eq("status", "ativo")
-    .returns<{ quantidade: number; adicionado_em: string; comandas: { turno_id: string } }[]>();
+    .eq("status", "ativo");
 
   const porHora = new Map<number, number>();
   for (const item of data ?? []) {
@@ -83,17 +82,7 @@ export async function getRankingMesas(
     `)
     .eq("bar_id", barId)
     .eq("comandas.turno_id", turnoId)
-    .eq("status", "ativo")
-    .returns<{
-      quantidade: number;
-      preco_total: number;
-      comandas: {
-        id: string;
-        mesa_id: string | null;
-        turno_id: string;
-        mesas: { numero: number; nome: string | null } | null;
-      };
-    }[]>();
+    .eq("status", "ativo");
 
   const porMesa = new Map<
     string,
@@ -149,8 +138,7 @@ export async function getMixPagamento(
     .select("metodo, valor")
     .eq("bar_id", barId)
     .eq("turno_id", turnoId)
-    .eq("status", "confirmado")
-    .returns<{ metodo: PagamentoMetodo; valor: number }[]>();
+    .eq("status", "confirmado");
 
   const porMetodo = new Map<PagamentoMetodo, number>();
   let total = 0;
@@ -193,8 +181,7 @@ export async function getTempoMedioPreparo(
     .from("pedidos")
     .select("status, criado_em, entregue_em")
     .eq("bar_id", barId)
-    .eq("turno_id", turnoId)
-    .returns<{ status: string; criado_em: string; entregue_em: string | null }[]>();
+    .eq("turno_id", turnoId);
 
   const todos = data ?? [];
   const totalRecebidos = todos.length;

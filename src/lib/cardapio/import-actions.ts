@@ -30,8 +30,7 @@ export async function salvarProdutosImportados(
     .from("categorias")
     .select("id, nome")
     .eq("bar_id", barId)
-    .eq("ativo", true)
-    .returns<{ id: string; nome: string }[]>();
+    .eq("ativo", true);
 
   const catMap: Record<string, string> = {};
   for (const c of existingCats ?? []) catMap[c.nome] = c.id;
@@ -128,8 +127,7 @@ export async function mergeImportacao(
     .from("produtos")
     .select("id, nome")
     .eq("bar_id", barId)
-    .eq("ativo", true)
-    .returns<{ id: string; nome: string }[]>();
+    .eq("ativo", true);
 
   const existenteMap: Record<string, string> = {};
   for (const p of existentes ?? []) {

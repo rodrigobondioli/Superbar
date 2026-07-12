@@ -434,7 +434,7 @@ type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
 
 // Fonte de verdade da tipagem do banco (Princípio 12).
 // TABELAS / ENUMS / VIEWS vêm dos tipos GERADOS (`supabase.ts`, `supabase gen types`):
-//   schema real → inferência de query automática → sem casts manuais `.returns<>()`.
+//   schema real → inferência de query automática → sem casts manuais ``.
 // As FUNÇÕES (RPCs) ficam tipadas À MÃO aqui: o gerador devolve `Json` genérico e
 // a gente quer o shape preciso do retorno de cada RPC (ex: registrar_pagamento).
 // Regenerar os tipos: `npx supabase gen types typescript --project-id <ref> > src/types/supabase.ts`.

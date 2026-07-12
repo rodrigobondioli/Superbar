@@ -86,8 +86,7 @@ export async function salvarFicha(
   const { data: ingData } = await supabase
     .from("ingredientes")
     .select("id, nome")
-    .eq("bar_id", barId)
-    .returns<{ id: string; nome: string }[]>();
+    .eq("bar_id", barId);
   const porNome = new Map((ingData ?? []).map((i) => [normalizarNome(i.nome), i.id]));
 
   // Resolve cada linha num ingrediente_id + custo unitário efetivo

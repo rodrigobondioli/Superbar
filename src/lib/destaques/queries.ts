@@ -10,7 +10,6 @@ export async function getDestaques(barId: string): Promise<Destaque[]> {
     .select("*")
     .eq("bar_id", barId)
     .eq("ativo", true)
-    .order("ordem", { ascending: true })
-    .returns<Destaque[]>();
+    .order("ordem", { ascending: true });
   return data ?? [];
 }

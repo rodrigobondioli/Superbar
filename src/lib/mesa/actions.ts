@@ -186,8 +186,7 @@ export async function criarPedidoCliente(
     .from("produtos")
     .select("id, nome, preco, ativo")
     .eq("bar_id", barId)
-    .in("id", produtoIds)
-    .returns<{ id: string; nome: string; preco: number; ativo: boolean }[]>();
+    .in("id", produtoIds);
   const prodMap = new Map((produtos ?? []).map((p) => [p.id, p]));
 
   // Trava de estoque: recusa item esgotado/sem dose suficiente (evita pedido fantasma).
@@ -207,8 +206,7 @@ export async function criarPedidoCliente(
     const { data: variantes } = await supabase
       .from("produto_variantes")
       .select("id, nome, preco, produto_id, ativo")
-      .in("id", varianteIds)
-      .returns<{ id: string; nome: string; preco: number; produto_id: string; ativo: boolean }[]>();
+      .in("id", varianteIds);
     for (const v of variantes ?? []) if (v.ativo) varMap.set(v.id, v);
   }
 
