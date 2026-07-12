@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { isPlatformAdmin } from "@/lib/auth/platform-admin";
+import { getAdminBares } from "@/lib/admin/queries";
 
 export default async function AdminLayout({
   children,
@@ -16,6 +17,11 @@ export default async function AdminLayout({
     redirect("/dashboard");
   }
 
+  // Badge da sidebar: bares que precisam de atenção (algum alerta ativo).
+  // getAdminBares é cache()-ado, então divide a query com a página.
+  const { bares } = await getAdminBares();
+  const alertCount = bares.filter((b) => b.alertas.length > 0).length;
+
   return (
     <div
       style={{
@@ -27,7 +33,7 @@ export default async function AdminLayout({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <AdminSidebar />
+      <AdminSidebar adminEmail={auth.user.email ?? ""} alertCount={alertCount} />
       <main
         style={{
           flex: 1,

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Layers, PhoneCall } from "lucide-react";
+import { LayoutDashboard, Users, Layers, PhoneCall, LogOut } from "lucide-react";
+import { signOut } from "@/lib/auth/actions";
 
 // ─── Navegação ────────────────────────────────────────────────────────────────
 
@@ -15,9 +16,10 @@ const links = [
 
 interface AdminSidebarProps {
   alertCount?: number; // bares com alertas
+  adminEmail?: string; // identidade da conta logada
 }
 
-export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ alertCount = 0, adminEmail = "" }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -107,6 +109,39 @@ export function AdminSidebar({ alertCount = 0 }: AdminSidebarProps) {
           );
         })}
       </nav>
+
+      {/* Rodapé: identidade + logout */}
+      <div style={{ padding: 10, borderTop: "1px solid var(--border)" }}>
+        {adminEmail && (
+          <p
+            style={{
+              fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 6px",
+              padding: "0 10px",
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}
+            title={adminEmail}
+          >
+            {adminEmail}
+          </p>
+        )}
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="hover:!bg-white/[0.05] hover:!text-[var(--fg)]"
+            style={{
+              display: "flex", alignItems: "center", gap: 9,
+              width: "100%", padding: "8px 10px", borderRadius: 8,
+              fontSize: 13, fontWeight: 400, color: "var(--fg-muted)",
+              background: "transparent", border: "none", cursor: "pointer",
+              transition: "background 120ms, color 120ms",
+              fontFamily: "inherit",
+            }}
+          >
+            <LogOut style={{ width: 15, height: 15, flexShrink: 0, color: "var(--fg-subtle)", strokeWidth: 1.75 }} />
+            Sair
+          </button>
+        </form>
+      </div>
 
     </aside>
   );

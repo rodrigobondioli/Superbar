@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getAdminBares } from "@/lib/admin/queries";
+import { getAdminBares, getLeads } from "@/lib/admin/queries";
+import { setupStatus } from "@/components/admin/admin-implantacao";
 import { currencyInteiro as currency } from "@/lib/format";
 
 const card: React.CSSProperties = {
@@ -19,11 +20,22 @@ function Cifrao() {
 }
 
 export default async function AdminPage() {
-  const { bares } = await getAdminBares();
+  const [{ bares }, leads] = await Promise.all([getAdminBares(), getLeads()]);
+
+  // ── Implantação: quantos estão prontos e quem falta configurar ──
+  const setup = bares.map(b => ({ bar: b, st: setupStatus(b) }));
+  const prontos = setup.filter(s => s.st.pronto).length;
+  const emSetup = setup
+    .filter(s => !s.st.pronto)
+    .sort((a, b) => b.st.faltando.length - a.st.faltando.length);
+
+  // ── Leads: pipeline e entradas novas ──
+  const norm = (s: string) => s.toLowerCase();
+  const leadsNovos = leads.filter(l => norm(l.status) === "novo").length;
+  const ultimosLeads = leads.slice(0, 3);
 
   // ── Métricas de receita/retenção (dado real da tabela assinaturas) ──
   const pagantes = bares.filter(b => b.assinatura_status === "ativa");
-  const trials = bares.filter(b => b.assinatura_status === "trial");
   const inadimplentes = bares.filter(b => b.assinatura_status === "inadimplente");
   const cancelados = bares.filter(b => b.assinatura_status === "cancelada");
 
@@ -37,9 +49,6 @@ export default async function AdminPage() {
     )
     .sort((a, b) => (b.plano_preco ?? 0) - (a.plano_preco ?? 0));
   const mrrEmRisco = emRisco.reduce((s, b) => s + (b.plano_preco ?? 0), 0);
-
-  // Potencial de conversão (trials) — pipeline de receita
-  const potencialTrial = trials.reduce((s, b) => s + (b.plano_preco ?? 0), 0);
 
   // Distribuição por plano (só pagantes) — de onde vem o MRR
   const porPlano = new Map<string, { count: number; mrr: number }>();
@@ -81,7 +90,6 @@ export default async function AdminPage() {
           <p style={{ ...cardMetric, color: "var(--accent)" }}><Cifrao />{mrr.toLocaleString("pt-BR")}</p>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
             {pagantes.length} {pagantes.length === 1 ? "assinatura ativa" : "assinaturas ativas"}
-            {potencialTrial > 0 && ` · +${currency.format(potencialTrial)} em ${trials.length} trial${trials.length !== 1 ? "s" : ""}`}
           </p>
         </div>
 
@@ -91,7 +99,6 @@ export default async function AdminPage() {
           <p style={cardMetric}>{bares.length}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
             <span style={{ fontSize: 13, color: "var(--ok)" }}>● {pagantes.length} pagante{pagantes.length !== 1 ? "s" : ""}</span>
-            {trials.length > 0 && <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>● {trials.length} em trial</span>}
             {inadimplentes.length > 0 && <span style={{ fontSize: 13, color: "var(--danger)" }}>● {inadimplentes.length} inadimplente{inadimplentes.length !== 1 ? "s" : ""}</span>}
             {cancelados.length > 0 && <span style={{ fontSize: 13, color: "var(--fg-subtle)" }}>● {cancelados.length} cancelado{cancelados.length !== 1 ? "s" : ""}</span>}
           </div>
@@ -104,6 +111,65 @@ export default async function AdminPage() {
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
             {emRisco.length === 0 ? "nenhuma conta em risco" : `${emRisco.length} conta${emRisco.length !== 1 ? "s" : ""} (inadimplente ou parada)`}
           </p>
+        </div>
+      </div>
+
+      {/* Implantação + Leads */}
+      <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 24 }}>
+
+        {/* Implantação */}
+        <div style={card}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0 }}>Implantação</h2>
+            <Link href="/admin/implantacao" style={{ fontSize: 13, color: "var(--accent)", textDecoration: "none" }}>Ver todos →</Link>
+          </div>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+            <span style={{ color: "var(--fg)", fontWeight: 600 }}>{prontos}</span> de {bares.length} pronto{prontos !== 1 ? "s" : ""} pra operar
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 8 }}>
+            {emSetup.length === 0 ? (
+              <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Todos os bares configurados.</span>
+            ) : (
+              emSetup.slice(0, 3).map(({ bar, st }, i) => (
+                <Link key={bar.id} href={`/admin/${bar.id}`} style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                  padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid var(--border-strong)",
+                  textDecoration: "none",
+                }}>
+                  <span style={{ fontSize: 14, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bar.nome}</span>
+                  <span style={{ fontSize: 13, color: "var(--warn)", whiteSpace: "nowrap", flexShrink: 0 }}>Falta {st.faltando.join(", ")}</span>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Leads */}
+        <div style={card}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0 }}>Leads</h2>
+            <Link href="/admin/leads" style={{ fontSize: 13, color: "var(--accent)", textDecoration: "none" }}>Abrir CRM →</Link>
+          </div>
+          <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
+            <span style={{ color: "var(--fg)", fontWeight: 600 }}>{leads.length}</span> no pipeline
+            {leadsNovos > 0 && <> · <span style={{ color: "var(--accent)" }}>{leadsNovos} novo{leadsNovos !== 1 ? "s" : ""}</span></>}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 8 }}>
+            {ultimosLeads.length === 0 ? (
+              <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>Nenhum lead ainda.</span>
+            ) : (
+              ultimosLeads.map((l, i) => (
+                <Link key={l.id} href="/admin/leads" style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                  padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid var(--border-strong)",
+                  textDecoration: "none",
+                }}>
+                  <span style={{ fontSize: 14, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.nome_bar}</span>
+                  <span style={{ fontSize: 13, color: "var(--fg-subtle)", whiteSpace: "nowrap", flexShrink: 0 }}>{[l.cidade, l.tipo_bar].filter(Boolean).join(" · ")}</span>
+                </Link>
+              ))
+            )}
+          </div>
         </div>
       </div>
 

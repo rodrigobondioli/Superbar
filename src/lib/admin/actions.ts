@@ -41,7 +41,7 @@ export async function reativarBar(barId: string) {
 
 export async function alterarStatusAssinatura(
   assinaturaId: string,
-  status: "ativa" | "cancelada" | "trial" | "inadimplente",
+  status: "ativa" | "cancelada" | "inadimplente",
   barId: string
 ) {
   await assertAdmin();

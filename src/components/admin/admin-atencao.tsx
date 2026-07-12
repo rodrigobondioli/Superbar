@@ -12,12 +12,6 @@ function suggestedAction(bar: BarResumo): { label: string; urgency: "imediata" |
   if (bar.assinatura_status === "cancelada")
     return { label: "Tentar reativar assinatura", urgency: "imediata" };
 
-  if (bar.assinatura_status === "trial" && bar.trial_fim) {
-    const d = Math.ceil((new Date(bar.trial_fim).getTime() - Date.now()) / 86400000);
-    if (d <= 0)  return { label: "Trial expirado — converter ou estender", urgency: "imediata" };
-    if (d <= 3)  return { label: `Trial acaba em ${d}d — ligar agora`, urgency: "imediata" };
-  }
-
   if (bar.implantacaoScore === "abandonado")
     return { label: "Onboarding urgente — nunca abriu turno", urgency: "imediata" };
 
@@ -27,11 +21,6 @@ function suggestedAction(bar: BarResumo): { label: string; urgency: "imediata" |
   // Yellow
   if (bar.dias_sem_uso !== null && bar.dias_sem_uso >= 3)
     return { label: `Verificar — ${bar.dias_sem_uso} dias sem abrir turno`, urgency: "verificar" };
-
-  if (bar.assinatura_status === "trial" && bar.trial_fim) {
-    const d = Math.ceil((new Date(bar.trial_fim).getTime() - Date.now()) / 86400000);
-    if (d <= 7) return { label: `Acompanhar conversão (${d}d restantes)`, urgency: "verificar" };
-  }
 
   if (bar.cobertura_custo_pct < 60 && bar.total_turnos > 0)
     return { label: "Ajudar a preencher fichas técnicas (CMV travado)", urgency: "verificar" };

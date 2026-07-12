@@ -4,6 +4,7 @@
  * Nunca expor ao cliente.
  */
 
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { AssinaturaStatus } from "@/types/database";
 
@@ -30,7 +31,6 @@ export interface BarResumo {
   plano_nome: string | null;
   plano_preco: number | null;
   assinatura_status: AssinaturaStatus | null;
-  trial_fim: string | null;
   // Atividade
   ultimo_turno_em: string | null;
   dias_sem_uso: number | null;
@@ -118,7 +118,6 @@ export interface BarDetalhe {
   plano_preco: number | null;
   assinatura_id: string | null;
   assinatura_status: AssinaturaStatus | null;
-  trial_fim: string | null;
   periodo_inicio: string | null;
   periodo_fim: string | null;
   // Atividade
@@ -155,14 +154,12 @@ export interface BarDetalhe {
 
 function computeScoreNumerico({
   assinatura_status,
-  trial_fim,
   dias_sem_uso,
   total_turnos,
   cobertura_custo_pct,
   total_membros,
 }: {
   assinatura_status: AssinaturaStatus | null;
-  trial_fim: string | null;
   dias_sem_uso: number | null;
   total_turnos: number;
   cobertura_custo_pct: number;
@@ -186,31 +183,24 @@ function computeScoreNumerico({
   // Cobrança (30pts)
   if (assinatura_status === "ativa") {
     score += 30;
-  } else if (assinatura_status === "trial" && trial_fim) {
-    const d = Math.ceil((new Date(trial_fim).getTime() - Date.now()) / 86400000);
-    if (d > 3)       score += 15;
-    else if (d > 0)  score += 8;
-    // expirado: 0
   }
 
   return Math.min(100, score);
 }
 
 // ─── Score de saúde ───────────────────────────────────────────────────────────
-// 🔴 Risco:    inadimplente | cancelada | sem uso ≥ 7d | trial expirado
-// 🟡 Atenção:  custo < 60% | sem uso 3–6d | trial ≤ 3d
+// 🔴 Risco:    inadimplente | cancelada | sem uso ≥ 7d
+// 🟡 Atenção:  custo < 60% | sem uso 3–6d
 // 🟢 Saudável: tudo certo
 
 function computeHealth({
   assinatura_status,
-  trial_fim,
   dias_sem_uso,
   total_turnos,
   cobertura_custo_pct,
   ativo,
 }: {
   assinatura_status: AssinaturaStatus | null;
-  trial_fim: string | null;
   dias_sem_uso: number | null;
   total_turnos: number;
   cobertura_custo_pct: number;
@@ -219,19 +209,9 @@ function computeHealth({
   if (!ativo) return "red";
   if (assinatura_status === "inadimplente" || assinatura_status === "cancelada") return "red";
 
-  if (assinatura_status === "trial" && trial_fim) {
-    const diasRestantes = Math.ceil((new Date(trial_fim).getTime() - Date.now()) / 86400000);
-    if (diasRestantes <= 0) return "red";
-  }
-
   if (total_turnos > 0 && dias_sem_uso !== null && dias_sem_uso >= 7) return "red";
 
   // Yellow
-  if (assinatura_status === "trial" && trial_fim) {
-    const diasRestantes = Math.ceil((new Date(trial_fim).getTime() - Date.now()) / 86400000);
-    if (diasRestantes <= 3) return "yellow";
-  }
-
   if (total_turnos > 0 && dias_sem_uso !== null && dias_sem_uso >= 3) return "yellow";
   if (cobertura_custo_pct < 60 && total_turnos > 0) return "yellow";
 
@@ -261,14 +241,12 @@ function computeImplantacao({
 
 function computeAlertas({
   assinatura_status,
-  trial_fim,
   dias_sem_uso,
   total_turnos,
   cobertura_custo_pct,
   ativo,
 }: {
   assinatura_status: AssinaturaStatus | null;
-  trial_fim: string | null;
   dias_sem_uso: number | null;
   total_turnos: number;
   cobertura_custo_pct: number;
@@ -279,12 +257,6 @@ function computeAlertas({
   if (!ativo) { alerts.push({ level: "red", label: "Bar inativo" }); return alerts; }
   if (assinatura_status === "inadimplente") alerts.push({ level: "red", label: "Inadimplente" });
   if (assinatura_status === "cancelada") alerts.push({ level: "red", label: "Cancelada" });
-
-  if (assinatura_status === "trial" && trial_fim) {
-    const d = Math.ceil((new Date(trial_fim).getTime() - Date.now()) / 86400000);
-    if (d <= 0) alerts.push({ level: "red", label: "Trial expirado" });
-    else if (d <= 3) alerts.push({ level: "yellow", label: `Trial: ${d}d` });
-  }
 
   if (total_turnos > 0 && dias_sem_uso !== null && dias_sem_uso >= 7)
     alerts.push({ level: "red", label: `${dias_sem_uso}d sem uso` });
@@ -298,8 +270,10 @@ function computeAlertas({
 }
 
 // ─── Lista de bares + stats globais ──────────────────────────────────────────
+// cache(): dedupe por request — o layout (badge de alerta) e a página chamam
+// getAdminBares no mesmo request; sem isso a query pesada rodaria 2x.
 
-export async function getAdminBares(): Promise<{
+async function getAdminBaresImpl(): Promise<{
   bares: BarResumo[];
   stats: AdminStats;
 }> {
@@ -346,7 +320,7 @@ export async function getAdminBares(): Promise<{
     { data: pagamentosTodos },
   ] = await Promise.all([
     admin.from("assinaturas")
-      .select("bar_id, status, trial_fim, planos(nome, preco_mensal)")
+      .select("bar_id, status, planos(nome, preco_mensal)")
       .in("bar_id", barIds),
     admin.from("turnos")
       .select("id, bar_id, aberto_em")
@@ -383,7 +357,7 @@ export async function getAdminBares(): Promise<{
 
   // ── Indexar por bar ──────────────────────────────────────────────────────
 
-  type AssRow = { bar_id: string; status: AssinaturaStatus; trial_fim: string | null; planos: { nome: string; preco_mensal: number } | null };
+  type AssRow = { bar_id: string; status: AssinaturaStatus; planos: { nome: string; preco_mensal: number } | null };
   const assPorBar = new Map(((assinaturas as AssRow[] | null) ?? []).map((a) => [a.bar_id, a]));
 
   const turnosMap = new Map<string, { ultimo: string | null; total: number; total7d: number }>();
@@ -482,7 +456,7 @@ export async function getAdminBares(): Promise<{
     const coberturaPct = prod.total > 0 ? Math.round((prod.comCusto / prod.total) * 100) : 0;
     const totalTurnos  = t?.total ?? 0;
 
-    const scoreArgs = { assinatura_status: ass?.status ?? null, trial_fim: ass?.trial_fim ?? null, dias_sem_uso: diasSemUso, total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, ativo: b.ativo };
+    const scoreArgs = { assinatura_status: ass?.status ?? null, dias_sem_uso: diasSemUso, total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, ativo: b.ativo };
     const healthScore         = computeHealth(scoreArgs);
     const healthScoreNumerico = computeScoreNumerico({ ...scoreArgs, total_membros: membros });
     const implantacaoScore    = computeImplantacao({ total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, total_membros: membros });
@@ -517,7 +491,7 @@ export async function getAdminBares(): Promise<{
       cidade: end?.cidade ?? null, estado: end?.estado ?? null,
       ativo: b.ativo, created_at: b.created_at,
       plano_nome: plano?.nome ?? null, plano_preco: plano?.preco_mensal ?? null,
-      assinatura_status: ass?.status ?? null, trial_fim: ass?.trial_fim ?? null,
+      assinatura_status: ass?.status ?? null,
       ultimo_turno_em: ultimoTurno, dias_sem_uso: diasSemUso,
       turnos_7d: t?.total7d ?? 0, comandas_7d: cmd7dMap.get(b.id) ?? 0, faturamento_7d: fat7dMap.get(b.id) ?? 0,
       total_turnos: totalTurnos, total_membros: membros,
@@ -600,6 +574,8 @@ export async function getAdminBares(): Promise<{
   };
 }
 
+export const getAdminBares = cache(getAdminBaresImpl);
+
 // ─── Detalhe de um bar ────────────────────────────────────────────────────────
 
 export async function getAdminBarDetalhe(barId: string): Promise<BarDetalhe | null> {
@@ -619,7 +595,7 @@ export async function getAdminBarDetalhe(barId: string): Promise<BarDetalhe | nu
     { data: comandas7d },
   ] = await Promise.all([
     admin.from("bars").select("*").eq("id", barId).single(),
-    admin.from("assinaturas").select("id, status, trial_fim, periodo_inicio, periodo_fim, plano_id, planos(nome, preco_mensal)").eq("bar_id", barId).maybeSingle(),
+    admin.from("assinaturas").select("id, status, periodo_inicio, periodo_fim, plano_id, planos(nome, preco_mensal)").eq("bar_id", barId).maybeSingle(),
     admin.from("bar_members").select("id, nome, role, ativo, created_at").eq("bar_id", barId).order("created_at"),
     admin.from("turnos").select("id, aberto_em").eq("bar_id", barId).order("aberto_em", { ascending: false }),
     admin.from("produtos").select("id, custo").eq("bar_id", barId).eq("ativo", true),
@@ -642,11 +618,11 @@ export async function getAdminBarDetalhe(barId: string): Promise<BarDetalhe | nu
   const fat7d        = (pagamentos7d ?? []).reduce((acc, p) => acc + Number(p.valor) + Number(p.taxa_servico_valor ?? 0), 0);
   const memAtivos    = (membros ?? []).filter((m) => m.ativo).length;
 
-  type AssRow = { id: string; status: AssinaturaStatus; trial_fim: string | null; periodo_inicio: string | null; periodo_fim: string | null; plano_id: string; planos: { nome: string; preco_mensal: number } | null };
+  type AssRow = { id: string; status: AssinaturaStatus; periodo_inicio: string | null; periodo_fim: string | null; plano_id: string; planos: { nome: string; preco_mensal: number } | null };
   const assTyped  = ass as AssRow | null;
   const planoData = assTyped?.planos as { nome: string; preco_mensal: number } | null | undefined;
 
-  const detailScoreArgs = { assinatura_status: assTyped?.status ?? null, trial_fim: assTyped?.trial_fim ?? null, dias_sem_uso: diasSemUso, total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, ativo: bar.ativo };
+  const detailScoreArgs = { assinatura_status: assTyped?.status ?? null, dias_sem_uso: diasSemUso, total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, ativo: bar.ativo };
   const healthScore         = computeHealth(detailScoreArgs);
   const healthScoreNumerico = computeScoreNumerico({ ...detailScoreArgs, total_membros: memAtivos });
   const implantacaoScore    = computeImplantacao({ total_turnos: totalTurnos, cobertura_custo_pct: coberturaPct, total_membros: memAtivos });
@@ -661,7 +637,7 @@ export async function getAdminBarDetalhe(barId: string): Promise<BarDetalhe | nu
     plano_id: assTyped?.plano_id ?? null,
     plano_nome: planoData?.nome ?? null, plano_preco: planoData?.preco_mensal ?? null,
     assinatura_id: assTyped?.id ?? null,
-    assinatura_status: assTyped?.status ?? null, trial_fim: assTyped?.trial_fim ?? null,
+    assinatura_status: assTyped?.status ?? null,
     periodo_inicio: assTyped?.periodo_inicio ?? null, periodo_fim: assTyped?.periodo_fim ?? null,
     ultimo_turno_em: ultimoTurno, dias_sem_uso: diasSemUso,
     turnos_7d: turnos7d?.length ?? 0, comandas_7d: comandas7d?.length ?? 0, faturamento_7d: fat7d,

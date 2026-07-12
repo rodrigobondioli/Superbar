@@ -7,17 +7,13 @@ import type { AssinaturaStatus } from "@/types/database";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-// Note: trial usa #3b82f6 (azul) — sem token CSS equivalente no design system.
-// Os demais mapeiam para CSS vars.
 const STATUS_CONFIG: Record<AssinaturaStatus, { color: string; bg: string; border: string }> = {
-  trial:        { color: "#3b82f6",          bg: "color-mix(in srgb, #3b82f6 10%, transparent)",             border: "color-mix(in srgb, #3b82f6 20%, transparent)" },
   ativa:        { color: "var(--ok)",         bg: "var(--ok-bg)",                                            border: "color-mix(in srgb, var(--ok) 20%, transparent)" },
   cancelada:    { color: "var(--fg-subtle)",  bg: "color-mix(in srgb, var(--fg-subtle) 10%, transparent)",   border: "color-mix(in srgb, var(--fg-subtle) 20%, transparent)" },
   inadimplente: { color: "var(--danger)",     bg: "var(--danger-bg)",                                        border: "color-mix(in srgb, var(--danger) 20%, transparent)" },
 };
 
 const STATUS_LABEL: Record<AssinaturaStatus, string> = {
-  trial:        "Trial",
   ativa:        "Ativa",
   cancelada:    "Cancelada",
   inadimplente: "Inadimplente",

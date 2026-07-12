@@ -23,7 +23,7 @@ export type MovimentoTipo = "venda" | "compra" | "ajuste" | "perda" | "devolucao
 
 export type CompraStatus = "pendente" | "recebida" | "cancelada";
 
-export type AssinaturaStatus = "trial" | "ativa" | "cancelada" | "inadimplente";
+export type AssinaturaStatus = "ativa" | "cancelada" | "inadimplente";
 
 export type EstoqueUnidade = "un" | "ml" | "l" | "g" | "kg";
 

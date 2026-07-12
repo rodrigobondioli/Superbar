@@ -72,7 +72,6 @@ create type public.compra_status as enum (
 );
 
 create type public.assinatura_status as enum (
-  'trial',
   'ativa',
   'cancelada',
   'inadimplente'
@@ -126,11 +125,10 @@ create table public.planos (
 comment on column public.planos.features is
   'Ex: {"relatorios": true, "ia": true, "estoque_avancado": true}';
 
--- Planos iniciais
+-- Plano inicial — UM plano só (estratégia jul/2026, docs/negocio.md).
+-- Padrão: R$ 1.297/mês (valor cheio, tudo incluído).
 insert into public.planos (nome, slug, preco_mensal, max_usuarios, max_mesas, features) values
-  ('Starter', 'starter', 199.00, 3,   10,  '{"relatorios": false, "ia": false, "estoque_avancado": false}'),
-  ('Pro',     'pro',     399.00, 10,  50,  '{"relatorios": true,  "ia": false, "estoque_avancado": true}'),
-  ('Premium', 'premium', 699.00, 999, 999, '{"relatorios": true,  "ia": true,  "estoque_avancado": true}');
+  ('Padrão', 'padrao', 1297.00, 999, 999, '{"relatorios": true, "ia": true, "estoque_avancado": true}');
 
 
 -- ============================================================
@@ -167,12 +165,12 @@ create table public.assinaturas (
   id                      uuid        primary key default uuid_generate_v4(),
   bar_id                  uuid        not null references public.bars(id) on delete cascade,
   plano_id                uuid        not null references public.planos(id),
-  status                  public.assinatura_status not null default 'trial',
+  status                  public.assinatura_status not null default 'ativa',
   stripe_subscription_id  text        unique,
   stripe_customer_id      text,
   periodo_inicio          timestamptz not null default now(),
   periodo_fim             timestamptz,
-  trial_fim               timestamptz default (now() + interval '14 days'),
+  trial_fim               timestamptz, -- legado: sem trial no modelo atual
   created_at              timestamptz not null default now(),
   updated_at              timestamptz not null default now()
 );

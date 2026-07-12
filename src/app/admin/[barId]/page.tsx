@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminBarDetalhe, getBarEvolucaoMensal } from "@/lib/admin/queries";
-import type { BarDetalhe, HealthScore, ImplantacaoScore, EvolucaoMes } from "@/lib/admin/queries";
+import type { HealthScore, ImplantacaoScore, EvolucaoMes } from "@/lib/admin/queries";
 import type { AssinaturaStatus } from "@/types/database";
 import { suspenderBar, reativarBar, alterarStatusAssinatura } from "@/lib/admin/actions";
 import { currencyInteiro } from "@/lib/format";
@@ -8,14 +9,12 @@ import { currencyInteiro } from "@/lib/format";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_COLOR: Record<AssinaturaStatus, string> = {
-  trial:        "#3b82f6",
   ativa:        "var(--ok)",
   cancelada:    "var(--fg-subtle)",
-  inadimplente: "#ef4444",
+  inadimplente: "var(--danger)",
 };
 
 const STATUS_LABEL: Record<AssinaturaStatus, string> = {
-  trial:        "Trial",
   ativa:        "Ativa",
   cancelada:    "Cancelada",
   inadimplente: "Inadimplente",
@@ -27,15 +26,15 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 const HEALTH_CONFIG: Record<HealthScore, { label: string; color: string; bg: string; border: string; emoji: string }> = {
-  green:  { label: "Saudável",  emoji: "🟢", color: "#22c55e", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
-  yellow: { label: "Atenção",   emoji: "🟡", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
-  red:    { label: "Risco",     emoji: "🔴", color: "#ef4444", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
+  green:  { label: "Saudável",  emoji: "🟢", color: "var(--ok)", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
+  yellow: { label: "Atenção",   emoji: "🟡", color: "var(--warn)", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
+  red:    { label: "Risco",     emoji: "🔴", color: "var(--danger)", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
 };
 
 const IMPL_CONFIG: Record<ImplantacaoScore, { label: string; color: string; bg: string; border: string }> = {
-  completo:   { label: "Implantado",   color: "#22c55e", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
-  parcial:    { label: "Em implant.",  color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
-  abandonado: { label: "Não implant.", color: "#ef4444", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
+  completo:   { label: "Implantado",   color: "var(--ok)", bg: "rgba(34,197,94,0.08)",  border: "rgba(34,197,94,0.2)"  },
+  parcial:    { label: "Em implant.",  color: "var(--warn)", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
+  abandonado: { label: "Não implant.", color: "var(--danger)", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
 };
 
 const currency = currencyInteiro;
@@ -201,25 +200,25 @@ export default async function AdminBarPage({
     ? "Ativo esta semana"
     : "Pouca atividade";
 
-  const usandoColor = bar.ultimo_turno_em === null ? "#ef4444"
-    : bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "#f59e0b"
-    : bar.turnos_7d > 0 ? "#22c55e"
+  const usandoColor = bar.ultimo_turno_em === null ? "var(--danger)"
+    : bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "var(--warn)"
+    : bar.turnos_7d > 0 ? "var(--ok)"
     : "var(--fg-muted)";
 
   const pagandoAnswer = bar.assinatura_status
     ? STATUS_LABEL[bar.assinatura_status]
     : "Sem assinatura";
-  const pagandoColor = bar.assinatura_status ? STATUS_COLOR[bar.assinatura_status] : "#ef4444";
+  const pagandoColor = bar.assinatura_status ? STATUS_COLOR[bar.assinatura_status] : "var(--danger)";
 
-  const coberturaBg = bar.cobertura_custo_pct >= 80 ? "var(--ok)" : bar.cobertura_custo_pct >= 40 ? "#f59e0b" : "#ef4444";
+  const coberturaBg = bar.cobertura_custo_pct >= 80 ? "var(--ok)" : bar.cobertura_custo_pct >= 40 ? "var(--warn)" : "var(--danger)";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
 
       {/* Breadcrumb */}
-      <a href="/admin" style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>
+      <Link href="/admin" style={{ fontSize: 13, color: "var(--fg-muted)", textDecoration: "none" }}>
         ← Clientes
-      </a>
+      </Link>
 
       {/* Header ─────────────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-start", justifyContent: "space-between" }}>
@@ -230,7 +229,7 @@ export default async function AdminBarPage({
               {bar.nome}
             </h1>
             {!bar.ativo && (
-              <span style={{ fontSize: 9, background: "rgba(239,68,68,0.15)", color: "#ef4444", borderRadius: 8, padding: "2px 7px", fontWeight: 700, letterSpacing: "0.08em" }}>
+              <span style={{ fontSize: 9, background: "rgba(239,68,68,0.15)", color: "var(--danger)", borderRadius: 8, padding: "2px 7px", fontWeight: 700, letterSpacing: "0.08em" }}>
                 SUSPENSO
               </span>
             )}
@@ -268,18 +267,18 @@ export default async function AdminBarPage({
             label="Último turno"
             value={bar.ultimo_turno_em ? relDate(bar.ultimo_turno_em) : "—"}
             sub={bar.ultimo_turno_em ? shortDate(bar.ultimo_turno_em) : "nunca abriu turno"}
-            color={bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "#f59e0b" : "var(--fg)"}
+            color={bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "var(--warn)" : "var(--fg)"}
           />
           <StatBlock
             label="Dias sem uso"
             value={bar.dias_sem_uso !== null ? bar.dias_sem_uso : "—"}
-            color={bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "#ef4444" : "var(--fg)"}
+            color={bar.dias_sem_uso !== null && bar.dias_sem_uso >= 7 ? "var(--danger)" : "var(--fg)"}
           />
           <StatBlock
             label="Turnos 7d"
             value={bar.turnos_7d}
             sub={`${bar.comandas_7d} comanda${bar.comandas_7d !== 1 ? "s" : ""}`}
-            color={bar.turnos_7d === 0 ? "var(--fg-subtle)" : "#22c55e"}
+            color={bar.turnos_7d === 0 ? "var(--fg-subtle)" : "var(--ok)"}
           />
           <StatBlock
             label="Faturamento 7d"
@@ -296,19 +295,19 @@ export default async function AdminBarPage({
             label="Turnos totais"
             value={bar.total_turnos}
             sub={bar.total_turnos === 0 ? "nunca abriu turno" : "histórico"}
-            color={bar.total_turnos === 0 ? "#ef4444" : bar.total_turnos >= 3 ? "#22c55e" : "#f59e0b"}
+            color={bar.total_turnos === 0 ? "var(--danger)" : bar.total_turnos >= 3 ? "var(--ok)" : "var(--warn)"}
           />
           <StatBlock
             label="Membros ativos"
             value={bar.membros.filter((m) => m.ativo).length}
             sub={`de ${bar.membros.length} cadastrado${bar.membros.length !== 1 ? "s" : ""}`}
-            color={bar.membros.filter((m) => m.ativo).length >= 2 ? "#22c55e" : "#f59e0b"}
+            color={bar.membros.filter((m) => m.ativo).length >= 2 ? "var(--ok)" : "var(--warn)"}
           />
           <StatBlock
             label="Produtos"
             value={bar.total_produtos}
             sub={`${bar.total_produtos_com_custo} com custo`}
-            color={bar.total_produtos === 0 ? "#ef4444" : "var(--fg)"}
+            color={bar.total_produtos === 0 ? "var(--danger)" : "var(--fg)"}
           />
           <StatBlock
             label="Cobertura de custo"
@@ -378,7 +377,7 @@ export default async function AdminBarPage({
             {bar.alertas.map((a, i) => (
               <div key={i} style={{ ...card, padding: "12px 18px", background: a.level === "red" ? "rgba(239,68,68,0.06)" : "rgba(245,158,11,0.06)", border: `1px solid ${a.level === "red" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)"}`, display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 14 }}>{a.level === "red" ? "🔴" : "🟡"}</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: a.level === "red" ? "#ef4444" : "#f59e0b" }}>{a.label}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: a.level === "red" ? "var(--danger)" : "var(--warn)" }}>{a.label}</span>
               </div>
             ))}
           </div>
@@ -405,14 +404,6 @@ export default async function AdminBarPage({
                   </p>
                 )}
               </div>
-              {bar.assinatura_status === "trial" && bar.trial_fim && (
-                <div>
-                  <p style={overline}>Trial até</p>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: new Date(bar.trial_fim) < new Date() ? "#ef4444" : "var(--fg)", margin: 0 }}>
-                    {shortDate(bar.trial_fim)}
-                  </p>
-                </div>
-              )}
               {bar.periodo_inicio && (
                 <div>
                   <p style={overline}>Período</p>
@@ -443,7 +434,7 @@ export default async function AdminBarPage({
 
           {bar.ativo ? (
             <form action={async () => { "use server"; await suspenderBar(bar.id); }}>
-              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button type="submit" style={{ padding: "8px 16px", background: "transparent", color: "var(--danger)", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Suspender bar
               </button>
             </form>
@@ -472,9 +463,12 @@ export default async function AdminBarPage({
           )}
         </div>
         <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "12px 0 0", fontStyle: "italic" }}>
-          "Entrar como suporte" com log de auditoria — a implementar.
+          Entrar como suporte (com log de auditoria) — a implementar.
         </p>
       </section>
+
+      {/* Evolução — prova de valor pra renovação */}
+      <EvolucaoSection meses={evolucao} />
 
       {/* Config técnica */}
       <details style={{ ...card }}>
