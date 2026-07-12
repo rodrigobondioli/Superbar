@@ -1,15 +1,16 @@
 import { redirect } from "next/navigation";
 import { getCurrentBar } from "@/lib/dashboard/queries";
-import { getInsightsAtuais } from "@/lib/inteligencia/insights-atuais";
+import { getCentralInteligencia } from "@/lib/inteligencia/insights-atuais";
 import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { CentralInsights } from "@/components/inteligencia/central-insights";
+import { ProximaAcaoCard } from "@/components/inteligencia/proxima-acao-card";
 
 export default async function InteligenciaPage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
   if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
-  const insights = await getInsightsAtuais(current.bar.id);
+  const { insights, proximaAcao } = await getCentralInteligencia(current.bar.id);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24, paddingBottom: 48 }}>
@@ -22,8 +23,9 @@ export default async function InteligenciaPage() {
         </div>
       </div>
 
-      {/* Lista priorizada — largura de leitura confortável, alinhada à esquerda */}
-      <div style={{ width: "100%", maxWidth: 780 }}>
+      {/* Ação recomendada + lista priorizada — largura de leitura confortável */}
+      <div style={{ width: "100%", maxWidth: 780, display: "flex", flexDirection: "column", gap: 24 }}>
+        {proximaAcao && <ProximaAcaoCard acao={proximaAcao} />}
         <CentralInsights insights={insights} />
       </div>
 

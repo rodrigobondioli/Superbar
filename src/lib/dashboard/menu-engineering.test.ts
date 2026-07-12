@@ -5,7 +5,7 @@ import {
   calcularCmv,
   calcularCoberturaReceita,
   categorizarProdutos,
-  escolherSuperAcao,
+  escolherProximaAcao,
 } from "./menu-engineering";
 
 // Helper: monta um TopDrink com defaults sensatos.
@@ -104,25 +104,25 @@ describe("categorizarProdutos", () => {
   });
 });
 
-// Monta um ProdutoCategorizado mínimo com o que escolherSuperAcao lê.
-function pc(p: { nome: string; usaFicha: boolean; margem: number | null; qtd: number }): ProdutoCategorizado {
+// Monta um ProdutoCategorizado mínimo com o que escolherProximaAcao lê.
+function pc(p: { nome: string; usaFicha: boolean; margem: number | null; qtd: number; preco?: number; custo?: number | null }): ProdutoCategorizado {
   return {
     produtoId: p.nome, produtoNome: p.nome,
-    quantidadeVendida: p.qtd, faturamento: 0, preco: 0, custo: 0,
+    quantidadeVendida: p.qtd, faturamento: 0, preco: p.preco ?? 0, custo: p.custo ?? 0,
     custoStatus: "confirmada", usaFicha: p.usaFicha,
     margemPercentual: p.margem, categoria: "star",
   };
 }
 
-describe("escolherSuperAcao", () => {
+describe("escolherProximaAcao", () => {
   it("sem drinks ⇒ null", () => {
-    expect(escolherSuperAcao([])).toBeNull();
+    expect(escolherProximaAcao([])).toBeNull();
     // só comida/água (usaFicha false) ⇒ null
-    expect(escolherSuperAcao([pc({ nome: "Batata", usaFicha: false, margem: 90, qtd: 3 })])).toBeNull();
+    expect(escolherProximaAcao([pc({ nome: "Batata", usaFicha: false, margem: 90, qtd: 3 })])).toBeNull();
   });
 
   it("ignora não-drinks e escolhe o drink", () => {
-    const r = escolherSuperAcao([
+    const r = escolherProximaAcao([
       pc({ nome: "Batata", usaFicha: false, margem: 99, qtd: 1 }),
       pc({ nome: "Negroni", usaFicha: true, margem: 40, qtd: 5 }),
     ]);
@@ -130,7 +130,7 @@ describe("escolherSuperAcao", () => {
   });
 
   it("prioriza rentável E subvendido (margem alta, volume baixo)", () => {
-    const r = escolherSuperAcao([
+    const r = escolherProximaAcao([
       pc({ nome: "Mai Tai",  usaFicha: true, margem: 70, qtd: 2 }),   // alta margem, pouco volume
       pc({ nome: "Caipira",  usaFicha: true, margem: 30, qtd: 10 }),  // baixa margem, muito volume
     ]);
@@ -141,11 +141,38 @@ describe("escolherSuperAcao", () => {
   });
 
   it("sem subvendido ⇒ cai no de maior margem, honesto (subvendido=false)", () => {
-    const r = escolherSuperAcao([
+    const r = escolherProximaAcao([
       pc({ nome: "Campeao", usaFicha: true, margem: 70, qtd: 10 }),  // alta margem MAS muito volume
       pc({ nome: "Fraco",   usaFicha: true, margem: 30, qtd: 2 }),
     ]);
     expect(r?.nome).toBe("Campeao");
     expect(r?.subvendido).toBe(false);
+  });
+
+  it("potencial R$ = (médiaQtd − qtd) × (preço − custo) só se subvendido com custo", () => {
+    // médiaQtd = (2+10)/2 = 6. Mai Tai subvendido: folga 6−2=4, margem unit 50−15=35 ⇒ 140.
+    const r = escolherProximaAcao([
+      pc({ nome: "Mai Tai", usaFicha: true, margem: 70, qtd: 2, preco: 50, custo: 15 }),
+      pc({ nome: "Caipira", usaFicha: true, margem: 30, qtd: 10, preco: 20, custo: 14 }),
+    ]);
+    expect(r?.potencialReais).toBe(140);
+  });
+
+  it("sem subvendido ⇒ potencial null (não inventa número)", () => {
+    const r = escolherProximaAcao([
+      pc({ nome: "Campeao", usaFicha: true, margem: 70, qtd: 10, preco: 50, custo: 15 }),
+      pc({ nome: "Fraco",   usaFicha: true, margem: 30, qtd: 2,  preco: 20, custo: 14 }),
+    ]);
+    expect(r?.potencialReais).toBeNull();
+  });
+
+  it("ranking = top drinks por margem, arredondado", () => {
+    const r = escolherProximaAcao([
+      pc({ nome: "A", usaFicha: true, margem: 30, qtd: 3 }),
+      pc({ nome: "B", usaFicha: true, margem: 70, qtd: 3 }),
+      pc({ nome: "C", usaFicha: true, margem: 50, qtd: 3 }),
+    ]);
+    expect(r?.ranking.map(d => d.nome)).toEqual(["B", "C", "A"]);
+    expect(r?.ranking[0].margem).toBe(70);
   });
 });

@@ -5,8 +5,13 @@ import {
   getKpisComparacao,
   getAlertasEstoque,
 } from "@/lib/dashboard/queries";
-import { categorizarProdutos, calcularCoberturaReceita } from "@/lib/dashboard/menu-engineering";
+import { categorizarProdutos, calcularCoberturaReceita, escolherProximaAcao, type ProximaAcao } from "@/lib/dashboard/menu-engineering";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
+
+export interface CentralInteligencia {
+  insights: InsightItem[];
+  proximaAcao: ProximaAcao | null;
+}
 
 // Prioridade de exibição: dinheiro primeiro. Ação > oportunidade > info; dentro
 // disso, maior impacto em R$ no topo. É a régua do Few (organizar por importância)
@@ -25,9 +30,9 @@ function prioridade(a: InsightItem, b: InsightItem): number {
  * Vivo. Nada é persistido nem exige ação do dono — o insight aparece quando a
  * condição é verdade e some quando deixa de ser. Zero gestão manual.
  */
-export async function getInsightsAtuais(barId: string): Promise<InsightItem[]> {
+export async function getCentralInteligencia(barId: string): Promise<CentralInteligencia> {
   const turno = await getTurnoAtual(barId);
-  if (!turno) return [];
+  if (!turno) return { insights: [], proximaAcao: null };
 
   const [kpis, produtosVendidos, alertas] = await Promise.all([
     getKpisTurno(turno),
@@ -48,5 +53,8 @@ export async function getInsightsAtuais(barId: string): Promise<InsightItem[]> {
     faturamento: kpis.faturamento,
   });
 
-  return [...insights].sort(prioridade);
+  return {
+    insights: [...insights].sort(prioridade),
+    proximaAcao: escolherProximaAcao(produtosCategorizados),
+  };
 }

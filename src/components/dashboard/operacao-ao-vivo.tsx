@@ -5,7 +5,6 @@ import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { currency } from "@/lib/format";
-import type { SuperAcao } from "@/lib/dashboard/menu-engineering";
 
 
 // layout-effect no cliente, effect no servidor — corrige o layout ANTES do paint
@@ -53,7 +52,6 @@ interface Props {
   views: Record<Periodo, PeriodView>;
   meta: number;
   comandasAbertas: number;
-  superAcao: SuperAcao | null;
   barId: string;
   alertCount: number;
   turnoId: string;
@@ -85,13 +83,12 @@ function DeltaRow({ value, invert = false, compact = false }: { value: number | 
   );
 }
 
-const superLabel: React.CSSProperties = { fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
 const kpiCard: React.CSSProperties = { background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column", justifyContent: "space-between" };
 const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeight: 500, color: "var(--fg-muted)" };
 const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginTop: 16, marginBottom: 11 };
 
-export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId, alertCount, turnoId }: Props) {
+export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount, turnoId }: Props) {
   const periodo: Periodo = "hoje"; // ao vivo = sempre o turno de agora
   const [hover, setHover] = useState<string | null>(null);
   // Barras nascem em scaleX(0) e crescem uma vez ao montar; depois só transicionam nos updates.
@@ -105,7 +102,6 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId,
   const isMobile = useIsMobile(1280);
   const v = views[periodo];
   const aguardando = !!v.pending;
-  const showSuper = superAcao !== null;
   const kpiCardR: React.CSSProperties = isMobile ? { ...kpiCard, padding: 20 } : kpiCard;
   const kpiMetricR: React.CSSProperties = isMobile ? { ...kpiMetric, fontSize: 36, marginTop: 10 } : kpiMetric;
 
@@ -238,49 +234,6 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId,
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
           <AiHeroInput fill={!isMobile} barId={barId} alertCount={alertCount} />
-
-          {showSuper && (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "stretch", gap: isMobile ? 18 : 32, flexShrink: 0 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 24, flex: "0 0 auto", minWidth: isMobile ? 0 : 150 }}>
-                <span style={superLabel}>Super ação</span>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{superAcao!.nome}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
-                    <Tri up color="var(--ok)" />
-                    <span style={{ color: "var(--fg-muted)" }}>{superAcao!.margem}% de margem</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
-
-              <div style={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
-                <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>
-                  {superAcao!.subvendido
-                    ? `Vendeu ${superAcao!.qtd} ${superAcao!.qtd === 1 ? "vez" : "vezes"} no turno — abaixo da média. Com ${superAcao!.margem}% de margem, empurrar ativamente é margem fácil na mesa.`
-                    : `Seu drink de maior margem no turno (${superAcao!.margem}%). Sugerir ativamente puxa o ticket pra cima.`}
-                </p>
-              </div>
-
-              {/* Impacto direto — só aparece quando há estimativa real (Princípio 9).
-                  Sem valor, esconde a divisória e a coluna inteira, sem título solto. */}
-              {v.impacto !== null && (
-                <>
-                  <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "0 0 auto", minWidth: isMobile ? 0 : 167 }}>
-                    <span style={superLabel}>Impacto direto</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                        <span style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}><Cifrao />{v.impacto.toLocaleString("pt-BR")}</span>
-                      </div>
-                      <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>Risco: <span style={{ color: "var(--ok)" }}>Baixo</span></span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
         </div>
 
         {/* RIGHT: Top drinks */}

@@ -99,25 +99,32 @@ export function calcularCmv(produtos: TopDrink[]): number | null {
   return faturamentoTotal > 0 ? Math.round((custoTotal / faturamentoTotal) * 10000) / 100 : null;
 }
 
-// ─── Super ação ──────────────────────────────────────────────────────────────
+// ─── Próxima melhor ação ─────────────────────────────────────────────────────
 
-export interface SuperAcao {
+export interface ProximaAcao {
   nome: string;
-  margem: number;       // margem % arredondada
+  margem: number;       // margem % arredondada do drink escolhido
   qtd: number;          // quantidade vendida no turno
   /** true = margem acima da média E volume abaixo da média do turno
    *  (drink rentável e subvendido → empurrar é "dinheiro fácil", de verdade). */
   subvendido: boolean;
+  /** Margem adicional ESTIMADA (R$) se o drink subvendido atingir a média de
+   *  volume do turno: (médiaQtd − qtd) × (preço − custo). null quando não é
+   *  estimável de forma honesta (não subvendido, sem custo, ou sem folga).
+   *  Nunca é chute — sai de dado real ou não aparece (Princípio 9). */
+  potencialReais: number | null;
+  /** Top drinks por margem no turno (real): nome + margem % arredondada. */
+  ranking: { nome: string; margem: number }[];
 }
 
 /**
- * Escolhe o "super ação" do turno a partir de dado real — sem frase fabricada.
- * Regra: prioriza um drink com margem ACIMA da média e volume ABAIXO da média
- * do turno (o rentável que está sendo subvendido). Se nenhum se qualifica, cai
- * honestamente no drink de maior margem (subvendido=false). Só considera drinks
- * com ficha (margem calculável). Retorna null quando não há base pra afirmar nada.
+ * Escolhe a "próxima melhor ação" do turno a partir de dado real — sem frase nem
+ * número fabricado. Regra do pick: prioriza um drink com margem ACIMA da média e
+ * volume ABAIXO da média do turno (o rentável subvendido). Se nenhum se qualifica,
+ * cai honestamente no drink de maior margem (subvendido=false). Só considera
+ * drinks com ficha (margem calculável). Retorna null quando não há base.
  */
-export function escolherSuperAcao(produtos: ProdutoCategorizado[]): SuperAcao | null {
+export function escolherProximaAcao(produtos: ProdutoCategorizado[]): ProximaAcao | null {
   const drinks = produtos.filter(
     (p) => p.usaFicha && p.margemPercentual !== null && p.quantidadeVendida > 0,
   );
@@ -129,14 +136,29 @@ export function escolherSuperAcao(produtos: ProdutoCategorizado[]): SuperAcao | 
   const oportunidades = drinks.filter(
     (p) => (p.margemPercentual ?? 0) >= mediaMargem && p.quantidadeVendida < mediaQtd,
   );
-
-  const pool = oportunidades.length > 0 ? oportunidades : drinks;
+  const subvendido = oportunidades.length > 0;
+  const pool = subvendido ? oportunidades : drinks;
   const pick = [...pool].sort((a, b) => (b.margemPercentual ?? 0) - (a.margemPercentual ?? 0))[0];
+
+  // Potencial honesto: só quando subvendido, com custo real e folga de volume.
+  let potencialReais: number | null = null;
+  if (subvendido && pick.custo != null && pick.quantidadeVendida < mediaQtd) {
+    const margemUnit = pick.preco - pick.custo;
+    const est = Math.round(margemUnit * (mediaQtd - pick.quantidadeVendida));
+    potencialReais = est > 0 ? est : null;
+  }
+
+  const ranking = [...drinks]
+    .sort((a, b) => (b.margemPercentual ?? 0) - (a.margemPercentual ?? 0))
+    .slice(0, 5)
+    .map((p) => ({ nome: p.produtoNome, margem: Math.round(p.margemPercentual ?? 0) }));
 
   return {
     nome: pick.produtoNome,
     margem: Math.round(pick.margemPercentual ?? 0),
     qtd: pick.quantidadeVendida,
-    subvendido: oportunidades.length > 0,
+    subvendido,
+    potencialReais,
+    ranking,
   };
 }
