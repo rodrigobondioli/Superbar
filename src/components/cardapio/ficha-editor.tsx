@@ -269,6 +269,11 @@ export function FichaEditor({
               Preencha o custo de todos os insumos pra margem virar real. Sem isso, ela fica marcada como estimativa.
             </p>
           )}
+          {custo != null && preco > 0 && custo >= preco && (
+            <p style={{ fontSize: 12, color: "var(--warn)", background: "var(--warn-bg)", borderRadius: 8, padding: "10px 12px", margin: "0 0 12px", lineHeight: 1.45 }}>
+              ⚠ O custo ({currency.format(custo)}) ficou ≥ o preço ({currency.format(preco)}). Quase sempre é <strong>erro de unidade</strong>: o custo de cada insumo é por <strong>unidade base</strong> (ex: por ml, não por garrafa de 750ml). Confira os insumos acima.
+            </p>
+          )}
           <button
             onClick={salvar}
             disabled={saving || loading}

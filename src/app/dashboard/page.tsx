@@ -472,6 +472,10 @@ export default async function DashboardPage() {
     }
     const cmv = cmvAtual !== null ? Math.round(cmvAtual) : null;
     const margem = cmv !== null ? 100 - cmv : null;
+    // CMV > 100% (ou < 0) = vendendo abaixo do custo. Num bar isso quase nunca é
+    // real — é custo cadastrado errado (por garrafa em vez de por dose). Marca
+    // como suspeito pra a tela pedir revisão em vez de mostrar a ficção.
+    const custoSuspeito = cmv !== null && (cmv > 100 || cmv < 0);
     const veredito =
       margem === null ? { txt: "—", cor: "var(--fg-subtle)" }
       : margem >= 60 ? { txt: "Saudável", cor: "var(--ok)" }
@@ -490,7 +494,7 @@ export default async function DashboardPage() {
       faturado,
       deltaFat: comparacao.faturamento ?? 0,
       metaProgresso: metaProgressoView,
-      margem, veredito, cmv,
+      margem, veredito, cmv, custoSuspeito,
       deltaCmv: comparacao.cmv ?? 0,
       ticket: Math.round(kpis.ticketMedio),
       deltaTicket: comparacao.ticketMedio ?? 0,

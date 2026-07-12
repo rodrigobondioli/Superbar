@@ -46,6 +46,9 @@ export interface PeriodView {
   topDrinks: { nome: string; total: number; qtd: number }[];
   /** true = período sem dado real ainda (mostra "aguardando dados", nunca número fabricado). */
   pending?: boolean;
+  /** true = CMV implausível (>100% ou <0) → custo cadastrado errado (quase sempre
+   *  custo por garrafa em vez de por dose). Mostra "Revise o custo", não a ficção. */
+  custoSuspeito?: boolean;
 }
 
 interface Props {
@@ -171,11 +174,15 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
         <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Margem</span>
-            <span style={kpiMetricR}>{v.margem === null ? "—" : `${v.margem}%`}</span>
+            <span style={v.custoSuspeito ? { ...kpiMetricR, fontSize: 22, color: "var(--warn)" } : kpiMetricR}>
+              {v.custoSuspeito ? "Revisar" : v.margem === null ? "—" : `${v.margem}%`}
+            </span>
           </div>
           <div>
             <div style={kpiDivider} />
-            <span style={{ fontSize: 15, fontWeight: 400, color: v.veredito.cor }}>{v.veredito.txt}</span>
+            {v.custoSuspeito
+              ? <Link href="/dashboard/cardapio/fichas" style={{ fontSize: 13, color: "var(--warn)" }}>custo acima do preço — revise as fichas</Link>
+              : <span style={{ fontSize: 15, fontWeight: 400, color: v.veredito.cor }}>{v.veredito.txt}</span>}
           </div>
         </div>
 
@@ -183,11 +190,15 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
         <div style={kpiCardR}>
           <div>
             <span style={kpiLabel}>Custo (CMV)</span>
-            <span style={kpiMetricR}>{v.cmv === null ? "—" : `${v.cmv}%`}</span>
+            <span style={v.custoSuspeito ? { ...kpiMetricR, fontSize: 22, color: "var(--warn)" } : kpiMetricR}>
+              {v.custoSuspeito ? "Revisar" : v.cmv === null ? "—" : `${v.cmv}%`}
+            </span>
           </div>
           <div>
             <div style={kpiDivider} />
-            {v.cmv === null
+            {v.custoSuspeito
+              ? <Link href="/dashboard/cardapio/fichas" style={{ fontSize: 13, color: "var(--warn)" }}>custo por dose, não por garrafa</Link>
+              : v.cmv === null
               ? <span style={{ fontSize: 13, color: "var(--fg-muted)" }} title={aguardando ? "Disponível quando o bar acumular histórico" : "Disponível quando houver custo cadastrado"}>aguardando dados</span>
               : <DeltaRow value={v.deltaCmv} invert compact={isMobile} />}
           </div>

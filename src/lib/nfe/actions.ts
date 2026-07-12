@@ -25,6 +25,7 @@ export interface PreviewItem {
   sugeridoIngredienteId: string | null;  // casamento automático (GTIN/nome)
   custoAtual: number | null;              // custo hoje do insumo casado
   tamanhoEmbalagem: number | null;        // ml/g por embalagem, puxado do xProd
+  baseEmbalagem: "ml" | "g" | null;       // base real do tamanho (líquido vs sólido)
   unidadeCompra: string | null;           // "garrafa" | "lata" | "pacote"
 }
 
@@ -98,6 +99,7 @@ export async function previewNfe(xml: string): Promise<{ ok: true; preview: NfeP
       sugeridoIngredienteId: sugerido,
       custoAtual: sugerido ? (custoById.get(sugerido) ?? null) : null,
       tamanhoEmbalagem: tam?.valor ?? null,
+      baseEmbalagem: tam?.base ?? null,
       unidadeCompra: tam ? rotuloCompra(it.nome) : null,
     };
   });

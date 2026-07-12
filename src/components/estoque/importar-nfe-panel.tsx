@@ -13,6 +13,21 @@ const inp: React.CSSProperties = {
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };
 
+// Converte custo de compra → custo por unidade base. Quando a nota traz o tamanho
+// da embalagem (ex: garrafa 750ml), o insumo entra como ml/g com o custo POR ML
+// (custo ÷ tamanho) — não como "un" a preço de garrafa. É o que impede o clássico
+// erro de custo por garrafa que estoura o CMV (Princípio 10).
+function baseDoItem(it: { custoUnitario: number; tamanhoEmbalagem: number | null; baseEmbalagem: "ml" | "g" | null; unidadeSugerida: string }): { unidade: string; custo: number; convertido: boolean } {
+  if (it.tamanhoEmbalagem && it.tamanhoEmbalagem > 0 && it.baseEmbalagem) {
+    return {
+      unidade: it.baseEmbalagem,
+      custo: Math.round((it.custoUnitario / it.tamanhoEmbalagem) * 10000) / 10000,
+      convertido: true,
+    };
+  }
+  return { unidade: it.unidadeSugerida, custo: it.custoUnitario, convertido: false };
+}
+
 type Step = "upload" | "preview" | "done";
 
 export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -46,7 +61,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
       const p = res.preview;
       setPreview(p);
       setMatch(p.itens.map(i => i.sugeridoIngredienteId ?? "novo"));
-      setCustos(p.itens.map(i => String(i.custoUnitario)));
+      setCustos(p.itens.map(i => String(baseDoItem(i).custo)));
       setQtds(p.itens.map(i => String(i.quantidade)));
       setStep("preview");
     } catch {
@@ -65,7 +80,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
       .map(({ it, i }) => ({
         ingredienteId: match[i] === "novo" ? null : match[i],
         nome: it.nome,
-        unidade: it.unidadeSugerida,
+        unidade: baseDoItem(it).unidade,
         custoUnitario: parseFloat((custos[i] ?? "0").replace(",", ".")) || 0,
         quantidade: parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0,
         gtin: it.gtin,
@@ -161,10 +176,15 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
                     <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "6px 0 0" }}>
                       Nota: {it.quantidade} {it.unidadeNota || "un"} · {currency.format(it.custoUnitario)} un
                       {it.custoAtual !== null && <> · custo atual {currency.format(it.custoAtual)}</>}
-                      {it.tamanhoEmbalagem && (
-                        <> · {it.unidadeCompra ?? "garrafa"} {it.tamanhoEmbalagem}{it.unidadeCompra === "pacote" ? "g" : "ml"}</>
+                      {it.tamanhoEmbalagem && it.baseEmbalagem && (
+                        <> · {it.unidadeCompra ?? "garrafa"} {it.tamanhoEmbalagem}{it.baseEmbalagem}</>
                       )}
                     </p>
+                    {baseDoItem(it).convertido && (
+                      <p style={{ fontSize: 11, color: "var(--ok)", margin: "4px 0 0" }}>
+                        → entra como {currency.format(baseDoItem(it).custo)}/{baseDoItem(it).unidade} — já convertido pra você usar por {baseDoItem(it).unidade} na ficha do drink.
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

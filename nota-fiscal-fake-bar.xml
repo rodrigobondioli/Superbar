@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc versao="4.00" xmlns="http://www.portalfiscal.inf.br/nfe">
+  <NFe>
+    <infNFe versao="4.00" Id="NFe35250612345678000190550010000001231987654320">
+      <ide>
+        <cUF>35</cUF>
+        <natOp>VENDA DE MERCADORIA</natOp>
+        <mod>55</mod>
+        <serie>1</serie>
+        <nNF>123</nNF>
+        <dhEmi>2026-07-11T14:32:00-03:00</dhEmi>
+        <tpNF>1</tpNF>
+      </ide>
+      <emit>
+        <CNPJ>12345678000190</CNPJ>
+        <xNome>DISTRIBUIDORA DE BEBIDAS SAO PAULO LTDA</xNome>
+        <xFant>DBSP Distribuidora</xFant>
+      </emit>
+      <dest>
+        <CNPJ>98765432000155</CNPJ>
+        <xNome>BAR DO CLIENTE TESTE LTDA</xNome>
+      </dest>
+
+      <det nItem="1">
+        <prod>
+          <cProd>1001</cProd>
+          <cEAN>5000291018741</cEAN>
+          <xProd>GIN TANQUERAY LONDON DRY 750ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>6.0000</qCom>
+          <vUnCom>119.9000000000</vUnCom>
+          <vProd>719.40</vProd>
+        </prod>
+      </det>
+
+      <det nItem="2">
+        <prod>
+          <cProd>1002</cProd>
+          <cEAN>7312040017607</cEAN>
+          <xProd>VODKA ABSOLUT ORIGINAL 1L</xProd>
+          <uCom>UN</uCom>
+          <qCom>6.0000</qCom>
+          <vUnCom>89.9000000000</vUnCom>
+          <vProd>539.40</vProd>
+        </prod>
+      </det>
+
+      <det nItem="3">
+        <prod>
+          <cProd>1003</cProd>
+          <cEAN>7896026400012</cEAN>
+          <xProd>CACHACA 51 965ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>12.0000</qCom>
+          <vUnCom>14.5000000000</vUnCom>
+          <vProd>174.00</vProd>
+        </prod>
+      </det>
+
+      <det nItem="4">
+        <prod>
+          <cProd>1004</cProd>
+          <cEAN>7891050000163</cEAN>
+          <xProd>RUM BACARDI CARTA BLANCA 980ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>4.0000</qCom>
+          <vUnCom>69.9000000000</vUnCom>
+          <vProd>279.60</vProd>
+        </prod>
+      </det>
+
+      <det nItem="5">
+        <prod>
+          <cProd>1005</cProd>
+          <cEAN>3035540000101</cEAN>
+          <xProd>LICOR COINTREAU 700ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>2.0000</qCom>
+          <vUnCom>149.9000000000</vUnCom>
+          <vProd>299.80</vProd>
+        </prod>
+      </det>
+
+      <det nItem="6">
+        <prod>
+          <cProd>1006</cProd>
+          <cEAN>7896019200019</cEAN>
+          <xProd>VERMUTE MARTINI ROSSO 750ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>3.0000</qCom>
+          <vUnCom>39.9000000000</vUnCom>
+          <vProd>119.70</vProd>
+        </prod>
+      </det>
+
+      <det nItem="7">
+        <prod>
+          <cProd>1007</cProd>
+          <cEAN>3052910005436</cEAN>
+          <xProd>XAROPE DE GOMA MONIN 700ML</xProd>
+          <uCom>UN</uCom>
+          <qCom>4.0000</qCom>
+          <vUnCom>34.9000000000</vUnCom>
+          <vProd>139.60</vProd>
+        </prod>
+      </det>
+
+      <det nItem="8">
+        <prod>
+          <cProd>1008</cProd>
+          <cEAN>7894900530018</cEAN>
+          <xProd>AGUA TONICA SCHWEPPES 1,5L</xProd>
+          <uCom>UN</uCom>
+          <qCom>12.0000</qCom>
+          <vUnCom>7.9000000000</vUnCom>
+          <vProd>94.80</vProd>
+        </prod>
+      </det>
+
+      <det nItem="9">
+        <prod>
+          <cProd>1009</cProd>
+          <cEAN>SEM GTIN</cEAN>
+          <xProd>LIMAO TAHITI KG</xProd>
+          <uCom>KG</uCom>
+          <qCom>10.0000</qCom>
+          <vUnCom>6.9000000000</vUnCom>
+          <vProd>69.00</vProd>
+        </prod>
+      </det>
+
+      <det nItem="10">
+        <prod>
+          <cProd>1010</cProd>
+          <cEAN>7891910000197</cEAN>
+          <xProd>ACUCAR REFINADO UNIAO 1KG</xProd>
+          <uCom>UN</uCom>
+          <qCom>5.0000</qCom>
+          <vUnCom>5.2000000000</vUnCom>
+          <vProd>26.00</vProd>
+        </prod>
+      </det>
+
+      <det nItem="11">
+        <prod>
+          <cProd>1011</cProd>
+          <cEAN>SEM GTIN</cEAN>
+          <xProd>HORTELA MACO</xProd>
+          <uCom>UN</uCom>
+          <qCom>8.0000</qCom>
+          <vUnCom>2.5000000000</vUnCom>
+          <vProd>20.00</vProd>
+        </prod>
+      </det>
+
+      <det nItem="12">
+        <prod>
+          <cProd>1012</cProd>
+          <cEAN>SEM GTIN</cEAN>
+          <xProd>GELO EM CUBOS PACOTE 5KG</xProd>
+          <uCom>PC</uCom>
+          <qCom>20.0000</qCom>
+          <vUnCom>8.0000000000</vUnCom>
+          <vProd>160.00</vProd>
+        </prod>
+      </det>
+
+      <total>
+        <ICMSTot>
+          <vProd>2641.30</vProd>
+          <vNF>2641.30</vNF>
+        </ICMSTot>
+      </total>
+    </infNFe>
+  </NFe>
+</nfeProc>
