@@ -251,7 +251,7 @@ export function ClientesTable({ clientes }: Props) {
 
       {filtrados.length === 0 && busca && (
         <p style={{ padding: "24px", textAlign: "center", color: "var(--fg-subtle)", fontSize: 14, margin: 0 }}>
-          Nenhum cliente encontrado para "{busca}".
+          Nenhum cliente encontrado para &quot;{busca}&quot;.
         </p>
       )}
       </div>

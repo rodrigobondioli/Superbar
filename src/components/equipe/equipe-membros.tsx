@@ -382,8 +382,9 @@ export function EquipeMembros({
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [localAtivos, setLocalAtivos] = useState<MembroRow[]>(ativosInit);
 
-  // Drag state
-  const draggingIdx = useRef<number | null>(null);
+  // Drag state — `dragging` é STATE (afeta a estilização da linha arrastada,
+  // então precisa disparar re-render; ref não dispararia).
+  const [dragging, setDragging] = useState<number | null>(null);
   const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const localRef    = useRef<MembroRow[]>(localAtivos);
   // Sincroniza o ref DEPOIS do render (não durante) — o handleDragEnd lê o
@@ -391,15 +392,15 @@ export function EquipeMembros({
   useEffect(() => { localRef.current = localAtivos; }, [localAtivos]);
 
   function handleDragStart(idx: number) {
-    draggingIdx.current = idx;
+    setDragging(idx);
   }
 
   function handleDragEnter(idx: number) {
-    if (draggingIdx.current === null || draggingIdx.current === idx) return;
-    const from = draggingIdx.current;
-    draggingIdx.current = idx;
-    // Update funcional: lê o array mais fresco (prev), sem depender do ref
-    // durante o arraste — evita closure velha em drags rápidos.
+    if (dragging === null || dragging === idx) return;
+    const from = dragging;
+    setDragging(idx);
+    // Update funcional: lê o array mais fresco (prev), sem depender de closure
+    // velha em drags rápidos.
     setLocalAtivos(prev => {
       const next = [...prev];
       const [item] = next.splice(from, 1);
@@ -409,7 +410,7 @@ export function EquipeMembros({
   }
 
   function handleDragEnd() {
-    draggingIdx.current = null;
+    setDragging(null);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       reordenarEquipe(localRef.current.map(m => m.id));
@@ -453,7 +454,7 @@ export function EquipeMembros({
                 isDono={isDono}
                 currentUserId={currentUserId}
                 onRemove={onRemove}
-                isDragging={draggingIdx.current === i}
+                isDragging={dragging === i}
                 onDragStart={() => handleDragStart(i)}
                 onDragEnter={() => handleDragEnter(i)}
                 onDragEnd={handleDragEnd}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { buscarComandaAtiva, abrirComanda } from "@/lib/bartender/actions";
 import type { ResultadoBusca } from "@/lib/bartender/actions";
@@ -32,7 +32,6 @@ export function ScanCartao() {
   const router = useRouter();
   const [input, setInput]               = useState("");
   const [scanning, setScanning]         = useState(false);
-  const [hasScanner, setHasScanner]     = useState(false);
   const [resultados, setResultados]     = useState<ResultadoBusca[]>([]);
   const [semResultado, setSemResultado] = useState(false);
   const [cardId, setCardId]             = useState<string | null>(null);
@@ -43,7 +42,12 @@ export function ScanCartao() {
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef    = useRef<number | null>(null);
 
-  useEffect(() => { setHasScanner("BarcodeDetector" in window); }, []);
+  // Feature-detection SSR-safe (sem setState-em-effect): server=false, client=real.
+  const hasScanner = useSyncExternalStore(
+    () => () => {},                       // subscribe — valor estático, no-op
+    () => "BarcodeDetector" in window,    // snapshot no client
+    () => false,                          // snapshot no server
+  );
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -91,6 +95,13 @@ export function ScanCartao() {
     } catch { /* permissão negada */ }
   };
 
+  const pararScan = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    setScanning(false);
+  };
+
   useEffect(() => {
     if (!scanning || !videoRef.current || !streamRef.current) return;
     const video = videoRef.current;
@@ -110,13 +121,6 @@ export function ScanCartao() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanning]);
-
-  const pararScan = () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
-    setScanning(false);
-  };
 
   // ── Render ────────────────────────────────────────────────────────────────
   const inputAtivo = !!input.trim();

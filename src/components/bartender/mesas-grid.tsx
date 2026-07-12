@@ -38,6 +38,18 @@ const IconPessoas = () => (
   </svg>
 );
 
+// Rótulo de seção (Livres/Ocupadas) — em escopo de módulo pra NÃO ser recriado
+// a cada render do grid (evita remontagem dos filhos). Usa só props.
+const SecLabel = ({ label, count }: { label: string; count: number }) => (
+  <p style={{
+    fontSize: 13, fontWeight: 600, margin: "0 0 16px",
+    color: "var(--fg-muted)",
+  }}>
+    {label}
+    <span style={{ marginLeft: 8, fontVariantNumeric: "tabular-nums", color: "var(--fg-subtle)" }}>{count}</span>
+  </p>
+);
+
 // ─── Modal: selecionar número de pessoas ─────────────────────────────────────
 
 function SeletorPessoas({
@@ -437,16 +449,6 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
     gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
     gap: 12,
   };
-
-  const SecLabel = ({ label, count }: { label: string; count: number }) => (
-    <p style={{
-      fontSize: 13, fontWeight: 600, margin: "0 0 16px",
-      color: "var(--fg-muted)",
-    }}>
-      {label}
-      <span style={{ marginLeft: 8, fontVariantNumeric: "tabular-nums", color: "var(--fg-subtle)" }}>{count}</span>
-    </p>
-  );
 
   return (
     <div className="flex-1 flex flex-col" style={{ overflow: "hidden" }}>
