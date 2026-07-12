@@ -67,8 +67,8 @@ function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
       label: p.nProdutos === 0
         ? "Custo dos produtos"
         : `Custo — ${p.nProdutosComCusto} de ${p.nProdutos} com ficha`,
-      apoio: "Sem custo, a margem é chute. Suba uma nota (NF-e) ou cadastre a ficha.",
-      done: custoOk, href: "/dashboard/cardapio/fichas", cta: "Cadastrar custo", critico: true,
+      apoio: "O jeito rápido: suba a nota (NF-e) da sua compra — o custo dos insumos vem pronto. As fichas dos drinks você monta depois, aos poucos.",
+      done: custoOk, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true,
     },
     {
       label: `Mesas — ${p.nMesas} ${p.nMesas === 1 ? "mesa" : "mesas"}`,

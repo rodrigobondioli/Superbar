@@ -5,12 +5,9 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { criarBarOnboarding } from "@/lib/onboarding/actions";
-import {
-  salvarProdutosImportados,
-  salvarCustosProdutos,
-} from "@/lib/cardapio/import-actions";
+import { salvarProdutosImportados } from "@/lib/cardapio/import-actions";
 import { ClassicosPicker } from "@/components/cardapio/classicos-picker";
-import type { ProdutoPreview, ProdutoSalvo, ImportarResponse } from "@/lib/cardapio/import-types";
+import type { ProdutoPreview, ImportarResponse } from "@/lib/cardapio/import-types";
 
 // ─── Estilos compartilhados ───────────────────────────────────────────────────
 
@@ -65,7 +62,7 @@ const currency = new Intl.NumberFormat("pt-BR", {
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-type Step = "criar-bar" | "importar" | "classicos" | "preview" | "custos";
+type Step = "criar-bar" | "importar" | "classicos" | "preview" | "custo";
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
@@ -90,11 +87,6 @@ export default function OnboardingPage() {
   const [preview, setPreview] = useState<ProdutoPreview[]>([]);
   const [colunasNaoReconhecidas, setColunasNaoReconhecidas] = useState<string[]>([]);
   const [salvandoImportacao, setSalvandoImportacao] = useState(false);
-
-  // Step 4 — custos
-  const [produtosSemCusto, setProdutosSemCusto] = useState<ProdutoSalvo[]>([]);
-  const [custos, setCustos] = useState<Record<string, string>>({});
-  const [salvandoCustos, setSalvandoCustos] = useState(false);
 
   // ── Step 1: criar bar ──────────────────────────────────────────────────────
 
@@ -163,38 +155,11 @@ export default function OnboardingPage() {
       return;
     }
 
-    const semCusto = result.salvos.filter((p) => !p.temCusto);
-    if (semCusto.length > 0) {
-      setProdutosSemCusto(semCusto);
-      setStep("custos");
-    } else {
-      router.push("/dashboard");
-    }
+    // Custo do cardápio NÃO é digitado item a item aqui (não escala). O caminho
+    // é a NF-e, que traz o custo real dos insumos. Fichas dos drinks vêm depois.
+    setStep("custo");
     setSalvandoImportacao(false);
   }
-
-  // ── Step 4: salvar custos ─────────────────────────────────────────────────
-
-  async function handleSalvarCustos() {
-    setSalvandoCustos(true);
-    const payload = produtosSemCusto
-      .filter((p) => {
-        const v = parseFloat((custos[p.id] ?? "").replace(",", "."));
-        return !isNaN(v) && v > 0;
-      })
-      .map((p) => ({
-        id: p.id,
-        custo: parseFloat((custos[p.id] ?? "").replace(",", ".")),
-      }));
-
-    if (payload.length > 0) await salvarCustosProdutos(payload);
-    router.push("/dashboard");
-  }
-
-  const custosPreenchidos = produtosSemCusto.filter((p) => {
-    const v = parseFloat((custos[p.id] ?? "").replace(",", "."));
-    return !isNaN(v) && v > 0;
-  }).length;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -496,7 +461,7 @@ export default function OnboardingPage() {
         {/* ── STEP B: Clássicos ─────────────────────────────────────────────── */}
         {step === "classicos" && (
           <ClassicosPicker
-            onDone={() => router.push("/dashboard")}
+            onDone={() => setStep("custo")}
             onSkip={() => setStep("importar")}
           />
         )}
@@ -737,13 +702,13 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── STEP 4: Custos ────────────────────────────────────────────────── */}
-        {step === "custos" && (
-          <div style={{ width: "100%", maxWidth: "560px" }}>
-            <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        {/* ── STEP: Custo (NF-e ou pular) ───────────────────────────────────── */}
+        {step === "custo" && (
+          <>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <h1
                 style={{
-                  fontSize: "24px",
+                  fontSize: "26px",
                   fontWeight: 600,
                   color: "var(--fg)",
                   fontFamily: "var(--font-mono)",
@@ -751,134 +716,52 @@ export default function OnboardingPage() {
                   margin: "0 0 8px",
                 }}
               >
-                Adicione os custos
+                Agora, o custo dos seus insumos
               </h1>
-              <p style={{ fontSize: "14px", color: "var(--fg-subtle)", margin: 0 }}>
-                Sem custo cadastrado, CMV e margem são ficção.{" "}
-                <span style={{ color: "var(--fg-muted)" }}>
-                  (Você pode pular e fazer depois.)
-                </span>
+              <p style={{ fontSize: "14px", color: "var(--fg-subtle)", margin: 0, maxWidth: 440 }}>
+                Suba a nota fiscal (NF-e) da sua última compra — a gente puxa os insumos com o
+                custo real, já convertido pra ml. Sem digitar. É o que faz sua margem ser
+                verdade, não chute.
               </p>
             </div>
 
-            {/* Badge de progresso */}
-            {custosPreenchidos > 0 && (
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginBottom: 16,
-                  padding: "5px 10px",
-                  background: "color-mix(in srgb, var(--ok) 12%, transparent)",
-                  border: "1px solid color-mix(in srgb, var(--ok) 25%, transparent)",
-                  borderRadius: 8,
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  color: "var(--ok)",
-                }}
-              >
-                <CheckCircle2 style={{ width: 12, height: 12 }} />
-                {custosPreenchidos} de {produtosSemCusto.length} com CMV disponível
-              </div>
-            )}
-
-            {/* Lista de produtos */}
             <div
+              className="p-5 sm:p-8"
               style={{
+                width: "100%",
+                maxWidth: "440px",
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border)",
-                borderRadius: 8,
-                overflow: "hidden",
-                marginBottom: 20,
+                borderRadius: "8px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
               }}
             >
-              <div style={{ maxHeight: "380px", overflowY: "auto" }}>
-                {produtosSemCusto.map((produto, i) => (
-                  <div
-                    key={produto.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      padding: "12px 16px",
-                      borderBottom:
-                        i < produtosSemCusto.length - 1
-                          ? "1px solid var(--border)"
-                          : undefined,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 13,
-                        color: "var(--fg)",
-                        flex: 1,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {produto.nome}
-                    </span>
-                    <div style={{ position: "relative", flexShrink: 0 }}>
-                      <span
-                        style={{
-                          position: "absolute",
-                          left: 10,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          fontSize: 12,
-                          color: "var(--fg-subtle)",
-                          pointerEvents: "none",
-                        }}
-                      >
-                        R$
-                      </span>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        value={custos[produto.id] ?? ""}
-                        onChange={(e) =>
-                          setCustos((prev) => ({ ...prev, [produto.id]: e.target.value }))
-                        }
-                        style={{
-                          ...inp,
-                          width: 110,
-                          padding: "8px 10px 8px 30px",
-                          fontSize: 13,
-                          fontFamily: "var(--font-mono)",
-                          fontVariantNumeric: "tabular-nums",
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard/estoque")}
+                style={{ ...btnPrimary, textAlign: "center" }}
+              >
+                Importar nota fiscal (NF-e) →
+              </button>
 
-            {/* Ações */}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <p style={{ fontSize: "12px", color: "var(--fg-subtle)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                As receitas dos drinks (fichas) você monta depois, aos poucos — comece pelos que
+                mais vendem.
+              </p>
+
+              <div style={{ height: "1px", background: "var(--border)" }} />
+
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                style={btnGhost}
+                style={{ ...btnGhost, textAlign: "center", fontSize: "13px" }}
               >
-                Fazer isso depois →
-              </button>
-              <button
-                type="button"
-                onClick={handleSalvarCustos}
-                disabled={salvandoCustos || custosPreenchidos === 0}
-                style={{
-                  ...btnPrimary,
-                  opacity: salvandoCustos || custosPreenchidos === 0 ? 0.5 : 1,
-                  cursor:
-                    salvandoCustos || custosPreenchidos === 0 ? "not-allowed" : "pointer",
-                }}
-              >
-                {salvandoCustos ? "Salvando..." : "Salvar custos →"}
+                Pular por enquanto →
               </button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
