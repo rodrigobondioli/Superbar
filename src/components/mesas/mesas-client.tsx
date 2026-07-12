@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, X, QrCode, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { criarMesa, editarMesa, removerMesa } from "@/lib/mesas/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import type { Mesa } from "@/types/database";
 
 // ─── Estilos base ───────────────────────────────────────────────────────────
@@ -271,8 +272,8 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
               ocupada={selected ? ocupadasSet.has(selected.id) : false}
               onEdit={() => selected && openEdit(selected)}
               onQR={() => selected && setQrMesa(selected)}
-              onDelete={() => {
-                if (selected && window.confirm(`Remover ${selected.nome ?? `Mesa ${selected.numero}`}?`)) {
+              onDelete={async () => {
+                if (selected && await confirmDialog({ title: `Remover ${selected.nome ?? `Mesa ${selected.numero}`}?`, confirmLabel: "Remover", danger: true })) {
                   removerMesa(selected.id);
                   setSelectedId(null);
                 }

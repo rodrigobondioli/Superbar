@@ -6,6 +6,7 @@ import { StickyNote, Ticket, Lightbulb, Check, Archive, Trash2, RotateCcw } from
 import type { AnotacaoComBar } from "@/lib/anotacoes/queries";
 import type { AnotacaoStatus } from "@/types/database";
 import { criarNota, atualizarStatusAnotacao, deletarAnotacao } from "@/lib/anotacoes/actions";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 
 type Sub = "tickets" | "notas" | "sugestoes";
 
@@ -90,7 +91,7 @@ function ItemCard({ a, comExcluir = false }: { a: AnotacaoComBar; comExcluir?: b
           {comExcluir && (
             <button
               disabled={pending}
-              onClick={() => { if (confirm("Excluir esta nota?")) start(() => { deletarAnotacao(a.id); }); }}
+              onClick={async () => { if (await confirmDialog({ title: "Excluir esta nota?", confirmLabel: "Excluir", danger: true })) start(() => { deletarAnotacao(a.id); }); }}
               style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)", borderRadius: 999, padding: "5px 12px", fontSize: 12, color: "var(--danger)", cursor: "pointer" }}
             >
               <Trash2 style={{ width: 13, height: 13 }} /> Excluir

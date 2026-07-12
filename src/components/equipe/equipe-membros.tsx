@@ -7,6 +7,7 @@ import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarF
 import { formatBRL } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { CARD, LABEL, BTN_ICON } from "@/lib/ui";
 import type { BarRole } from "@/types/database";
 
@@ -221,7 +222,7 @@ function MembroItem({
 
   async function handleRemover() {
     if (removing) return;
-    if (!window.confirm(`Remover ${m.nome} da equipe permanentemente?`)) return;
+    if (!(await confirmDialog({ title: `Remover ${m.nome} da equipe?`, message: "O acesso será revogado permanentemente.", confirmLabel: "Remover", danger: true }))) return;
     setRemoving(true);
     const result = await removerMembro(m.id);
     if ("error" in result) {

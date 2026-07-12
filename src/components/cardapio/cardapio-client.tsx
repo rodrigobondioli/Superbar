@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet, Loader2, FlaskConical, Sparkles, Megaphone, GripVertical, MoreVertical, Layers } from "lucide-react";
 import { toast } from "@/components/ui/toaster";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
 import { FichaEditor } from "./ficha-editor";
@@ -217,7 +218,7 @@ function VarianteRow({ variante, produtoId, produtoNome, produtoDescricao, ficha
   const [fichaOpen, setFichaOpen] = useState(false);
 
   async function handleDeletar() {
-    if (!window.confirm(`Deletar variante "${variante.nome}"?`)) return;
+    if (!(await confirmDialog({ title: `Deletar variante "${variante.nome}"?`, message: "Essa ação não pode ser desfeita.", confirmLabel: "Deletar", danger: true }))) return;
     setDeletando(true);
     try {
       await deletarVariante(variante.id);
@@ -459,7 +460,7 @@ function ProdutoRow({
   }
 
   async function handleDeletar() {
-    if (!window.confirm(`Deletar "${produto.nome}"?`)) return;
+    if (!(await confirmDialog({ title: `Deletar "${produto.nome}"?`, message: "O produto e suas variantes serão removidos. Essa ação não pode ser desfeita.", confirmLabel: "Deletar", danger: true }))) return;
     setDeletando(true);
     try {
       await deletarProduto(produto.id);
