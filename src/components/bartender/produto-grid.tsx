@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { Martini, PackageOpen, Search, X, ImageIcon, ShoppingCart, Minus, Plus } from "lucide-react";
 import { criarPedido } from "@/lib/bartender/actions";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import type { CategoriaComProdutos } from "@/lib/bartender/queries";
 import type { CartItem, ProdutoComVariantes, ProdutoVariante } from "@/types/database";
 import { currency } from "@/lib/format";
@@ -221,8 +222,10 @@ function CartBar({
     startTransition(async () => {
       const res = await criarPedido(comandaId, entries);
       if ("error" in res) {
-        setResultado(res.error);
-        setTimeout(() => setResultado(null), 3000);
+        if (!tratarSessaoExpirada(res.error)) {
+          setResultado(res.error);
+          setTimeout(() => setResultado(null), 3000);
+        }
       } else {
         setResultado("✓ Pedido enviado!");
         setTimeout(() => { setResultado(null); onConfirm(); setExpanded(false); }, 1200);

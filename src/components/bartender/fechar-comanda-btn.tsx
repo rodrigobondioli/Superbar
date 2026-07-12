@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { fecharComanda } from "@/lib/bartender/actions";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 
 export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
   const router = useRouter();
@@ -15,6 +16,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
     startTransition(async () => {
       const result = await fecharComanda(comandaId);
       if (result && "error" in result) {
+        if (tratarSessaoExpirada(result.error)) return;
         setEstado("erro");
         setTimeout(() => setEstado("idle"), 2500);
         return;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Minus, Loader2 } from "lucide-react";
 import { cancelarComanda, removerItem } from "@/lib/bartender/actions";
 import { toast } from "@/components/ui/toaster";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import { FecharComandaBtn } from "./fechar-comanda-btn";
 import type { ItemAgrupado } from "@/lib/bartender/queries";
 import type { Comanda } from "@/types/database";
@@ -37,7 +38,7 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
     try {
       const result = await cancelarComanda(comanda.id);
       if ("error" in result) {
-        toast(result.error, "error");
+        if (!tratarSessaoExpirada(result.error)) toast(result.error, "error");
         setCancelando(false);
       } else {
         window.location.href = "/garcom";

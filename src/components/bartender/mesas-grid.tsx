@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Comanda, Mesa } from "@/types/database";
 import { abrirComanda, atenderChamada } from "@/lib/bartender/actions";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
 import { MesaDrawer } from "@/components/bartender/mesa-view";
 import { Button } from "@/components/ui/button";
@@ -370,7 +371,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
         window.location.href = `/garcom/${result.id}`;
       } else {
         const msg = (result && "error" in result) ? result.error : "Não foi possível abrir a comanda.";
-        setOpenError(msg);
+        if (!tratarSessaoExpirada(msg)) setOpenError(msg);
         setIsOpening(false);
       }
     } catch {

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { registrarPagamento } from "@/lib/caixa/actions";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import type { ComandaPendente } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
@@ -26,7 +27,7 @@ function ComandaCard({ comanda, taxaServicoPct = 10 }: { comanda: ComandaPendent
     startTransition(async () => {
       const result = await registrarPagamento(comanda.id, metodo, servico);
       if (result && "error" in result) {
-        setError(result.error as string);
+        if (!tratarSessaoExpirada(result.error as string)) setError(result.error as string);
       } else {
         setPago(true);
       }

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from "react";
 import { registrarPagamentosMesa } from "@/lib/caixa/actions";
+import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import { imprimirConta } from "@/lib/caixa/print-conta";
 import { createClient } from "@/lib/supabase/client";
 import { AppHeader } from "@/components/ui/app-header";
@@ -210,7 +211,7 @@ function DetailPanel({ group, barNome, taxaServicoPct, onPago, onClose }: {
       const ids = pagas.map(c => c.id);
       const result = await registrarPagamentosMesa(ids, metodo, metodo !== "cortesia" && incluirServico, motivo);
       if (result && "error" in result) {
-        setError(result.error as string);
+        if (!tratarSessaoExpirada(result.error as string)) setError(result.error as string);
       } else {
         const pagouTudo = ids.length === group.comandas.length;
         if (pagouTudo) {
