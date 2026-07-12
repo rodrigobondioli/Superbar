@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { TopDrink } from "@/lib/dashboard/queries";
+import type { ProdutoCategorizado } from "./menu-engineering";
 import {
   calcularCmv,
   calcularCoberturaReceita,
   categorizarProdutos,
+  escolherSuperAcao,
 } from "./menu-engineering";
 
 // Helper: monta um TopDrink com defaults sensatos.
@@ -99,5 +101,51 @@ describe("categorizarProdutos", () => {
 
   it("lista vazia ⇒ vazia", () => {
     expect(categorizarProdutos([])).toEqual([]);
+  });
+});
+
+// Monta um ProdutoCategorizado mínimo com o que escolherSuperAcao lê.
+function pc(p: { nome: string; usaFicha: boolean; margem: number | null; qtd: number }): ProdutoCategorizado {
+  return {
+    produtoId: p.nome, produtoNome: p.nome,
+    quantidadeVendida: p.qtd, faturamento: 0, preco: 0, custo: 0,
+    custoStatus: "confirmada", usaFicha: p.usaFicha,
+    margemPercentual: p.margem, categoria: "star",
+  };
+}
+
+describe("escolherSuperAcao", () => {
+  it("sem drinks ⇒ null", () => {
+    expect(escolherSuperAcao([])).toBeNull();
+    // só comida/água (usaFicha false) ⇒ null
+    expect(escolherSuperAcao([pc({ nome: "Batata", usaFicha: false, margem: 90, qtd: 3 })])).toBeNull();
+  });
+
+  it("ignora não-drinks e escolhe o drink", () => {
+    const r = escolherSuperAcao([
+      pc({ nome: "Batata", usaFicha: false, margem: 99, qtd: 1 }),
+      pc({ nome: "Negroni", usaFicha: true, margem: 40, qtd: 5 }),
+    ]);
+    expect(r?.nome).toBe("Negroni");
+  });
+
+  it("prioriza rentável E subvendido (margem alta, volume baixo)", () => {
+    const r = escolherSuperAcao([
+      pc({ nome: "Mai Tai",  usaFicha: true, margem: 70, qtd: 2 }),   // alta margem, pouco volume
+      pc({ nome: "Caipira",  usaFicha: true, margem: 30, qtd: 10 }),  // baixa margem, muito volume
+    ]);
+    expect(r?.nome).toBe("Mai Tai");
+    expect(r?.subvendido).toBe(true);
+    expect(r?.margem).toBe(70);
+    expect(r?.qtd).toBe(2);
+  });
+
+  it("sem subvendido ⇒ cai no de maior margem, honesto (subvendido=false)", () => {
+    const r = escolherSuperAcao([
+      pc({ nome: "Campeao", usaFicha: true, margem: 70, qtd: 10 }),  // alta margem MAS muito volume
+      pc({ nome: "Fraco",   usaFicha: true, margem: 30, qtd: 2 }),
+    ]);
+    expect(r?.nome).toBe("Campeao");
+    expect(r?.subvendido).toBe(false);
   });
 });

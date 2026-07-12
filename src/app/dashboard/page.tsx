@@ -21,7 +21,7 @@ import {
   type PrimeirosPassosData,
 } from "@/lib/dashboard/queries";
 import { getInteligenciaStage } from "@/lib/inteligencia/queries";
-import { categorizarProdutos, calcularCmv, calcularCoberturaReceita } from "@/lib/dashboard/menu-engineering";
+import { categorizarProdutos, calcularCmv, calcularCoberturaReceita, escolherSuperAcao } from "@/lib/dashboard/menu-engineering";
 import { getFaturamentoPorDia, getComparacaoPeriodo } from "@/lib/dashboard/relatorios";
 import { resolvePeriodo } from "@/lib/dashboard/periodo";
 import { gerarInsight, type InsightItem } from "@/lib/dashboard/insights";
@@ -558,15 +558,14 @@ export default async function DashboardPage() {
   }
 
   const views: Record<Periodo, PeriodView> = { hoje: buildView("hoje"), ontem: buildView("ontem"), "7dias": buildView("7dias") };
-  const superPrimeiro = produtosTop5.length > 0 && produtosTop5[0].margemPercentual !== null ? produtosTop5[0] : null;
+  const superAcao = escolherSuperAcao(produtosCategorizados);
 
   return (
     <OperacaoAoVivo
       views={views}
       meta={meta}
       comandasAbertas={kpis.comandasAbertas}
-      superNome={superPrimeiro ? superPrimeiro.produtoNome : null}
-      superMargem={superPrimeiro ? superPrimeiro.margemPercentual : null}
+      superAcao={superAcao}
       barId={current.bar.id}
       alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0}
       turnoId={turno.id}

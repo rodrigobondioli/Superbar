@@ -6,6 +6,7 @@ import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { Chip } from "@/components/ui/chip";
 import { currency } from "@/lib/format";
+import type { SuperAcao } from "@/lib/dashboard/menu-engineering";
 
 
 // layout-effect no cliente, effect no servidor — corrige o layout ANTES do paint
@@ -53,8 +54,7 @@ interface Props {
   views: Record<Periodo, PeriodView>;
   meta: number;
   comandasAbertas: number;
-  superNome: string | null;
-  superMargem: number | null;
+  superAcao: SuperAcao | null;
   barId: string;
   alertCount: number;
   turnoId: string;
@@ -97,7 +97,7 @@ const kpiLabel: React.CSSProperties = { display: "block", fontSize: 15, fontWeig
 const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 15 };
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginTop: 16, marginBottom: 11 };
 
-export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superMargem, barId, alertCount, turnoId }: Props) {
+export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId, alertCount, turnoId }: Props) {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [hover, setHover] = useState<string | null>(null);
   // Barras nascem em scaleX(0) e crescem uma vez ao montar; depois só transicionam nos updates.
@@ -111,7 +111,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
   const isMobile = useIsMobile(1280);
   const v = views[periodo];
   const aguardando = !!v.pending;
-  const showSuper = superNome !== null && superMargem !== null;
+  const showSuper = superAcao !== null;
   const kpiCardR: React.CSSProperties = isMobile ? { ...kpiCard, padding: 20 } : kpiCard;
   const kpiMetricR: React.CSSProperties = isMobile ? { ...kpiMetric, fontSize: 36, marginTop: 10 } : kpiMetric;
 
@@ -258,10 +258,10 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 24, flex: "0 0 auto", minWidth: isMobile ? 0 : 150 }}>
                 <span style={superLabel}>Super ação</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{superNome}</p>
+                  <p style={{ fontSize: 32, fontWeight: 700, color: "var(--fg)", letterSpacing: "-0.02em", lineHeight: 1, margin: 0 }}>{superAcao!.nome}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15 }}>
                     <Tri up color="var(--ok)" />
-                    <span style={{ color: "var(--fg-muted)" }}>{Math.round(superMargem!)}% de margem</span>
+                    <span style={{ color: "var(--fg-muted)" }}>{superAcao!.margem}% de margem</span>
                   </div>
                 </div>
               </div>
@@ -269,7 +269,11 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superNome, superM
               <div style={{ width: isMobile ? "100%" : 1, height: isMobile ? 1 : "auto", background: "var(--border-strong)", alignSelf: "stretch", flexShrink: 0 }} />
 
               <div style={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
-                <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>Apareceu pouco hoje. Sugerir nas próximas 2 horas pode mais que dobrar as vendas.</p>
+                <p style={{ fontSize: 15, color: "var(--fg-muted)", lineHeight: 1.5, margin: 0 }}>
+                  {superAcao!.subvendido
+                    ? `Vendeu ${superAcao!.qtd} ${superAcao!.qtd === 1 ? "vez" : "vezes"} no turno — abaixo da média. Com ${superAcao!.margem}% de margem, empurrar ativamente é margem fácil na mesa.`
+                    : `Seu drink de maior margem no turno (${superAcao!.margem}%). Sugerir ativamente puxa o ticket pra cima.`}
+                </p>
               </div>
 
               {/* Impacto direto — só aparece quando há estimativa real (Princípio 9).
