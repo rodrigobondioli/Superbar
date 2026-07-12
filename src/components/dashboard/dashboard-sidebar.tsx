@@ -18,7 +18,7 @@ import { podeVerFinanceiro } from "@/lib/auth/roles";
 // financeiro: true → só o dono vê (faturamento, inteligência, relatórios, CRM).
 const links = [
   { href: "/dashboard",                    label: "Operação ao vivo", icon: LayoutDashboard, financeiro: true },
-  { href: "/dashboard/inteligencia",       label: "Inteligência",     icon: Sparkles, badge: true, financeiro: true },
+  { href: "/dashboard/inteligencia",       label: "Central de Inteligência",     icon: Sparkles, badge: true, financeiro: true },
   { href: "/dashboard/relatorios",         label: "Relatórios",       icon: BarChart3, financeiro: true },
   { href: "/dashboard/turnos",             label: "Turnos",           icon: History, financeiro: true },
   { href: "/dashboard/cardapio",           label: "Cardápio",         icon: UtensilsCrossed },
