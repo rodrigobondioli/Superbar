@@ -17,7 +17,7 @@ export default function RecuperarSenhaPage() {
   const [sucesso, setSucesso] = useState(false);
 
   const linkStyle: React.CSSProperties = {
-    color: "#898989",
+    color: "var(--fg-muted)",
     fontSize: 13,
     textDecoration: "none",
     fontFamily: "var(--font-sans)",
@@ -47,7 +47,7 @@ export default function RecuperarSenhaPage() {
       >
         {/* Superbar Intelligence — topo direito */}
         <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 30 }}>
-          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "#898989" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "var(--fg-muted)" }}>
             Superbar Intelligence
           </span>
         </div>
@@ -109,7 +109,7 @@ export default function RecuperarSenhaPage() {
                   <p style={{ fontSize: 15, fontWeight: 600, color: "#FAFAFA", margin: 0, fontFamily: "var(--font-sans)" }}>
                     Email enviado
                   </p>
-                  <p style={{ fontSize: 14, color: "#898989", margin: 0, fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: 0, fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
                     Verifique sua caixa de entrada em <strong style={{ color: "#FAFAFA" }}>{email}</strong> e clique no link para redefinir sua senha.
                   </p>
                   <Link href="/login" style={{ ...linkStyle, marginTop: 8 }}>

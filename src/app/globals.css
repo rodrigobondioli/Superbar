@@ -59,8 +59,8 @@
 
   /* ── Texto ── */
   --fg:              #FFFFFF;   /* Figma text/primary */
-  --fg-muted:        #898989;   /* Figma text/muted */
-  --fg-subtle:       #6B6B75;   /* mais escuro que muted (Figma text/subtle #c7c7c7 está invertido — corrigir lá) */
+  --fg-muted:        #A8A8B0;   /* secundário — ~7:1, passa WCAG AA */
+  --fg-subtle:       #8E8E96;   /* terciário — ~5.9:1, passa WCAG AA (mais escuro que muted, hierarquia preservada) */
 
   /* ── Bordas ── */
   --border:          #222226;

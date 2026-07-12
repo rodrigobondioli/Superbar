@@ -17,7 +17,7 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
 
   const linkStyle: React.CSSProperties = {
-    color: "#898989",
+    color: "var(--fg-muted)",
     fontSize: 13,
     textDecoration: "none",
     fontFamily: "var(--font-sans)",
@@ -36,7 +36,7 @@ export default function LoginPage({
       >
         {/* Superbar Intelligence — topo direito */}
         <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 30 }}>
-          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "#898989" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "var(--fg-muted)" }}>
             Superbar Intelligence
           </span>
         </div>

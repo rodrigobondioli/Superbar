@@ -21,7 +21,7 @@ export default function CadastroPage() {
   const [sucesso, setSucesso] = useState(false);
 
   const linkStyle: React.CSSProperties = {
-    color: "#898989",
+    color: "var(--fg-muted)",
     fontSize: 13,
     textDecoration: "none",
     fontFamily: "var(--font-sans)",
@@ -52,7 +52,7 @@ export default function CadastroPage() {
       >
         {/* Superbar Intelligence — topo direito */}
         <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 30 }}>
-          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "#898989" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "var(--fg-muted)" }}>
             Superbar Intelligence
           </span>
         </div>
@@ -114,7 +114,7 @@ export default function CadastroPage() {
                   <p style={{ fontSize: 15, fontWeight: 600, color: "#FAFAFA", margin: 0, fontFamily: "var(--font-sans)" }}>
                     Verifique seu email
                   </p>
-                  <p style={{ fontSize: 14, color: "#898989", margin: 0, fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: 0, fontFamily: "var(--font-sans)", lineHeight: 1.6 }}>
                     Enviamos um link de confirmação para <strong style={{ color: "#FAFAFA" }}>{email}</strong>. Clique no link para ativar sua conta.
                   </p>
                   <Link href="/login" style={{ ...linkStyle, marginTop: 8 }}>
