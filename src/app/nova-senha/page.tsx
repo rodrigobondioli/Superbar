@@ -113,6 +113,9 @@ export default function NovaSenhaPage() {
                 <Input
                   type="password"
                   placeholder="Nova senha"
+                  aria-label="Nova senha"
+                  aria-invalid={!!erro}
+                  aria-describedby={erro ? "nova-senha-erro" : undefined}
                   required
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
@@ -120,13 +123,16 @@ export default function NovaSenhaPage() {
                 <Input
                   type="password"
                   placeholder="Confirmar nova senha"
+                  aria-label="Confirmar nova senha"
+                  aria-invalid={!!erro}
+                  aria-describedby={erro ? "nova-senha-erro" : undefined}
                   required
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
                 />
 
                 {erro && (
-                  <p style={{ fontSize: 13, borderRadius: 8, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
+                  <p id="nova-senha-erro" role="alert" style={{ fontSize: 13, borderRadius: 8, border: "1px solid color-mix(in srgb, var(--danger) 30%, transparent)", background: "var(--danger-bg)", padding: "8px 12px", color: "var(--danger)", margin: 0 }}>
                     {erro}
                   </p>
                 )}

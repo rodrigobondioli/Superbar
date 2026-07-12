@@ -123,13 +123,15 @@ export default function RecuperarSenhaPage() {
                     type="email"
                     placeholder="Email"
                     aria-label="Email"
+                    aria-invalid={!!erro}
+                    aria-describedby={erro ? "recuperar-erro" : undefined}
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
 
                   {erro && (
-                    <p style={{ fontSize: 13, borderRadius: 8, background: "rgba(239,68,68,0.10)", padding: "10px 14px", color: "#EF4444", margin: 0, fontFamily: "var(--font-sans)" }}>
+                    <p id="recuperar-erro" role="alert" style={{ fontSize: 13, borderRadius: 8, background: "rgba(239,68,68,0.10)", padding: "10px 14px", color: "#EF4444", margin: 0, fontFamily: "var(--font-sans)" }}>
                       {erro}
                     </p>
                   )}

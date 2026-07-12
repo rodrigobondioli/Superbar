@@ -132,6 +132,9 @@ function TelaIdentificacao({
           onChange={e => { setNome(e.target.value); setErro(null); }}
           onKeyDown={e => e.key === "Enter" && abrir()}
           placeholder="Ex: João, Ana..."
+          aria-label="Nome na comanda"
+          aria-invalid={!!erro}
+          aria-describedby={erro ? "mesa-abrir-erro" : undefined}
           autoFocus
           autoComplete="given-name"
           style={{ ...inpStyle, border: erro ? "1.5px solid var(--danger)" : inpStyle.border as string }}
@@ -151,7 +154,7 @@ function TelaIdentificacao({
           style={inpStyle}
         />
 
-        {erro && <p style={{ fontSize: 13, color: "var(--danger)", margin: 0 }}>{erro}</p>}
+        {erro && <p id="mesa-abrir-erro" role="alert" style={{ fontSize: 13, color: "var(--danger)", margin: 0 }}>{erro}</p>}
 
         <button
           onClick={abrir}
@@ -231,6 +234,9 @@ function TelaRecuperacao({
           onChange={e => { setTelefone(e.target.value); setErro(null); }}
           onKeyDown={e => e.key === "Enter" && buscar()}
           placeholder="(11) 9 9999-9999"
+          aria-label="Telefone"
+          aria-invalid={!!erro}
+          aria-describedby={erro ? "mesa-buscar-erro" : undefined}
           type="tel"
           autoFocus
           autoComplete="tel"
@@ -238,7 +244,7 @@ function TelaRecuperacao({
           style={{ ...inpStyle, border: erro ? "1.5px solid var(--danger)" : inpStyle.border as string }}
         />
 
-        {erro && <p style={{ fontSize: 13, color: "var(--danger)", margin: 0 }}>{erro}</p>}
+        {erro && <p id="mesa-buscar-erro" role="alert" style={{ fontSize: 13, color: "var(--danger)", margin: 0 }}>{erro}</p>}
 
         <button
           onClick={buscar}

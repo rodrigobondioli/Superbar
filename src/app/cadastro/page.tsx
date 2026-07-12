@@ -129,6 +129,8 @@ export default function CadastroPage() {
                       type="email"
                       placeholder="Email"
                       aria-label="Email"
+                      aria-invalid={!!erro}
+                      aria-describedby={erro ? "cadastro-erro" : undefined}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -138,6 +140,8 @@ export default function CadastroPage() {
                       type="password"
                       placeholder="Senha"
                       aria-label="Senha"
+                      aria-invalid={!!erro}
+                      aria-describedby={erro ? "cadastro-erro" : undefined}
                       required
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
@@ -147,6 +151,8 @@ export default function CadastroPage() {
                       type="password"
                       placeholder="Confirmar senha"
                       aria-label="Confirmar senha"
+                      aria-invalid={!!erro}
+                      aria-describedby={erro ? "cadastro-erro" : undefined}
                       required
                       value={confirmar}
                       onChange={(e) => setConfirmar(e.target.value)}
@@ -154,7 +160,7 @@ export default function CadastroPage() {
                   </div>
 
                   {erro && (
-                    <p style={{ fontSize: 13, borderRadius: 8, background: "rgba(239,68,68,0.10)", padding: "10px 14px", color: "#EF4444", margin: 0, fontFamily: "var(--font-sans)" }}>
+                    <p id="cadastro-erro" role="alert" style={{ fontSize: 13, borderRadius: 8, background: "rgba(239,68,68,0.10)", padding: "10px 14px", color: "#EF4444", margin: 0, fontFamily: "var(--font-sans)" }}>
                       {erro}
                     </p>
                   )}

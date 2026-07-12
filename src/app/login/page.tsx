@@ -105,6 +105,8 @@ export default function LoginPage({
                     name="email"
                     placeholder="Email"
                     aria-label="Email"
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "login-error" : undefined}
                     required
                   />
                   <Input
@@ -113,12 +115,16 @@ export default function LoginPage({
                     name="password"
                     placeholder="Senha"
                     aria-label="Senha"
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "login-error" : undefined}
                     required
                   />
                 </div>
 
                 {error && (
                   <p
+                    id="login-error"
+                    role="alert"
                     style={{
                       fontSize: 13,
                       borderRadius: 8,
