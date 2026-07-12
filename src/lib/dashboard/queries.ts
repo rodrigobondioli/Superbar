@@ -220,6 +220,9 @@ export interface TopDrink {
   preco: number;
   custo: number | null;
   custoStatus: CustoStatus;
+  /** true = categoria usa ficha (drink de verdade/cocktail). Água e comida = false.
+   *  Usado só pra filtrar o widget "Top drinks"; CMV/margem contam tudo. */
+  usaFicha?: boolean;
 }
 
 // Lista completa, sem limite — quem só precisa exibir um "top N" (a tabela
@@ -229,7 +232,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
   const supabase = await createClient();
   const { data } = await supabase
     .from("comanda_items")
-    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo, custo_status), comandas!inner(turno_id)")
+    .select("quantidade, preco_total, produto_id, produtos(nome, preco, custo, custo_status, categorias(usa_ficha)), comandas!inner(turno_id)")
     .eq("bar_id", barId)
     .eq("status", "ativo")
     .eq("comandas.turno_id", turnoId)
@@ -238,7 +241,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
         quantidade: number;
         preco_total: number;
         produto_id: string;
-        produtos: { nome: string; preco: number; custo: number | null; custo_status: CustoStatus } | null;
+        produtos: { nome: string; preco: number; custo: number | null; custo_status: CustoStatus; categorias: { usa_ficha: boolean } | null } | null;
       }[]
     >();
 
@@ -256,6 +259,7 @@ export async function getProdutosVendidosTurno(barId: string, turnoId: string): 
         preco: item.produtos.preco,
         custo: item.produtos.custo,
         custoStatus: item.produtos.custo_status,
+        usaFicha: item.produtos.categorias?.usa_ficha ?? false,
       } satisfies TopDrink);
 
     atual.quantidadeVendida += Number(item.quantidade);

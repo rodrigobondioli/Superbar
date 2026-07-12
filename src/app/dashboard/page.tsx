@@ -423,7 +423,10 @@ export default async function DashboardPage() {
   );
 
   const produtosCategorizados = categorizarProdutos(produtosVendidos);
+  // "Top drinks" = só drinks de verdade (categoria com ficha). Água e comida
+  // ficam de fora do widget — mas seguem contando no CMV/cobertura acima.
   const produtosTop5 = [...produtosCategorizados]
+    .filter((p) => p.usaFicha)
     .sort((a, b) => (b.margemPercentual ?? -Infinity) - (a.margemPercentual ?? -Infinity))
     .slice(0, TOP_DRINKS_LIMIT);
   const cmvAtual = calcularCmv(produtosVendidos);
