@@ -49,10 +49,16 @@ export function gerarInsight({
     }
   }
 
-  // CMV subiu vs turno anterior
-  if (cmvTrend !== null && cmvTrend >= 5) {
-    // Custo extra estimado = faturamento × (delta CMV / 100)
-    const impacto = faturamento > 0 ? -Math.round(faturamento * (cmvTrend / 100)) : undefined;
+  // CMV subiu vs turno anterior.
+  // GUARDA DE SANIDADE (negocio.md — "anomalia sem validação é ruído"): uma
+  // variação turno-a-turno acima de ~50% é quase sempre artefato de baseline
+  // pequeno (turno anterior quase vazio), não sinal real. Não alertamos com lixo.
+  const CMV_TREND_MAX = 50;
+  if (cmvTrend !== null && cmvTrend >= 5 && cmvTrend <= CMV_TREND_MAX) {
+    // Custo extra estimado = faturamento × (delta CMV / 100).
+    // Só exibe o R$ se plausível: não dá pra "arriscar" mais que o faturado.
+    const bruto = faturamento > 0 ? -Math.round(faturamento * (cmvTrend / 100)) : undefined;
+    const impacto = bruto !== undefined && Math.abs(bruto) <= faturamento ? bruto : undefined;
     insights.push({
       texto: `CMV subiu ${cmvTrend.toFixed(1)}%`,
       contexto: "Comparado ao último turno.",
@@ -62,8 +68,9 @@ export function gerarInsight({
     });
   }
 
-  // Ticket médio caiu vs turno anterior
-  if (ticketMedioTrend !== null && ticketMedioTrend <= -5) {
+  // Ticket médio caiu vs turno anterior. Mesma guarda: queda abaixo de -70% é
+  // artefato, não realidade.
+  if (ticketMedioTrend !== null && ticketMedioTrend <= -5 && ticketMedioTrend >= -70) {
     // Receita não capturada: delta de ticket × total de comandas estimado
     let impacto: number | undefined;
     if (ticketMedio > 0 && faturamento > 0) {
@@ -71,7 +78,9 @@ export function gerarInsight({
       if (fator > 0) {
         const ticketAnterior = ticketMedio / fator;
         const totalComandas = Math.round(faturamento / ticketMedio);
-        impacto = -Math.round((ticketAnterior - ticketMedio) * totalComandas);
+        const bruto = -Math.round((ticketAnterior - ticketMedio) * totalComandas);
+        // Só exibe se plausível: não pode perder mais do que faturou.
+        if (Math.abs(bruto) <= faturamento) impacto = bruto;
       }
     }
     insights.push({

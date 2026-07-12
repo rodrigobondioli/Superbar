@@ -1,38 +1,71 @@
 import type { InsightItem } from "@/lib/dashboard/insights";
 import { formatBRL } from "@/lib/format";
 
-// Cor/rótulo por natureza do insight. Ação = precisa mexer; Oportunidade =
-// dinheiro na mesa; Info = contexto pra cadastrar/ajustar.
+// Cor/rótulo por natureza. Ação = precisa mexer · Oportunidade = dinheiro na
+// mesa · Ajuste = cadastrar/corrigir pra a inteligência ficar precisa.
 const TIPO: Record<InsightItem["tipo"], { label: string; cor: string }> = {
   action:      { label: "Ação",         cor: "var(--danger)" },
   opportunity: { label: "Oportunidade", cor: "var(--ok)" },
-  info:        { label: "Info",         cor: "var(--warn)" },
+  info:        { label: "Ajuste",       cor: "var(--warn)" },
 };
 
 // O que a Central vigia — mostrado no estado "tudo certo" pra o dono saber que
-// o sistema está de olho mesmo quando não há alerta.
+// o sistema está de olho mesmo sem alerta.
 const MONITORANDO = [
-  "CMV por produto",
-  "Custo incompleto — produtos sem ficha",
-  "Ticket médio vs turno anterior",
-  "Produtos com boa margem e baixo giro",
-  "Estoque abaixo do mínimo",
-  "Cortesias acima do normal",
+  "CMV subindo turno a turno",
+  "Ticket médio caindo",
+  "Drink de alta margem com baixo giro",
+  "Produto vendido com margem negativa",
+  "Custo/ficha incompletos (CMV impreciso)",
 ];
 
-const card: React.CSSProperties = {
-  background: "var(--bg-card)", border: "1px solid var(--border)",
-  borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", gap: 8,
-};
 const overline: React.CSSProperties = {
   fontSize: 10, fontWeight: 600, letterSpacing: "0.09em",
   textTransform: "uppercase", margin: 0,
 };
 
+function InsightRow({ ins }: { ins: InsightItem }) {
+  const t = TIPO[ins.tipo];
+  const impacto = typeof ins.impactoReais === "number" && ins.impactoReais !== 0 ? ins.impactoReais : null;
+  return (
+    <div style={{
+      background: "var(--bg-card)", border: "1px solid var(--border)",
+      borderLeft: `3px solid ${t.cor}`, borderRadius: 16, padding: "18px 22px",
+      display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24,
+    }}>
+      <div style={{ minWidth: 0 }}>
+        <span style={{ ...overline, color: t.cor, display: "block", marginBottom: 8 }}>{t.label}</span>
+        <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0, lineHeight: 1.35 }}>{ins.texto}</p>
+        {ins.contexto && (
+          <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "4px 0 0" }}>{ins.contexto}</p>
+        )}
+        {ins.sugestao && (
+          <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "10px 0 0", lineHeight: 1.5 }}>→ {ins.sugestao}</p>
+        )}
+      </div>
+
+      {impacto !== null && (
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <span style={{
+            fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em",
+            color: impacto < 0 ? "var(--danger)" : "var(--ok)",
+            fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
+          }}>
+            {impacto < 0 ? "−" : "+"}{formatBRL(Math.abs(impacto))}
+          </span>
+          <span style={{ display: "block", fontSize: 11, color: "var(--fg-subtle)", marginTop: 2 }}>
+            {impacto < 0 ? "em risco" : "de ganho"}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CentralInsights({ insights }: { insights: InsightItem[] }) {
   if (insights.length === 0) {
     return (
-      <div style={{ ...card, padding: "28px" }}>
+      <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
           <span style={{ fontSize: 18 }}>✓</span>
           <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Tudo certo por enquanto</p>
@@ -50,28 +83,18 @@ export function CentralInsights({ insights }: { insights: InsightItem[] }) {
     );
   }
 
+  // Resumo no topo (Few: summary): quantos pontos e quanto está em risco.
+  const somaRisco = insights
+    .filter((i) => (i.impactoReais ?? 0) < 0)
+    .reduce((s, i) => s + Math.abs(i.impactoReais ?? 0), 0);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {insights.map((ins, i) => {
-        const t = TIPO[ins.tipo];
-        return (
-          <div key={i} style={card}>
-            <span style={{ ...overline, color: t.cor }}>{t.label}</span>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0, lineHeight: 1.4 }}>{ins.texto}</p>
-            {ins.contexto && (
-              <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0 }}>{ins.contexto}</p>
-            )}
-            {typeof ins.impactoReais === "number" && ins.impactoReais !== 0 && (
-              <p style={{ fontSize: 14, fontWeight: 600, margin: "2px 0 0", color: ins.impactoReais < 0 ? "var(--danger)" : "var(--ok)" }}>
-                {ins.impactoReais < 0 ? "−" : "+"}{formatBRL(Math.abs(ins.impactoReais))} {ins.impactoReais < 0 ? "em risco" : "de ganho"}
-              </p>
-            )}
-            {ins.sugestao && (
-              <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "4px 0 0", lineHeight: 1.5 }}>→ {ins.sugestao}</p>
-            )}
-          </div>
-        );
-      })}
+      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 4px" }}>
+        <strong style={{ color: "var(--fg)", fontWeight: 600 }}>{insights.length}</strong> ponto{insights.length !== 1 ? "s" : ""} de atenção
+        {somaRisco > 0 && <> · <span style={{ color: "var(--danger)", fontWeight: 600 }}>{formatBRL(somaRisco)}</span> em risco</>}
+      </p>
+      {insights.map((ins, i) => <InsightRow key={i} ins={ins} />)}
     </div>
   );
 }

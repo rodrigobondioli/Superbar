@@ -4,7 +4,6 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
-import { Chip } from "@/components/ui/chip";
 import { currency } from "@/lib/format";
 import type { SuperAcao } from "@/lib/dashboard/menu-engineering";
 
@@ -60,11 +59,6 @@ interface Props {
   turnoId: string;
 }
 
-const OPCOES: { id: Periodo; label: string }[] = [
-  { id: "hoje", label: "Hoje" },
-  { id: "ontem", label: "Ontem" },
-  { id: "7dias", label: "7 dias" },
-];
 
 // ── Helpers visuais ──
 function Tri({ up, color }: { up: boolean; color: string }) {
@@ -98,7 +92,7 @@ const kpiMetric: React.CSSProperties = { display: "block", fontSize: 64, fontWei
 const kpiDivider: React.CSSProperties = { height: 1, background: "var(--border-strong)", marginTop: 16, marginBottom: 11 };
 
 export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId, alertCount, turnoId }: Props) {
-  const [periodo, setPeriodo] = useState<Periodo>("hoje");
+  const periodo: Periodo = "hoje"; // ao vivo = sempre o turno de agora
   const [hover, setHover] = useState<string | null>(null);
   // Barras nascem em scaleX(0) e crescem uma vez ao montar; depois só transicionam nos updates.
   const [barrasVisiveis, setBarrasVisiveis] = useState(false);
@@ -124,31 +118,23 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, superAcao, barId,
       }
     >
 
-      {/* HEADER — título + seletor de período inline (chips do DS) */}
-      <div style={{ display: "flex", alignItems: isMobile ? "stretch" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: isMobile ? 12 : 16, flexWrap: "wrap" }}>
-        {!isMobile && <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, width: isMobile ? "100%" : "auto" }}>
-          {OPCOES.map((o) => (
-            <Chip
-              key={o.id}
-              active={periodo === o.id}
-              onClick={() => setPeriodo(o.id)}
-              className={isMobile ? "flex-1 justify-center whitespace-nowrap" : "whitespace-nowrap"}
-            >
-              {o.label}
-            </Chip>
-          ))}
-          {!isMobile && (
-            <Link
-              href="/dashboard/relatorios"
-              onMouseEnter={() => setHover("rel")}
-              onMouseLeave={() => setHover(null)}
-              style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
-            >
-              Ver relatório completo
-            </Link>
-          )}
+      {/* HEADER — título + indicador "agora". Passado (ontem/7d) vive no Relatório. */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--fg-subtle)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--ok)" }} />
+            agora
+          </span>
         </div>
+        <Link
+          href="/dashboard/relatorios"
+          onMouseEnter={() => setHover("rel")}
+          onMouseLeave={() => setHover(null)}
+          style={{ padding: "8px 16px", fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", color: hover === "rel" ? "var(--fg)" : "var(--fg-muted)", transition: "color 120ms" }}
+        >
+          Ver relatório completo →
+        </Link>
       </div>
 
       {aguardando && (
