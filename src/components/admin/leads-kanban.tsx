@@ -560,7 +560,12 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
     const above = without[at - 1]; // acima → ordem maior
     const below = without[at];     // abaixo → ordem menor
     let novaOrdem: number;
-    if (!above && !below) novaOrdem = Date.now();
+    if (!above && !below) {
+      // Coluna vazia: põe acima da maior ordem existente. Determinístico
+      // (sem Date.now no render) e mantém o card novo no topo.
+      const maiorOrdem = leads.reduce((m, l) => Math.max(m, ordemOf(l)), 0);
+      novaOrdem = maiorOrdem + 1000;
+    }
     else if (!above) novaOrdem = ordemOf(below) + 1000;
     else if (!below) novaOrdem = ordemOf(above) - 1000;
     else novaOrdem = (ordemOf(above) + ordemOf(below)) / 2;
