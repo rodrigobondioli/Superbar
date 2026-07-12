@@ -30,7 +30,7 @@ function InsightRow({ ins }: { ins: InsightItem }) {
   return (
     <div style={{
       background: "var(--bg-card)", border: "1px solid var(--border)",
-      borderLeft: `3px solid ${t.cor}`, borderRadius: 16, padding: "18px 22px",
+      borderRadius: 16, padding: "18px 22px",
       display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24,
     }}>
       <div style={{ minWidth: 0 }}>
