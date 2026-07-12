@@ -2,6 +2,12 @@
 
 > **Esta é a única fonte de verdade para decisões visuais.**
 > Não improvise estilo. Qualquer decisão fora deste documento é inconsistência.
+>
+> **Para telas de dashboard / monitoramento** (Operação ao Vivo, Central de
+> Inteligência, Relatórios, KPIs): consulte **`docs/principios-dashboard.md`**
+> (princípios do Stephen Few adaptados) *antes* de desenhar. Este `DESIGN.md`
+> manda nos tokens/estética; aquele doc manda na estrutura da informação
+> (relance, resumo+exceção, os 13 erros). Em conflito, o `DESIGN.md` prevalece.
 
 ---
 

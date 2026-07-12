@@ -7,6 +7,7 @@ Este arquivo é o ponto de entrada do repositório: ele amarra estratégia, regr
 > **Fontes de verdade deste repo:**
 > - **Negócio e estratégia:** `docs/negocio.md` (mestre) + o resumo abaixo.
 > - **Contrato visual:** `DESIGN.md` — leia ANTES de criar ou alterar qualquer UI. Não improvise estilo.
+> - **Dashboards / monitoramento:** `docs/principios-dashboard.md` (Stephen Few adaptado) — consulte ao criar/revisar qualquer tela de KPI, Operação ao Vivo, Central de Inteligência ou Relatórios.
 > - **Regras desta versão do Next.js:** `AGENTS.md` (importado no topo).
 >
 > **Manutenção:** quando a estratégia mudar, edite `docs/negocio.md` — não este arquivo. Este `CLAUDE.md` é a mesma verdade que o oráculo de decisão no Cowork lê. Uma verdade só, nas duas ferramentas.
