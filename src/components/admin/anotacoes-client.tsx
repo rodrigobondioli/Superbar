@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { StickyNote, Ticket, Lightbulb, Check, Archive, Trash2, RotateCcw } from "lucide-react";
 import type { AnotacaoComBar } from "@/lib/anotacoes/queries";
 import type { AnotacaoStatus } from "@/types/database";
@@ -144,6 +145,20 @@ export function AnotacoesClient({
   sugestoes: AnotacaoComBar[];
 }) {
   const [sub, setSub] = useState<Sub>("tickets");
+  const router = useRouter();
+
+  // Puxa os itens mais recentes sem F5: quando a aba volta ao foco/visível,
+  // re-renderiza o server component (novos tickets/sugestões aparecem).
+  // router.refresh() preserva o estado do client (a sub-aba ativa não muda).
+  useEffect(() => {
+    const atualizar = () => { if (document.visibilityState === "visible") router.refresh(); };
+    window.addEventListener("focus", atualizar);
+    document.addEventListener("visibilitychange", atualizar);
+    return () => {
+      window.removeEventListener("focus", atualizar);
+      document.removeEventListener("visibilitychange", atualizar);
+    };
+  }, [router]);
 
   const abertos = (l: AnotacaoComBar[]) => l.filter((a) => a.status === "aberto").length;
   const abas: { id: Sub; label: string; Icon: typeof Ticket; badge: number }[] = [

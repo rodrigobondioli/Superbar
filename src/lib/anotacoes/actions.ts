@@ -41,6 +41,7 @@ export async function abrirChamado(payload: { titulo: string; corpo: string }): 
     autor_nome: current.userNome,
   });
   if (error) return { error: "Erro ao abrir o chamado. Tente novamente." };
+  revalidatePath("/admin/anotacoes");
   return { ok: true };
 }
 
@@ -63,6 +64,7 @@ export async function enviarSugestao(payload: { categoria: string; corpo: string
     autor_nome: current.userNome,
   });
   if (error) return { error: "Erro ao enviar. Tente novamente." };
+  revalidatePath("/admin/anotacoes");
   return { ok: true };
 }
 
