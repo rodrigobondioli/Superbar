@@ -12,6 +12,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
 import { submitLead } from "@/lib/leads/actions";
+import { toast } from "@/components/ui/toaster";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
@@ -94,7 +95,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
     e.preventDefault();
     startTransition(async () => {
       const result = await submitLead(form);
-      if ("error" in result) alert(result.error);
+      if ("error" in result) toast(result.error, "error");
       else setSuccess(true);
     });
   }
