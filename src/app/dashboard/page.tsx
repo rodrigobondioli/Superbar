@@ -61,6 +61,7 @@ function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
     { label: "Conta criada", done: true, href: null },
     {
       label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,
+      apoio: "O que você vende. Monte pelos clássicos, suba seu cardápio (PDF/planilha) ou adicione na mão.",
       done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar",
     },
     {
