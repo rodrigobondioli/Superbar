@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { Lines, Reveal, SectionRule } from "@/components/marketing/motion-primitives";
 
 const YELLOW = "#FF3500";
 const BG = "#111113";
@@ -42,26 +43,41 @@ function FaqItem({ faq, initialOpen = false }: { faq: (typeof FAQS)[0]; initialO
   const [open, setOpen] = useState(initialOpen);
 
   return (
-    <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+    <div className="sb-faq-item" style={{ borderTop: "1px dashed rgba(255,255,255,0.25)" }}>
       <button
         onClick={() => setOpen(!open)}
         className="w-full py-5 text-left md:py-6"
         style={{ background: "none", border: "none", cursor: "pointer", minHeight: "44px" }}
       >
         <div className="flex items-baseline justify-between gap-4">
-          <span
-            className="text-balance"
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "clamp(1.0625rem, 2.5vw, 1.375rem)",
-              fontWeight: 600,
-              color: YELLOW,
-              lineHeight: 1.1,
-            }}
-          >
-            {faq.num}&nbsp;&nbsp;{faq.q}
+          <span className="flex items-baseline gap-3 text-balance md:gap-4">
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(1.25rem, 2.5vw, 1.75rem)",
+                fontWeight: 400,
+                color: YELLOW,
+                lineHeight: 1,
+                letterSpacing: "0.02em",
+                flexShrink: 0,
+              }}
+            >
+              {faq.num}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "clamp(1.0625rem, 2.5vw, 1.375rem)",
+                fontWeight: 600,
+                color: "#ffffff",
+                lineHeight: 1.15,
+              }}
+            >
+              {faq.q}
+            </span>
           </span>
           <span
+            className="sb-faq-plus"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.5rem",
@@ -70,9 +86,12 @@ function FaqItem({ faq, initialOpen = false }: { faq: (typeof FAQS)[0]; initialO
               lineHeight: 1,
               flexShrink: 0,
               userSelect: "none",
+              display: "inline-block",
+              transition: "transform 0.35s cubic-bezier(0.16,1,0.3,1)",
+              transform: open ? "rotate(45deg)" : "rotate(0deg)",
             }}
           >
-            {open ? "−" : "+"}
+            +
           </span>
         </div>
       </button>
@@ -81,7 +100,7 @@ function FaqItem({ faq, initialOpen = false }: { faq: (typeof FAQS)[0]; initialO
         style={{
           display: "grid",
           gridTemplateRows: open ? "1fr" : "0fr",
-          transition: "grid-template-rows 0.35s ease",
+          transition: "grid-template-rows 0.45s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         <div style={{ overflow: "hidden" }}>
@@ -113,40 +132,50 @@ export function FaqSection() {
           0%, 100% { transform: translateY(0px) rotate(-4deg); }
           50%       { transform: translateY(-14px) rotate(-4deg); }
         }
+        .sb-faq-item { transition: background 0.35s ease; }
+        .sb-faq-item:hover { background: rgba(255,255,255,0.025); }
+        @media (prefers-reduced-motion: reduce) {
+          .sb-faq-item, .sb-faq-plus { transition: none !important; }
+        }
       `}</style>
 
-      <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-14">
-        <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:gap-24">
+      <SectionRule num="05" label="Perguntas" className="mb-10 md:mb-14" />
+
+      <div className="page-x">
+      <div className="mx-auto max-w-[1440px]">
+        <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:gap-24">
 
           {/* Left */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <h2
-              className="text-balance"
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "clamp(1.375rem, 5.5vw, 2rem)",
-                fontWeight: 600,
-                color: "#ffffff",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.1,
-                marginBottom: "1rem",
-              }}
-            >
-              Perguntas<br />Frequentes
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 16,
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
                 fontWeight: 400,
                 color: "#ffffff",
-                lineHeight: 1.6,
+                letterSpacing: "0.01em",
+                textTransform: "uppercase",
+                lineHeight: 0.82,
                 marginBottom: "1rem",
-                maxWidth: "260px",
               }}
             >
-              Aqui colocamos as perguntas mais comuns e você também pode falar com o nosso time através dos canais abaixo.
-            </p>
+              <Lines lines={[<span key="l1">Perguntas</span>, <span key="l2">frequentes</span>]} />
+            </h2>
+            <Reveal delay={0.2} y={16}>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 16,
+                  fontWeight: 400,
+                  color: "rgba(255,255,255,0.75)",
+                  lineHeight: 1.6,
+                  marginBottom: "1rem",
+                  maxWidth: "280px",
+                }}
+              >
+                As dúvidas mais comuns. O que faltar, você pergunta na demonstração.
+              </p>
+            </Reveal>
             {/* Ice cube hidden on mobile to save space */}
             <div className="hidden lg:block" style={{ animation: "faq-float 3.5s ease-in-out infinite", marginTop: "48px" }}>
               <Image src="/img-lp/cubo-gelo.png" alt="" width={180} height={180} />
@@ -156,11 +185,14 @@ export function FaqSection() {
           {/* Right: accordion */}
           <div>
             {FAQS.map((faq, i) => (
-              <FaqItem key={faq.num} faq={faq} initialOpen={i === 0} />
+              <Reveal key={faq.num} delay={i * 0.07} y={20}>
+                <FaqItem faq={faq} initialOpen={i === 0} />
+              </Reveal>
             ))}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }} />
+            <div style={{ borderTop: "1px dashed rgba(255,255,255,0.25)" }} />
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

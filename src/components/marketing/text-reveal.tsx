@@ -10,11 +10,12 @@ const FEATHER = 10;
 
 const TEXT_STYLE: React.CSSProperties = {
   fontFamily: "var(--font-sans)",
-  fontWeight: 500,
-  fontSize: "clamp(1.75rem, 4.5vw, 3.5rem)",
-  lineHeight: 1.25,
+  fontWeight: 400,
+  fontSize: "clamp(1.875rem, 5vw, 4rem)",
+  lineHeight: 1.22,
+  letterSpacing: "-0.02em",
   color: "#ffffff",
-  maxWidth: "1100px",
+  maxWidth: "1200px",
 };
 
 export function TextRevealSection() {

@@ -1,4 +1,5 @@
 import { X, Check } from "lucide-react";
+import { Lines, Reveal, SectionRule } from "@/components/marketing/motion-primitives";
 
 /* ─────────────────────────────────────────────────────────────────────────
    DIFERENCIAIS — comparação afiada "o sistema comum ✕ / o Superbar ✓".
@@ -36,27 +37,38 @@ const LINHAS = [
 export function DiferenciaisSection() {
   return (
     <section className="py-14 md:py-[120px]" style={{ background: "#0D0D0E" }}>
-      <div className="mx-auto max-w-[1100px] page-x">
-        {/* Cabeçalho — eyebrow + tese */}
-        <div className="mb-10 md:mb-14 md:max-w-[820px]">
-          <p
-            style={{
-              fontFamily: "var(--font-roboto-mono)", fontSize: 12, letterSpacing: "0.08em",
-              textTransform: "uppercase", color: ACCENT, margin: "0 0 16px",
-            }}
-          >
-            Por que o Superbar
-          </p>
+      <SectionRule num="04" label="Por que o Superbar" />
+
+      <div className="page-x pt-10 md:pt-14">
+      <div className="mx-auto max-w-[1440px]">
+        {/* Cabeçalho — tese cartaz */}
+        <div className="mb-10 md:mb-14">
           <h2
-            className="text-white text-balance"
+            className="text-white"
             style={{
-              fontFamily: "var(--font-sans)", fontWeight: 600,
-              fontSize: "clamp(2rem, 6vw, 3.25rem)", lineHeight: 1.05, letterSpacing: "-0.02em",
+              fontFamily: "var(--font-display)", fontWeight: 400,
+              fontSize: "clamp(2.25rem, 6vw, 5.5rem)", lineHeight: 0.82,
+              letterSpacing: "0.01em", textTransform: "uppercase",
               margin: 0,
             }}
           >
-            Todo mundo te mostra o que vendeu.{" "}
-            <span style={{ color: ACCENT }}>A gente te mostra o que sobrou.</span>
+            <Lines
+              lines={[
+                <span key="l1">Todo mundo te mostra</span>,
+                <span key="l2">o que vendeu.</span>,
+                <span
+                  key="l3"
+                  style={{
+                    display: "block",
+                    textAlign: "right",
+                    color: "transparent",
+                    WebkitTextStroke: `2px ${ACCENT}`,
+                  }}
+                >
+                  A gente, o que sobrou.
+                </span>,
+              ]}
+            />
           </h2>
         </div>
 
@@ -72,16 +84,16 @@ export function DiferenciaisSection() {
 
         {/* Linhas */}
         <div>
-          {LINHAS.map((l) => (
+          {LINHAS.map((l, li) => (
+            <Reveal key={l.titulo} delay={li * 0.1} y={24}>
             <div
-              key={l.titulo}
-              className="grid grid-cols-1 md:grid-cols-2"
-              style={{ borderTop: `1px solid ${BORDER}` }}
+              className="grid grid-cols-1 md:grid-cols-2 md:items-center"
+              style={{ borderTop: "1px dashed rgba(255,255,255,0.25)" }}
             >
               {/* Lado comum */}
               <div
-                className="flex items-start gap-3"
-                style={{ padding: "20px 0 8px", color: "rgba(255,255,255,0.45)" }}
+                className="flex items-start gap-3 pt-7 pb-3 md:py-9"
+                style={{ color: "rgba(255,255,255,0.45)" }}
               >
                 <X style={{ width: 17, height: 17, flexShrink: 0, marginTop: 2 }} strokeWidth={2.5} />
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: 16, lineHeight: 1.4 }}>
@@ -90,10 +102,7 @@ export function DiferenciaisSection() {
               </div>
 
               {/* Lado Superbar */}
-              <div
-                className="flex items-start gap-3 md:pl-8"
-                style={{ padding: "8px 0 22px" }}
-              >
+              <div className="flex items-start gap-3 pt-3 pb-8 md:py-9 md:pl-8">
                 <Check style={{ width: 18, height: 18, flexShrink: 0, marginTop: 3, color: ACCENT }} strokeWidth={2.75} />
                 <div style={{ minWidth: 0 }}>
                   <p
@@ -111,10 +120,12 @@ export function DiferenciaisSection() {
                 </div>
               </div>
             </div>
+            </Reveal>
           ))}
           {/* fecha a última linha */}
-          <div style={{ borderTop: `1px solid ${BORDER}` }} />
+          <div style={{ borderTop: "1px dashed rgba(255,255,255,0.25)" }} />
         </div>
+      </div>
       </div>
     </section>
   );

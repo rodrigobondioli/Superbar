@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { FileText, AlertTriangle } from "lucide-react";
+import { Lines, Reveal, SectionRule } from "@/components/marketing/motion-primitives";
 
 /* ─────────────────────────────────────────────────────────────────────────
    VEJA FUNCIONANDO — animação "Da nota ao lucro"
@@ -68,37 +70,138 @@ export function VejaFuncionandoSection() {
         }
       `}</style>
 
-      <div className="mx-auto max-w-[1100px] page-x">
+      <SectionRule num="03" label="Na tela" />
+
+      <div className="page-x pt-10 md:pt-14">
+      <div className="mx-auto max-w-[1440px]">
         {/* Cabeçalho */}
         <div className="mb-8 md:mb-12 md:text-center">
           <h2
-            className="mb-4 text-white text-balance"
+            className="mb-5 text-white"
             style={{
-              fontFamily: "var(--font-sans)", fontWeight: 600,
-              fontSize: "clamp(1.75rem, 8vw, 3rem)", lineHeight: 1.05, letterSpacing: "-0.02em",
+              fontFamily: "var(--font-display)", fontWeight: 400,
+              fontSize: "clamp(2.5rem, 6.5vw, 5.5rem)", lineHeight: 0.82,
+              letterSpacing: "0.01em", textTransform: "uppercase",
             }}
           >
-            Não é promessa. É a tela.
+            <Lines
+              lines={[
+                <span key="l1">A nota entra.</span>,
+                <span key="l2">
+                  O <span style={{ color: ACCENT }}>lucro</span> aparece.
+                </span>,
+              ]}
+            />
           </h2>
-          <p
-            className="text-balance md:mx-auto"
-            style={{
-              color: "#ffffff", fontFamily: "var(--font-sans)", fontWeight: 400,
-              fontSize: "clamp(1rem, 2.5vw, 1.25rem)", lineHeight: 1.5, maxWidth: 560,
-            }}
-          >
-            Sobe a nota fiscal e o resto se monta sozinho — até a decisão que te espera de manhã.
-          </p>
+          <Reveal delay={0.25} y={20}>
+            <p
+              className="text-balance md:mx-auto"
+              style={{
+                color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-sans)", fontWeight: 400,
+                fontSize: "clamp(1rem, 2.5vw, 1.25rem)", lineHeight: 1.5, maxWidth: 760,
+              }}
+            >
+              <span className="md:block">Sobe o XML e o SUPERBAR monta estoque, custo e fornecedor sozinho</span>
+              <span className="md:block">— até a decisão que te espera de manhã.</span>
+            </p>
+          </Reveal>
         </div>
 
-        {/* Device / mock animado */}
+        {/* Device / mock animado + cards satélites saindo dele */}
         <div className="flex justify-center">
+          <style>{`
+            @keyframes vfFloatA { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(-2.5deg); } }
+            @keyframes vfFloatB { 0%,100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-14px) rotate(4.5deg); } }
+            @media (prefers-reduced-motion: reduce) {
+              .vf-sat { animation: none !important; }
+            }
+          `}</style>
+
+          {/* Wrapper relativo do device — os satélites ancoram na borda dele */}
+          <div className="relative w-full" style={{ maxWidth: 560 }}>
+            {/* Satélite: ticket médio — nasce de dentro do card e salta pra fora */}
+            <motion.div
+              aria-hidden="true"
+              className="pointer-events-none absolute hidden lg:block"
+              style={{ left: -104, top: 96, zIndex: 2 }}
+              initial={{ x: 150, y: 90, scale: 0.6, opacity: 0 }}
+              whileInView={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              viewport={{ once: true, margin: "-25% 0px" }}
+              transition={{
+                type: "spring", stiffness: 95, damping: 20, mass: 1,
+                delay: 0.25,
+                opacity: { duration: 0.45, delay: 0.25 },
+              }}
+            >
+              <div
+                className="vf-sat"
+                style={{
+                  background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14,
+                  padding: "16px 20px", boxShadow: "0 20px 50px rgba(0,0,0,0.55)",
+                  animation: "vfFloatA 5.5s ease-in-out 1.4s infinite",
+                  willChange: "transform",
+                }}
+              >
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.55)", margin: "0 0 6px" }}>
+                  Ticket médio
+                </p>
+                <p style={{ fontFamily: "var(--font-roboto-mono)", fontSize: 26, color: "#fff", margin: 0, lineHeight: 1 }}>
+                  R$ 86
+                </p>
+                <p style={{ fontFamily: "var(--font-roboto-mono)", fontSize: 12, color: ACCENT, margin: "6px 0 0" }}>
+                  ▲ 12% vs. semana passada
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Satélite: top drinks — nasce de dentro do card e salta pra fora */}
+            <motion.div
+              aria-hidden="true"
+              className="pointer-events-none absolute hidden lg:block"
+              style={{ right: -118, bottom: 130, zIndex: 2 }}
+              initial={{ x: -160, y: 100, scale: 0.6, opacity: 0 }}
+              whileInView={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              viewport={{ once: true, margin: "-25% 0px" }}
+              transition={{
+                type: "spring", stiffness: 95, damping: 20, mass: 1,
+                delay: 0.5,
+                opacity: { duration: 0.45, delay: 0.5 },
+              }}
+            >
+              <div
+                className="vf-sat"
+                style={{
+                  background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14,
+                  padding: "16px 20px", boxShadow: "0 20px 50px rgba(0,0,0,0.55)",
+                  animation: "vfFloatB 6.5s ease-in-out 1.8s infinite",
+                  willChange: "transform",
+                  minWidth: 210,
+                }}
+              >
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.55)", margin: "0 0 10px" }}>
+                  Top drinks da noite
+                </p>
+                {[
+                  { n: "1", nome: "Negroni", qtd: "×214" },
+                  { n: "2", nome: "Gin Tônica", qtd: "×187" },
+                  { n: "3", nome: "Caipirinha", qtd: "×162" },
+                ].map((d) => (
+                  <div key={d.n} style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "4px 0" }}>
+                    <span style={{ fontFamily: "var(--font-roboto-mono)", fontSize: 11, color: ACCENT }}>/{d.n}</span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: "#fff" }}>{d.nome}</span>
+                    <span style={{ fontFamily: "var(--font-roboto-mono)", fontSize: 12, color: "rgba(255,255,255,0.5)", marginLeft: "auto" }}>{d.qtd}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
           <div
             key={runId}
             className={runId > 0 ? "vf-play" : ""}
             onMouseEnter={replay}
             style={{
-              width: "100%", maxWidth: 560,
+              width: "100%",
+              position: "relative", zIndex: 1,
               background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16,
               padding: "clamp(16px, 4vw, 24px)",
               boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
@@ -236,7 +339,9 @@ export function VejaFuncionandoSection() {
               </span>
             </div>
           </div>
+          </div>
         </div>
+      </div>
       </div>
     </section>
   );

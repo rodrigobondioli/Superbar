@@ -1,82 +1,79 @@
 "use client";
 import { useEffect, useRef } from "react";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   PROCESSO — scroll horizontal pinado.
+   A seção trava na tela e os 3 passos deslizam lateralmente conforme o
+   scroll, com dwell (para em cada passo, transiciona rápido). Cada passo:
+   número outline gigante + pill laranja torta + corpo. Linha pontilhada
+   horizontal atravessa os números. Mobile: lista estática.
+   ──────────────────────────────────────────────────────────────────────── */
+
 const STEPS = [
   {
-    num: "/1",
     title: "Comece hoje",
     body: "Em um dia, você cadastra o cardápio completo, configura a equipe e organiza as mesas. Nada de técnico agendado, nada de semanas esperando implantação. O onboarding guia cada etapa — e quando termina, o bar já está operando.",
   },
   {
-    num: "/2",
     title: "A operação vira inteligente",
-    body: "A partir daí, cada pedido, comanda e pagamento é capturado em tempo real. Sem papel, sem planilha, sem depender de ninguém lembrar de anotar. A equipe trabalha normalmente — e o SUPERBAR registra tudo e transforma cada turno em dado confiável.",
+    body: "A partir daí, cada pedido, comanda e pagamento é capturado em tempo real. Sem papel, sem planilha, sem depender de ninguém lembrar de anotar. A equipe trabalha normalmente — e o SUPERBAR transforma cada turno em dado confiável.",
   },
   {
-    num: "/3",
     title: "Saiba o que merece atenção",
     body: "De manhã, você abre o painel e o SUPERBAR já fez o trabalho pesado: CMV, margem por produto, ticket médio, oportunidades que você ainda não enxergou. Em segundos você sabe onde agir — sem precisar procurar, interpretar ou adivinhar.",
   },
 ];
 
-const N    = STEPS.length;
-const BG   = "#111113";
-const DARK = "#FAFAFA";
-const CARD_COLORS = ["#1C1C1E", "#232325", "#2A2A2C"];
+const N = STEPS.length;
+const BG = "#111113";
+const ACCENT = "#FF3500";
+const TILTS = [-3, 2, -2];
 
-const TITLE_STYLE: React.CSSProperties = {
-  fontFamily: "var(--font-sans)",
-  fontWeight: 600,
-  fontSize: "clamp(1.375rem, 5.5vw, 2rem)",
-  letterSpacing: "-0.01em",
-  color: "#ffffff",
-};
-
-const PEEK_PX = 20;
-const SHRINK  = 0.025;
-
-function easeOutCubic(t: number) {
-  return 1 - Math.pow(1 - t, 3);
+function easeInOutCubic(t: number) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function getCardT(i: number, progress: number): number {
-  if (i === 0) return 1;
-  const ENTRY_START = 0.1;
-  const ENTRY_END   = 0.90;
-  const slot  = (ENTRY_END - ENTRY_START) / (N - 1);
-  const width = slot * 0.55;
-  const start = ENTRY_START + (i - 1) * slot;
-  return easeOutCubic(Math.max(0, Math.min(1, (progress - start) / width)));
+/* Dwell: segura em cada passo, transiciona rápido entre eles. */
+function dwellProgress(p: number) {
+  const t = p * (N - 1);
+  const seg = Math.min(N - 2, Math.floor(t));
+  const frac = t - seg;
+  const PLATEAU = 0.28;
+  let eased: number;
+  if (frac < PLATEAU) eased = 0;
+  else if (frac > 1 - PLATEAU) eased = 1;
+  else eased = easeInOutCubic((frac - PLATEAU) / (1 - 2 * PLATEAU));
+  return (seg + eased) / (N - 1);
 }
 
 export function ProcessoSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const track = trackRef.current;
+    if (!section || !track) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let rafId: number;
 
     const tick = () => {
-      const rect   = section.getBoundingClientRect();
+      const rect = section.getBoundingClientRect();
       const travel = rect.height - window.innerHeight;
-      if (travel <= 0) return;
-      const progress = Math.max(0, Math.min(1, -rect.top / travel));
-      const ts = STEPS.map((_, i) => getCardT(i, progress));
+      if (travel > 0) {
+        const raw = Math.max(0, Math.min(1, -rect.top / travel));
+        const progress = reduced ? raw : dwellProgress(raw);
+        const xVw = -progress * (N - 1) * 100;
+        track.style.transform = `translateX(${xVw}vw)`;
 
-      cardRefs.current.forEach((card, i) => {
-        if (!card) return;
-        const t     = ts[i];
-        const depth = ts.slice(i + 1).reduce((s, p) => s + p, 0);
-        const pushY = depth * PEEK_PX;
-        const entryY = (1 - t) * 60;
-        const scale  = Math.max(0.88, 1 - depth * SHRINK - (1 - t) * 0.08);
-        card.style.transform = `translateY(${pushY + entryY}px) scale(${scale})`;
-        card.style.opacity   = String(Math.min(1, t * 2.5));
-        card.style.zIndex    = String(i + 1);
-      });
-
+        /* passo ativo em destaque, vizinhos apagados */
+        itemRefs.current.forEach((el, i) => {
+          if (!el) return;
+          const dist = Math.abs(progress * (N - 1) - i); /* 0 = ativo */
+          el.style.opacity = String(Math.max(0.25, 1 - dist * 0.75));
+        });
+      }
       rafId = requestAnimationFrame(tick);
     };
 
@@ -86,45 +83,61 @@ export function ProcessoSection() {
 
   return (
     <>
-      {/* ── Mobile: cards estáticos empilhados, sem sticky ── */}
-      <section className="md:hidden px-4 py-10" style={{ background: BG }}>
-        <h2 className="text-balance" style={{ ...TITLE_STYLE, margin: "0 0 24px" }}>
-          Nosso Processo
+      {/* ── Mobile: lista estática ── */}
+      <section className="md:hidden page-x py-14" style={{ background: BG }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 400,
+            fontSize: "clamp(2rem, 8vw, 2.75rem)",
+            textTransform: "uppercase",
+            letterSpacing: "0.01em",
+            lineHeight: 0.82,
+            color: "#ffffff",
+            margin: "0 0 32px",
+          }}
+        >
+          Nosso processo
         </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
           {STEPS.map((step, i) => (
-            <div
-              key={step.num}
-              style={{
-                background: "#1C1C1E",
-                borderRadius: 16,
-                padding: "28px 24px",
-                border: "1px solid #2C2C2E",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-              }}
-            >
+            <div key={step.title} style={{ borderTop: "1px dashed rgba(255,255,255,0.25)", paddingTop: 24 }}>
               <p
-                className="text-balance"
                 style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 22,
-                  fontWeight: 600,
-                  color: "#FF3500",
-                  letterSpacing: "-0.01em",
-                  margin: "0 0 16px",
-                  lineHeight: 1.1,
+                  fontFamily: "var(--font-display)",
+                  fontSize: "3.5rem",
+                  lineHeight: 0.82,
+                  color: "transparent",
+                  WebkitTextStroke: "1.5px rgba(255,255,255,0.4)",
+                  margin: "0 0 12px",
                 }}
               >
-                {step.num} {step.title}
+                {String(i + 1).padStart(2, "0")}
               </p>
-              <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 16 }} />
+              <p
+                style={{
+                  display: "inline-block",
+                  background: ACCENT,
+                  color: "#000",
+                  fontFamily: "var(--font-display)",
+                  textTransform: "uppercase",
+                  fontSize: "1.1rem",
+                  letterSpacing: "0.02em",
+                  borderRadius: 999,
+                  padding: "8px 20px",
+                  margin: "0 0 16px",
+                  transform: `rotate(${TILTS[i]}deg)`,
+                }}
+              >
+                {step.title}
+              </p>
               <p
                 className="text-pretty"
                 style={{
                   fontFamily: "var(--font-sans)",
                   fontSize: 16,
                   fontWeight: 400,
-                  color: DARK,
+                  color: "rgba(255,255,255,0.85)",
                   lineHeight: 1.6,
                   margin: 0,
                 }}
@@ -136,81 +149,126 @@ export function ProcessoSection() {
         </div>
       </section>
 
-      {/* ── Desktop: sticky scroll animation ── */}
+      {/* ── Desktop: horizontal pinado ── */}
       <section
         ref={sectionRef}
         className="hidden md:block"
-        style={{ minHeight: `${N * 100}vh`, background: BG }}
+        style={{ minHeight: `${N * 120}vh`, background: BG }}
       >
-        <style>{`
-          .processo-stack { height: 320px; }
-          .processo-card  { padding: 40px 36px; }
-          @media (min-width: 1024px) {
-            .processo-stack { height: 300px; }
-            .processo-card  { padding: 44px 52px; }
-          }
-        `}</style>
-
-        <div
-          className="sticky top-0 z-10 flex h-screen flex-col items-center justify-center"
-          style={{ background: BG }}
-        >
-          <h2 className="text-center text-balance" style={{ ...TITLE_STYLE, margin: "0 0 28px", padding: "0 16px" }}>
-            Nosso Processo
+        <div className="sticky top-0 h-screen overflow-hidden" style={{ background: BG }}>
+          {/* Título fixo */}
+          <h2
+            className="absolute left-1/2 top-14 z-10 -translate-x-1/2"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 400,
+              fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
+              textTransform: "uppercase",
+              letterSpacing: "0.02em",
+              color: "#ffffff",
+              margin: 0,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Nosso processo
           </h2>
 
-          <div className="w-full px-8 lg:px-14">
-            <div className="relative processo-stack mx-auto" style={{ maxWidth: 980 }}>
-              {STEPS.map((step, i) => (
+          {/* Contador fixo à direita */}
+          <div
+            className="absolute right-8 top-16 z-10 lg:right-14"
+            style={{
+              fontFamily: "var(--font-roboto-mono)",
+              fontSize: 12,
+              letterSpacing: "0.1em",
+              color: "rgba(255,255,255,0.4)",
+            }}
+          >
+            /{N} passos
+          </div>
+
+          {/* Trilho horizontal */}
+          <div
+            ref={trackRef}
+            className="flex h-full"
+            style={{ width: `${N * 100}vw`, willChange: "transform" }}
+          >
+            {STEPS.map((step, i) => (
+              <div
+                key={step.title}
+                className="relative flex h-full items-center justify-center"
+                style={{ width: "100vw", flexShrink: 0 }}
+              >
+                {/* Linha pontilhada horizontal — atravessa o slide inteiro na
+                    altura do número (contínua entre slides adjacentes) */}
                 <div
-                  key={step.num}
-                  ref={(el) => { cardRefs.current[i] = el; }}
-                  className="processo-card"
+                  aria-hidden="true"
+                  className="absolute left-0 right-0"
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    background: CARD_COLORS[i],
-                    border: "1px solid #2C2C2E",
-                    borderRadius: "24px",
-                    opacity: 0,
-                    willChange: "transform, opacity",
-                    boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
-                    transformOrigin: "top center",
+                    top: "calc(50% - 150px)",
+                    borderTop: "2px dotted rgba(255,255,255,0.22)",
                   }}
+                />
+
+                <div
+                  ref={(el) => { itemRefs.current[i] = el; }}
+                  className="relative flex flex-col items-center text-center"
+                  style={{ width: "min(88vw, 760px)", willChange: "opacity" }}
                 >
+                  {/* Número outline gigante */}
                   <p
-                    className="text-balance"
                     style={{
-                      fontFamily: "var(--font-sans)",
-                      fontSize: 22,
-                      fontWeight: 600,
-                      color: "#FF3500",
-                      letterSpacing: "-0.01em",
-                      margin: "0 0 20px",
-                      lineHeight: 1.1,
+                      fontFamily: "var(--font-display)",
+                      fontSize: "clamp(9.5rem, 18vw, 15.5rem)",
+                      lineHeight: 0.85,
+                      color: BG,
+                      WebkitTextStroke: "2px rgba(255,255,255,0.45)",
+                      margin: "0 0 30px",
+                      userSelect: "none",
+                      position: "relative",
                     }}
                   >
-                    {step.num} {step.title}
+                    {String(i + 1).padStart(2, "0")}
                   </p>
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: "20px" }} />
+
+                  {/* Pill título */}
+                  <p
+                    style={{
+                      display: "inline-block",
+                      background: ACCENT,
+                      color: "#000",
+                      fontFamily: "var(--font-display)",
+                      textTransform: "uppercase",
+                      fontSize: "clamp(1.1rem, 1.8vw, 1.5rem)",
+                      letterSpacing: "0.02em",
+                      borderRadius: 999,
+                      padding: "12px 32px",
+                      margin: "0 0 24px",
+                      transform: `rotate(${TILTS[i]}deg)`,
+                      boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {step.title}
+                  </p>
+
+                  {/* Corpo */}
                   <p
                     className="text-pretty"
                     style={{
                       fontFamily: "var(--font-sans)",
-                      fontSize: 16,
+                      fontSize: "clamp(1rem, 1.3vw, 1.125rem)",
                       fontWeight: 400,
-                      color: DARK,
-                      lineHeight: 1.6,
+                      color: "rgba(255,255,255,0.82)",
+                      lineHeight: 1.65,
+                      maxWidth: 720,
                       margin: 0,
                     }}
                   >
                     {step.body}
                   </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
