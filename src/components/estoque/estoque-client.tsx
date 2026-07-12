@@ -39,7 +39,7 @@ const lbl: React.CSSProperties = {
 };
 
 const inp: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)",
+  background: "var(--bg-hover)", border: "1px solid var(--border)",
   borderRadius: 8, padding: "9px 12px", fontSize: 15,
   color: "var(--fg)", outline: "none", width: "100%",
   boxSizing: "border-box", colorScheme: "dark" as React.CSSProperties["colorScheme"],

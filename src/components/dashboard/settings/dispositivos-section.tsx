@@ -13,7 +13,7 @@ export function DispositivosSection() {
       </div>
 
       <div style={{
-        background: "var(--bg-inset)",
+        background: "var(--bg-hover)",
         borderRadius: 8, padding: "16px",
         display: "flex", flexDirection: "column", gap: 12,
       }}>

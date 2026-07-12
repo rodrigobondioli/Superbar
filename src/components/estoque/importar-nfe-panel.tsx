@@ -8,7 +8,7 @@ import { currency } from "@/lib/format";
 
 
 const inp: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
+  background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
   padding: "7px 9px", fontSize: 13, color: "var(--fg)", outline: "none",
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };

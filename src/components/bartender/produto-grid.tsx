@@ -101,7 +101,7 @@ function VariantePicker({
             >
               <div style={{
                 width: 48, height: 48, borderRadius: 8, flexShrink: 0,
-                background: v.imagem_url ? `url(${v.imagem_url}) center/cover` : "var(--bg-inset)",
+                background: v.imagem_url ? `url(${v.imagem_url}) center/cover` : "var(--bg-hover)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 {!v.imagem_url && <ImageIcon style={{ width: 18, height: 18, color: "var(--fg-subtle)" }} />}

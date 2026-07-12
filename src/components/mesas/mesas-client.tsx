@@ -13,7 +13,7 @@ const lbl: React.CSSProperties = {
   textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6, display: "block",
 };
 const inp: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
+  background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
   padding: "12px", fontSize: 16, color: "var(--fg)", outline: "none",
   colorScheme: "dark", boxSizing: "border-box", width: "100%",
 };

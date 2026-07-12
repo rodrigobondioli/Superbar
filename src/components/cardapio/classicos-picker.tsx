@@ -104,7 +104,7 @@ export function ClassicosPicker({
                           inputMode="decimal"
                           placeholder="preço"
                           style={{
-                            width: 96, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
+                            width: 96, background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
                             padding: "7px 8px 7px 28px", fontSize: 13, color: "var(--fg)", outline: "none",
                             colorScheme: "dark", boxSizing: "border-box",
                           }}

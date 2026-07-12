@@ -117,7 +117,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar insumo…"
-              style={{ width: "100%", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
+              style={{ width: "100%", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
             />
           </div>
 
@@ -232,7 +232,7 @@ function formatarEstoque(valorBase: number, r: ContagemResultado): string {
 
 function campo(w: number): React.CSSProperties {
   return {
-    width: w, background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
+    width: w, background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
     padding: "8px 10px", fontSize: 14, color: "var(--fg)", outline: "none", colorScheme: "dark",
     textAlign: "right", fontVariantNumeric: "tabular-nums", flexShrink: 0,
   };

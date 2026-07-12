@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Layers, PhoneCall, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Layers, PhoneCall, StickyNote, LogOut } from "lucide-react";
 import { signOut } from "@/lib/auth/actions";
 
 // ─── Navegação ────────────────────────────────────────────────────────────────
@@ -12,14 +12,16 @@ const links = [
   { href: "/admin/clientes",   label: "Clientes",    icon: Users },
   { href: "/admin/implantacao",label: "Implantação", icon: Layers },
   { href: "/admin/leads",      label: "Leads",       icon: PhoneCall },
+  { href: "/admin/anotacoes",  label: "Anotações",   icon: StickyNote },
 ];
 
 interface AdminSidebarProps {
-  alertCount?: number; // bares com alertas
-  adminEmail?: string; // identidade da conta logada
+  alertCount?: number;      // bares com alertas
+  anotacoesCount?: number;  // tickets + sugestões em aberto
+  adminEmail?: string;      // identidade da conta logada
 }
 
-export function AdminSidebar({ alertCount = 0, adminEmail = "" }: AdminSidebarProps) {
+export function AdminSidebar({ alertCount = 0, anotacoesCount = 0, adminEmail = "" }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -103,6 +105,25 @@ export function AdminSidebar({ alertCount = 0, adminEmail = "" }: AdminSidebarPr
                   padding: "0 3px",
                 }}>
                   {alertCount > 9 ? "9+" : alertCount}
+                </span>
+              )}
+              {/* Badge para Anotações (pendências) */}
+              {link.href === "/admin/anotacoes" && anotacoesCount > 0 && (
+                <span style={{
+                  marginLeft: "auto",
+                  background: "var(--accent)",
+                  color: "var(--accent-fg)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  borderRadius: "50%",
+                  minWidth: 16,
+                  height: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 3px",
+                }}>
+                  {anotacoesCount > 9 ? "9+" : anotacoesCount}
                 </span>
               )}
             </Link>

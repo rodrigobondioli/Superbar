@@ -1,7 +1,7 @@
 import type { ActionResult } from "@/lib/settings/actions";
 
 // Estilos e feedback compartilhados pelas seções de configuração.
-// NOTA: `inp` usa var(--bg-inset), token que o DESIGN.md marca como removido
+// NOTA: `inp` usa var(--bg-hover), token que o DESIGN.md marca como removido
 // (deveria ser --bg-hover). Mantido como estava para não mudar o visual nesta
 // extração — trocar num passo próprio, de propósito.
 
@@ -11,7 +11,7 @@ export const lbl: React.CSSProperties = {
 };
 
 export const inp: React.CSSProperties = {
-  width: "100%", background: "var(--bg-inset)",
+  width: "100%", background: "var(--bg-hover)",
   border: "1px solid var(--border)", borderRadius: 8,
   padding: "12px", fontSize: 14, color: "var(--fg)",
   outline: "none",

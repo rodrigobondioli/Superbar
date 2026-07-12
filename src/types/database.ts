@@ -29,6 +29,22 @@ export type AssinaturaStatus = "ativa" | "cancelada" | "inadimplente";
 
 export type EstoqueUnidade = "un" | "ml" | "l" | "g" | "kg";
 
+export type AnotacaoTipo = "nota" | "ticket" | "sugestao";
+export type AnotacaoStatus = "aberto" | "resolvido" | "arquivado";
+
+export interface Anotacao {
+  id: string;
+  tipo: AnotacaoTipo;
+  status: AnotacaoStatus;
+  titulo: string | null;
+  corpo: string;
+  categoria: string | null;
+  bar_id: string | null;
+  autor_nome: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Profile {
   id: string;
   nome: string;

@@ -10,7 +10,7 @@ import { currency } from "@/lib/format";
 
 
 const inp: React.CSSProperties = {
-  background: "var(--bg-inset)",
+  background: "var(--bg-hover)",
   border: "1px solid var(--border)",
   borderRadius: 8,
   padding: "9px 12px",
@@ -453,7 +453,7 @@ export function ImportarCardapioPanel({
                                   decisao === op
                                     ? op === "atualizar"
                                       ? "color-mix(in srgb, var(--accent-bright) 15%, transparent)"
-                                      : "var(--bg-inset)"
+                                      : "var(--bg-hover)"
                                     : "transparent",
                                 color:
                                   decisao === op

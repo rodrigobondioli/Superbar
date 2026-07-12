@@ -26,7 +26,7 @@ const lbl: React.CSSProperties = {
 
 const inp: React.CSSProperties = {
   width: "100%",
-  background: "var(--bg-inset)",
+  background: "var(--bg-hover)",
   border: "1px solid var(--border)",
   borderRadius: "8px",
   padding: "12px 14px",

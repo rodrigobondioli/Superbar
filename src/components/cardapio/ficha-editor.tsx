@@ -14,7 +14,7 @@ const UNIDADES: UnidadeInsumo[] = ["un", "ml", "l", "g", "kg"];
 type Linha = LinhaFichaInput;
 
 const input: React.CSSProperties = {
-  background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,
+  background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8,
   padding: "8px 10px", fontSize: 13, color: "var(--fg)", outline: "none",
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };

@@ -83,7 +83,7 @@ function segBtn(active: boolean): React.CSSProperties {
 }
 
 const input: React.CSSProperties = {
-  background: "var(--bg-inset)",
+  background: "var(--bg-hover)",
   border: "1px solid var(--border)",
   borderRadius: 8,
   padding: "9px 12px",
@@ -247,7 +247,7 @@ function VarianteRow({ variante, produtoId, produtoNome, produtoDescricao, ficha
           width: 48, height: 48, borderRadius: 8, flexShrink: 0,
           background: variante.imagem_url
             ? `url(${variante.imagem_url}) center/cover`
-            : "var(--bg-inset)",
+            : "var(--bg-hover)",
           display: "flex", alignItems: "center", justifyContent: "center",
           cursor: variante.imagem_url ? "default" : "pointer",
         }}>

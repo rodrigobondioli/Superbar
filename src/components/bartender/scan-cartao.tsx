@@ -247,7 +247,7 @@ export function ScanCartao() {
             placeholder="Nome da pessoa (opcional)"
             autoFocus
             style={{
-              background: "var(--bg-inset)", border: "1px solid var(--border)",
+              background: "var(--bg-hover)", border: "1px solid var(--border)",
               borderRadius: 8, padding: "11px 14px",
               color: "var(--fg)", fontSize: 14, outline: "none", width: "100%",
               boxSizing: "border-box",

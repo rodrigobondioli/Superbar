@@ -62,7 +62,7 @@ export function PeriodoSeletor({ current }: { current: PeriodoSearchParams }) {
             gap: "8px",
             marginLeft: "8px",
             padding: "5px 14px",
-            background: "var(--bg-inset)",
+            background: "var(--bg-hover)",
             borderRadius: "8px",
           }}
         >

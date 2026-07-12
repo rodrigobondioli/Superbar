@@ -47,9 +47,6 @@
   /* ── Fontes ── */
   --font-display:      var(--font-sans);
   --font-roboto-mono:  var(--font-sans);
-
-  /* ── Legacy alias ── */
-  --bg-inset: var(--bg-hover);
 }
 
 [data-theme="dark"] {

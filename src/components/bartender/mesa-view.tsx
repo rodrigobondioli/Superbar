@@ -156,7 +156,7 @@ export function MesaDrawer({
                     onKeyDown={e => e.key === "Enter" && !saving && abrir([addNome])}
                     placeholder="Nome (opcional)"
                     autoFocus
-                    style={{ flex: 1, boxSizing: "border-box", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", color: "var(--fg)", fontSize: 16, outline: "none" }}
+                    style={{ flex: 1, boxSizing: "border-box", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", color: "var(--fg)", fontSize: 16, outline: "none" }}
                   />
                   <button onClick={() => abrir([addNome])} disabled={saving} className="hover:brightness-110"
                     style={{ flexShrink: 0, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 8, padding: "0 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
@@ -244,7 +244,7 @@ export function MesaDrawer({
                       onChange={e => setSlots(prev => prev.map((v, k) => k === i ? e.target.value : v))}
                       placeholder={`Pessoa ${i + 1}`}
                       autoFocus={i === 0}
-                      style={{ flex: 1, boxSizing: "border-box", background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", color: "var(--fg)", fontSize: 16, outline: "none" }}
+                      style={{ flex: 1, boxSizing: "border-box", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", color: "var(--fg)", fontSize: 16, outline: "none" }}
                     />
                     {slots.length > 1 && (
                       <button onClick={() => setSlots(prev => prev.filter((_, k) => k !== i))} aria-label="Remover"

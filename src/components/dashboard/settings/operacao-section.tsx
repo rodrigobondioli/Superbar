@@ -57,7 +57,7 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px",
-        background: "var(--bg-inset)",
+        background: "var(--bg-hover)",
         borderRadius: 8,
         gap: 16,
       }}>
@@ -104,7 +104,7 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
       </div>
 
       {/* Toggle fluxo_pronto */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", marginTop: 10, background: "var(--bg-inset)", borderRadius: 8, gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", marginTop: 10, background: "var(--bg-hover)", borderRadius: 8, gap: 16 }}>
         <div>
           <p style={{ fontSize: 13, fontWeight: 500, color: "var(--fg)", margin: "0 0 3px" }}>
             Garçom retira o drink pronto
@@ -125,7 +125,7 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 16px", marginTop: 10,
-        background: "var(--bg-inset)",
+        background: "var(--bg-hover)",
         borderRadius: 8,
         gap: 16,
       }}>

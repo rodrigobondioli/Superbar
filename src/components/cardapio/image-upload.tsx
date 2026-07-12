@@ -143,7 +143,7 @@ export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", on
             onClick={() => inputRef.current?.click()}
             style={{
               position: "absolute", bottom: 4, right: 4,
-              background: "var(--bg-inset)", border: "none", borderRadius: 8,
+              background: "var(--bg-hover)", border: "none", borderRadius: 8,
               color: "var(--fg-muted)", cursor: "pointer", padding: "3px 5px",
               fontSize: 10,
             }}

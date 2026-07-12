@@ -77,7 +77,7 @@ export function NovaComandaButton() {
                 placeholder="Ex: Mesa 3, Balcão, João"
                 style={{
                   width: "100%", boxSizing: "border-box",
-                  background: "var(--bg-inset)",
+                  background: "var(--bg-hover)",
                   border: "1px solid var(--border)",
                   borderRadius: 8, padding: "12px 14px",
                   fontSize: 16, color: "var(--fg)", outline: "none",
