@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Check, X, Trash2, Eye, EyeOff, Loader2, GripVertical } from "lucide-react";
 import { alterarRole, desativarMembro, reativarMembro, removerMembro, atualizarFotoMembro, renomearMembro, reordenarEquipe } from "@/lib/equipe/actions";
@@ -386,7 +386,9 @@ export function EquipeMembros({
   const draggingIdx = useRef<number | null>(null);
   const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const localRef    = useRef<MembroRow[]>(localAtivos);
-  localRef.current  = localAtivos;
+  // Sincroniza o ref DEPOIS do render (não durante) — o handleDragEnd lê o
+  // valor final aqui no save com atraso de 500ms, quando o effect já rodou.
+  useEffect(() => { localRef.current = localAtivos; }, [localAtivos]);
 
   function handleDragStart(idx: number) {
     draggingIdx.current = idx;
@@ -394,11 +396,16 @@ export function EquipeMembros({
 
   function handleDragEnter(idx: number) {
     if (draggingIdx.current === null || draggingIdx.current === idx) return;
-    const next = [...localRef.current];
-    const [item] = next.splice(draggingIdx.current, 1);
-    next.splice(idx, 0, item);
+    const from = draggingIdx.current;
     draggingIdx.current = idx;
-    setLocalAtivos(next);
+    // Update funcional: lê o array mais fresco (prev), sem depender do ref
+    // durante o arraste — evita closure velha em drags rápidos.
+    setLocalAtivos(prev => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(idx, 0, item);
+      return next;
+    });
   }
 
   function handleDragEnd() {

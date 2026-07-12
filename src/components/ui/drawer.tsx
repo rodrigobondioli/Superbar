@@ -45,7 +45,7 @@ export function Drawer({ open, type, onClose }: DrawerProps) {
               {type === 'suporte' ? 'Como podemos ajudar?' : 'Sua ideia pode virar feature'}
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: '8px', width: '32px', height: '32px', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button aria-label="Fechar" onClick={onClose} style={{ background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: '8px', width: '32px', height: '32px', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ✕
           </button>
         </div>

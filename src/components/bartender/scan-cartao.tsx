@@ -149,7 +149,7 @@ export function ScanCartao() {
             } as React.CSSProperties}
           />
           {input && (
-            <button onClick={limpar} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--fg-subtle)", display: "flex", WebkitTapHighlightColor: "transparent" }}>
+            <button aria-label="Limpar" onClick={limpar} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--fg-subtle)", display: "flex", WebkitTapHighlightColor: "transparent" }}>
               <IconX />
             </button>
           )}

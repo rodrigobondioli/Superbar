@@ -195,7 +195,7 @@ function ComandaPagamentoSheet({
               <Button variant="secondary" size="sm" onClick={imprimir}>
                 <IconPrint /> Imprimir
               </Button>
-              <button onClick={onClose} className="[-webkit-tap-highlight-color:transparent]" style={{
+              <button aria-label="Fechar" onClick={onClose} className="[-webkit-tap-highlight-color:transparent]" style={{
                 width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
                 background: "var(--bg-hover)", border: "1px solid var(--border)",
                 borderRadius: "50%", cursor: "pointer", color: "var(--fg-subtle)",
