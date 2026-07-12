@@ -101,8 +101,8 @@ export function VejaFuncionandoSection() {
                 fontSize: "clamp(1rem, 2.5vw, 1.25rem)", lineHeight: 1.5, maxWidth: 760,
               }}
             >
-              <span className="md:block">Sobe o XML e o SUPERBAR monta estoque, custo e fornecedor sozinho</span>
-              <span className="md:block">— até a decisão que te espera de manhã.</span>
+              <span className="md:block">Sobe o XML e o SUPERBAR monta estoque, custo e fornecedor</span>
+              <span className="md:block">sozinho — até a decisão que te espera de manhã.</span>
             </p>
           </Reveal>
         </div>
