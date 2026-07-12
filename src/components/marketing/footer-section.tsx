@@ -15,10 +15,10 @@ const DASH = "1px dashed rgba(255,255,255,0.25)";
 const ACCENT = "#FF3500";
 
 const LINKS = [
-  { label: "Produto", href: "#produto" },
-  { label: "Processo", href: "#processo" },
-  { label: "Na tela", href: "#tela" },
-  { label: "Perguntas", href: "#faq" },
+  { label: "O Superbar", href: "#produto" },
+  { label: "Superblog", href: "/blog" },
+  { label: "Work com a gente", href: "mailto:oi@superbar.com.br?subject=Quero trabalhar no SUPERBAR" },
+  { label: "Já sou cliente", href: "https://app.superbar.com.br/login" },
   { label: "Contato", href: "#contato" },
 ];
 
@@ -63,8 +63,8 @@ export function FooterSection() {
         .sb-foot-link:hover { color: ${ACCENT} !important; padding-left: 6px; }
         .sb-social-cell { transition: background 0.3s ease, color 0.3s ease; }
         .sb-social-cell:hover { background: ${ACCENT}; color: #000 !important; }
-        .sb-news-btn { transition: background 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
-        .sb-news-btn:hover { background: ${ACCENT}; transform: scale(1.06); }
+        .sb-news-btn { transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+        .sb-news-btn:hover { border-color: ${ACCENT} !important; color: ${ACCENT} !important; transform: scale(1.06); }
         @media (prefers-reduced-motion: reduce) {
           .sb-foot-link, .sb-social-cell, .sb-news-btn { transition: none !important; }
         }
@@ -135,7 +135,6 @@ export function FooterSection() {
                 }}
               >
                 Novidades do produto e ideias pra fazer seu bar lucrar mais.
-                Sem spam.
               </p>
               <form onSubmit={subscribe} className="flex items-center gap-3">
                 <input
