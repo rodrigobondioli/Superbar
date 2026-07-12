@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { isPlatformAdmin } from "@/lib/auth/platform-admin";
-import { getAdminBares } from "@/lib/admin/queries";
 import { contarAnotacoesAbertas } from "@/lib/anotacoes/queries";
 
 export default async function AdminLayout({
@@ -18,10 +17,7 @@ export default async function AdminLayout({
     redirect("/dashboard");
   }
 
-  // Badge da sidebar: bares que precisam de atenção (algum alerta ativo).
-  // getAdminBares é cache()-ado, então divide a query com a página.
-  const { bares } = await getAdminBares();
-  const alertCount = bares.filter((b) => b.alertas.length > 0).length;
+  // Badge da sidebar: tickets + sugestões em aberto (centro de anotações).
   const { total: anotacoesCount } = await contarAnotacoesAbertas();
 
   return (
@@ -35,7 +31,7 @@ export default async function AdminLayout({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <AdminSidebar adminEmail={auth.user.email ?? ""} alertCount={alertCount} anotacoesCount={anotacoesCount} />
+      <AdminSidebar adminEmail={auth.user.email ?? ""} anotacoesCount={anotacoesCount} />
       <main
         style={{
           flex: 1,

@@ -16,12 +16,11 @@ const links = [
 ];
 
 interface AdminSidebarProps {
-  alertCount?: number;      // bares com alertas
   anotacoesCount?: number;  // tickets + sugestões em aberto
   adminEmail?: string;      // identidade da conta logada
 }
 
-export function AdminSidebar({ alertCount = 0, anotacoesCount = 0, adminEmail = "" }: AdminSidebarProps) {
+export function AdminSidebar({ anotacoesCount = 0, adminEmail = "" }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -88,25 +87,6 @@ export function AdminSidebar({ alertCount = 0, anotacoesCount = 0, adminEmail = 
                 }}
               />
               {link.label}
-              {/* Badge para Atenção */}
-              {link.href === "/admin" && alertCount > 0 && (
-                <span style={{
-                  marginLeft: "auto",
-                  background: "var(--danger)",
-                  color: "#fff",
-                  fontSize: 10,
-                  fontWeight: 700,
-                  borderRadius: "50%",
-                  minWidth: 16,
-                  height: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "0 3px",
-                }}>
-                  {alertCount > 9 ? "9+" : alertCount}
-                </span>
-              )}
               {/* Badge para Anotações (pendências) */}
               {link.href === "/admin/anotacoes" && anotacoesCount > 0 && (
                 <span style={{

@@ -87,7 +87,7 @@ export default async function AdminPage() {
         {/* MRR */}
         <div style={card}>
           <p style={cardLabel}>MRR (receita recorrente)</p>
-          <p style={{ ...cardMetric, color: "var(--accent)" }}><Cifrao />{mrr.toLocaleString("pt-BR")}</p>
+          <p style={cardMetric}><Cifrao />{mrr.toLocaleString("pt-BR")}</p>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
             {pagantes.length} {pagantes.length === 1 ? "assinatura ativa" : "assinaturas ativas"}
           </p>
@@ -107,7 +107,7 @@ export default async function AdminPage() {
         {/* Receita em risco */}
         <div style={card}>
           <p style={cardLabel}>Receita em risco</p>
-          <p style={{ ...cardMetric, color: mrrEmRisco > 0 ? "var(--danger)" : "var(--ok)" }}><Cifrao />{mrrEmRisco.toLocaleString("pt-BR")}</p>
+          <p style={cardMetric}><Cifrao />{mrrEmRisco.toLocaleString("pt-BR")}</p>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>
             {emRisco.length === 0 ? "nenhuma conta em risco" : `${emRisco.length} conta${emRisco.length !== 1 ? "s" : ""} (inadimplente ou parada)`}
           </p>
