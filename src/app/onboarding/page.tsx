@@ -97,10 +97,10 @@ export default function OnboardingPage() {
           className="p-5 sm:p-8"
           style={{
             width: "100%",
-            maxWidth: "440px",
-            background: "var(--bg-elevated)",
-            border: "1px solid var(--border)",
-            borderRadius: "8px",
+            maxWidth: "520px",
+            background: "transparent",
+            border: "1px solid var(--border-strong)",
+            borderRadius: 24,
             display: "flex",
             flexDirection: "column",
             gap: "20px",
@@ -150,7 +150,7 @@ export default function OnboardingPage() {
             </p>
           )}
 
-          <Button type="submit" variant="primary" size="lg" disabled={criarLoading || !nomeBar.trim()} className="w-full">
+          <Button type="submit" variant="primary" size="lg" disabled={criarLoading} className="w-full">
             {criarLoading ? "Criando..." : "Criar meu bar →"}
           </Button>
         </form>
