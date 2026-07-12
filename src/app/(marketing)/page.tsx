@@ -138,7 +138,9 @@ export default async function Home() {
                   </div>
                 </Reveal>
               ))}
-              <div className="sb-dore" style={{ height: 0 }} />
+              {/* linha de fechamento — só no desktop; no mobile a coluna
+                  seguinte já abre com a própria régua (evita linha dupla) */}
+              <div className="sb-dore hidden lg:block" style={{ height: 0 }} />
             </div>
 
             {/* Mascote — coqueteleira vazando, protagonista */}

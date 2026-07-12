@@ -36,7 +36,7 @@ const ITEMS: Img[] = [
     left: "72%", top: "62%", speedY: 60, speedX: 60, rot: -24, z: 3,
     float: "float-img-b", dur: "5.2s", delay: "1s" },
   { id: "mascot", src: "/img-lp/logo-superbar.svg", w: 155, h: 155,
-    left: "44%", top: "72%", speedY: 360, speedX: -30, rot: 16, z: 5,
+    left: "44%", top: "56%", speedY: 80, speedX: -30, rot: 16, z: 5,
     float: "float-img-c", dur: "4.1s", delay: "0.4s" },
 ];
 
