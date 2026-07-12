@@ -9,13 +9,13 @@ import {
   ResponsiveContainer,
   type TooltipContentProps,
 } from "recharts";
+import { currency } from "@/lib/format";
 
 interface LineChartProps {
   data: { label: string; value: number }[];
   height?: number;
 }
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function ChartTooltip({ active, payload }: TooltipContentProps) {
   if (!active || !payload?.length) return null;

@@ -29,8 +29,8 @@ import { getImagemAutomatica } from "@/lib/cardapio/drink-images";
 import { ImageUpload } from "./image-upload";
 import type { CategoriaComProdutosAdmin } from "@/lib/cardapio/queries";
 import type { ProdutoComVariantes, ProdutoVariante, CustoStatus } from "@/types/database";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 // ─── Status da ficha (custo) ────────────────────────────────────────────────────
 // verde = confirmada (margem real) · âmbar = estimativa (falta custo) · cinza = sem ficha
@@ -255,7 +255,7 @@ function VarianteRow({ variante, produtoId, produtoNome, produtoDescricao, ficha
       </div>
       <span style={{ flex: 1, fontSize: 13, color: "var(--fg)" }}>{variante.nome}</span>
       <span style={{ fontSize: 12, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums" }}>
-        {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(variante.preco)}
+        {currency.format(variante.preco)}
       </span>
       <button
         type="button"

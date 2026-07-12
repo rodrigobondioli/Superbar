@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const currencyNum = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 interface LiveBarProps {

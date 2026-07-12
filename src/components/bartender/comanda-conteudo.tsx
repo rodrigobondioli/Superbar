@@ -7,8 +7,8 @@ import { toast } from "@/components/ui/toaster";
 import { FecharComandaBtn } from "./fechar-comanda-btn";
 import type { ItemAgrupado } from "@/lib/bartender/queries";
 import type { Comanda } from "@/types/database";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 interface ComandaConteudoProps {
   comanda: Comanda | null;

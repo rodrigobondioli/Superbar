@@ -5,6 +5,8 @@
  * térmica no diálogo padrão do browser (funciona em iPad e PC).
  */
 
+import { currency as fmt } from "@/lib/format";
+
 export interface ItemCupom {
   nome: string;
   quantidade: number;
@@ -22,8 +24,6 @@ export interface DadosCupom {
   servicoValor: number;   // calculado
   totalFinal: number;
 }
-
-const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export function imprimirConta(dados: DadosCupom) {
   const {

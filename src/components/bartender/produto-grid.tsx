@@ -5,8 +5,8 @@ import { Martini, PackageOpen, Search, X, ImageIcon, ShoppingCart, Minus, Plus }
 import { criarPedido } from "@/lib/bartender/actions";
 import type { CategoriaComProdutos } from "@/lib/bartender/queries";
 import type { CartItem, ProdutoComVariantes, ProdutoVariante } from "@/types/database";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 // ─── Tipo interno do carrinho ─────────────────────────────────────────────────
 

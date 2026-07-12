@@ -6,6 +6,7 @@ import { criarPedidoCliente } from "@/lib/mesa/actions";
 import { createClient } from "@/lib/supabase/client";
 import { chamarAtendimento } from "@/lib/mesa/actions";
 import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
+import { formatBRL } from "@/lib/format";
 
 type CategoriaComProdutos = Categoria & { produtos: Produto[] };
 
@@ -63,9 +64,7 @@ function writeCliente(barSlug: string, data: ClienteLocal) {
   } catch {}
 }
 
-function fmt(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+const fmt = formatBRL;
 
 function ordinal(n: number) {
   return `${n}ª`;

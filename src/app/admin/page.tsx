@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { getAdminBares } from "@/lib/admin/queries";
-
-const currency = new Intl.NumberFormat("pt-BR", {
-  style: "currency", currency: "BRL", maximumFractionDigits: 0,
-});
+import { currencyInteiro as currency } from "@/lib/format";
 
 const card: React.CSSProperties = {
   background: "var(--bg-card)",

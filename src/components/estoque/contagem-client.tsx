@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ClipboardCheck, Loader2, Check, Search } from "lucide-react";
 import { salvarContagem, type ContagemLinha, type ContagemResultado } from "@/lib/estoque/actions";
 import type { InsumoContagem } from "@/lib/estoque/queries";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const qtd = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 type Phase = "contando" | "salvando" | "resumo";

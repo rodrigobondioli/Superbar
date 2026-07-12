@@ -6,6 +6,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { PagamentoMetodo } from "@/types/database";
+import { METODO_LABEL } from "@/lib/caixa/constants";
 
 // ─── Horário de pico ──────────────────────────────────────────────────────────
 
@@ -126,14 +127,6 @@ export interface FatiaMetodo {
   valor: number;
   percentual: number; // 0–100
 }
-
-const METODO_LABEL: Record<PagamentoMetodo, string> = {
-  pix:      "Pix",
-  credito:  "Crédito",
-  debito:   "Débito",
-  dinheiro: "Dinheiro",
-  cortesia: "Cortesia",
-};
 
 export function labelMetodo(metodo: PagamentoMetodo): string {
   return METODO_LABEL[metodo] ?? metodo;

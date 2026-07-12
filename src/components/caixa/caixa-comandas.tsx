@@ -6,8 +6,8 @@ import type { ComandaPendente } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 
 import { METODOS } from "@/lib/caixa/constants";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function ComandaCard({ comanda, taxaServicoPct = 10 }: { comanda: ComandaPendente; taxaServicoPct?: number }) {
   const [isPending, startTransition] = useTransition();

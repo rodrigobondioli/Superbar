@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   type TooltipContentProps,
 } from "recharts";
+import { currency } from "@/lib/format";
 
 interface BarChartProps {
   data: { label: string; value: number }[];
@@ -16,7 +17,6 @@ interface BarChartProps {
   fill?: boolean;
 }
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function ChartTooltip({ active, payload }: TooltipContentProps) {
   if (!active || !payload?.length) return null;

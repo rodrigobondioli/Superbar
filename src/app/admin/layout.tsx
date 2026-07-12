@@ -1,10 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-
-const ADMIN_EMAILS = (process.env.PLATFORM_ADMIN_EMAILS ?? "rodrigobondioli@gmail.com")
-  .split(",")
-  .map((e) => e.trim().toLowerCase());
+import { isPlatformAdmin } from "@/lib/auth/platform-admin";
 
 export default async function AdminLayout({
   children,
@@ -15,7 +12,7 @@ export default async function AdminLayout({
   const { data: auth } = await supabase.auth.getUser();
 
   if (!auth.user) redirect("/login");
-  if (!ADMIN_EMAILS.includes(auth.user.email?.toLowerCase() ?? "")) {
+  if (!isPlatformAdmin(auth.user.email)) {
     redirect("/dashboard");
   }
 

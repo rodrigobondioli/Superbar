@@ -5,8 +5,8 @@ import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { getTurnos } from "@/lib/dashboard/turnos";
 import { EmptyState } from "@/components/ui/empty-state";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "2-digit",

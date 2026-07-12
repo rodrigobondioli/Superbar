@@ -3,6 +3,7 @@ import { getAdminBarDetalhe, getBarEvolucaoMensal } from "@/lib/admin/queries";
 import type { BarDetalhe, HealthScore, ImplantacaoScore, EvolucaoMes } from "@/lib/admin/queries";
 import type { AssinaturaStatus } from "@/types/database";
 import { suspenderBar, reativarBar, alterarStatusAssinatura } from "@/lib/admin/actions";
+import { currencyInteiro } from "@/lib/format";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,7 @@ const IMPL_CONFIG: Record<ImplantacaoScore, { label: string; color: string; bg: 
   abandonado: { label: "Não implant.", color: "#ef4444", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.2)"  },
 };
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const currency = currencyInteiro;
 
 function shortDate(iso: string | null): string {
   if (!iso) return "—";
@@ -118,7 +119,7 @@ function EvolucaoSection({ meses }: { meses: EvolucaoMes[] }) {
   const comDado = meses.filter(m => m.faturamento > 0 || m.ticket !== null);
   if (comDado.length < 2) return null;
 
-  const c0 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  const c0 = currencyInteiro;
 
   function delta(vals: (number | null)[], mode: "pct" | "pp", upGood: boolean): { txt: string; cor: string } | null {
     const nn = vals.filter((v): v is number => v !== null);

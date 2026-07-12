@@ -5,8 +5,8 @@ import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { listarClientes, getClientesStats, getAniversariantesDoMes, getClientesInativos } from "@/lib/clientes/queries";
 import { ClientesTable } from "@/components/clientes/clientes-table";
 import { NovoClienteButton } from "@/components/clientes/novo-cliente-button";
+import { formatBRL as fmt } from "@/lib/format";
 
-const fmt   = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 // Remove prefixo "Mesa X - " / "Balcão - " gerado pelo seed antigo
 const nomeDisplay = (nome: string) => nome.replace(/^[^-]+ - /, "");
 

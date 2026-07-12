@@ -12,8 +12,8 @@ import {
   getProdutosVendidosPeriodo,
   getVendasPorGarcom,
 } from "@/lib/dashboard/relatorios";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 const kpiCard: React.CSSProperties = {

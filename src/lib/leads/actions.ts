@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 
@@ -9,19 +10,72 @@ interface LeadPayload {
   tipo_bar: string;
   whatsapp: string;
   instagram?: string;
+  /** Honeypot: campo escondido no form. Humano nunca preenche; bot preenche. */
+  website?: string;
+}
+
+// Limites de tamanho — barram payload gigante (abuso/estouro de coluna).
+const LIMITES = { nome_bar: 120, cidade: 80, tipo_bar: 60, instagram: 80 } as const;
+
+/** Throttle best-effort por IP (memória do processo). Não é durável em
+ *  serverless — para produção robusta, mover para Upstash/Redis. Ainda assim
+ *  corta flood dentro de uma mesma instância. */
+const JANELA_MS = 10 * 60 * 1000; // 10 min
+const MAX_POR_JANELA = 5;
+const hits = new Map<string, number[]>();
+
+function rateLimited(ip: string): boolean {
+  const agora = Date.now();
+  const recentes = (hits.get(ip) ?? []).filter((t) => agora - t < JANELA_MS);
+  recentes.push(agora);
+  hits.set(ip, recentes);
+  return recentes.length > MAX_POR_JANELA;
 }
 
 export async function submitLead(
   payload: LeadPayload,
 ): Promise<{ ok: true } | { error: string }> {
+  // 1. Honeypot: se preenchido, é bot. Finge sucesso (não alimenta o atacante).
+  if (payload.website && payload.website.trim() !== "") return { ok: true };
+
+  // 2. Validação de shape e tamanho.
+  const nome_bar = (payload.nome_bar ?? "").trim();
+  const cidade = (payload.cidade ?? "").trim();
+  const tipo_bar = (payload.tipo_bar ?? "").trim();
+  const whatsapp = (payload.whatsapp ?? "").trim();
+  const instagram = payload.instagram?.trim() || null;
+
+  if (!nome_bar || !whatsapp || !cidade || !tipo_bar) {
+    return { error: "Preencha os campos obrigatórios." };
+  }
+  if (
+    nome_bar.length > LIMITES.nome_bar ||
+    cidade.length > LIMITES.cidade ||
+    tipo_bar.length > LIMITES.tipo_bar ||
+    (instagram && instagram.length > LIMITES.instagram)
+  ) {
+    return { error: "Algum campo ultrapassou o tamanho permitido." };
+  }
+  const digitos = whatsapp.replace(/\D/g, "");
+  if (digitos.length < 10 || digitos.length > 13) {
+    return { error: "WhatsApp inválido." };
+  }
+
+  // 3. Throttle por IP.
+  const hdrs = await headers();
+  const ip = (hdrs.get("x-forwarded-for") ?? "").split(",")[0].trim() || "desconhecido";
+  if (rateLimited(ip)) {
+    return { error: "Muitas tentativas. Aguarde alguns minutos." };
+  }
+
   const supabase = createAdminClient();
 
   const { error } = await supabase.from("leads").insert({
-    nome_bar: payload.nome_bar.trim(),
-    cidade: payload.cidade,
-    tipo_bar: payload.tipo_bar,
-    whatsapp: payload.whatsapp.trim(),
-    instagram: payload.instagram?.trim() || null,
+    nome_bar,
+    cidade,
+    tipo_bar,
+    whatsapp,
+    instagram,
     origem: "Site",     // passivo — chegou sozinho pelo formulário da landing
     ordem: Date.now(),  // entra no topo da coluna
   });
@@ -29,7 +83,7 @@ export async function submitLead(
   if (error) return { error: "Erro ao enviar pedido. Tente novamente." };
 
   // Notificação por email — best-effort: se falhar, o lead já está salvo.
-  await notifyNewLead(payload);
+  await notifyNewLead({ nome_bar, cidade, tipo_bar, whatsapp, instagram: instagram ?? undefined });
 
   return { ok: true };
 }

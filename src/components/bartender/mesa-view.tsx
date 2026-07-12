@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, Plus, Trash2, Loader2 } from "lucide-react";
 import { abrirComandasMesa, listarComandasMesa, enviarComandasCaixa, type PessoaComandaLite } from "@/lib/bartender/actions";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 /** Drawer lateral da mesa — centro do garçom: montar as pessoas e só depois pedir.
  *  Busca as comandas por server action (robusto, não depende do realtime). */

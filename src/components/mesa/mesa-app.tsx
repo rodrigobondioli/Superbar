@@ -6,6 +6,7 @@ import { abrirComandaCliente, chamarAtendimento, buscarComandaPorTelefone, criar
 import type { MesaPublica, ProdutoPublico } from "@/lib/mesa/queries";
 import { MenuApp } from "@/components/menu/menu-app";
 import type { Bar, Mesa, Categoria, Produto, Destaque } from "@/types/database";
+import { currency } from "@/lib/format";
 
 type Tab = "cardapio" | "conta";
 
@@ -21,7 +22,6 @@ type ItemComanda = {
   precoTotal: number;
 };
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const SESSION_KEY = "superbar_comanda";
 
 // ─── Ícones inline ─────────────────────────────────────────────────────────────

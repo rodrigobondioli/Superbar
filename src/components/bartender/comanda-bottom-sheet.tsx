@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 interface ComandaBottomSheetProps {
   itemCount: number;

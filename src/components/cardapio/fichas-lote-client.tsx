@@ -8,8 +8,8 @@ import { salvarFichasLote, type FichaLoteInput, type FichaLoteResult } from "@/l
 import type { DrinkParaFicha } from "@/lib/ficha/queries";
 import type { InsumoSugerido, SugerirFichaResponse, UnidadeInsumo } from "@/lib/ficha/sugestao-types";
 import { margem, margemPercentual } from "@/lib/custo";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 type Phase = "lista" | "gerando" | "revisar" | "salvando" | "resumo";
 

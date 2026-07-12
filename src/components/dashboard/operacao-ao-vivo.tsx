@@ -5,8 +5,8 @@ import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { Chip } from "@/components/ui/chip";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 // layout-effect no cliente, effect no servidor — corrige o layout ANTES do paint
 // (mata o flash em que o desktop aparece "torto" no mobile antes de ajustar).

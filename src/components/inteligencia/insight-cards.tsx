@@ -4,9 +4,7 @@ import { useState, useTransition } from "react";
 import { marcarInsightLido } from "@/lib/inteligencia/actions";
 import type { InsightPendente } from "@/lib/inteligencia/queries";
 import { CARD, LABEL } from "@/lib/ui";
-
-const fmt = (v: number) =>
-  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+import { formatBRL as fmt } from "@/lib/format";
 
 interface TipoMeta {
   label:       string;

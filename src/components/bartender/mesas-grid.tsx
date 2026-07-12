@@ -8,8 +8,8 @@ import { abrirComanda, atenderChamada } from "@/lib/bartender/actions";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
 import { MesaDrawer } from "@/components/bartender/mesa-view";
 import { Button } from "@/components/ui/button";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function tempoAberta(abertaEm: string) {
   const diff = Math.floor((Date.now() - new Date(abertaEm).getTime()) / 60000);

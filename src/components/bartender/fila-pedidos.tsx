@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { atualizarStatusPedido } from "@/lib/menu/actions";
 import type { PedidoCliente, ItemPedidoCliente } from "@/types/database";
+import { formatBRL } from "@/lib/format";
 
 // Semantic status colors — allowed in Bartender surface
 const STATUS_LABELS: Record<PedidoCliente["status"], string> = {
@@ -37,9 +38,7 @@ function tempo(created_at: string) {
   return `${Math.floor(diff / 60)}h${diff % 60 > 0 ? `${diff % 60}min` : ""}`;
 }
 
-function fmt(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+const fmt = formatBRL;
 
 function PedidoCard({
   pedido,

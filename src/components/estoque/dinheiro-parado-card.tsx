@@ -1,7 +1,7 @@
 import { PiggyBank } from "lucide-react";
 import type { DinheiroParado } from "@/lib/estoque/queries";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const qtd = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 /**

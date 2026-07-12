@@ -69,7 +69,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({
     nome_bar: "", cidade: "São Paulo", tipo_bar: "Coquetelaria",
-    whatsapp: "", instagram: "",
+    whatsapp: "", instagram: "", website: "",
   });
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +86,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
     onClose();
     setTimeout(() => {
       setSuccess(false);
-      setForm({ nome_bar: "", cidade: "São Paulo", tipo_bar: "Coquetelaria", whatsapp: "", instagram: "" });
+      setForm({ nome_bar: "", cidade: "São Paulo", tipo_bar: "Coquetelaria", whatsapp: "", instagram: "", website: "" });
     }, 400);
   }
 
@@ -305,6 +305,13 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                     onSubmit={handleSubmit}
                     style={{ padding: "16px 20px 20px", display: "flex", flexDirection: "column", gap: "14px" }}
                   >
+                    {/* Honeypot anti-bot — escondido do humano, preenchido por bots */}
+                    <input
+                      type="text" name="website" tabIndex={-1} autoComplete="off"
+                      value={form.website} onChange={handleChange}
+                      aria-hidden="true"
+                      style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+                    />
                     {/* ESTABELECIMENTO */}
                     <div>
                       <label htmlFor="nome_bar" style={labelStyle}>Estabelecimento</label>

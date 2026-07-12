@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BarChart } from "@/components/ui/bar-chart";
 import { TrendText } from "@/components/ui/trend-text";
+import { currency } from "@/lib/format";
 
 // ─── Design tokens ───────────────────────────────────────────────
 const card: React.CSSProperties = {
@@ -74,7 +75,6 @@ const MOCK = {
   ],
 };
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const pct = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 // ─── Sidebar ─────────────────────────────────────────────────────

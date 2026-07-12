@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTurnoDetalhe, getComandasDoTurno } from "@/lib/dashboard/turnos";
 import type { ComandaStatus } from "@/types/database";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "2-digit",

@@ -4,17 +4,14 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const ADMIN_EMAILS = (process.env.PLATFORM_ADMIN_EMAILS ?? "rodrigobondioli@gmail.com")
-  .split(",")
-  .map((e) => e.trim().toLowerCase());
+import { isPlatformAdmin } from "@/lib/auth/platform-admin";
 
 /** Guard: verifica que o usuário atual é admin da plataforma */
 async function assertAdmin() {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login");
-  if (!ADMIN_EMAILS.includes(auth.user.email?.toLowerCase() ?? "")) {
+  if (!isPlatformAdmin(auth.user.email)) {
     throw new Error("Acesso negado");
   }
   return auth.user;

@@ -14,7 +14,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { MesaComStatus } from "@/lib/bartender/queries";
 import type { Comanda, PagamentoMetodo, Turno } from "@/types/database";
-import { METODO_LABEL } from "@/lib/caixa/constants";
+import { METODO_LABEL, METODOS } from "@/lib/caixa/constants";
+import { currency } from "@/lib/format";
 
 type Tab = "comandas" | "mesas" | "turno";
 
@@ -24,7 +25,6 @@ const TABS: { id: Tab; label: string; Icon: React.FC<{ style?: React.CSSProperti
   { id: "turno",    label: "Turno",    Icon: ({ style }) => <Clock style={style} strokeWidth={1.75} /> },
 ];
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 // ─── Ícones ───────────────────────────────────────────────────────────────────
 
@@ -162,14 +162,6 @@ function ComandaPagamentoSheet({
     setTimeout(() => setCopiado(false), 2500);
   };
 
-  const METODOS: { id: PagamentoMetodo; label: string }[] = [
-    { id: "pix",      label: "Pix" },
-    { id: "dinheiro", label: "Dinheiro" },
-    { id: "credito",  label: "Crédito" },
-    { id: "debito",   label: "Débito" },
-    { id: "cortesia", label: "Cortesia" },
-  ];
-
   return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 60 }} />
@@ -288,11 +280,11 @@ function ComandaPagamentoSheet({
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {METODOS.map(m => (
                 <Button
-                  key={m.id}
-                  variant={m.id === "cortesia" ? "op-secondary" : "op"}
+                  key={m.key}
+                  variant={m.key === "cortesia" ? "op-secondary" : "op"}
                   disabled={isPending}
-                  onClick={() => !isPending && pagar(m.id)}
-                  style={m.id === "cortesia" ? { gridColumn: "span 2" } : undefined}
+                  onClick={() => !isPending && pagar(m.key)}
+                  style={m.key === "cortesia" ? { gridColumn: "span 2" } : undefined}
                 >
                   {isPending ? "..." : m.label}
                 </Button>

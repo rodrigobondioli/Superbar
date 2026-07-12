@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { Upload, CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { previewNfe, confirmarNfe, type NfePreview } from "@/lib/nfe/actions";
 import { PassosImport } from "@/components/ui/passos-import";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)", border: "1px solid var(--border)", borderRadius: 8,

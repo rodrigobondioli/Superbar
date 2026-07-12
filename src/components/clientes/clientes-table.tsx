@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { MessageCircle } from "lucide-react";
 import type { Cliente } from "@/types/database";
 import { atualizarCliente } from "@/lib/clientes/actions";
+import { formatBRL as fmt } from "@/lib/format";
 
-const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 function fmtData(iso: string | null) {
   if (!iso) return "—";

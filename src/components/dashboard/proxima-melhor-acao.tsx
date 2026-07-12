@@ -1,7 +1,9 @@
 "use client";
 
+import { currencyInteiro } from "@/lib/format";
+
 const percent = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const currency = currencyInteiro;
 
 interface ProximaMelhorAcaoProps {
   produtoNome: string;

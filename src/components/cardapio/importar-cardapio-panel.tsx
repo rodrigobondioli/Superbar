@@ -6,8 +6,8 @@ import { mergeImportacao } from "@/lib/cardapio/import-actions";
 import { normalizarNome } from "@/lib/cardapio/import-types";
 import { PassosImport } from "@/components/ui/passos-import";
 import type { ProdutoPreview, ImportarResponse } from "@/lib/cardapio/import-types";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const inp: React.CSSProperties = {
   background: "var(--bg-inset)",

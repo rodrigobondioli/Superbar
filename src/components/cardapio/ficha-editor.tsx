@@ -7,8 +7,8 @@ import { toast } from "@/components/ui/toaster";
 import { carregarFicha, salvarFicha, type LinhaFichaInput } from "@/lib/ficha/actions";
 import type { UnidadeInsumo, SugerirFichaResponse } from "@/lib/ficha/sugestao-types";
 import { custoDaFicha, margem, margemPercentual } from "@/lib/custo";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const UNIDADES: UnidadeInsumo[] = ["un", "ml", "l", "g", "kg"];
 
 type Linha = LinhaFichaInput;

@@ -10,8 +10,8 @@ import { Toggle } from "@/components/ui/toggle";
 import type { ComandaPendente, CaixaInsights } from "@/lib/caixa/queries";
 import type { PagamentoMetodo } from "@/types/database";
 import { METODO_LABEL } from "@/lib/caixa/constants";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function calcTempo(ts: string) {
   const min = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);

@@ -1,7 +1,7 @@
 import { TrendingUp } from "lucide-react";
 import type { VariacaoCusto } from "@/lib/dashboard/queries";
+import { currency } from "@/lib/format";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 /**
  * Alerta de custo subindo — compara as duas últimas compras de cada insumo.

@@ -33,9 +33,9 @@ import {
   calcularPico,
   gerarInsightsOperacionais,
 } from "@/lib/dashboard/operacao";
+import { currency } from "@/lib/format";
 
 const TOP_DRINKS_LIMIT = 5;
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
 const dataLongaFmt = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 

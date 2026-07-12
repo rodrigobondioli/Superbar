@@ -7,8 +7,6 @@ import { criarMesa, editarMesa, removerMesa } from "@/lib/mesas/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import type { Mesa } from "@/types/database";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-
 // ─── Estilos base ───────────────────────────────────────────────────────────
 const lbl: React.CSSProperties = {
   fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)",
