@@ -20,7 +20,7 @@ A interface some — os dados falam. Nenhum elemento existe por estética; cada 
   - Carregada via `next/font/google` em `src/app/layout.tsx` → variável `--font-sans`
   - `--font-display` e `--font-roboto-mono` são aliases de `--font-sans` definidos em `globals.css`
   - Nunca adicione outra fonte sem decisão explícita
-- **EXCEÇÃO (decisão de 2026-07-11): fonte display da landing.** Títulos/display da landing page usam **Anton** (Google Fonts), carregada em `src/app/(marketing)/layout.tsx` que re-aponta `--font-display` **apenas no subtree da marketing**. Plano: substituir por **Peperoncino Sans Regular** (licença webfont MyFonts, mesma métrica de uso) quando adquirida — troca acontece só nesse layout. O app (dashboard/auth/operacional) segue 100% Inter; `--font-display` fora da landing continua alias de Inter.
+- **EXCEÇÃO (decisão de 2026-07-11): fonte display da landing.** Títulos/display da landing page usam **Londrina Solid 400** (Google Fonts, licença OFL — livre), carregada em `src/app/(marketing)/layout.tsx` que re-aponta `--font-display` **apenas no subtree da marketing**. O app (dashboard/auth/operacional) segue 100% Inter; `--font-display` fora da landing continua alias de Inter.
   - Uso do display na landing: uppercase, `line-height` 0.92–1.0, `letter-spacing` 0.01em, tamanhos fluid via clamp (títulos cartaz até ~12vw). Nunca em texto corrido, nunca no app.
 - **Estilo:** Tailwind CSS v4 + inline styles via CSS variables
 - **Tema:** dark por padrão (`data-theme="dark"` no layout)
