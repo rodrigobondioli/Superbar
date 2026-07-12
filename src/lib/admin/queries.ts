@@ -343,16 +343,23 @@ async function getAdminBaresImpl(): Promise<{
       .select("bar_id, id")
       .in("bar_id", barIds)
       .gte("criado_em", ago7d),
-    // CMV real: itens vendidos × custo do produto
+    // CMV real: itens vendidos × custo do produto. JANELA: só desde o início do
+    // mês anterior — o CMV exibido é dos ~2 meses correntes, não da história toda.
+    // Sem isso, esta query carregava TODOS os comanda_items da plataforma em
+    // memória (não escala; arrasta já com dezenas de bares com meses de dado).
     admin.from("comanda_items")
       .select("bar_id, quantidade, preco_total, produtos(custo)")
       .in("bar_id", barIds)
-      .neq("status", "cancelado"),
-    // Todos os pagamentos confirmados — para faturamento total, mensal e ticket médio
+      .neq("status", "cancelado")
+      .gte("adicionado_em", mesAnteriorInicio),
+    // Pagamentos confirmados dos ~2 meses correntes (mês atual + anterior) — que
+    // é o único recorte de faturamento que a UI exibe. JANELA pelo mesmo motivo
+    // acima: antes lia todos os pagamentos confirmados da plataforma inteira.
     admin.from("pagamentos")
       .select("bar_id, valor, taxa_servico_valor, processado_em")
       .in("bar_id", barIds)
-      .eq("status", "confirmado"),
+      .eq("status", "confirmado")
+      .gte("processado_em", mesAnteriorInicio),
   ]);
 
   // ── Indexar por bar ──────────────────────────────────────────────────────
