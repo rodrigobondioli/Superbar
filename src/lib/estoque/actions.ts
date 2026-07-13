@@ -1,26 +1,28 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentBar } from "@/lib/dashboard/queries";
 import { traduzirErro } from "@/lib/utils";
-import type { MovimentoTipo } from "@/types/database";
 
 /** Quem conta estoque: quem lida com a prateleira. Garçom/caixa ficam de fora. */
 const ROLES_CONTAGEM = ["dono", "gerente", "bar_manager", "bartender"];
 
 export type EstoqueResult = { ok: true } | { error: string } | null;
 
+// Entrada/saída/ajuste manual de um INSUMO (ingredientes/ingrediente_movimentos).
+// Antes escrevia na tabela legada `estoque`; agora opera no mesmo sistema da NF-e
+// e da contagem. Admin client + guard de role (padrão das actions de insumo).
 export async function registrarMovimento(
-  estoqueId: string,
+  ingredienteId: string,
   formData: FormData
 ): Promise<EstoqueResult> {
   const current = await getCurrentBar();
   if (!current) return { error: "Não autenticado." };
+  if (!ROLES_CONTAGEM.includes(current.role)) return { error: "Sem permissão para mexer no estoque." };
 
   const quantidadeStr = String(formData.get("quantidade") ?? "").replace(",", ".");
-  const tipo = String(formData.get("tipo") ?? "") as MovimentoTipo;
+  const tipo = String(formData.get("tipo") ?? "");
   const motivo = String(formData.get("motivo") ?? "").trim() || null;
   const custoStr = String(formData.get("custo_unitario") ?? "").replace(",", ".");
   const custoUnitario = custoStr ? parseFloat(custoStr) : null;
@@ -29,48 +31,49 @@ export async function registrarMovimento(
   if (isNaN(quantidade) || quantidade <= 0) return { error: "Quantidade inválida." };
   if (!["compra", "ajuste", "perda", "devolucao"].includes(tipo)) return { error: "Tipo inválido." };
 
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  // Lê estoque atual
-  const { data: estoque } = await supabase
-    .from("estoque")
-    .select("quantidade_atual, bar_id")
-    .eq("id", estoqueId)
+  const { data: ing } = await admin
+    .from("ingredientes")
+    .select("estoque_atual, custo_atual")
+    .eq("id", ingredienteId)
     .eq("bar_id", current.bar.id)
-    .maybeSingle<{ quantidade_atual: number; bar_id: string }>();
+    .maybeSingle<{ estoque_atual: number; custo_atual: number }>();
 
-  if (!estoque) return { error: "Item de estoque não encontrado." };
+  if (!ing) return { error: "Insumo não encontrado." };
 
-  const anterior = Number(estoque.quantidade_atual);
-  // Compra e devolução somam; perda subtrai; ajuste define o valor absoluto
+  const anterior = Number(ing.estoque_atual);
+  // Compra e devolução somam; perda subtrai (piso 0); ajuste define o total absoluto.
   const posterior =
     tipo === "ajuste" ? quantidade :
     tipo === "perda"  ? Math.max(anterior - quantidade, 0) :
     anterior + quantidade; // compra, devolucao
+  const delta = posterior - anterior;
 
-  // Atualiza quantidade
-  const { error: updateError } = await supabase.from("estoque")
-    .update({ quantidade_atual: posterior })
-    .eq("id", estoqueId);
+  const temCusto = tipo === "compra" && custoUnitario !== null && !isNaN(custoUnitario);
+  const patch: Record<string, unknown> = { estoque_atual: posterior, atualizado_em: new Date().toISOString() };
+  if (temCusto) patch.custo_atual = custoUnitario; // compra com custo atualiza o custo do insumo (CMV)
+
+  const { error: updateError } = await admin.from("ingredientes")
+    .update(patch)
+    .eq("id", ingredienteId)
+    .eq("bar_id", current.bar.id);
 
   if (updateError) return { error: traduzirErro(updateError.message) };
 
-  // Registra movimento (log imutável). O estoque é por INSUMO, não por produto,
-  // então não há produto_id aqui — a coluna precisa ser nullable (ver migration
-  // 20260712_estoque_mov_produto_nullable.sql). Erro do insert é tratado pra não
-  // perder o log em silêncio (Princípio 12).
-  const { error: movError } = await supabase.from("estoque_movimentos").insert({
+  // Movimento (log imutável). ingrediente_movimentos.tipo só aceita entrada|venda|
+  // ajuste (CHECK). Entrada = compra/devolução (qtd positiva); perda vira ajuste
+  // negativo (não é venda — sem receita). Ajuste = delta assinado.
+  const movTipo = (tipo === "compra" || tipo === "devolucao") ? "entrada" : "ajuste";
+  const movQtd = movTipo === "entrada" ? quantidade : delta;
+  const { error: movError } = await admin.from("ingrediente_movimentos").insert({
     bar_id: current.bar.id,
-    produto_id: null, // estoque é por insumo — sem produto (coluna nullable pós-migration)
-    tipo,
-    quantidade,
-    quantidade_anterior: anterior,
-    quantidade_posterior: posterior,
-    referencia_tipo: "estoque",
-    referencia_id: estoqueId,
-    motivo,
-    ...(custoUnitario !== null && !isNaN(custoUnitario) ? { custo_unitario: custoUnitario } : {}),
+    ingrediente_id: ingredienteId,
+    tipo: movTipo,
+    quantidade: movQtd,
+    custo_unitario: temCusto ? custoUnitario : ing.custo_atual,
     criado_por: current.userId,
+    motivo: motivo ?? (tipo === "perda" ? "Perda / quebra" : null),
     criado_em: new Date().toISOString(),
   });
   if (movError) console.error("registrarMovimento: falha ao gravar movimento", movError);
@@ -190,20 +193,21 @@ export async function salvarContagem(linhas: ContagemLinha[]): Promise<SalvarCon
 }
 
 export async function atualizarMinimo(
-  estoqueId: string,
+  ingredienteId: string,
   formData: FormData
 ): Promise<EstoqueResult> {
   const current = await getCurrentBar();
   if (!current) return { error: "Não autenticado." };
+  if (!ROLES_CONTAGEM.includes(current.role)) return { error: "Sem permissão para mexer no estoque." };
 
   const minimoStr = String(formData.get("quantidade_minima") ?? "").replace(",", ".");
   const minimo = parseFloat(minimoStr);
   if (isNaN(minimo) || minimo < 0) return { error: "Valor inválido." };
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("estoque")
-    .update({ quantidade_minima: minimo })
-    .eq("id", estoqueId)
+  const admin = createAdminClient();
+  const { error } = await admin.from("ingredientes")
+    .update({ estoque_minimo: minimo })
+    .eq("id", ingredienteId)
     .eq("bar_id", current.bar.id);
 
   if (error) return { error: traduzirErro(error.message) };

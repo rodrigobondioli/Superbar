@@ -1,14 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { EstoqueUnidade, MovimentoTipo } from "@/types/database";
+import type { MovimentoTipo } from "@/types/database";
 
 export interface ItemEstoque {
-  id: string;
-  produtoId: string;
-  produtoNome: string;
+  id: string;               // ingrediente_id
+  nome: string;             // nome do insumo
   quantidadeAtual: number;
   quantidadeMinima: number;
-  unidade: EstoqueUnidade;
+  unidade: string;          // base: un/ml/l/g/kg
+  custoAtual: number;       // R$ por unidade-base (custo é rei — Princípio 10)
   abaixoDoMinimo: boolean;
 }
 
@@ -22,32 +22,43 @@ export interface MovimentoEstoque {
   criadoEm: string;
 }
 
+// Estoque = INSUMOS (ingredientes). É a mesma fonte da NF-e, da contagem, do
+// dinheiro parado e do CMV — a inteligência mora aqui (Princípio 1/2). A tabela
+// antiga `estoque`/`produtos` era um segundo sistema paralelo que a NF-e não
+// alimentava; por isso a tela ficava vazia mesmo com insumos importados.
 export async function getEstoque(barId: string): Promise<ItemEstoque[]> {
   const supabase = await createClient();
 
   const { data } = await supabase
-    .from("estoque")
-    .select("id, produto_id, quantidade_atual, quantidade_minima, unidade, produtos(nome)")
+    .from("ingredientes")
+    .select("id, nome, unidade, estoque_atual, estoque_minimo, custo_atual")
     .eq("bar_id", barId)
-    .order("quantidade_atual", { ascending: true })
+    .eq("ativo", true)
+    .order("estoque_atual", { ascending: true })
     .returns<Array<{
       id: string;
-      produto_id: string;
-      quantidade_atual: number;
-      quantidade_minima: number;
-      unidade: EstoqueUnidade;
-      produtos: { nome: string } | null;
+      nome: string;
+      unidade: string;
+      estoque_atual: number;
+      estoque_minimo: number;
+      custo_atual: number;
     }>>();
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    produtoId: row.produto_id,
-    produtoNome: row.produtos?.nome ?? "Produto",
-    quantidadeAtual: Number(row.quantidade_atual),
-    quantidadeMinima: Number(row.quantidade_minima),
-    unidade: row.unidade,
-    abaixoDoMinimo: Number(row.quantidade_atual) < Number(row.quantidade_minima),
-  }));
+  return (data ?? []).map((row) => {
+    const qtd = Number(row.estoque_atual);
+    const min = Number(row.estoque_minimo);
+    return {
+      id: row.id,
+      nome: row.nome,
+      quantidadeAtual: qtd,
+      quantidadeMinima: min,
+      unidade: row.unidade,
+      custoAtual: Number(row.custo_atual),
+      // Só "abaixo do mínimo" quando há mínimo definido (>0). Insumo sem mínimo
+      // e zerado cai em "crítico" pelo semáforo, não aqui.
+      abaixoDoMinimo: min > 0 && qtd < min,
+    };
+  });
 }
 
 // ── Dinheiro parado (excess / slow-moving inventory) ────────────────────────
@@ -165,33 +176,31 @@ export interface MovimentoRecente {
 export async function getMovimentosRecentes(barId: string): Promise<MovimentoRecente[]> {
   const supabase = await createClient();
 
-  // Mapa estoqueId → nome do produto
-  const { data: estoqueItems } = await supabase
-    .from("estoque")
-    .select("id, produtos(nome)")
+  const { data: movs } = await supabase
+    .from("ingrediente_movimentos")
+    .select("id, tipo, quantidade, motivo, criado_em, ingrediente_id")
     .eq("bar_id", barId)
-    .returns<Array<{ id: string; produtos: { nome: string } | null }>>();
-
-  const nomeMap = new Map(
-    (estoqueItems ?? []).map(e => [e.id, e.produtos?.nome ?? "Produto"])
-  );
-  const estoqueIds = [...nomeMap.keys()];
-  if (estoqueIds.length === 0) return [];
-
-  const { data } = await supabase
-    .from("estoque_movimentos")
-    .select("id, tipo, quantidade, motivo, criado_em, referencia_id")
-    .in("referencia_id", estoqueIds)
     .order("criado_em", { ascending: false })
     .limit(50)
-    .returns<Array<{ id: string; tipo: string; quantidade: number; motivo: string | null; criado_em: string; referencia_id: string }>>();
+    .returns<Array<{ id: string; tipo: string; quantidade: number; motivo: string | null; criado_em: string; ingrediente_id: string }>>();
 
-  return (data ?? []).map(row => ({
+  if (!movs || movs.length === 0) return [];
+
+  // Nome do insumo em passo separado (evita embed que tipa `never` — ver memória).
+  const ingIds = [...new Set(movs.map(m => m.ingrediente_id))];
+  const { data: ings } = await supabase
+    .from("ingredientes")
+    .select("id, nome")
+    .in("id", ingIds)
+    .returns<Array<{ id: string; nome: string }>>();
+  const nomeMap = new Map((ings ?? []).map(i => [i.id, i.nome]));
+
+  return movs.map(row => ({
     id: row.id,
     tipo: row.tipo,
     quantidade: Number(row.quantidade),
     motivo: row.motivo,
-    produtoNome: nomeMap.get(row.referencia_id) ?? "Produto",
+    produtoNome: nomeMap.get(row.ingrediente_id) ?? "Insumo",
     criadoEm: row.criado_em,
   }));
 }

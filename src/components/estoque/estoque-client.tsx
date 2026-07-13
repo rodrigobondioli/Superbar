@@ -15,11 +15,21 @@ const TIPO_BOTOES = [
 ] as const;
 
 const TIPO_META: Record<string, { label: string; cor: string; sinal: string }> = {
-  compra:    { label: "Entrada",  cor: "var(--ok)",       sinal: "+" },
-  devolucao: { label: "Entrada",  cor: "var(--ok)",       sinal: "+" },
-  perda:     { label: "Saída",    cor: "var(--danger)",   sinal: "−" },
+  entrada:   { label: "Entrada",  cor: "var(--ok)",        sinal: "+" },
+  venda:     { label: "Saída",    cor: "var(--danger)",    sinal: "−" },
   ajuste:    { label: "Ajuste",   cor: "var(--fg-subtle)", sinal: "→" },
+  // legados (movimentos antigos da tabela estoque)
+  compra:    { label: "Entrada",  cor: "var(--ok)",        sinal: "+" },
+  devolucao: { label: "Entrada",  cor: "var(--ok)",        sinal: "+" },
+  perda:     { label: "Saída",    cor: "var(--danger)",    sinal: "−" },
 };
+
+// Custo por unidade-base pode ser fração de centavo (ex: R$ 0,0016/g). Mostra
+// mais casas quando é pequeno pra não virar "R$ 0,00".
+function fmtCusto(v: number): string {
+  const casas = v > 0 && v < 0.1 ? 4 : 2;
+  return "R$ " + v.toFixed(casas).replace(".", ",");
+}
 
 function dataRelativa(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -96,7 +106,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
-              {item.produtoNome}
+              {item.nome}
             </p>
             <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
               Estoque atual: {item.quantidadeAtual} {item.unidade}
@@ -251,7 +261,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
   async function copiarLista() {
     const linhas = alertas.map(item => {
       const qtd = calcularSugerida(item);
-      return `- ${item.produtoNome}: ${fmtQtd(qtd)} ${item.unidade}`;
+      return `- ${item.nome}: ${fmtQtd(qtd)} ${item.unidade}`;
     });
     const texto = `Comprar hoje:\n${linhas.join("\n")}`;
     await navigator.clipboard.writeText(texto);
@@ -265,12 +275,11 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
         <ImportarNfePanel open={nfeAberto} onClose={() => setNfeAberto(false)} />
         <EmptyState
           icon="📦"
-          title="Nenhum produto com estoque ativo"
-          description="Suba a NF-e da sua compra: puxamos produtos, custos e fornecedor pro estoque, sem digitar. Ou ative o controle por produto no Cardápio."
+          title="Nenhum insumo no estoque ainda"
+          description="Suba a NF-e da sua compra: puxamos os insumos, o custo e o fornecedor pro estoque, sem digitar. É esse custo que faz cada drink nascer com a margem certa."
           action={
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
               <EmptyStateButton onClick={() => setNfeAberto(true)}>Importar nota fiscal</EmptyStateButton>
-              <EmptyStateButton href="/dashboard/cardapio" variant="secondary">Ir para o Cardápio →</EmptyStateButton>
             </div>
           }
         />
@@ -285,12 +294,6 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
         <MovimentoModal item={modalItem} onClose={() => setModalItem(null)} />
       )}
 
-      {/* Aviso */}
-      <div style={{ marginTop: -8 }}>
-        <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0, maxWidth: 520 }}>
-          Estoque atual por produto. O controle inteligente por ingredientes será ativado quando as receitas estiverem configuradas.
-        </p>
-      </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
@@ -378,7 +381,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                       {/* Esquerda: dot + nome + status */}
                       <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0, alignSelf: "center" }} />
-                        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>{item.produtoNome}</span>
+                        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>{item.nome}</span>
                         <span style={{ fontSize: 13 }}>
                           <span style={{ color: cor }}>{fmtQtd(item.quantidadeAtual)}</span>
                           <span style={{ color: "var(--fg-muted)" }}> em estoque · mínimo {fmtQtd(item.quantidadeMinima)}</span>
@@ -424,10 +427,17 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                     display: "flex", alignItems: "center",
                     gap: 12, padding: "12px 20px",
                   }}>
-                    <span style={{ fontSize: 13, color: "var(--fg-muted)", flex: 1 }}>
-                      {item.produtoNome}
-                    </span>
-                    <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "var(--font-mono)", color: "var(--fg)" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ fontSize: 13, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {item.nome}
+                      </span>
+                      {item.custoAtual > 0 && (
+                        <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>
+                          {fmtCusto(item.custoAtual)}/{item.unidade}
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>
                       {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
                       <span style={{ fontSize: 11, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>{item.unidade}</span>
                     </span>
