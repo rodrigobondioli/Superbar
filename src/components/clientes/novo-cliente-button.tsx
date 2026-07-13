@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { criarCliente } from "@/lib/clientes/actions";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,14 @@ export function NovoClienteButton() {
   });
   const [erro, setErro] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // O botão do empty state (na tabela) abre o mesmo modal via evento — sem
+  // duplicar modal nem lift de estado.
+  useEffect(() => {
+    const abrir = () => setAberto(true);
+    window.addEventListener("sb:novo-cliente", abrir);
+    return () => window.removeEventListener("sb:novo-cliente", abrir);
+  }, []);
 
   function set(k: keyof typeof form, v: string) {
     setForm(prev => ({ ...prev, [k]: v }));

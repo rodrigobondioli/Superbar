@@ -42,7 +42,8 @@ export default async function ClientesPage() {
         <NovoClienteButton />
       </div>
 
-      {/* Cards de insight */}
+      {/* Cards de insight — somem quando não há cliente (aí o empty state manda) */}
+      {clientes.length > 0 && (
       <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 24 }}>
 
         {/* Aniversariantes */}
@@ -98,6 +99,7 @@ export default async function ClientesPage() {
           )}
         </div>
       </div>
+      )}
 
       {/* Tabela */}
       <ClientesTable clientes={clientes} />

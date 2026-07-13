@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { MessageCircle } from "lucide-react";
 import type { Cliente } from "@/types/database";
 import { atualizarCliente } from "@/lib/clientes/actions";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { formatBRL as fmt } from "@/lib/format";
 
 
@@ -75,18 +76,16 @@ export function ClientesTable({ clientes }: Props) {
 
   if (clientes.length === 0) {
     return (
-      <div style={{
-        border: "1px solid var(--border)", borderRadius: 16,
-        padding: "48px 24px", textAlign: "center",
-        color: "var(--fg-subtle)", fontSize: 14,
-      }}>
-        <p style={{ fontSize: 32, margin: "0 0 12px" }}>👤</p>
-        <p style={{ margin: 0 }}>Nenhum cliente cadastrado ainda.</p>
-        <p style={{ margin: "4px 0 0", fontSize: 12 }}>
-          Os clientes aparecem automaticamente quando usam um cartão QR/NFC,
-          ou você pode adicionar manualmente acima.
-        </p>
-      </div>
+      <EmptyState
+        icon="🧑"
+        title="Nenhum cliente cadastrado ainda"
+        description="Os clientes aparecem sozinhos quando usam um cartão QR/NFC. Ou cadastre o primeiro na mão."
+        action={
+          <EmptyStateButton onClick={() => window.dispatchEvent(new Event("sb:novo-cliente"))}>
+            + Adicionar primeiro cliente
+          </EmptyStateButton>
+        }
+      />
     );
   }
 

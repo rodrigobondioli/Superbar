@@ -45,7 +45,8 @@ export default async function EstoquePage({
         <EstoqueHeaderActions />
       </div>
 
-      {/* Semáforo + valor total */}
+      {/* Semáforo + valor total — some quando não há insumo (empty state manda) */}
+      {itens.length > 0 && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {semaforo.map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 8 }}>
@@ -58,6 +59,7 @@ export default async function EstoquePage({
           </div>
         ))}
       </div>
+      )}
 
       {/* Dinheiro parado — só quando há sinal */}
       {dinheiroParado.itens.length > 0 && (

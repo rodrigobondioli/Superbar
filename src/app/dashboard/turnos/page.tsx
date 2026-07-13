@@ -4,7 +4,7 @@ import { ChevronsRight } from "lucide-react";
 import { getCurrentBar, getTurnoAtual } from "@/lib/dashboard/queries";
 import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { getTurnos } from "@/lib/dashboard/turnos";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { currency } from "@/lib/format";
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
@@ -125,9 +125,9 @@ export default async function TurnosPage() {
                     title="Nenhum turno ainda"
                     description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
                     action={
-                      <a href="/dashboard/caixa" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-bright)", textDecoration: "none" }}>
-                        O caixa abre o turno pela página de Caixa →
-                      </a>
+                      <EmptyStateButton href="/dashboard/caixa" variant="secondary">
+                        Abrir turno no Caixa →
+                      </EmptyStateButton>
                     }
                   />
                 </td>
