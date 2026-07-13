@@ -4,7 +4,13 @@ import { useState } from "react";
 import { ImportarNfePanel } from "@/components/estoque/importar-nfe-panel";
 import { registrarMovimento, type EstoqueResult } from "@/lib/estoque/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
+import { SearchInput } from "@/components/ui/search-input";
 import type { ItemEstoque, MovimentoRecente } from "@/lib/estoque/queries";
+
+// Divisória vertical "|" para separar dados inline numa linha.
+function Sep() {
+  return <span aria-hidden style={{ width: 1, height: 20, background: "var(--border-strong)", flexShrink: 0 }} />;
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -51,12 +57,20 @@ function pluralUnidade(u: string, n: number): string {
   return u.endsWith("s") ? u : u + "s";
 }
 
+// Rótulo inteligente: sólido (g/kg) nunca é "garrafa" — vira "pacote".
+function rotuloCompraDe(unidade: string, unidadeCompra: string | null): string {
+  const solido = unidade === "g" || unidade === "kg";
+  if (unidadeCompra && !(solido && unidadeCompra === "garrafa")) return unidadeCompra;
+  return solido ? "pacote" : "garrafa";
+}
+
 // "6 garrafas" (principal) + "6 L" (base) quando há embalagem; senão só a base.
 function formatEstoque(item: ItemEstoque): { principal: string; base: string } {
   const base = fmtBase(item.quantidadeAtual, item.unidade);
-  if (item.tamanhoEmbalagem && item.tamanhoEmbalagem > 0 && item.unidadeCompra) {
+  if (item.tamanhoEmbalagem && item.tamanhoEmbalagem > 0) {
     const emb = item.quantidadeAtual / item.tamanhoEmbalagem;
-    return { principal: `${fmtNum(emb)} ${pluralUnidade(item.unidadeCompra, emb)}`, base };
+    const rot = rotuloCompraDe(item.unidade, item.unidadeCompra);
+    return { principal: `${fmtNum(emb)} ${pluralUnidade(rot, emb)}`, base };
   }
   return { principal: base, base: "" };
 }
@@ -146,13 +160,16 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
         onClick={e => e.stopPropagation()}
       >
         {/* Cabeçalho */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20, gap: 12 }}>
           <div>
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Ajustar estoque
+            </p>
             <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
               {item.nome}
             </p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "2px 0 0" }}>
-              Estoque atual: {item.quantidadeAtual} {item.unidade}
+            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "4px 0 0", lineHeight: 1.5 }}>
+              Estoque atual: {item.quantidadeAtual} {item.unidade}. Lance uma <strong style={{ color: "var(--fg-muted)" }}>entrada</strong> (compra sem nota), uma <strong style={{ color: "var(--fg-muted)" }}>saída</strong> (perda/quebra) ou um <strong style={{ color: "var(--fg-muted)" }}>acerto</strong> do total.
             </p>
           </div>
           <button
@@ -300,7 +317,6 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
     (cat === "Todos" || i.categoria === cat) &&
     (buscaLower === "" || i.nome.toLowerCase().includes(buscaLower))
   );
-  const totalValor = itens.reduce((s, i) => s + i.valorEstoque, 0);
 
   // Quantidade sugerida: enche até 2× o mínimo — evita reordenar toda semana
   function calcularSugerida(item: ItemEstoque): number {
@@ -414,36 +430,29 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
 
           {/* Busca + total parado */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <input
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar insumo…"
-              style={{ ...inp, flex: 1, minWidth: 200, maxWidth: 360 }}
-            />
-            <span style={{ fontSize: 13, color: "var(--fg-muted)", marginLeft: "auto", whiteSpace: "nowrap" }}>
-              Em estoque: <strong style={{ color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{fmtBRL(totalValor)}</strong>
-            </span>
-          </div>
+            {/* Filtro de categoria à esquerda */}
+            {cats.length > 1 ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
+                {(["Todos", ...cats] as const).map(c => {
+                  const on = cat === c;
+                  return (
+                    <button key={c} onClick={() => setCat(c)} style={{
+                      background: on ? "var(--fg)" : "var(--bg-card)",
+                      color: on ? "var(--bg)" : "var(--fg-muted)",
+                      border: `1px solid ${on ? "var(--fg)" : "var(--border-strong)"}`,
+                      borderRadius: 999, padding: "5px 14px", fontSize: 13, cursor: "pointer",
+                      transition: "background 120ms, color 120ms",
+                    }}>
+                      {c}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : <div style={{ flex: 1 }} />}
 
-          {/* Categorias */}
-          {cats.length > 1 && (
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {(["Todos", ...cats] as const).map(c => {
-                const on = cat === c;
-                return (
-                  <button key={c} onClick={() => setCat(c)} style={{
-                    background: on ? "var(--fg)" : "var(--bg-card)",
-                    color: on ? "var(--bg)" : "var(--fg-muted)",
-                    border: `1px solid ${on ? "var(--fg)" : "var(--border-strong)"}`,
-                    borderRadius: 999, padding: "5px 14px", fontSize: 13, cursor: "pointer",
-                    transition: "background 120ms, color 120ms",
-                  }}>
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+            {/* Busca à direita (mesmo visual da contagem) */}
+            <SearchInput value={busca} onChange={setBusca} placeholder="Buscar insumo…" style={{ width: 240, maxWidth: "100%" }} />
+          </div>
 
           {/* Lista */}
           {filtrados.length === 0 ? (
@@ -458,7 +467,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                 const cor = critico ? "var(--danger)" : item.abaixoDoMinimo ? "var(--warn)" : null;
                 return (
                   <div key={item.id} style={{
-                    display: "flex", alignItems: "center", gap: 16, padding: "14px 20px",
+                    display: "flex", alignItems: "center", gap: 14, padding: "14px 20px",
                     borderBottom: i < filtrados.length - 1 ? "1px solid var(--border-strong)" : "none",
                   }}>
                     {/* nome + custo */}
@@ -472,23 +481,29 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                       </div>
                     </div>
 
-                    {/* quantidade + valor */}
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <span style={{ fontSize: 15, fontWeight: 600, color: cor ?? "var(--fg)", fontVariantNumeric: "tabular-nums", display: "block" }}>
+                    {/* Tudo inline com divisórias: qtd | base | valor | ação */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: cor ?? "var(--fg)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
                         {est.principal}
                       </span>
-                      <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>
-                        {est.base ? `${est.base} · ` : ""}{fmtBRL(item.valorEstoque)}
+                      {est.base && (
+                        <>
+                          <Sep />
+                          <span style={{ fontSize: 12, color: "var(--fg-subtle)", whiteSpace: "nowrap" }}>{est.base}</span>
+                        </>
+                      )}
+                      <Sep />
+                      <span style={{ fontSize: 13, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", minWidth: 64, textAlign: "right" }}>
+                        {fmtBRL(item.valorEstoque)}
                       </span>
+                      <Sep />
+                      <button onClick={() => setModalItem(item)} style={{
+                        background: "none", border: "1px solid var(--border)", borderRadius: 999,
+                        padding: "6px 14px", fontSize: 12, color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap",
+                      }} className="hover:!text-[var(--fg)]" title="Entrada, saída ou acerto de estoque">
+                        Ajustar
+                      </button>
                     </div>
-
-                    {/* ação */}
-                    <button onClick={() => setModalItem(item)} style={{
-                      background: "none", border: "1px solid var(--border)", borderRadius: 999,
-                      padding: "6px 14px", fontSize: 12, color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-                    }} className="hover:!text-[var(--fg)]">
-                      + Registrar
-                    </button>
                   </div>
                 );
               })}

@@ -25,11 +25,14 @@ export default async function EstoquePage({
   const zerados = itens.filter(i => i.quantidadeAtual <= 0).length;
   const abaixo = itens.filter(i => i.abaixoDoMinimo && i.quantidadeAtual > 0).length;
   const saudaveis = itens.filter(i => !i.abaixoDoMinimo && i.quantidadeAtual > 0).length;
+  const totalEstoque = itens.reduce((s, i) => s + i.valorEstoque, 0);
+  const totalFmt = totalEstoque.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
   const semaforo = [
-    { cor: "var(--danger)", label: "Críticos (zerados)", valor: zerados, desc: "precisam repor já" },
-    { cor: "var(--warn)", label: "Abaixo do mínimo", valor: abaixo, desc: "repor esta semana" },
-    { cor: "var(--ok)", label: "Estoque saudável", valor: saudaveis, desc: "tudo em dia" },
+    { cor: "var(--danger)", label: "Críticos (zerados)", valor: String(zerados), desc: "precisam repor já" },
+    { cor: "var(--warn)", label: "Abaixo do mínimo", valor: String(abaixo), desc: "repor esta semana" },
+    { cor: "var(--ok)", label: "Estoque saudável", valor: String(saudaveis), desc: "tudo em dia" },
+    { cor: "var(--fg-subtle)", label: "Em estoque", valor: totalFmt, desc: "capital na prateleira" },
   ];
 
   return (
@@ -42,8 +45,8 @@ export default async function EstoquePage({
         <EstoqueHeaderActions />
       </div>
 
-      {/* Semáforo */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Semáforo + valor total */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {semaforo.map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

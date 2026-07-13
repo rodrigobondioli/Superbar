@@ -2,21 +2,26 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ClipboardCheck, Loader2, Check, Search } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, Loader2, Check } from "lucide-react";
 import { salvarContagem, type ContagemLinha, type ContagemResultado } from "@/lib/estoque/actions";
 import type { InsumoContagem } from "@/lib/estoque/queries";
+import { SearchInput } from "@/components/ui/search-input";
 import { currency } from "@/lib/format";
 
 const qtd = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 type Phase = "contando" | "salvando" | "resumo";
 
-/** Insumo contado por embalagem (garrafa/lata) quando não é unidade avulsa. */
+/** Conta por embalagem só quando o insumo TEM embalagem de tamanho conhecido
+ *  (garrafa 750ml, pacote 1kg). Solto (limão kg, hortelã maço) conta direto. */
 function contaPorEmbalagem(i: InsumoContagem) {
-  return i.unidade !== "un";
+  return i.tamanhoEmbalagem != null && i.tamanhoEmbalagem > 0;
 }
+/** Rótulo inteligente: sólido (g/kg) nunca é "garrafa" — vira "pacote". */
 function rotuloEmbalagem(i: InsumoContagem) {
-  return i.unidadeCompra ?? "garrafa";
+  const solido = i.unidade === "g" || i.unidade === "kg";
+  if (i.unidadeCompra && !(solido && i.unidadeCompra === "garrafa")) return i.unidadeCompra;
+  return solido ? "pacote" : "garrafa";
 }
 
 export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: { insumos: InsumoContagem[]; voltarHref?: string }) {
@@ -111,15 +116,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
           </p>
 
           {/* Busca */}
-          <div style={{ position: "relative", marginBottom: 14 }}>
-            <Search size={15} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
-            <input
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar insumo…"
-              style={{ width: "100%", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px 9px 34px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark", boxSizing: "border-box" }}
-            />
-          </div>
+          <SearchInput value={busca} onChange={setBusca} placeholder="Buscar insumo…" style={{ marginBottom: 14 }} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
             {filtrados.map((i) => {
@@ -225,7 +222,11 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
 /** Mostra o estoque na unidade natural: garrafa quando há tamanho, senão unidade-base. */
 function formatarEstoque(valorBase: number, r: ContagemResultado): string {
   if (r.tamanho && r.tamanho > 0) {
-    return `${qtd.format(valorBase / r.tamanho)} ${r.unidadeCompra ?? "garrafa"}`;
+    const solido = r.unidade === "g" || r.unidade === "kg";
+    const rot = r.unidadeCompra && !(solido && r.unidadeCompra === "garrafa")
+      ? r.unidadeCompra
+      : (solido ? "pacote" : "garrafa");
+    return `${qtd.format(valorBase / r.tamanho)} ${rot}`;
   }
   return `${qtd.format(valorBase)} ${r.unidade}`;
 }

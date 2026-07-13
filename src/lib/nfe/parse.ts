@@ -53,11 +53,14 @@ export function extrairTamanho(xProd: string): { valor: number; base: "ml" | "g"
   return null;
 }
 
-/** Rótulo da unidade de compra a partir da descrição (garrafa por padrão). */
-export function rotuloCompra(xProd: string): string {
+/** Rótulo da unidade de compra a partir da descrição. Sólido (g/kg) nunca é
+ *  "garrafa" — açúcar/gelo/farinha vêm em pacote. Líquido default = garrafa. */
+export function rotuloCompra(xProd: string, base?: "ml" | "g"): string {
   const s = String(xProd ?? "").toLowerCase();
-  if (/\blata(s)?\b|\blt\b/.test(s)) return "lata";
-  if (/\bpacote(s)?\b|\bpct\b|\bsaco(s)?\b/.test(s)) return "pacote";
+  if (/\blata(s)?\b/.test(s)) return "lata";
+  if (/\bpacote(s)?\b|\bpct\b|\bsaco(s)?\b|\bfardo\b/.test(s)) return "pacote";
+  if (base === "g") return "pacote"; // sólido a granel embalado não é garrafa
+  if (/\bcaixa(s)?\b|\bcx\b|\bbag\b|\bbox\b/.test(s)) return "caixa";
   return "garrafa";
 }
 

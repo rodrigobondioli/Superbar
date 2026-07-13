@@ -100,7 +100,7 @@ export async function previewNfe(xml: string): Promise<{ ok: true; preview: NfeP
       custoAtual: sugerido ? (custoById.get(sugerido) ?? null) : null,
       tamanhoEmbalagem: tam?.valor ?? null,
       baseEmbalagem: tam?.base ?? null,
-      unidadeCompra: tam ? rotuloCompra(it.nome) : null,
+      unidadeCompra: tam ? rotuloCompra(it.nome, tam.base) : null,
     };
   });
 
