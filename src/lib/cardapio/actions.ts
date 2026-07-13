@@ -14,6 +14,19 @@ async function invalidarCardapio() {
   revalidatePath("/dashboard/cardapio");
 }
 
+export type WriteResult = { ok: true } | { error: string };
+
+/** Roda uma escrita e nunca falha em silêncio: loga o erro real e devolve
+ *  {ok|error}. Callers que ignoram o retorno seguem funcionando (compatível). */
+async function run(label: string, p: PromiseLike<{ error: unknown }>): Promise<WriteResult> {
+  const { error } = await p;
+  if (error) {
+    console.error(`${label}:`, error);
+    return { error: "Não consegui salvar. Tente de novo." };
+  }
+  return { ok: true };
+}
+
 function intOrNull(v: FormDataEntryValue | null): number | null {
   const s = String(v ?? "").trim();
   if (!s) return null;
@@ -42,15 +55,16 @@ export async function criarCategoria(formData: FormData) {
     .maybeSingle<{ ordem: number }>();
 
   // Categoria de drink já nasce com ficha; o resto, custo direto.
-  await supabase.from("categorias").insert({
+  const r = await run("criarCategoria", supabase.from("categorias").insert({
     bar_id: current.bar.id,
     nome,
     ordem: (ultima?.ordem ?? 0) + 1,
     ativo: true,
     usa_ficha: pareceDrink(nome),
-  } as never);
+  } as never));
 
   await invalidarCardapio();
+  return r;
 }
 
 /** Palpite: a categoria é de drink (usa ficha)? Baseado no nome. Só drink usa ficha. */
@@ -63,8 +77,9 @@ function pareceDrink(nome: string): boolean {
 export async function definirUsaFicha(id: string, usaFicha: boolean) {
   const supabase = await createClient();
   // cast: coluna nova ainda não está nos tipos gerados.
-  await supabase.from("categorias").update({ usa_ficha: usaFicha } as never).eq("id", id);
+  const r = await run("definirUsaFicha", supabase.from("categorias").update({ usa_ficha: usaFicha } as never).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 export async function editarCategoria(id: string, formData: FormData) {
@@ -76,8 +91,9 @@ export async function editarCategoria(id: string, formData: FormData) {
   if (formData.has("imagem_url")) {
     update.imagem_url = String(formData.get("imagem_url") ?? "").trim() || null;
   }
-  await supabase.from("categorias").update(update).eq("id", id);
+  const r = await run("editarCategoria", supabase.from("categorias").update(update).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 /** Persiste a nova ordem das categorias (drag-and-drop na lista).
@@ -85,30 +101,35 @@ export async function editarCategoria(id: string, formData: FormData) {
 export async function reordenarCategorias(orderedIds: string[]) {
   if (orderedIds.length === 0) return;
   const supabase = await createClient();
-  await Promise.all(
+  const results = await Promise.all(
     orderedIds.map((id, i) => supabase.from("categorias").update({ ordem: i + 1 }).eq("id", id)),
   );
+  const falhou = results.find((r) => r.error);
+  if (falhou?.error) console.error("reordenarCategorias:", falhou.error);
   await invalidarCardapio();
 }
 
 /** Salva só a foto da categoria (thumb clicável na lista, sem abrir o editor). */
 export async function atualizarFotoCategoria(id: string, imagemUrl: string | null) {
   const supabase = await createClient();
-  await supabase.from("categorias").update({ imagem_url: imagemUrl }).eq("id", id);
+  const r = await run("atualizarFotoCategoria", supabase.from("categorias").update({ imagem_url: imagemUrl }).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 /** Liga/desliga o "destaque" de um produto (vira Assinatura da casa no app do cliente). */
 export async function toggleDestaque(id: string, destaque: boolean) {
   const supabase = await createClient();
-  await supabase.from("produtos").update({ destaque: !destaque }).eq("id", id);
+  const r = await run("toggleDestaque", supabase.from("produtos").update({ destaque: !destaque }).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 export async function desativarCategoria(id: string) {
   const supabase = await createClient();
-  await supabase.from("categorias").update({ ativo: false }).eq("id", id);
+  const r = await run("desativarCategoria", supabase.from("categorias").update({ ativo: false }).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 // ─── Produtos ─────────────────────────────────────────────────────────────────
@@ -134,7 +155,7 @@ export async function criarProduto(formData: FormData) {
   const calorias     = intOrNull(formData.get("calorias"));
 
   const supabase = await createClient();
-  await supabase.from("produtos").insert({
+  const r = await run("criarProduto", supabase.from("produtos").insert({
     bar_id:       current.bar.id,
     categoria_id: categoriaId,
     nome,
@@ -147,9 +168,10 @@ export async function criarProduto(formData: FormData) {
     calorias,
     ativo:        true,
     controla_estoque: false,
-  });
+  }));
 
   await invalidarCardapio();
+  return r;
 }
 
 export async function editarProduto(id: string, formData: FormData) {
@@ -169,7 +191,7 @@ export async function editarProduto(id: string, formData: FormData) {
   const calorias     = intOrNull(formData.get("calorias"));
 
   const supabase = await createClient();
-  await supabase.from("produtos").update({
+  const r = await run("editarProduto", supabase.from("produtos").update({
     nome,
     preco:        parseFloat(precoStr),
     custo,
@@ -179,9 +201,10 @@ export async function editarProduto(id: string, formData: FormData) {
     imagem_url:   imagemUrl,
     tempo_preparo: tempoPreparo,
     calorias,
-  }).eq("id", id);
+  }).eq("id", id));
 
   await invalidarCardapio();
+  return r;
 }
 
 // ─── Variantes ────────────────────────────────────────────────────────────────
@@ -207,7 +230,7 @@ export async function criarVariante(produtoId: string, formData: FormData) {
     .limit(1)
     .maybeSingle<{ ordem: number }>();
 
-  await supabase.from("produto_variantes").insert({
+  const r = await run("criarVariante", supabase.from("produto_variantes").insert({
     produto_id:  produtoId,
     nome,
     preco:       parseFloat(precoStr),
@@ -216,9 +239,10 @@ export async function criarVariante(produtoId: string, formData: FormData) {
     imagem_url:  imagemUrl,
     ativo:       true,
     ordem:       (ultima?.ordem ?? 0) + 1,
-  });
+  }));
 
   await invalidarCardapio();
+  return r;
 }
 
 export async function editarVariante(varianteId: string, formData: FormData) {
@@ -232,24 +256,26 @@ export async function editarVariante(varianteId: string, formData: FormData) {
   const custo = custoStr && !isNaN(parseFloat(custoStr)) ? parseFloat(custoStr) : null;
 
   const supabase = await createClient();
-  await supabase.from("produto_variantes").update({
+  const r = await run("editarVariante", supabase.from("produto_variantes").update({
     nome,
     preco:      parseFloat(precoStr),
     custo,
     custo_status: custo != null ? "confirmada" : "sem",
     imagem_url: imagemUrl,
-  }).eq("id", varianteId);
+  }).eq("id", varianteId));
 
   await invalidarCardapio();
+  return r;
 }
 
 export async function deletarVariante(varianteId: string) {
   const supabase = await createClient();
-  await supabase.from("produto_variantes")
+  const r = await run("deletarVariante", supabase.from("produto_variantes")
     .update({ ativo: false })
-    .eq("id", varianteId);
+    .eq("id", varianteId));
 
   await invalidarCardapio();
+  return r;
 }
 
 /** Porta B do onboarding: cria vários produtos clássicos de uma vez.
@@ -324,8 +350,9 @@ export async function criarProdutosClassicos(
 
 export async function toggleProduto(id: string, ativo: boolean) {
   const supabase = await createClient();
-  await supabase.from("produtos").update({ ativo: !ativo }).eq("id", id);
+  const r = await run("toggleProduto", supabase.from("produtos").update({ ativo: !ativo }).eq("id", id));
   await invalidarCardapio();
+  return r;
 }
 
 export async function deletarProduto(id: string) {

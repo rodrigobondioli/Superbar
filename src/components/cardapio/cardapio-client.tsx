@@ -780,7 +780,7 @@ function CategoriaItem({
         >
           <Pencil style={{ width: 11, height: 11 }} />
         </button>
-        <form action={desativarCategoria.bind(null, grupo.categoria.id)}>
+        <form action={async () => { await desativarCategoria(grupo.categoria.id); }}>
           <button
             type="submit"
             style={{ ...iconBtn, width: 22, height: 22, padding: 0, opacity: selected ? 0.7 : 0, color: "var(--danger)" }}
