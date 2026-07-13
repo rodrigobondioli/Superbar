@@ -74,7 +74,10 @@ export default function LoginPage({
                 fontWeight: 400,
                 color: "#FFFFFF",
                 letterSpacing: "0.01em",
-                lineHeight: 1,
+                // lineHeight apertado: a fonte de display reserva ~5px de "ar"
+                // dentro da caixa da linha; 0.75 encosta a caixa nas letras (só
+                // caps, sem descendente pra cortar) pra o gap 48 renderizar como 48.
+                lineHeight: 0.75,
                 textTransform: "uppercase",
                 margin: 0,
                 textAlign: "center",
