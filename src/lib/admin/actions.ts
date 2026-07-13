@@ -22,7 +22,8 @@ async function assertAdmin() {
 export async function suspenderBar(barId: string) {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("bars").update({ ativo: false }).eq("id", barId);
+  const { error } = await admin.from("bars").update({ ativo: false }).eq("id", barId);
+  if (error) console.error("suspenderBar:", error);
   revalidatePath("/admin");
   revalidatePath(`/admin/${barId}`);
 }
@@ -32,7 +33,8 @@ export async function suspenderBar(barId: string) {
 export async function reativarBar(barId: string) {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin.from("bars").update({ ativo: true }).eq("id", barId);
+  const { error } = await admin.from("bars").update({ ativo: true }).eq("id", barId);
+  if (error) console.error("reativarBar:", error);
   revalidatePath("/admin");
   revalidatePath(`/admin/${barId}`);
 }
@@ -46,10 +48,11 @@ export async function alterarStatusAssinatura(
 ) {
   await assertAdmin();
   const admin = createAdminClient();
-  await admin
+  const { error } = await admin
     .from("assinaturas")
     .update({ status })
     .eq("id", assinaturaId);
+  if (error) console.error("alterarStatusAssinatura:", error);
   revalidatePath("/admin");
   revalidatePath(`/admin/${barId}`);
 }

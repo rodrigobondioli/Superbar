@@ -101,11 +101,13 @@ export async function salvarCustosProdutos(
 
   const supabase = await createClient();
 
-  await Promise.all(
+  const results = await Promise.all(
     custos.map(({ id, custo }) =>
       supabase.from("produtos").update({ custo, custo_status: "confirmada" }).eq("id", id)
     )
   );
+  const falhou = results.find((r) => r.error);
+  if (falhou?.error) console.error("salvarCustosProdutos:", falhou.error);
 
   revalidatePath("/dashboard/cardapio");
   revalidatePath("/dashboard");
@@ -164,8 +166,9 @@ export async function mergeImportacao(
     if (produto.preco_venda !== null) campos.preco = produto.preco_venda;
     if (produto.custo !== null) { campos.custo = produto.custo; campos.custo_status = "confirmada"; }
     if (Object.keys(campos).length > 0) {
-      await supabase.from("produtos").update(campos).eq("id", id);
-      atualizados++;
+      const { error } = await supabase.from("produtos").update(campos).eq("id", id);
+      if (error) console.error("mergeImportacao: falha ao atualizar produto", error);
+      else atualizados++;
     }
   }
 

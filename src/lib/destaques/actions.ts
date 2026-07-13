@@ -23,7 +23,7 @@ export async function criarDestaque(formData: FormData) {
     .limit(1)
     .maybeSingle<{ ordem: number }>();
 
-  await supabase.from("destaques").insert({
+  const { error } = await supabase.from("destaques").insert({
     bar_id: current.bar.id,
     titulo,
     subtitulo,
@@ -32,6 +32,7 @@ export async function criarDestaque(formData: FormData) {
     ordem: (ultima?.ordem ?? 0) + 1,
     ativo: true,
   });
+  if (error) { console.error("criarDestaque:", error); return { error: "Não consegui salvar o destaque." }; }
 
   revalidatePath("/dashboard/cardapio");
 }
@@ -44,16 +45,18 @@ export async function editarDestaque(id: string, formData: FormData) {
   const produtoId = String(formData.get("produto_id") ?? "").trim() || null;
 
   const supabase = await createClient();
-  await supabase
+  const { error } = await supabase
     .from("destaques")
     .update({ titulo, subtitulo, imagem_url: imagemUrl, produto_id: produtoId })
     .eq("id", id);
+  if (error) { console.error("editarDestaque:", error); return { error: "Não consegui salvar o destaque." }; }
 
   revalidatePath("/dashboard/cardapio");
 }
 
 export async function deletarDestaque(id: string) {
   const supabase = await createClient();
-  await supabase.from("destaques").delete().eq("id", id);
+  const { error } = await supabase.from("destaques").delete().eq("id", id);
+  if (error) { console.error("deletarDestaque:", error); return { error: "Não consegui remover o destaque." }; }
   revalidatePath("/dashboard/cardapio");
 }
