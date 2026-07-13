@@ -13,6 +13,28 @@ export interface PassoConfig {
   cta?: string;
   /** Passo crítico para a inteligência — destaca mesmo quando o resto avança. */
   critico?: boolean;
+  /** Ícone do card (variante hero). ReactNode — herda a cor via currentColor. */
+  icon?: React.ReactNode;
+}
+
+/** Anel circular de progresso — feitos/total no centro. */
+function AnelProgresso({ feitos, total }: { feitos: number; total: number }) {
+  const pct = total > 0 ? feitos / total : 0;
+  const size = 84, stroke = 7, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ display: "block", transform: "rotate(-90deg)" }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-strong)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--accent)" strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - pct)} style={{ transition: "stroke-dashoffset 500ms ease" }} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
+          {feitos}<span style={{ color: "var(--fg-subtle)", fontSize: 14 }}>/{total}</span>
+        </span>
+      </div>
+    </div>
+  );
 }
 
 interface GuiaConfiguracaoProps {
@@ -68,11 +90,11 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
       <div
         key={i}
         style={{
-          display: "flex", alignItems: "flex-start", gap: 12,
-          padding: hero ? "14px 20px" : "12px 4px",
+          display: "flex", alignItems: ativo ? "center" : "flex-start", gap: 12,
+          padding: hero ? "16px 20px" : "12px 4px",
           borderBottom: i < passos.length - 1 ? "1px solid var(--border)" : "none",
-          background: ativo && hero ? "color-mix(in srgb, var(--accent) 7%, transparent)" : undefined,
-          opacity: depois ? 0.5 : 1,
+          background: ativo && hero ? "color-mix(in srgb, var(--fg) 4%, transparent)" : undefined,
+          opacity: depois ? 0.55 : 1,
         }}
       >
         <div
@@ -116,10 +138,64 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
 
   if (hero) {
     return (
-      <div style={wrapHero}>
-        <div style={{ width: "100%", maxWidth: 448 }}>
-          {cabecalho}
-          <div style={{ ...cardBase }}>{lista}</div>
+      <div style={{ width: "100%", maxWidth: 1040, margin: "0 auto", padding: "32px 0 48px" }}>
+        {/* Header: título + subtítulo + anel */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, marginBottom: 28, flexWrap: "wrap" }}>
+          <div style={{ minWidth: 0 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
+              {titulo ?? "Vamos configurar seu bar"}
+            </h2>
+            {subtitulo && (
+              <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, maxWidth: 560, lineHeight: 1.5 }}>{subtitulo}</p>
+            )}
+          </div>
+          <AnelProgresso feitos={feitos} total={total} />
+        </div>
+
+        {/* Grid 3 colunas de cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
+          {passos.map((p, i) => {
+            const ativo = i === proximoIdx;
+            const depois = !p.done && !ativo;
+            return (
+              <div key={i} style={{
+                background: "var(--bg-card)",
+                border: `1px solid ${ativo ? "var(--accent)" : "var(--border)"}`,
+                borderRadius: 16, padding: 20, minHeight: 176,
+                display: "flex", flexDirection: "column",
+                opacity: depois ? 0.6 : 1,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    background: p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
+                    color: p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
+                  }}>
+                    {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
+                  </div>
+                  {ativo && (
+                    <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)" }}>
+                      Comece por aqui
+                    </span>
+                  )}
+                </div>
+                <span style={{ fontSize: 15, fontWeight: 600, color: p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
+                {p.apoio && !p.done && (
+                  <p style={{ fontSize: 12.5, color: "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
+                )}
+                <div style={{ marginTop: "auto", paddingTop: 16 }}>
+                  {p.done ? (
+                    <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
+                  ) : p.href ? (
+                    <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      {p.cta ?? "Configurar"} →
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -133,14 +209,3 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
     </div>
   );
 }
-
-const wrapHero: React.CSSProperties = {
-  padding: "32px 24px", display: "flex", flexDirection: "column",
-  alignItems: "center", justifyContent: "center", minHeight: "70vh",
-};
-
-const cardBase: React.CSSProperties = {
-  background: "var(--bg-elevated)",
-  border: "1px solid var(--border)",
-  borderRadius: 16,
-};

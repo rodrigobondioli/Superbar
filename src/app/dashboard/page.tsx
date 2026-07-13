@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { CircleUserRound, Receipt, Wine, LayoutGrid, Users, Play } from "lucide-react";
 import { podeVerFinanceiro } from "@/lib/auth/roles";
 import { AiHeroInput } from "@/components/dashboard/ai-hero-input";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
@@ -58,34 +59,34 @@ const card: React.CSSProperties = {
  *  com margem: conta → custo (NF-e) → cardápio → mesas → equipe → turno. */
 function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
   return [
-    { label: "Conta criada", done: true, href: null },
+    { label: "Conta criada", done: true, href: null, icon: <CircleUserRound size={20} strokeWidth={1.75} /> },
     {
       label: p.nInsumosComCusto === 0
-        ? "Custo dos insumos (comece pela nota)"
+        ? "Custo dos insumos"
         : `Custo — ${p.nInsumosComCusto} ${p.nInsumosComCusto === 1 ? "insumo" : "insumos"} com custo`,
-      apoio: "Suba a nota (NF-e) da sua compra — o custo dos insumos entra pronto, já convertido. Aí, quando você montar os drinks, a ficha JÁ VEM com custo. Sem digitar.",
-      done: p.nInsumosComCusto > 0, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true,
+      apoio: "Suba a nota da sua compra — o custo entra pronto e os drinks já vêm com margem. Sem digitar.",
+      done: p.nInsumosComCusto > 0, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true, icon: <Receipt size={20} strokeWidth={1.75} />,
     },
     {
       label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,
       apoio: p.nInsumosComCusto > 0
         ? "O que você vende. Monte pelos clássicos ou suba o PDF — a ficha já vem com o custo da nota que você subiu."
         : "O que você vende. Monte pelos clássicos, suba o PDF ou adicione na mão.",
-      done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar",
+      done: p.nProdutos > 0, href: "/dashboard/cardapio", cta: "Cadastrar", icon: <Wine size={20} strokeWidth={1.75} />,
     },
     {
       label: `Mesas — ${p.nMesas} ${p.nMesas === 1 ? "mesa" : "mesas"}`,
-      done: p.nMesas > 0, href: "/dashboard/mesas", cta: "Cadastrar",
+      done: p.nMesas > 0, href: "/dashboard/mesas", cta: "Cadastrar", icon: <LayoutGrid size={20} strokeWidth={1.75} />,
     },
     {
       label: p.nEquipe === 0
         ? "Equipe — só você por enquanto"
         : `Equipe — ${p.nEquipe} ${p.nEquipe === 1 ? "membro" : "membros"}`,
-      done: p.nEquipe > 0, href: "/dashboard/equipe", cta: "Convidar",
+      done: p.nEquipe > 0, href: "/dashboard/equipe", cta: "Convidar", icon: <Users size={20} strokeWidth={1.75} />,
     },
     {
       label: "Abrir o primeiro turno no Caixa",
-      done: p.nTurnos > 0, href: "/dashboard/caixa", cta: "Ver Caixa",
+      done: p.nTurnos > 0, href: "/dashboard/caixa", cta: "Ver Caixa", icon: <Play size={20} strokeWidth={1.75} />,
     },
   ];
 }
