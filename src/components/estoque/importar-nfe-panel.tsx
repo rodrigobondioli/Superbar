@@ -103,15 +103,21 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
 
     if (itens.length === 0) { setError("Nenhum item selecionado para importar."); setLoading(false); return; }
 
-    const res = await confirmarNfe({
-      cnpj: preview.fornecedor.cnpj,
-      fornecedorNome: preview.fornecedor.nome,
-      chaveNfe: preview.chaveNfe,
-      itens,
-    });
-    setLoading(false);
-    if ("error" in res) { setError(res.error); return; }
-    setImportados(res.itens); setStep("done");
+    try {
+      const res = await confirmarNfe({
+        cnpj: preview.fornecedor.cnpj,
+        fornecedorNome: preview.fornecedor.nome,
+        chaveNfe: preview.chaveNfe,
+        itens,
+      });
+      if ("error" in res) { setError(res.error); return; }
+      setImportados(res.itens); setStep("done");
+    } catch (e) {
+      // Server action que lança (rede/serialização) não pode travar a UI no "Importando…".
+      setError(e instanceof Error ? e.message : "Falha inesperada ao importar. Tente de novo.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -133,7 +139,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
 
         {/* Body */}
         <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
-          {error && (
+          {error && step !== "preview" && (
             <div style={{ display: "flex", gap: 8, alignItems: "center", background: "color-mix(in srgb, var(--danger) 12%, transparent)", border: "1px solid var(--danger)", borderRadius: 8, padding: "10px 12px", marginBottom: 16, fontSize: 13, color: "var(--fg)" }}>
               <AlertTriangle size={16} style={{ color: "var(--danger)", flexShrink: 0 }} /> {error}
             </div>
@@ -234,18 +240,26 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
         </div>
 
         {/* Footer */}
-        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end", gap: 8, flexShrink: 0 }}>
-          {step === "preview" && (
-            <>
-              <button onClick={() => setStep("upload")} style={{ background: "none", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer" }}>Voltar</button>
-              <button onClick={handleConfirm} disabled={loading || preview?.jaImportada} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: loading || preview?.jaImportada ? "not-allowed" : "pointer", opacity: loading || preview?.jaImportada ? 0.6 : 1 }}>
-                {loading ? "Importando…" : "Importar para o estoque"}
-              </button>
-            </>
+        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 10, flexShrink: 0 }}>
+          {/* Erro fica ao lado do botão (na etapa preview o corpo é longo e o topo some da vista) */}
+          {error && step === "preview" && (
+            <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "color-mix(in srgb, var(--danger) 12%, transparent)", border: "1px solid var(--danger)", borderRadius: 8, padding: "10px 12px", fontSize: 13, color: "var(--fg)" }}>
+              <AlertTriangle size={16} style={{ color: "var(--danger)", flexShrink: 0, marginTop: 1 }} /> {error}
+            </div>
           )}
-          {step === "done" && (
-            <button onClick={fechar} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer" }}>Concluir</button>
-          )}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            {step === "preview" && (
+              <>
+                <button onClick={() => setStep("upload")} style={{ background: "none", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer" }}>Voltar</button>
+                <button onClick={handleConfirm} disabled={loading || preview?.jaImportada} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: loading || preview?.jaImportada ? "not-allowed" : "pointer", opacity: loading || preview?.jaImportada ? 0.6 : 1 }}>
+                  {loading ? "Importando…" : "Importar para o estoque"}
+                </button>
+              </>
+            )}
+            {step === "done" && (
+              <button onClick={fechar} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer" }}>Concluir</button>
+            )}
+          </div>
         </div>
       </div>
     </>

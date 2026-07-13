@@ -155,7 +155,9 @@ export async function confirmarNfe(payload: {
 
   if (error) {
     console.error("confirmarNfe: erro no RPC importar_nfe", error);
-    return { error: "Não foi possível importar a nota. Tente novamente." };
+    // Ferramenta interna (dono/gerente): expõe a causa real pra não falhar cega.
+    const motivo = error.message || error.hint || error.details || "erro desconhecido";
+    return { error: `Não foi possível importar a nota: ${motivo}` };
   }
   const res = data as { ok: boolean; itens?: number; error?: string } | null;
   if (!res?.ok) return { error: res?.error ?? "Falha ao importar." };
