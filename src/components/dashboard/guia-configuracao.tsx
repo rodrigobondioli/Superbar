@@ -158,15 +158,13 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
             {passos.map((p, i) => {
               const ativo = i === proximoIdx;
               const depois = !p.done && !ativo;
-              // Card do custo (NF-e) preenchido de laranja — o passo que destrava a margem.
-              const laranja = !!p.critico && !p.done;
+              // O passo ATUAL é o único card PREENCHIDO (cinza sólido) — os demais
+              // ficam como contorno tracejado transparente (ghost).
               return (
                 <div key={i} style={{
-                  background: laranja ? "var(--accent)" : "var(--bg-card)",
-                  border: laranja
-                    ? "1px solid var(--accent)"
-                    : `1px dashed ${ativo ? "var(--accent)" : "var(--border-strong)"}`,
-                  boxShadow: laranja ? "0 12px 34px color-mix(in srgb, var(--accent) 28%, transparent)" : undefined,
+                  background: ativo ? "var(--bg-card)" : "transparent",
+                  border: ativo ? "1px solid var(--border-strong)" : "1px dashed var(--border-strong)",
+                  boxShadow: ativo ? "0 8px 28px rgba(0,0,0,0.28)" : undefined,
                   borderRadius: 16, padding: 20, minHeight: 176,
                   display: "flex", flexDirection: "column",
                   opacity: depois ? 0.6 : 1,
@@ -175,33 +173,40 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                     <div style={{
                       width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      background: laranja
-                        ? "rgba(255,255,255,0.18)"
-                        : p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
-                      color: laranja ? "#fff" : p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
+                      background: p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
+                      color: p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
                     }}>
                       {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
                     </div>
                     {ativo && (
-                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: laranja ? "#fff" : "var(--accent)" }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)" }}>
                         Comece por aqui
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: laranja ? "#fff" : p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
                   {p.apoio && !p.done && (
-                    <p style={{ fontSize: 12.5, color: laranja ? "rgba(255,255,255,0.88)" : "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
+                    <p style={{ fontSize: 12.5, color: "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
                   )}
                   <div style={{ marginTop: "auto", paddingTop: 16 }}>
                     {p.done ? (
                       <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
                     ) : p.href ? (
-                      <a
-                        href={p.href}
-                        className="inline-flex h-8 w-fit items-center justify-center gap-2 rounded-full border border-border-strong bg-bg-card px-4 text-[13px] font-medium text-fg no-underline transition-colors hover:border-fg-subtle hover:bg-bg-hover"
-                      >
-                        {p.cta ?? "Configurar"} →
-                      </a>
+                      ativo ? (
+                        <a
+                          href={p.href}
+                          className="inline-flex h-8 w-fit items-center justify-center gap-2 rounded-full bg-accent px-4 text-[13px] font-medium text-accent-fg no-underline transition-[filter] hover:brightness-105"
+                        >
+                          {p.cta ?? "Configurar"} →
+                        </a>
+                      ) : (
+                        <a
+                          href={p.href}
+                          className="inline-flex h-8 w-fit items-center justify-center gap-2 rounded-full border border-border-strong bg-bg-card px-4 text-[13px] font-medium text-fg no-underline transition-colors hover:border-fg-subtle hover:bg-bg-hover"
+                        >
+                          {p.cta ?? "Configurar"} →
+                        </a>
+                      )
                     ) : null}
                   </div>
                 </div>
@@ -209,9 +214,15 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
             })}
           </div>
 
-          {/* Dica — rodapé, com ícone de aviso */}
-          <div style={{ marginTop: 28, display: "flex", alignItems: "flex-start", gap: 10, maxWidth: 720, marginLeft: "auto", marginRight: "auto" }}>
-            <AlertTriangle size={16} strokeWidth={2} style={{ color: "var(--accent)", flexShrink: 0, marginTop: 2 }} />
+          {/* Dica — rodapé: ícone numa bola, centralizado na altura do texto */}
+          <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 14, maxWidth: 940, marginLeft: "auto", marginRight: "auto" }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+            }}>
+              <AlertTriangle size={20} strokeWidth={2} style={{ color: "var(--accent)" }} />
+            </div>
             <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
               <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Dica de ouro:</strong> comece subindo suas notas (NF-e) de compra — se a última foi pequena, sobe mais de uma.
               Cada nota traz o custo real dos insumos já convertido, e é isso que faz cada drink nascer com a margem certa. Sem planilha, sem conta de cabeça.
