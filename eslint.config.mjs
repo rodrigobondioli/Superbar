@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scripts Node (seed) usam CJS/require — não são código do app Next.
+    "scripts/**",
   ]),
   // React Compiler (eslint-plugin-react-hooks v6): duas regras novas são
   // conservadoras demais para este app e sinalizam padrões CORRETOS —
@@ -34,6 +36,26 @@ const eslintConfig = defineConfig([
         varsIgnorePattern: "^_",
         caughtErrorsIgnorePattern: "^_",
       }],
+      // ── Guarda-corpo do DS ──────────────────────────────────────────────
+      // Impede a volta dos padrões que causaram inconsistência crônica.
+      // Hoje "warn" (há ~57 botões-pílula na mão + ~28 font-mono legados);
+      // vira "error" assim que a migração em lote (P1) zerar os existentes —
+      // aí passa a BLOQUEAR botão novo na mão de verdade (não é texto no
+      // DESIGN.md que se ignora). Ver docs/auditoria-app.md.
+      "no-restricted-syntax": ["warn",
+        {
+          selector: "Property[key.name='borderRadius'][value.value=999]",
+          message: "Pílula na mão (borderRadius: 999): use o componente <Button> do DS para AÇÃO, ou borderRadius: 'var(--r-pill)' para container. Foi o que causou botões de altura diferente (DESIGN.md § Botões).",
+        },
+        {
+          selector: "Property[key.name='borderRadius'][value.value=9999]",
+          message: "Pílula na mão (borderRadius: 9999): use <Button> do DS ou borderRadius: 'var(--r-pill)'.",
+        },
+        {
+          selector: "Property[key.name='fontFamily'][value.value=/font-mono/]",
+          message: "Não use var(--font-mono). Para números, fontVariantNumeric: 'tabular-nums' com a fonte padrão (Inter).",
+        },
+      ],
     },
   },
 ]);
