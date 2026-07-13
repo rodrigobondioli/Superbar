@@ -63,7 +63,7 @@ export default function RecuperarSenhaPage() {
             justifyContent: "center",
             flex: 1,
             padding: "48px 16px",
-            gap: 48,
+            gap: 32,
           }}
         >
           {/* Logo + título */}
