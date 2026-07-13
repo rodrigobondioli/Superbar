@@ -9,6 +9,7 @@ import { tratarSessaoExpirada } from "@/lib/auth/session-client";
 import { ScanCartao } from "@/components/bartender/scan-cartao";
 import { MesaDrawer } from "@/components/bartender/mesa-view";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toaster";
 import { currency } from "@/lib/format";
 
 
@@ -363,7 +364,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
       next.delete(mesaId);
       return next;
     });
-    startTransition(async () => { await atenderChamada(chamadaId); });
+    startTransition(async () => { const r = await atenderChamada(chamadaId); if (r && "error" in r) toast(r.error, "error"); });
   };
 
   const handleConfirmarPessoas = async (n: number, nome?: string) => {

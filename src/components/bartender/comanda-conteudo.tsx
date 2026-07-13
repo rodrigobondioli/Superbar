@@ -25,7 +25,11 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
     if (removingIds.has(itemId)) return;
     setRemovingIds(prev => { const n = new Set(prev); n.add(itemId); return n; });
     try {
-      await removerItem(itemId, comandaId);
+      const r = await removerItem(itemId, comandaId);
+      if (r && "error" in r) {
+        toast(r.error, "error");
+        setRemovingIds(prev => { const n = new Set(prev); n.delete(itemId); return n; });
+      }
     } catch {
       toast("Erro ao remover item.", "error");
       setRemovingIds(prev => { const n = new Set(prev); n.delete(itemId); return n; });

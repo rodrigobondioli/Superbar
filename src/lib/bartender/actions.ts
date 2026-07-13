@@ -234,33 +234,34 @@ export async function adicionarItem(
   comandaId: string,
   varianteId?: string | null,
   varianteName?: string | null,
-) {
+): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada. Faça login de novo." };
 
   const supabase = await createClient();
 
   // Se tem variante, usa o preço da variante; senão usa o preço do produto
   let preco: number;
   if (varianteId) {
-    const { data: variante } = await supabase
+    const { data: variante, error } = await supabase
       .from("produto_variantes")
       .select("preco")
       .eq("id", varianteId)
       .single<{ preco: number }>();
-    if (!variante) return;
+    if (error || !variante) return { error: "Produto não encontrado." };
     preco = variante.preco;
   } else {
-    const { data: produto } = await supabase
+    const { data: produto, error } = await supabase
       .from("produtos")
       .select("preco")
       .eq("id", produtoId)
       .single<{ preco: number }>();
-    if (!produto) return;
+    if (error || !produto) return { error: "Produto não encontrado." };
     preco = produto.preco;
   }
 
-  await supabase.from("comanda_items").insert({
+  // Princípio 12: item perdido em silêncio é inaceitável — checa e reporta.
+  const { error: insErr } = await supabase.from("comanda_items").insert({
     comanda_id:    comandaId,
     bar_id:        current.bar.id,
     produto_id:    produtoId,
@@ -272,16 +273,21 @@ export async function adicionarItem(
     adicionado_por:           current.userId,
     adicionado_por_member_id: current.atribuicaoMemberId,
   });
+  if (insErr) {
+    console.error("adicionarItem: falha ao inserir item", insErr);
+    return { error: "Não consegui adicionar o item. Tente de novo." };
+  }
 
   revalidatePath(`/garcom/${comandaId}`);
+  return { ok: true };
 }
 
-export async function removerItem(itemId: string, comandaId: string) {
+export async function removerItem(itemId: string, comandaId: string): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada." };
 
   const supabase = await createClient();
-  await supabase.from("comanda_items")
+  const { error } = await supabase.from("comanda_items")
     .update({
       status: "cancelado",
       cancelado_por:           current.userId,
@@ -290,8 +296,13 @@ export async function removerItem(itemId: string, comandaId: string) {
     })
     .eq("id", itemId)
     .eq("status", "ativo");
+  if (error) {
+    console.error("removerItem: falha ao cancelar item", error);
+    return { error: "Não consegui remover o item. Tente de novo." };
+  }
 
   revalidatePath(`/garcom/${comandaId}`);
+  return { ok: true };
 }
 
 export async function fecharComanda(comandaId: string) {
@@ -366,17 +377,22 @@ export async function criarComanda(_formData: FormData) {
   return abrirComanda(null);
 }
 
-export async function atenderChamada(chamadaId: string) {
+export async function atenderChamada(chamadaId: string): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada." };
 
   const supabase = await createClient();
-  await supabase
+  const { error } = await supabase
     .from("chamadas")
     .update({ status: "atendida", atendida_em: new Date().toISOString() })
     .eq("id", chamadaId)
     .eq("bar_id", current.bar.id)
     .eq("status", "pendente");
+  if (error) {
+    console.error("atenderChamada: falha", error);
+    return { error: "Não consegui marcar como atendida." };
+  }
+  return { ok: true };
 }
 
 // ─── Fila de produção ─────────────────────────────────────────────────────────
@@ -438,12 +454,12 @@ export async function criarPedido(
 }
 
 /** Bartender inicia o preparo do pedido. */
-export async function iniciarPedido(pedidoId: string) {
+export async function iniciarPedido(pedidoId: string): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada." };
 
   const supabase = await createClient();
-  await supabase
+  const { error } = await supabase
     .from("pedidos")
     .update({
       status:                  "preparando",
@@ -453,16 +469,21 @@ export async function iniciarPedido(pedidoId: string) {
     .eq("id", pedidoId)
     .eq("bar_id", current.bar.id)
     .eq("status", "recebido");
+  if (error) {
+    console.error("iniciarPedido: falha", error);
+    return { error: "Não consegui iniciar o preparo." };
+  }
+  return { ok: true };
 }
 
 /** Bartender marca o pedido como pronto — aguarda retirada pelo garçom.
  *  Sem baixa de estoque aqui: o consumo é registrado na entrega (fn_entregar_pedido). */
-export async function marcarPronto(pedidoId: string) {
+export async function marcarPronto(pedidoId: string): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada." };
 
   const supabase = await createClient();
-  await supabase
+  const { error } = await supabase
     .from("pedidos")
     .update({
       status:    "pronto",
@@ -471,27 +492,39 @@ export async function marcarPronto(pedidoId: string) {
     .eq("id", pedidoId)
     .eq("bar_id", current.bar.id)
     .eq("status", "preparando");
+  if (error) {
+    console.error("marcarPronto: falha", error);
+    return { error: "Não consegui marcar como pronto." };
+  }
+  return { ok: true };
 }
 
 /** Cancela um pedido (erro, cliente desistiu). Sai da fila e os itens não contam. */
-export async function cancelarPedido(pedidoId: string) {
+export async function cancelarPedido(pedidoId: string): Promise<{ ok: true } | { error: string }> {
   const current = await getCurrentBar();
-  if (!current) return;
+  if (!current) return { error: "Sessão expirada." };
 
   const supabase = await createClient();
-  await supabase
+  const { error: pedErr } = await supabase
     .from("pedidos")
     .update({ status: "cancelado", cancelado_em: new Date().toISOString() })
     .eq("id", pedidoId)
     .eq("bar_id", current.bar.id)
     .in("status", ["recebido", "preparando"]);
+  if (pedErr) {
+    console.error("cancelarPedido: falha ao cancelar pedido", pedErr);
+    return { error: "Não consegui cancelar o pedido." };
+  }
 
-  await supabase
+  const { error: itErr } = await supabase
     .from("comanda_items")
     .update({ status: "cancelado", cancelado_em: new Date().toISOString(), cancelado_por: current.userId })
     .eq("pedido_id", pedidoId)
     .eq("bar_id", current.bar.id)
     .eq("status", "ativo");
+  if (itErr) console.error("cancelarPedido: falha ao cancelar itens do pedido", itErr);
+
+  return { ok: true };
 }
 
 /** Bartender entrega o pedido — estado final.

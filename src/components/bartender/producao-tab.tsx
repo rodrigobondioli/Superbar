@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { iniciarPedido, marcarPronto, entregarPedido, cancelarPedido } from "@/lib/bartender/actions";
+import { toast } from "@/components/ui/toaster";
 
 // ─── Alerta sonoro / háptico ──────────────────────────────────────────────────
 
@@ -249,7 +250,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
   const todosFeitos = total > 0 && checked.size === total;
 
   function toggle(i: number) {
-    if (!started) { setStarted(true); startTransition(async () => { await iniciarPedido(pedido.id); onIniciar(pedido.id); }); }
+    if (!started) { setStarted(true); startTransition(async () => { const r = await iniciarPedido(pedido.id); if (r && "error" in r) toast(r.error, "error"); onIniciar(pedido.id); }); }
     setChecked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
   }
 
@@ -266,7 +267,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
           ) : (
             <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
               <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>Cancelar pedido?</span>
-              <button onClick={() => startTransition(async () => { await cancelarPedido(pedido.id); onCancelar(pedido.id); })} style={{ background: "none", border: "none", color: "var(--danger)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>Sim</button>
+              <button onClick={() => startTransition(async () => { const r = await cancelarPedido(pedido.id); if (r && "error" in r) toast(r.error, "error"); onCancelar(pedido.id); })} style={{ background: "none", border: "none", color: "var(--danger)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>Sim</button>
               <button onClick={() => setConfirmCancel(false)} style={{ background: "none", border: "none", color: "var(--fg-subtle)", fontSize: 12, cursor: "pointer", padding: 0 }}>Não</button>
             </span>
           )}
@@ -327,7 +328,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
       {/* ação */}
       <div style={{ paddingTop: 16 }}>
         <button
-          onClick={() => { if (todosFeitos) startTransition(async () => { if (usaPronto) await marcarPronto(pedido.id); else await entregarPedido(pedido.id); onPronto(pedido.id); }); }}
+          onClick={() => { if (todosFeitos) startTransition(async () => { const r = usaPronto ? await marcarPronto(pedido.id) : await entregarPedido(pedido.id); if (r && "error" in r) toast(r.error, "error"); onPronto(pedido.id); }); }}
           disabled={!todosFeitos || isPending}
           style={btnPrimary(todosFeitos)}
         >
