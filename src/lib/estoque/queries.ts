@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { MovimentoTipo } from "@/types/database";
 
 export interface ItemEstoque {
   id: string;               // ingrediente_id
@@ -13,16 +12,6 @@ export interface ItemEstoque {
   unidadeCompra: string | null;     // rótulo: "garrafa" | "lata" | "pacote"
   valorEstoque: number;     // quantidadeAtual × custoAtual (R$ parado)
   abaixoDoMinimo: boolean;
-}
-
-export interface MovimentoEstoque {
-  id: string;
-  tipo: MovimentoTipo;
-  quantidade: number;
-  quantidadeAnterior: number;
-  quantidadePosterior: number;
-  motivo: string | null;
-  criadoEm: string;
 }
 
 // Estoque = INSUMOS (ingredientes). É a mesma fonte da NF-e, da contagem, do
@@ -211,36 +200,6 @@ export async function getMovimentosRecentes(barId: string): Promise<MovimentoRec
     quantidade: Number(row.quantidade),
     motivo: row.motivo,
     produtoNome: nomeMap.get(row.ingrediente_id) ?? "Insumo",
-    criadoEm: row.criado_em,
-  }));
-}
-
-export async function getMovimentosEstoque(estoqueId: string): Promise<MovimentoEstoque[]> {
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .from("estoque_movimentos")
-    .select("id, tipo, quantidade, quantidade_anterior, quantidade_posterior, motivo, criado_em")
-    .eq("referencia_id", estoqueId)
-    .order("criado_em", { ascending: false })
-    .limit(20)
-    .returns<Array<{
-      id: string;
-      tipo: MovimentoTipo;
-      quantidade: number;
-      quantidade_anterior: number;
-      quantidade_posterior: number;
-      motivo: string | null;
-      criado_em: string;
-    }>>();
-
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    tipo: row.tipo,
-    quantidade: Number(row.quantidade),
-    quantidadeAnterior: Number(row.quantidade_anterior),
-    quantidadePosterior: Number(row.quantidade_posterior),
-    motivo: row.motivo,
     criadoEm: row.criado_em,
   }));
 }

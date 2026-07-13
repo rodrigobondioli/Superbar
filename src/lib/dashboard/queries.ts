@@ -110,22 +110,29 @@ export interface AlertaEstoque {
   quantidadeMinima: number;
 }
 
+// Alertas = INSUMOS abaixo do mínimo (ingredientes) — mesma fonte da tela de
+// Estoque. Antes lia a tabela legada `estoque`/`produtos` (vazia), então o alerta
+// do dono e o sino NÃO refletiam os insumos reais. Só alerta quem tem mínimo
+// definido (>0); zerado sem mínimo é "crítico" na tela, não "abaixo do mínimo".
 export async function getAlertasEstoque(barId: string): Promise<AlertaEstoque[]> {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("estoque")
-    .select("quantidade_atual, quantidade_minima, produtos(nome)")
+    .from("ingredientes")
+    .select("nome, estoque_atual, estoque_minimo")
     .eq("bar_id", barId)
-    .eq("abaixo_minimo", true)  // filtrado no banco via coluna gerada + índice parcial
-    .returns<{ quantidade_atual: number; quantidade_minima: number; produtos: { nome: string } | null }[]>();
+    .eq("ativo", true)
+    .gt("estoque_minimo", 0)
+    .returns<{ nome: string; estoque_atual: number; estoque_minimo: number }[]>();
 
   if (!data) return [];
 
-  return data.map((row) => ({
-    produtoNome: row.produtos?.nome ?? "Produto",
-    quantidadeAtual: row.quantidade_atual,
-    quantidadeMinima: row.quantidade_minima,
-  }));
+  return data
+    .filter((row) => Number(row.estoque_atual) < Number(row.estoque_minimo))
+    .map((row) => ({
+      produtoNome: row.nome,
+      quantidadeAtual: Number(row.estoque_atual),
+      quantidadeMinima: Number(row.estoque_minimo),
+    }));
 }
 
 // ── Variação de custo do insumo (variance alert) ────────────────────────────
@@ -294,7 +301,7 @@ export async function getKpisComparacao(
   barId: string,
   turnoAtual: Turno,
   kpisAtual: KpisTurno,
-  alertasAtuaisCount: number,
+  _alertasAtuaisCount: number, // reservado: comparativo de alertas vs turno anterior (ver getAlertasEstoque)
   produtosVendidosAtual: TopDrink[]
 ): Promise<KpisComparacao> {
   const supabase = await createClient();
@@ -325,38 +332,12 @@ export async function getKpisComparacao(
     turnoAnterior.total_comandas > 0 ? turnoAnterior.total_vendas / turnoAnterior.total_comandas : 0;
   const ticketMedio = percentChange(kpisAtual.ticketMedio, ticketMedioAnterior);
 
-  let alertasEstoque: number | null = null;
-  if (turnoAnterior.fechado_em) {
-    const [{ data: estoqueAtual }, { data: movimentos }] = await Promise.all([
-      supabase
-        .from("estoque")
-        .select("produto_id, quantidade_atual, quantidade_minima")
-        .eq("bar_id", barId)
-        .returns<{ produto_id: string; quantidade_atual: number; quantidade_minima: number }[]>(),
-      supabase
-        .from("estoque_movimentos")
-        .select("produto_id, quantidade")
-        .eq("bar_id", barId)
-        .gt("criado_em", turnoAnterior.fechado_em)
-        .returns<{ produto_id: string; quantidade: number }[]>(),
-    ]);
-
-    const consumidoDesdeOFechamento = new Map<string, number>();
-    for (const movimento of movimentos ?? []) {
-      consumidoDesdeOFechamento.set(
-        movimento.produto_id,
-        (consumidoDesdeOFechamento.get(movimento.produto_id) ?? 0) + Number(movimento.quantidade)
-      );
-    }
-
-    const alertasNoFechamentoAnterior = (estoqueAtual ?? []).filter((item) => {
-      const quantidadeNaEpoca =
-        item.quantidade_atual - (consumidoDesdeOFechamento.get(item.produto_id) ?? 0);
-      return quantidadeNaEpoca < item.quantidade_minima;
-    }).length;
-
-    alertasEstoque = percentChange(alertasAtuaisCount, alertasNoFechamentoAnterior);
-  }
+  // Comparativo de alertas de estoque vs turno anterior fica de fora por ora:
+  // exigiria reconstruir o nível histórico de cada INSUMO pelo audit trail
+  // (ingrediente_movimentos), com o sinal certo por tipo. Sem isso é chute —
+  // melhor não mostrar % do que mostrar errado (Princípio 9). O número ATUAL de
+  // alertas segue vindo de getAlertasEstoque (agora sobre insumos reais).
+  const alertasEstoque: number | null = null;
 
   const cmvAtual = calcularCmv(produtosVendidosAtual);
   const produtosVendidosAnterior = await getProdutosVendidosTurno(barId, turnoAnterior.id);
