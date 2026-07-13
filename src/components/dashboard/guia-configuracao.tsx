@@ -1,3 +1,4 @@
+import { AlertTriangle } from "lucide-react";
 import { BarraProgresso } from "@/components/dashboard/barra-progresso";
 
 export interface PassoConfig {
@@ -137,14 +138,8 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
             {subtitulo && (
               <p style={{ fontSize: 15, color: "var(--fg-muted)", margin: "0 auto", maxWidth: 620, lineHeight: 1.5 }}>{subtitulo}</p>
             )}
-            <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "14px auto 0", maxWidth: 640, lineHeight: 1.6 }}>
-              Dica de ouro pra começar com o pé direito: suba a{" "}
-              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>nota (NF-e)</strong> da sua última compra.
-              Ela traz o custo real de cada insumo já convertido — e é isso que faz cada drink nascer com a
-              margem certa, sem planilha nem conta de cabeça.
-            </p>
 
-            {/* Barra de progresso — largura total dos cards */}
+            {/* Barra de progresso — largura total dos cards, degradê âmbar→laranja */}
             <div style={{ marginTop: 28 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
@@ -154,7 +149,7 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                   {feitos} de {total} concluídos
                 </span>
               </div>
-              <BarraProgresso valor={pct} altura={6} raio={3} corBarra="var(--accent)" />
+              <BarraProgresso valor={pct} altura={6} raio={3} corBarra="linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)" />
             </div>
           </div>
 
@@ -163,13 +158,15 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
             {passos.map((p, i) => {
               const ativo = i === proximoIdx;
               const depois = !p.done && !ativo;
-              // Card do custo (NF-e) preenchido de branco — o passo que destrava a margem.
-              const branco = !!p.critico && !p.done;
+              // Card do custo (NF-e) preenchido de laranja — o passo que destrava a margem.
+              const laranja = !!p.critico && !p.done;
               return (
                 <div key={i} style={{
-                  background: branco ? "#FFFFFF" : "var(--bg-card)",
-                  border: `1px solid ${branco ? "#FFFFFF" : ativo ? "var(--accent)" : "var(--border)"}`,
-                  boxShadow: branco ? "0 10px 34px rgba(0,0,0,0.30)" : undefined,
+                  background: laranja ? "var(--accent)" : "transparent",
+                  border: laranja
+                    ? "1px solid var(--accent)"
+                    : `1px dashed ${ativo ? "var(--accent)" : "var(--border-strong)"}`,
+                  boxShadow: laranja ? "0 12px 34px color-mix(in srgb, var(--accent) 28%, transparent)" : undefined,
                   borderRadius: 16, padding: 20, minHeight: 176,
                   display: "flex", flexDirection: "column",
                   opacity: depois ? 0.6 : 1,
@@ -178,28 +175,28 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                     <div style={{
                       width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      background: branco
-                        ? "color-mix(in srgb, var(--accent) 12%, #fff)"
+                      background: laranja
+                        ? "rgba(255,255,255,0.18)"
                         : p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
-                      color: branco ? "var(--accent)" : p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
+                      color: laranja ? "#fff" : p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
                     }}>
                       {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
                     </div>
                     {ativo && (
-                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)" }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: laranja ? "#fff" : "var(--accent)" }}>
                         Comece por aqui
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: branco ? "#141414" : p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: laranja ? "#fff" : p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
                   {p.apoio && !p.done && (
-                    <p style={{ fontSize: 12.5, color: branco ? "#5a5a5a" : "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
+                    <p style={{ fontSize: 12.5, color: laranja ? "rgba(255,255,255,0.88)" : "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
                   )}
                   <div style={{ marginTop: "auto", paddingTop: 16 }}>
                     {p.done ? (
                       <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
                     ) : p.href ? (
-                      <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: laranja ? "#fff" : ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
                         {p.cta ?? "Configurar"} →
                       </a>
                     ) : null}
@@ -207,6 +204,15 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                 </div>
               );
             })}
+          </div>
+
+          {/* Dica — rodapé, com ícone de aviso */}
+          <div style={{ marginTop: 28, display: "flex", alignItems: "flex-start", gap: 10, maxWidth: 720, marginLeft: "auto", marginRight: "auto" }}>
+            <AlertTriangle size={16} strokeWidth={2} style={{ color: "var(--accent)", flexShrink: 0, marginTop: 2 }} />
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Dica de ouro:</strong> suba a nota (NF-e) da sua última compra pra começar.
+              Ela traz o custo real de cada insumo já convertido — e é isso que faz cada drink nascer com a margem certa, sem planilha nem conta de cabeça.
+            </p>
           </div>
         </div>
       </div>
