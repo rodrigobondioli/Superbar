@@ -371,6 +371,8 @@ Escala: **4 · 8 · 12 · 16 · 20 · 24 · 32 · 48**. Nunca `6`, `10`, `14`, `
 
 Todo card-grid do dashboard usa **16** — não misturar 16 e 24 pro mesmo tipo de elemento. Espaço mora em `gap`/`padding` inline hoje (sem token), então a disciplina é humana: qualquer PR com valor fora da escala é regressão.
 
+**Ferramenta (lente, não gate):** `npm run check:spacing` lista os valores numéricos fora da base-4 por arquivo (informativo, não quebra o build). Um lint que **bloqueia** aqui não vale a pena: ou vira `error` e quebra nos milhares de valores existentes, ou vira ruído. Então: conserte **com o olho na tela** (o valor certo depende do contexto, ver mapa acima), não em sweep cego — trocar `9→8` no escuro desloca layout sem você ver. Débito atual (jul/2026): ~208 ocorrências, concentradas em menu-cliente, admin e bartender.
+
 ### Pendências de reconciliação (Figma ↔ código)
 - **`--fg-subtle` (`#6B6B75`)** ainda diverge do Figma `text/subtle #C7C7C7` (o Figma é mais claro que o muted; o código é mais escuro). **Decisão pendente**: alinhar o código ao Figma ou corrigir o Figma.
 - **Tema claro (`:root`)** ainda com valores antigos (`--accent-bright #FF5A2C`, `--danger #DC2626`, `--ok #16A34A`) — só relevante se o tema claro for usado.

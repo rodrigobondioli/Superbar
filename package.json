@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:responsive": "playwright test tests/responsive.spec.ts",
     "test:smoke": "playwright test tests/smoke.spec.ts --project=desktop-1440 --workers=1",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "check:spacing": "node scripts/check-spacing.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",
