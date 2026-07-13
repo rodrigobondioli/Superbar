@@ -12,7 +12,7 @@ interface CTAButtonProps {
 }
 
 export function CTAButton({
-  label = "Agendar demonstração",
+  label = "Ver onde meu bar vaza",
   className = "",
   variant = "orange",
 }: CTAButtonProps) {

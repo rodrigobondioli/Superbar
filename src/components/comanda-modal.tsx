@@ -219,7 +219,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                           margin: "0 0 10px",
                         }}
                       >
-                        Seu bar ficou super inteligente.
+                        A gente acha onde seu bar vaza.
                       </h2>
                       <p style={{
                         fontFamily: "var(--font-roboto-mono)",
@@ -227,7 +227,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                         color: TEXT_SEC,
                         margin: 0, lineHeight: 1.5,
                       }}>
-                        Preencha o form. A gente entra em contato pra começar.
+                        Conta rapidinho do seu bar. A gente dá uma olhada (Instagram incluso) e volta com onde tá vazando dinheiro.
                       </p>
                     </div>
                     <button
@@ -297,7 +297,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                       textAlign: "center",
                       maxWidth: 340,
                     }}>
-                      A gente entra em contato pelo WhatsApp em até 24 horas.
+                      A gente vai dar uma olhada no seu bar e te chamar no WhatsApp com o que achou, em até 24h.
                     </p>
                   </div>
                 ) : (
@@ -418,7 +418,7 @@ function ComandaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                         gap: "8px",
                       }}
                     >
-                      {isPending ? "Enviando..." : "Quero meu Superbar"}
+                      {isPending ? "Enviando..." : "Quero ver os furos"}
                       {!isPending && <ArrowRight size={16} />}
                     </button>
                   </form>

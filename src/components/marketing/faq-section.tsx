@@ -173,7 +173,7 @@ export function FaqSection() {
                   maxWidth: "280px",
                 }}
               >
-                As dúvidas mais comuns. O que faltar, você pergunta na demonstração.
+                As dúvidas mais comuns. O que faltar, a gente conversa quando olhar seu bar.
               </p>
             </Reveal>
             {/* Ice cube hidden on mobile to save space */}
