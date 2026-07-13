@@ -121,7 +121,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
             {filtrados.map((i) => {
               const embalagem = contaPorEmbalagem(i);
               return (
@@ -142,7 +142,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
 
                   {/* Tamanho da embalagem (só p/ quem conta por garrafa) */}
                   {embalagem && (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                       <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>de</span>
                       <input
                         value={tamanhos[i.id] ?? ""}
@@ -196,7 +196,7 @@ export function ContagemClient({ insumos, voltarHref = "/dashboard/estoque" }: {
             </strong>
           </p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
             {resultado.itens.filter((r) => r.diff !== 0).map((r, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bg-card)", borderRadius: 8, padding: "10px 14px" }}>
                 <span style={{ flex: 1, fontSize: 14, color: "var(--fg)", minWidth: 0 }}>{r.nome}</span>
@@ -241,7 +241,7 @@ function campo(w: number): React.CSSProperties {
 function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () => void }) {
   return (
     <div>
-      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 16 }}>
+      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 16 }}>
         <ArrowLeft style={{ width: 14, height: 14 }} /> Estoque
       </button>
       <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap", paddingBottom: 24, marginBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>

@@ -112,7 +112,7 @@ export function AlertasBell({ alertas }: AlertasBellProps) {
                 key={alerta.produtoNome}
                 onClick={() => dismiss(alerta.produtoNome)}
                 style={{
-                  display: "flex", gap: 14, padding: "14px 18px",
+                  display: "flex", gap: 16, padding: "14px 18px",
                   borderBottom: "1px solid var(--border)",
                   alignItems: "flex-start",
                   cursor: "pointer",

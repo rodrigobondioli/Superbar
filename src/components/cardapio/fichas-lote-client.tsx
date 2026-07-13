@@ -156,7 +156,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
           )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, marginTop: temVendas ? 0 : 10 }}>
             {drinks.map((d) => (
-              <span key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>
+              <span key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>
                 {d.nome}
                 {d.quantidadeVendida > 0 && (
                   <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>
@@ -208,7 +208,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
                   {naEstoque ? (
                     <span style={{ fontSize: 13, color: "var(--ok)" }}>• da nota · R$ {i.custoUnitario}/{i.unidade}</span>
                   ) : (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--fg-muted)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--fg-muted)" }}>
                       <span>R$</span>
                       <input value={e?.preco ?? ""} onChange={(ev) => onEmb(i.key, "preco", ev.target.value, i.unidade)} inputMode="decimal" placeholder="preço" style={inpMini} />
                       {i.unidade !== "un" && (
@@ -252,7 +252,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
             <Check style={{ width: 18, height: 18, color: "var(--ok)" }} />
             <p style={{ fontSize: 15, color: "var(--fg)", margin: 0 }}>{resultados.length} ficha{resultados.length !== 1 ? "s" : ""} salva{resultados.length !== 1 ? "s" : ""}.</p>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
             {resultados.map((r) => {
               const mrg = margem(r.preco, r.custo);
               const pct = margemPercentual(r.preco, r.custo);
@@ -279,7 +279,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
 function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () => void }) {
   return (
     <div>
-      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 16 }}>
+      <button onClick={onVoltar} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 16 }}>
         <ArrowLeft style={{ width: 14, height: 14 }} /> Cardápio
       </button>
       {/* Cabeçalho no padrão do dashboard */}

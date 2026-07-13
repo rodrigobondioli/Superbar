@@ -63,7 +63,7 @@ export function ClassicosPicker({
         {CATEGORIAS_CLASSICOS.map((cat) => (
           <div key={cat} style={{ marginBottom: 18 }}>
             <p style={{ fontSize: 11, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px", fontWeight: 500 }}>{cat}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {CLASSICOS.filter((c) => c.categoria === cat).map((c) => {
                 const m = marcas[c.nome];
                 const on = !!m?.on;
@@ -81,7 +81,7 @@ export function ClassicosPicker({
                       type="button"
                       onClick={() => toggle(c.nome)}
                       style={{
-                        display: "flex", alignItems: "center", gap: 10, flex: 1,
+                        display: "flex", alignItems: "center", gap: 12, flex: 1,
                         background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left",
                       }}
                     >
@@ -121,7 +121,7 @@ export function ClassicosPicker({
 
       {erro && <p style={{ fontSize: 13, color: "var(--danger)", margin: "0 0 12px" }}>{erro}</p>}
 
-      <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", alignItems: "center" }}>
         {onSkip && (
           <button type="button" onClick={onSkip} style={{ background: "none", border: "none", color: "var(--fg-muted)", fontSize: 13, cursor: "pointer", padding: "12px 8px" }}>
             Pular

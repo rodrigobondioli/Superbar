@@ -140,7 +140,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={loading}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "28px 16px", borderRadius: 16, border: "1px dashed var(--border-strong)", background: "var(--bg-card)", color: "var(--fg-muted)", cursor: loading ? "wait" : "pointer", fontSize: 14 }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "28px 16px", borderRadius: 16, border: "1px dashed var(--border-strong)", background: "var(--bg-card)", color: "var(--fg-muted)", cursor: loading ? "wait" : "pointer", fontSize: 14 }}
               >
                 <Upload size={18} /> {loading ? "Lendo…" : "Escolher arquivo XML"}
               </button>
@@ -149,7 +149,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
           )}
 
           {step === "preview" && preview && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ fontSize: 13, color: "var(--fg-muted)" }}>
                 Fornecedor: <strong style={{ color: "var(--fg)" }}>{preview.fornecedor.nome ?? "—"}</strong>
                 {preview.fornecedor.cnpj && <span style={{ color: "var(--fg-subtle)" }}> · {preview.fornecedor.cnpj}</span>}

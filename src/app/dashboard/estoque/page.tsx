@@ -43,7 +43,7 @@ export default async function EstoquePage({
       </div>
 
       {/* Semáforo */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {semaforo.map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

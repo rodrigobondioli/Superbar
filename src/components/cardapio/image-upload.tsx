@@ -161,7 +161,7 @@ export function ImageUpload({ currentUrl, autoUrl, bucket = "product-images", on
             width: 80, height: 80, borderRadius: 8,
             border: "1.5px dashed var(--border)",
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            gap: 6, cursor: "pointer",
+            gap: 8, cursor: "pointer",
             background: uploading
               ? "color-mix(in srgb, var(--accent-bright) 12%, transparent)"
               : "color-mix(in srgb, var(--fg) 4%, transparent)",

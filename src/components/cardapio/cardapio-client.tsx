@@ -483,7 +483,7 @@ function ProdutoRow({
   }
 
   const menuItem: React.CSSProperties = {
-    display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left",
+    display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left",
     background: "none", border: "none", cursor: "pointer",
     padding: "11px 14px", fontSize: 14, color: "var(--fg)",
   };
@@ -892,7 +892,7 @@ export function CardapioClient({
             {pendentesFicha > 0 && (
               <button
                 onClick={() => router.push("/dashboard/cardapio/fichas")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
                 title="Gerar fichas dos drinks sem custo, em lote, com IA"
                 className="max-lg:!px-3"
               >
@@ -902,7 +902,7 @@ export function CardapioClient({
             )}
             <button
               onClick={() => setDestaquesOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <Megaphone style={{ width: 15, height: 15 }} />
@@ -910,7 +910,7 @@ export function CardapioClient({
             </button>
             <button
               onClick={() => setClassicosOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <Sparkles style={{ width: 15, height: 15 }} />
@@ -918,7 +918,7 @@ export function CardapioClient({
             </button>
             <button
               onClick={() => setImportPanelOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <FileSpreadsheet style={{ width: 15, height: 15 }} />
@@ -973,7 +973,7 @@ export function CardapioClient({
               onKeyDown={e => { if (e.key === "Escape") setAddingCategoria(false); }}
               required
             />
-            <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ display: "flex", gap: 8 }}>
               <button type="submit" style={{ ...btnPrimary, flex: 1, padding: "9px 0", fontSize: 13 }}>Criar</button>
               <button type="button" onClick={() => setAddingCategoria(false)} style={{ ...btnSecondary, padding: "9px 16px", fontSize: 13 }}>Cancelar</button>
             </div>

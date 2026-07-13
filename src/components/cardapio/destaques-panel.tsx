@@ -87,7 +87,7 @@ export function DestaquesPanel({
                 {produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
             </div>
-            <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
+            <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
               {salvando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Plus style={{ width: 14, height: 14 }} />}
               Adicionar destaque
             </button>
@@ -97,7 +97,7 @@ export function DestaquesPanel({
           {destaques.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--fg-subtle)", textAlign: "center", padding: "20px 0" }}>Nenhum destaque ainda. O primeiro vira o banner do topo.</p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {destaques.map((d) => (
                 <DestaqueRow key={d.id} d={d} produtos={produtos} />
               ))}
@@ -153,7 +153,7 @@ function DestaqueRow({ d, produtos }: { d: Destaque; produtos: { id: string; nom
           </select>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
+          <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
             {salvando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Check style={{ width: 14, height: 14 }} />}
             Salvar
           </button>

@@ -35,7 +35,7 @@ export function SettingsButton({
           title="Configurações"
           onClick={() => setOpen(true)}
           style={{
-            display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left",
+            display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left",
             padding: touchMode ? "10px 12px" : "6px 10px", background: "none", border: "none",
             cursor: "pointer", borderRadius: 8,
           }}

@@ -66,14 +66,14 @@ export function CentralInsights({ insights }: { insights: InsightItem[] }) {
   if (insights.length === 0) {
     return (
       <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: 28 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <span style={{ fontSize: 18 }}>✓</span>
           <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0 }}>Tudo certo por enquanto</p>
         </div>
         <p style={{ ...overline, color: "var(--fg-subtle)", marginBottom: 12 }}>Monitorando</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {MONITORANDO.map((item) => (
-            <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ok)", flexShrink: 0 }}>✓</span>
               <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>{item}</span>
             </div>

@@ -102,7 +102,7 @@ export function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
         </div>
 
         {/* Endereço */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <label style={lbl}>Endereço</label>
 
           {/* CEP primeiro — preenche os demais campos automaticamente */}
@@ -138,7 +138,7 @@ export function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
 
         {/* Metas */}
         <div style={{ paddingTop: 8, borderTop: "1px solid var(--border)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <Target style={{ width: 12, height: 12, color: "var(--fg-subtle)" }} />
             <span style={{ ...lbl, margin: 0 }}>Metas de faturamento</span>
           </div>

@@ -111,12 +111,12 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Tipo */}
           <div>
             <label style={lbl}>Tipo</label>
-            <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ display: "flex", gap: 8 }}>
               {TIPO_BOTOES.map(({ label, value }) => {
                 const sel = tipo === value;
                 return (
@@ -270,7 +270,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
           description="Suba a nota fiscal da sua compra e a gente puxa produtos, custos e fornecedor pro estoque — sem digitar. Ou ative o controle por produto no Cardápio."
           descriptionMaxWidth={520}
           action={
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
               <Button variant="primary" onClick={() => setNfeAberto(true)}>Importar nota fiscal</Button>
               <a
                 href="/dashboard/cardapio"
@@ -316,7 +316,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                 fontSize: 13, fontWeight: ativo ? 500 : 400,
                 color: ativo ? "var(--fg)" : "var(--fg-muted)",
                 cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 6,
+                display: "flex", alignItems: "center", gap: 8,
                 transition: "color 150ms",
                 marginBottom: -1,
               }}
@@ -422,7 +422,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                   Em dia
                 </p>
               )}
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {ok.map(item => (
                   <div key={item.id} style={{
                     background: "var(--bg-elevated)",

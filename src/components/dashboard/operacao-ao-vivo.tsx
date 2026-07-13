@@ -77,7 +77,7 @@ function DeltaRow({ value, invert = false, compact = false }: { value: number | 
   const up = value >= 0;
   const good = invert ? !up : up;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 14 : 15 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: compact ? 14 : 15 }}>
       <Tri up={up} color={good ? "var(--accent)" : "var(--danger)"} />
       <span style={{ color: "var(--fg)" }}>
         {Math.abs(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% {up ? "maior" : "menor"}{compact ? "" : " vs. sem. passada"}
@@ -119,9 +119,9 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
 
       {/* HEADER — título + indicador "agora". Passado (ontem/7d) vive no Relatório. */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", margin: 0, letterSpacing: "-0.01em" }}>Operação ao vivo</h1>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--fg-subtle)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--fg-subtle)" }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--ok)" }} />
             agora
           </span>
@@ -229,7 +229,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
         ].map((s) => (
           <div key={s.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontSize: 14, color: "var(--fg-muted)" }}>{s.label}</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }} title={s.value === "—" ? "Disponível quando o bar acumular histórico" : undefined}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, flexShrink: 0 }} title={s.value === "—" ? "Disponível quando o bar acumular histórico" : undefined}>
               <span style={{ fontSize: 14, fontWeight: 600, color: s.value === "—" ? "var(--fg-subtle)" : "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{s.value}</span>
               {s.value !== "—" && <TrendingUp size={16} strokeWidth={2.5} style={{ color: "var(--warn)" }} />}
             </span>

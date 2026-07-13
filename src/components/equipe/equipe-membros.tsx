@@ -292,7 +292,7 @@ function MembroItem({
 
       {/* Role — editável inline */}
       {editing ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <select
             value={role}
             onChange={e => setRole(e.target.value as BarRole)}

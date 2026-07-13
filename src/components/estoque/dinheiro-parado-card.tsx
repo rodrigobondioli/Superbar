@@ -26,7 +26,7 @@ export function DinheiroParadoCard({ dados }: { dados: DinheiroParado }) {
         {currency.format(dados.total)}
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {dados.itens.map((it, i) => (
           <div
             key={it.id}

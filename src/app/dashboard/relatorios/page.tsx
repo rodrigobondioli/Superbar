@@ -35,7 +35,7 @@ function DeltaVs({ percent: p }: { percent: number }) {
   const up = p >= 0;
   const cor = up ? "var(--ok)" : "var(--danger)";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600 }}>
       <svg width="11" height="9" viewBox="0 0 11 9" aria-hidden><path d={up ? "M5.5 0 L11 9 L0 9 Z" : "M5.5 9 L11 0 L0 0 Z"} fill={cor} /></svg>
       <span style={{ color: cor }}>{Math.abs(p).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% vs. semana anterior</span>
     </div>
@@ -141,7 +141,7 @@ export default async function RelatoriosPage({
         <div className="max-lg:!p-5" style={cardBig}>
           <span style={cardTitle}>Vendas por garçom</span>
           <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "4px 0 0" }}>Por pedido lançado no período — quem atendeu.</p>
-          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 22 }}>
+          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 24 }}>
             {vendasGarcom.map((g, i) => {
               const pct = Math.max(6, Math.round((g.totalVendido / maxGarcom) * 100));
               const inicial = g.nome.charAt(0).toUpperCase();

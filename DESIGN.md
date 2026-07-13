@@ -356,8 +356,20 @@ O DS vive no Figma (arquivo **Superbar - Design System**) e é a fonte dos compo
 
 > Nota: os text styles de Dashboard no Figma estão com `line-height 100%` — no código usamos line-heights web (1.1–1.55) para não cortar descendente. Corrigir o LH no Figma quando possível.
 
-### Spacing (base-4)
-Dense: 4 · 8 · 12 · 16 · 24 · 32. Comfortable: 4 · 8 · 16 · 24 · 32 · 48. Nunca usar valores fora da escala.
+### Spacing (base-4) — RÉGUA ÚNICA, valor fora da grade = bug
+Escala: **4 · 8 · 12 · 16 · 20 · 24 · 32 · 48**. Nunca `6`, `10`, `14`, `22` etc. (arredonda pro vizinho: 6→8, 10→12, 14→16, 22→24).
+
+**Mapa semântico (dashboard) — use o valor certo pro contexto, não o que "parece":**
+
+| Contexto | `gap`/`padding` |
+|---|---|
+| Entre seções da página (rhythm vertical) | **24** (`gap-6`) |
+| Grid de cards irmãos (KPIs, guia, semáforo) | **16** (`gap-4`) |
+| Padding interno de card | **20** |
+| Ícone+texto, chips, grupos inline | **8** |
+| Grupos de rótulo/legenda | **12** |
+
+Todo card-grid do dashboard usa **16** — não misturar 16 e 24 pro mesmo tipo de elemento. Espaço mora em `gap`/`padding` inline hoje (sem token), então a disciplina é humana: qualquer PR com valor fora da escala é regressão.
 
 ### Pendências de reconciliação (Figma ↔ código)
 - **`--fg-subtle` (`#6B6B75`)** ainda diverge do Figma `text/subtle #C7C7C7` (o Figma é mais claro que o muted; o código é mais escuro). **Decisão pendente**: alinhar o código ao Figma ou corrigir o Figma.

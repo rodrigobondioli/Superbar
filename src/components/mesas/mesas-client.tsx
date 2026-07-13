@@ -195,9 +195,9 @@ function DetailPanel({ mesa, ocupada, onEdit, onQR, onDelete }: {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 20, paddingTop: 4 }}>
-        <button onClick={onEdit} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--fg-muted)", display: "inline-flex", alignItems: "center", gap: 6 }} className="hover:!text-[var(--fg)]"><Pencil style={{ width: 13, height: 13 }} /> Editar</button>
-        <button onClick={onQR} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--fg-muted)", display: "inline-flex", alignItems: "center", gap: 6 }} className="hover:!text-[var(--fg)]"><QrCode style={{ width: 13, height: 13 }} /> QR Code</button>
-        <button onClick={onDelete} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--danger)", display: "inline-flex", alignItems: "center", gap: 6 }}><Trash2 style={{ width: 13, height: 13 }} /> Deletar mesa</button>
+        <button onClick={onEdit} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--fg-muted)", display: "inline-flex", alignItems: "center", gap: 8 }} className="hover:!text-[var(--fg)]"><Pencil style={{ width: 13, height: 13 }} /> Editar</button>
+        <button onClick={onQR} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--fg-muted)", display: "inline-flex", alignItems: "center", gap: 8 }} className="hover:!text-[var(--fg)]"><QrCode style={{ width: 13, height: 13 }} /> QR Code</button>
+        <button onClick={onDelete} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: "var(--danger)", display: "inline-flex", alignItems: "center", gap: 8 }}><Trash2 style={{ width: 13, height: 13 }} /> Deletar mesa</button>
       </div>
     </div>
   );
@@ -231,7 +231,7 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
         </div>
-        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
+        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
           <Plus style={{ width: 15, height: 15 }} /> Nova mesa
         </button>
       </div>

@@ -215,7 +215,7 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
           </div>
 
           {/* Dica — rodapé: ícone numa bola, centralizado na altura do texto */}
-          <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 14, maxWidth: 940, marginLeft: "auto", marginRight: "auto" }}>
+          <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 16, maxWidth: 940, marginLeft: "auto", marginRight: "auto" }}>
             <div style={{
               width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",

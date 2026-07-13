@@ -261,7 +261,7 @@ export function ImportarCardapioPanel({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: 10,
+                    gap: 12,
                     padding: "32px 20px",
                     border: "1px dashed var(--border)",
                     borderRadius: 8,
@@ -393,7 +393,7 @@ export function ImportarCardapioPanel({
                           i < preview.length - 1 ? "1px solid var(--border)" : undefined,
                         display: "flex",
                         alignItems: "center",
-                        gap: 10,
+                        gap: 12,
                         background:
                           i % 2 === 1
                             ? "color-mix(in srgb, var(--fg) 1.5%, transparent)"
