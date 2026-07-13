@@ -5,6 +5,7 @@ import { ImportarNfePanel } from "@/components/estoque/importar-nfe-panel";
 import { registrarMovimento, type EstoqueResult } from "@/lib/estoque/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import { SearchInput } from "@/components/ui/search-input";
+import { Button } from "@/components/ui/button";
 import type { ItemEstoque, MovimentoRecente } from "@/lib/estoque/queries";
 
 // Divisória vertical "|" para separar dados inline numa linha.
@@ -102,7 +103,7 @@ function dataRelativa(iso: string): string {
 
 const lbl: React.CSSProperties = {
   fontSize: 11, color: "var(--fg-subtle)", display: "block",
-  marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em",
+  marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em",
 };
 
 const inp: React.CSSProperties = {
@@ -152,7 +153,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
         style={{
           background: "var(--bg-elevated)",
           border: "1px solid var(--border)",
-          borderRadius: 8,
+          borderRadius: 16,
           padding: 24,
           width: "100%",
           maxWidth: 440,
@@ -160,27 +161,27 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
         onClick={e => e.stopPropagation()}
       >
         {/* Cabeçalho */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20, gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, paddingBottom: 20, marginBottom: 24, borderBottom: "1px solid var(--border)" }}>
           <div>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               Ajustar estoque
             </p>
             <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
               {item.nome}
             </p>
-            <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: "4px 0 0", lineHeight: 1.5 }}>
-              Estoque atual: {item.quantidadeAtual} {item.unidade}. Lance uma <strong style={{ color: "var(--fg-muted)" }}>entrada</strong> (compra sem nota), uma <strong style={{ color: "var(--fg-muted)" }}>saída</strong> (perda/quebra) ou um <strong style={{ color: "var(--fg-muted)" }}>acerto</strong> do total.
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.5 }}>
+              Estoque atual: <strong style={{ color: "var(--fg)" }}>{item.quantidadeAtual} {item.unidade}</strong>. Lance uma <strong style={{ color: "var(--fg-muted)" }}>entrada</strong> (compra sem nota), uma <strong style={{ color: "var(--fg-muted)" }}>saída</strong> (perda/quebra) ou um <strong style={{ color: "var(--fg-muted)" }}>acerto</strong> do total.
             </p>
           </div>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 18, padding: 4 }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 18, padding: 4, lineHeight: 1, flexShrink: 0 }}
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Tipo */}
           <div>
@@ -192,7 +193,7 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
                   <button
                     key={value} type="button" onClick={() => setTipo(value)}
                     style={{
-                      flex: 1, padding: "8px 10px", fontSize: 13,
+                      flex: 1, padding: "10px 12px", fontSize: 13,
                       fontWeight: sel ? 500 : 400,
                       background: sel ? "var(--bg)" : "transparent",
                       color: sel ? "var(--fg)" : "var(--fg-muted)",
@@ -259,22 +260,11 @@ function MovimentoModal({ item, onClose }: { item: ItemEstoque; onClose: () => v
           )}
 
           {/* Ações */}
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button type="button" onClick={onClose} style={{
-              background: "none", border: "1px solid var(--border)", borderRadius: 8,
-              padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer",
-            }}>
-              Cancelar
-            </button>
-            <button type="submit" disabled={pending || !qtd} style={{
-              background: "var(--accent)", color: "var(--accent-fg)",
-              border: "none", borderRadius: 8,
-              padding: "9px 18px", fontSize: 13, fontWeight: 600,
-              cursor: pending || !qtd ? "not-allowed" : "pointer",
-              opacity: pending || !qtd ? 0.6 : 1,
-            }}>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
+            <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" variant="primary" disabled={pending || !qtd}>
               {pending ? "Salvando…" : "Registrar"}
-            </button>
+            </Button>
           </div>
 
         </form>
@@ -460,18 +450,18 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
               Nenhum insumo encontrado.
             </p>
           ) : (
-            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
-              {filtrados.map((item, i) => {
+            <div style={{ borderTop: "1px solid var(--border)" }}>
+              {filtrados.map((item) => {
                 const est = formatEstoque(item);
                 const critico = item.quantidadeAtual <= 0;
                 const cor = critico ? "var(--danger)" : item.abaixoDoMinimo ? "var(--warn)" : null;
                 return (
                   <div key={item.id} style={{
-                    display: "flex", alignItems: "center", gap: 14, padding: "14px 20px",
-                    borderBottom: i < filtrados.length - 1 ? "1px solid var(--border-strong)" : "none",
+                    display: "flex", alignItems: "center", gap: 16, padding: "16px 4px",
+                    borderBottom: "1px solid var(--border)",
                   }}>
                     {/* nome + custo */}
-                    <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 12 }}>
                       {cor && <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0 }} />}
                       <div style={{ minWidth: 0 }}>
                         <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nome}</span>
@@ -482,7 +472,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                     </div>
 
                     {/* Tudo inline com divisórias: qtd | base | valor | ação */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
                       <span style={{ fontSize: 15, fontWeight: 600, color: cor ?? "var(--fg)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
                         {est.principal}
                       </span>
@@ -497,12 +487,9 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                         {fmtBRL(item.valorEstoque)}
                       </span>
                       <Sep />
-                      <button onClick={() => setModalItem(item)} style={{
-                        background: "none", border: "1px solid var(--border)", borderRadius: "var(--r-pill)",
-                        padding: "6px 14px", fontSize: 12, color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap",
-                      }} className="hover:!text-[var(--fg)]" title="Entrada, saída ou acerto de estoque">
+                      <Button variant="secondary" size="sm" onClick={() => setModalItem(item)} title="Entrada, saída ou acerto de estoque">
                         Ajustar
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );
