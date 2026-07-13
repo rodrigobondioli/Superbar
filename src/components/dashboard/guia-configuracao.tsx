@@ -17,26 +17,6 @@ export interface PassoConfig {
   icon?: React.ReactNode;
 }
 
-/** Anel circular de progresso — feitos/total no centro. */
-function AnelProgresso({ feitos, total }: { feitos: number; total: number }) {
-  const pct = total > 0 ? feitos / total : 0;
-  const size = 84, stroke = 7, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-      <svg width={size} height={size} style={{ display: "block", transform: "rotate(-90deg)" }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-strong)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--accent)" strokeWidth={stroke} strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={c * (1 - pct)} style={{ transition: "stroke-dashoffset 500ms ease" }} />
-      </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: 20, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
-          {feitos}<span style={{ color: "var(--fg-subtle)", fontSize: 14 }}>/{total}</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
 interface GuiaConfiguracaoProps {
   passos: PassoConfig[];
   /** "hero" = tela cheia (bar novo); "card" = bloco compacto no dashboard. */
@@ -139,17 +119,22 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
   if (hero) {
     return (
       <div style={{ width: "100%", maxWidth: 1040, margin: "0 auto", padding: "32px 0 48px" }}>
-        {/* Header: título + subtítulo + anel */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, marginBottom: 28, flexWrap: "wrap" }}>
-          <div style={{ minWidth: 0 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
-              {titulo ?? "Vamos configurar seu bar"}
-            </h2>
-            {subtitulo && (
-              <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, maxWidth: 560, lineHeight: 1.5 }}>{subtitulo}</p>
-            )}
+        {/* Header: título + subtítulo + barra embaixo */}
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
+            {titulo ?? "Vamos configurar seu bar"}
+          </h2>
+          {subtitulo && (
+            <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, maxWidth: 560, lineHeight: 1.5 }}>{subtitulo}</p>
+          )}
+          <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ flex: 1, maxWidth: 560 }}>
+              <BarraProgresso valor={pct} altura={6} raio={3} corBarra="var(--accent)" />
+            </div>
+            <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 500, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+              {feitos} de {total}
+            </span>
           </div>
-          <AnelProgresso feitos={feitos} total={total} />
         </div>
 
         {/* Grid 3 colunas de cards */}
