@@ -35,7 +35,7 @@ const LINHAS = [
 
 export function DiferenciaisSection() {
   return (
-    <section className="py-14 md:py-[120px]" style={{ background: "#0D0D0E" }}>
+    <section className="py-14 md:py-[120px]" style={{ background: "#111113" }}>
       <SectionRule num="04" label="Por que o Superbar" />
 
       <div className="page-x pt-10 md:pt-14">
