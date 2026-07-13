@@ -45,7 +45,7 @@ export default async function TurnosPage() {
   ]);
 
   return (
-    <div className="py-6 lg:py-8 flex flex-col gap-4 lg:gap-6">
+    <div className="py-6 lg:py-8 flex flex-col gap-4 lg:gap-6 min-h-full">
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
@@ -65,7 +65,19 @@ export default async function TurnosPage() {
       {/* divisória abaixo do cabeçalho (Line 16 do Figma) */}
       <div style={{ height: 1, background: "var(--border-strong)" }} />
 
-      {/* Tabela (sem card — direto no canvas, igual ao Figma) */}
+      {turnos.length === 0 ? (
+        <EmptyState
+          icon="🕐"
+          title="Nenhum turno ainda"
+          description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
+          action={
+            <EmptyStateButton href="/dashboard/caixa" variant="secondary">
+              Abrir turno no Caixa →
+            </EmptyStateButton>
+          }
+        />
+      ) : (
+      /* Tabela (sem card — direto no canvas, igual ao Figma) */
       <div className="overflow-x-auto">
         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
@@ -117,25 +129,10 @@ export default async function TurnosPage() {
                 </tr>
               );
             })}
-            {turnos.length === 0 && (
-              <tr>
-                <td colSpan={7} style={{ borderBottom: "none" }}>
-                  <EmptyState
-                    icon="🕐"
-                    title="Nenhum turno ainda"
-                    description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
-                    action={
-                      <EmptyStateButton href="/dashboard/caixa" variant="secondary">
-                        Abrir turno no Caixa →
-                      </EmptyStateButton>
-                    }
-                  />
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
+      )}
 
     </div>
   );
