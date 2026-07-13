@@ -52,7 +52,7 @@ export default function LoginPage({
             justifyContent: "center",
             flex: 1,
             padding: "48px 16px",
-            gap: 48,
+            gap: 32,
           }}
         >
           {/* Logo + título */}
@@ -74,10 +74,7 @@ export default function LoginPage({
                 fontWeight: 400,
                 color: "#FFFFFF",
                 letterSpacing: "0.01em",
-                // lineHeight apertado: a fonte de display reserva ~5px de "ar"
-                // dentro da caixa da linha; 0.75 encosta a caixa nas letras (só
-                // caps, sem descendente pra cortar) pra o gap 48 renderizar como 48.
-                lineHeight: 0.75,
+                lineHeight: 1,
                 textTransform: "uppercase",
                 margin: 0,
                 textAlign: "center",
