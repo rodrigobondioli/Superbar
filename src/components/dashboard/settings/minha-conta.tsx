@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
 import { atualizarConta, atualizarAvatar, type ActionResult } from "@/lib/settings/actions";
+import { Button } from "@/components/ui/button";
 import { lbl, inp, inpReadonly, Feedback } from "./shared";
 
 export function MinhaConta({
@@ -81,22 +82,9 @@ export function MinhaConta({
 
         {result && <Feedback result={result} />}
 
-        <button
-          type="submit"
-          disabled={pending}
-          style={{
-            alignSelf: "flex-start",
-            background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: "var(--r-pill)",
-            padding: "10px 24px", fontSize: 14, fontWeight: 500,
-            cursor: pending ? "default" : "pointer",
-            opacity: pending ? 0.7 : 1,
-            transition: "filter 150ms, opacity 150ms",
-          }}
-          className="hover:brightness-110"
-        >
+        <Button type="submit" variant="primary" disabled={pending} style={{ alignSelf: "flex-start" }}>
           {pending ? "Salvando…" : "Salvar"}
-        </button>
+        </Button>
       </form>
     </section>
   );

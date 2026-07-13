@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Smartphone } from "lucide-react";
 import { atualizarAutoPedido, atualizarFluxoPronto, atualizarTaxaServico, type ActionResult } from "@/lib/settings/actions";
+import { Button } from "@/components/ui/button";
 import { inp, Feedback } from "./shared";
 
 export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct }: { barId: string; autoPedido: boolean; fluxoPronto: boolean; taxaServicoPct: number }) {
@@ -152,20 +153,9 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
               padding: "8px 10px",
             }}
           />
-          <button
-            type="button"
-            onClick={handleTaxaSave}
-            disabled={taxaSaving}
-            style={{
-              padding: "10px 20px", borderRadius: "var(--r-pill)", border: "none",
-              background: "var(--accent)", color: "var(--accent-fg)",
-              fontSize: 14, fontWeight: 500, cursor: taxaSaving ? "default" : "pointer",
-              opacity: taxaSaving ? 0.6 : 1,
-              whiteSpace: "nowrap",
-            }}
-          >
+          <Button type="button" variant="primary" onClick={handleTaxaSave} disabled={taxaSaving}>
             {taxaSaving ? "..." : "Salvar"}
-          </button>
+          </Button>
         </div>
       </div>
       {taxaFeedback && <Feedback result={taxaFeedback} />}

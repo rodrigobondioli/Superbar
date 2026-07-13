@@ -6,6 +6,7 @@ import { Building2, Target } from "lucide-react";
 import { ImageUpload } from "@/components/cardapio/image-upload";
 import { atualizarPerfil, atualizarLogo, type ActionResult } from "@/lib/settings/actions";
 import type { Bar } from "@/types/database";
+import { Button } from "@/components/ui/button";
 import { lbl, inp, Feedback } from "./shared";
 
 export function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
@@ -166,22 +167,9 @@ export function PerfilDoBar({ bar, barId }: { bar: Bar; barId: string }) {
 
         {result && <Feedback result={result} />}
 
-        <button
-          type="submit"
-          disabled={pending}
-          style={{
-            alignSelf: "flex-start",
-            background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: "var(--r-pill)",
-            padding: "10px 24px", fontSize: 14, fontWeight: 500,
-            cursor: pending ? "default" : "pointer",
-            opacity: pending ? 0.7 : 1,
-            transition: "filter 150ms, opacity 150ms",
-          }}
-          className="hover:brightness-110"
-        >
+        <Button type="submit" variant="primary" disabled={pending} style={{ alignSelf: "flex-start" }}>
           {pending ? "Salvando…" : "Salvar"}
-        </button>
+        </Button>
       </form>
     </section>
   );
