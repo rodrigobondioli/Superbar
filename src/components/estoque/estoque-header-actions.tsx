@@ -14,10 +14,10 @@ export function EstoqueHeaderActions() {
   return (
     <>
       <div style={{ marginLeft: "auto", alignSelf: "center", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <Button variant="secondary" size="sm" onClick={() => router.push("/contagem")}>
+        <Button variant="secondary" onClick={() => router.push("/contagem")}>
           Fazer contagem
         </Button>
-        <Button variant="primary" size="sm" onClick={() => setNfeAberto(true)}>
+        <Button variant="primary" onClick={() => setNfeAberto(true)}>
           Importar nota fiscal (NF-e)
         </Button>
       </div>

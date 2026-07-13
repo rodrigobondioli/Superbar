@@ -3,9 +3,6 @@ import { getCurrentBar } from "@/lib/dashboard/queries";
 import { MesasClient } from "@/components/mesas/mesas-client";
 import { createClient } from "@/lib/supabase/server";
 
-const dataLonga = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
-const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
 export default async function MesasPage() {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
@@ -48,7 +45,6 @@ export default async function MesasPage() {
         barId={current.bar.id}
         mesasOcupadas={mesasOcupadas}
         nextNumero={nextNumero}
-        dataLabel={capitalizar(dataLonga.format(new Date()))}
       />
     </div>
   );

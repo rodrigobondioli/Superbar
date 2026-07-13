@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2, EyeOff, Eye, X, Check, ImageIcon, FileSpreadsheet
 import { toast } from "@/components/ui/toaster";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { ImportarCardapioPanel } from "./importar-cardapio-panel";
 import { FichaEditor } from "./ficha-editor";
 import { ClassicosPicker } from "./classicos-picker";
@@ -937,21 +938,15 @@ export function CardapioClient({
           title="Seu cardápio está vazio"
           description="Crie categorias (ex: Drinks, Cervejas, Petiscos) e depois adicione os produtos com preços e custos."
           action={
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
               <EmptyStateButton onClick={() => setAddingCategoria(true)}>
                 <Plus style={{ width: 13, height: 13 }} />
                 Criar primeira categoria
               </EmptyStateButton>
-              <button
-                onClick={() => setImportPanelOpen(true)}
-                style={{
-                  background: "none", border: "none",
-                  fontSize: 12, color: "var(--fg-subtle)", cursor: "pointer",
-                  textDecoration: "underline", textUnderlineOffset: 3,
-                }}
-              >
-                ou importe de um PDF/planilha
-              </button>
+              <EmptyStateButton variant="secondary" onClick={() => setImportPanelOpen(true)}>
+                <FileSpreadsheet style={{ width: 14, height: 14 }} />
+                Importar de PDF/planilha
+              </EmptyStateButton>
             </div>
           }
         />
@@ -962,20 +957,21 @@ export function CardapioClient({
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 48 }}>
           <form
             action={async (fd) => { await criarCategoria(fd); setAddingCategoria(false); }}
-            style={{ width: 280 }}
+            style={{ width: 380, maxWidth: "calc(100vw - 32px)", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 16, padding: 24 }}
           >
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", marginBottom: 12 }}>Nova categoria</p>
+            <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: "0 0 4px" }}>Nova categoria</p>
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "0 0 16px", lineHeight: 1.5 }}>Ex: Drinks, Cervejas, Petiscos. Os produtos você adiciona depois.</p>
             <input
               autoFocus
               name="nome"
-              placeholder="Ex: Drinks, Cervejas, Petiscos…"
-              style={{ ...input, marginBottom: 10 }}
+              placeholder="Nome da categoria"
+              style={{ ...input, marginBottom: 16 }}
               onKeyDown={e => { if (e.key === "Escape") setAddingCategoria(false); }}
               required
             />
-            <div style={{ display: "flex", gap: 8 }}>
-              <button type="submit" style={{ ...btnPrimary, flex: 1, padding: "9px 0", fontSize: 13 }}>Criar</button>
-              <button type="button" onClick={() => setAddingCategoria(false)} style={{ ...btnSecondary, padding: "9px 16px", fontSize: 13 }}>Cancelar</button>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Button type="button" variant="secondary" onClick={() => setAddingCategoria(false)}>Cancelar</Button>
+              <Button type="submit" variant="primary">Criar categoria</Button>
             </div>
           </form>
         </div>

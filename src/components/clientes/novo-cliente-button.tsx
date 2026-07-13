@@ -37,7 +37,7 @@ export function NovoClienteButton() {
 
   return (
     <>
-      <Button variant="primary" size="sm" onClick={() => setAberto(true)}>
+      <Button variant="primary" onClick={() => setAberto(true)}>
         + Novo cliente
       </Button>
 

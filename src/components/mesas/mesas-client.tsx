@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, X, QrCode, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { criarMesa, editarMesa, removerMesa } from "@/lib/mesas/actions";
 import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import type { Mesa } from "@/types/database";
 
@@ -63,8 +64,8 @@ function MesaPanel({ mode, mesa, nextNumero, open, onClose }: {
               <input name="capacidade" defaultValue={mesa?.capacidade ?? ""} placeholder="Ex: 4" type="number" min={1} style={inp} />
             </div>
             <div style={{ display: "flex", gap: 8, paddingTop: 8 }}>
-              <button type="submit" style={{ flex: 1, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }} className="hover:brightness-110">Salvar</button>
-              <button type="button" onClick={onClose} style={{ background: "transparent", color: "var(--fg)", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Cancelar</button>
+              <Button type="submit" variant="primary" style={{ flex: 1 }}>Salvar</Button>
+              <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
             </div>
           </form>
         </div>
@@ -103,9 +104,9 @@ function QRModal({ mesa, onClose }: { mesa: Mesa; onClose: () => void }) {
             <QRCodeSVG id={`qr-svg-${mesa.id}`} value={url} size={180} bgColor="#ffffff" fgColor="#000000" level="M" />
           </div>
           <p style={{ fontSize: 11, color: "var(--fg-subtle)", wordBreak: "break-all", textAlign: "center", margin: 0, maxWidth: 260, lineHeight: 1.5 }}>{url}</p>
-          <button onClick={handlePrint} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "12px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer", width: "100%", justifyContent: "center" }} className="hover:brightness-110">
+          <Button onClick={handlePrint} variant="primary" className="w-full">
             <Printer style={{ width: 14, height: 14 }} /> Imprimir QR Code
-          </button>
+          </Button>
         </div>
       </div>
     </>
@@ -205,10 +206,10 @@ function DetailPanel({ mesa, ocupada, onEdit, onQR, onDelete }: {
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 interface MesasClientProps {
-  mesas: Mesa[]; barId: string; mesasOcupadas: string[]; nextNumero: number; dataLabel: string;
+  mesas: Mesa[]; barId: string; mesasOcupadas: string[]; nextNumero: number;
 }
 
-export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: MesasClientProps) {
+export function MesasClient({ mesas, mesasOcupadas, nextNumero }: MesasClientProps) {
   const [panelMode, setPanelMode] = useState<"create" | "edit" | null>(null);
   const [editingMesa, setEditingMesa] = useState<Mesa | null>(null);
   const [qrMesa, setQrMesa] = useState<Mesa | null>(null);
@@ -224,16 +225,15 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero, dataLabel }: Mes
 
   return (
     <>
-      {/* Cabeçalho: data + título + subtítulo + Nova mesa */}
-      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: "0 0 24px" }}>{dataLabel}</p>
+      {/* Cabeçalho: título + subtítulo + Nova mesa */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 24, borderBottom: "1px solid var(--border-strong)" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 24, flexWrap: "wrap" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "var(--fg)", letterSpacing: "-0.01em", margin: 0 }}>Mesas</h1>
           <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>Configure as posições do seu bar. O bartender vê exatamente essas opções.</p>
         </div>
-        <button onClick={openCreate} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }} className="hover:brightness-110">
+        <Button variant="primary" onClick={openCreate} style={{ flexShrink: 0 }}>
           <Plus style={{ width: 15, height: 15 }} /> Nova mesa
-        </button>
+        </Button>
       </div>
 
       {/* Contagem */}

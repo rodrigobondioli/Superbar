@@ -46,28 +46,35 @@ export const CARD: CSSProperties = {
 };
 
 /* ── Botões ── */
-// Padrão SUPERBAR: botão é pill (rounded-full). Ver DESIGN.md.
+// Padrão SUPERBAR: botão é pill (rounded-full), ALTURA FIXA 40px (h-10) — ESPELHA
+// EXATAMENTE o componente <Button> default (h-10 / px-6 / 15px / gap-8 / inline-flex
+// centrado). height fixo (não padding vertical) pra não haver diferença de ~2px
+// entre botão na mão e DS. Se mudar o <Button>, mudar aqui. Ver DESIGN.md § Botões.
+const BTN_BASE: CSSProperties = {
+  height: 40,
+  padding: "0 24px",
+  borderRadius: 999,
+  fontSize: 15,
+  fontWeight: 500,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  boxSizing: "border-box" as CSSProperties["boxSizing"],
+};
 export const BTN_PRIMARY: CSSProperties = {
+  ...BTN_BASE,
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: 999,
-  padding: "10px 24px",
-  fontSize: 15,
-  fontWeight: 500,
-  cursor: "pointer",
-  whiteSpace: "nowrap",
 };
 export const BTN_SECONDARY: CSSProperties = {
+  ...BTN_BASE,
   background: "transparent",
   color: "var(--fg)",
   border: "1px solid var(--border-strong)",
-  borderRadius: 999,
-  padding: "10px 24px",
-  fontSize: 15,
-  fontWeight: 500,
-  cursor: "pointer",
-  whiteSpace: "nowrap",
 };
 export const BTN_ICON: CSSProperties = {
   background: "none",
