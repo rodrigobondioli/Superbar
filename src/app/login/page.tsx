@@ -37,7 +37,7 @@ export default function LoginPage({
         }}
       >
         {/* Superbar Intelligence — topo direito */}
-        <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 30 }}>
+        <div className="absolute right-4 md:right-8 lg:right-14" style={{ top: 32 }}>
           <span style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: 13, color: "var(--fg-muted)" }}>
             Superbar Intelligence
           </span>
@@ -132,7 +132,7 @@ export default function LoginPage({
                       fontSize: 13,
                       borderRadius: 8,
                       background: "rgba(239,68,68,0.10)",
-                      padding: "10px 14px",
+                      padding: "12px 16px",
                       color: "#EF4444",
                       margin: 0,
                       fontFamily: "var(--font-sans)",
