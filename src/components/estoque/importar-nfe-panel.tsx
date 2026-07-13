@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Upload, CheckCircle2, AlertTriangle, X, ChevronDown } from "lucide-react";
 import { previewNfe, confirmarNfe, type NfePreview } from "@/lib/nfe/actions";
+import { baseDoItem, quantidadeBaseImportada } from "@/lib/nfe/converter";
 import { PassosImport } from "@/components/ui/passos-import";
 import { currency } from "@/lib/format";
 
@@ -12,21 +13,6 @@ const inp: React.CSSProperties = {
   padding: "7px 9px", fontSize: 13, color: "var(--fg)", outline: "none",
   colorScheme: "dark", width: "100%", boxSizing: "border-box",
 };
-
-// Converte custo de compra → custo por unidade base. Quando a nota traz o tamanho
-// da embalagem (ex: garrafa 750ml), o insumo entra como ml/g com o custo POR ML
-// (custo ÷ tamanho) — não como "un" a preço de garrafa. É o que impede o clássico
-// erro de custo por garrafa que estoura o CMV (Princípio 10).
-function baseDoItem(it: { custoUnitario: number; tamanhoEmbalagem: number | null; baseEmbalagem: "ml" | "g" | null; unidadeSugerida: string }): { unidade: string; custo: number; convertido: boolean } {
-  if (it.tamanhoEmbalagem && it.tamanhoEmbalagem > 0 && it.baseEmbalagem) {
-    return {
-      unidade: it.baseEmbalagem,
-      custo: Math.round((it.custoUnitario / it.tamanhoEmbalagem) * 10000) / 10000,
-      convertido: true,
-    };
-  }
-  return { unidade: it.unidadeSugerida, custo: it.custoUnitario, convertido: false };
-}
 
 type Step = "upload" | "preview" | "done";
 
@@ -92,12 +78,8 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
       .map(({ it, i }) => {
         const b = baseDoItem(it);
         const qtyNota = parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0;
-        // Quando o custo é convertido pra base (ex: R$/ml), a QUANTIDADE também
-        // precisa virar base: 6 garrafas × 750ml = 4500ml. Antes ficava "6" com
-        // unidade ml → estoque irreal ("6 ml") e CMV/consumo quebrados.
-        const quantidadeBase = b.convertido && it.tamanhoEmbalagem
-          ? qtyNota * it.tamanhoEmbalagem
-          : qtyNota;
+        // Custo e quantidade em unidade-base (ver lib/nfe/converter, testado).
+        const quantidadeBase = quantidadeBaseImportada(it, qtyNota);
         return {
           ingredienteId: match[i] === "novo" ? null : match[i],
           nome: it.nome,
