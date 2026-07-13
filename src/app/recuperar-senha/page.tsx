@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { traduzirErro } from "@/lib/utils";
+import { londrina } from "@/app/fonts";
 
 export default function RecuperarSenhaPage() {
   const supabase = createClient();
@@ -37,6 +38,7 @@ export default function RecuperarSenhaPage() {
   return (
     <>
       <div
+        className={londrina.variable}
         style={{
           minHeight: "100dvh",
           position: "relative",
@@ -78,12 +80,13 @@ export default function RecuperarSenhaPage() {
             </Link>
             <h1
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 24,
-                fontWeight: 500,
+                fontFamily: "var(--font-londrina)",
+                fontSize: 40,
+                fontWeight: 400,
                 color: "#FFFFFF",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.2,
+                letterSpacing: "0.01em",
+                lineHeight: 1,
+                textTransform: "uppercase",
                 margin: 0,
                 textAlign: "center",
               }}

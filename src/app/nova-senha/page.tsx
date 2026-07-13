@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { traduzirErro } from "@/lib/utils";
+import { londrina } from "@/app/fonts";
 
 export default function NovaSenhaPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function NovaSenhaPage() {
     <>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
+      <div className={londrina.variable} style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
 
         {/* Logo */}
         <div style={{ position: "absolute", top: 32, left: 32 }}>
@@ -80,7 +81,7 @@ export default function NovaSenhaPage() {
 
         {/* Center */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px 64px" }}>
-          <h1 style={{ fontSize: 28, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-mono)", textAlign: "center" }}>
+          <h1 style={{ fontSize: 40, fontWeight: 400, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-londrina)", letterSpacing: "0.01em", lineHeight: 1, textTransform: "uppercase", textAlign: "center" }}>
             Nova senha
           </h1>
           <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "0 0 32px", textAlign: "center" }}>

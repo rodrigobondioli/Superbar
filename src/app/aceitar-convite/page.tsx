@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { processarConvite } from "./actions";
 import { traduzirErro } from "@/lib/utils";
+import { londrina } from "@/app/fonts";
 
 type Fase = "aguardando" | "definir_senha" | "processando" | "erro";
 
@@ -80,7 +81,7 @@ export default function AceitarConvitePage() {
     <>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
+      <div className={londrina.variable} style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
 
         {/* Logo */}
         <div style={{ position: "absolute", top: 32, left: 32 }}>
@@ -92,7 +93,7 @@ export default function AceitarConvitePage() {
           {/* Aguardando validação do link */}
           {fase === "aguardando" && (
             <div style={{ textAlign: "center" }}>
-              <h1 style={{ fontSize: 24, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-mono)" }}>
+              <h1 style={{ fontSize: 36, fontWeight: 400, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-londrina)", letterSpacing: "0.01em", lineHeight: 1, textTransform: "uppercase" }}>
                 Validando convite…
               </h1>
               <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>
@@ -104,7 +105,7 @@ export default function AceitarConvitePage() {
           {/* Formulário de senha */}
           {(fase === "definir_senha" || fase === "processando") && (
             <>
-              <h1 style={{ fontSize: 28, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-mono)", textAlign: "center" }}>
+              <h1 style={{ fontSize: 40, fontWeight: 400, color: "var(--fg)", margin: "0 0 8px", fontFamily: "var(--font-londrina)", letterSpacing: "0.01em", lineHeight: 1, textTransform: "uppercase", textAlign: "center" }}>
                 Definir senha
               </h1>
               <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "0 0 32px", textAlign: "center" }}>
@@ -151,7 +152,7 @@ export default function AceitarConvitePage() {
           {/* Erro */}
           {fase === "erro" && (
             <div style={{ textAlign: "center", maxWidth: 380 }}>
-              <h1 style={{ fontSize: 24, fontWeight: 600, color: "var(--danger)", margin: "0 0 12px", fontFamily: "var(--font-mono)" }}>
+              <h1 style={{ fontSize: 34, fontWeight: 400, color: "var(--danger)", margin: "0 0 12px", fontFamily: "var(--font-londrina)", letterSpacing: "0.01em", lineHeight: 1, textTransform: "uppercase" }}>
                 Não foi possível aceitar o convite
               </h1>
               <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 24px", lineHeight: 1.6 }}>

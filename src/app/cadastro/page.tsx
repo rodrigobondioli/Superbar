@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { traduzirErro } from "@/lib/utils";
+import { londrina } from "@/app/fonts";
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -42,6 +43,7 @@ export default function CadastroPage() {
   return (
     <>
       <div
+        className={londrina.variable}
         style={{
           minHeight: "100dvh",
           position: "relative",
@@ -83,12 +85,13 @@ export default function CadastroPage() {
             </Link>
             <h1
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 24,
-                fontWeight: 500,
+                fontFamily: "var(--font-londrina)",
+                fontSize: 40,
+                fontWeight: 400,
                 color: "#FFFFFF",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.2,
+                letterSpacing: "0.01em",
+                lineHeight: 1,
+                textTransform: "uppercase",
                 margin: 0,
                 textAlign: "center",
               }}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signIn } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { londrina } from "@/app/fonts";
 import { useState, use } from "react";
 
 export default function LoginPage({
@@ -26,6 +27,7 @@ export default function LoginPage({
   return (
     <>
       <div
+        className={londrina.variable}
         style={{
           minHeight: "100dvh",
           position: "relative",
@@ -67,12 +69,13 @@ export default function LoginPage({
             </Link>
             <h1
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 24,
-                fontWeight: 500,
+                fontFamily: "var(--font-londrina)",
+                fontSize: 40,
+                fontWeight: 400,
                 color: "#FFFFFF",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.2,
+                letterSpacing: "0.01em",
+                lineHeight: 1,
+                textTransform: "uppercase",
                 margin: 0,
                 textAlign: "center",
               }}

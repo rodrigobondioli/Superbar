@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { criarBarOnboarding } from "@/lib/onboarding/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { londrina } from "@/app/fonts";
 
 // Onboarding = SÓ o fundamental: criar o bar. Cardápio, custo, mesas, equipe e
 // turno viram itens do checklist na home (Guia de configuração) — cada um um
@@ -37,6 +38,7 @@ export default function OnboardingPage() {
 
   return (
     <div
+      className={londrina.variable}
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -68,11 +70,13 @@ export default function OnboardingPage() {
           />
           <h1
             style={{
-              fontSize: "26px",
-              fontWeight: 600,
+              fontSize: "46px",
+              fontWeight: 400,
               color: "var(--fg)",
-              fontFamily: "var(--font-mono)",
-              letterSpacing: "-0.01em",
+              fontFamily: "var(--font-londrina)",
+              letterSpacing: "0.01em",
+              lineHeight: 1,
+              textTransform: "uppercase",
               margin: "0 0 8px",
             }}
           >
