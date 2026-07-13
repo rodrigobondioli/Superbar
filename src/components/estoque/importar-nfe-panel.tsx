@@ -41,6 +41,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
   const [custos, setCustos] = useState<string[]>([]);
   const [qtds, setQtds] = useState<string[]>([]);
   const [importados, setImportados] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
 
   if (!open) return null;
 
@@ -50,9 +51,7 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
   }
   function fechar() { reset(); onClose(); }
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function processFile(file: File) {
     setLoading(true); setError(null);
     try {
       const xml = await file.text();
@@ -69,6 +68,19 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
     }
     setLoading(false);
     if (fileRef.current) fileRef.current.value = "";
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    if (loading) return;
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   }
 
   async function handleConfirm() {
@@ -139,10 +151,21 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
               ]} />
               <button
                 onClick={() => fileRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); if (!loading) setDragOver(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
+                onDrop={handleDrop}
                 disabled={loading}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "28px 16px", borderRadius: 16, border: "1px dashed var(--border-strong)", background: "var(--bg-card)", color: "var(--fg-muted)", cursor: loading ? "wait" : "pointer", fontSize: 14 }}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+                  padding: "36px 16px", borderRadius: 16,
+                  border: `1px dashed ${dragOver ? "var(--accent)" : "var(--border-strong)"}`,
+                  background: dragOver ? "color-mix(in srgb, var(--accent) 8%, var(--bg-card))" : "var(--bg-card)",
+                  color: dragOver ? "var(--accent)" : "var(--fg-muted)",
+                  cursor: loading ? "wait" : "pointer", fontSize: 14,
+                  transition: "border-color 120ms, background 120ms, color 120ms",
+                }}
               >
-                <Upload size={18} /> {loading ? "Lendo…" : "Escolher arquivo XML"}
+                <Upload size={18} /> {loading ? "Lendo…" : dragOver ? "Solte o XML aqui" : "Arraste o XML aqui ou clique"}
               </button>
               <input ref={fileRef} type="file" accept=".xml,text/xml,application/xml" onChange={handleFile} style={{ display: "none" }} />
             </div>
