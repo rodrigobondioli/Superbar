@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, X, ChevronDown } from "lucide-react";
 import { previewNfe, confirmarNfe, type NfePreview } from "@/lib/nfe/actions";
 import { PassosImport } from "@/components/ui/passos-import";
 import { currency } from "@/lib/format";
@@ -173,9 +173,12 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
 
           {step === "preview" && preview && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-                Fornecedor: <strong style={{ color: "var(--fg)" }}>{preview.fornecedor.nome ?? "—"}</strong>
-                {preview.fornecedor.cnpj && <span style={{ color: "var(--fg-subtle)" }}> · {preview.fornecedor.cnpj}</span>}
+              <div style={{ borderBottom: "1px solid var(--border)", paddingBottom: 16 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--fg-subtle)", margin: "0 0 6px" }}>Fornecedor</p>
+                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: 0, lineHeight: 1.3 }}>{preview.fornecedor.nome ?? "—"}</p>
+                {preview.fornecedor.cnpj && (
+                  <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: "2px 0 0", fontVariantNumeric: "tabular-nums" }}>{preview.fornecedor.cnpj}</p>
+                )}
               </div>
               {preview.jaImportada && (
                 <div style={{ display: "flex", gap: 8, alignItems: "center", background: "color-mix(in srgb, var(--warn) 12%, transparent)", border: "1px solid var(--warn)", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "var(--fg)" }}>
@@ -188,11 +191,18 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
                   <div key={i} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, padding: 12, opacity: match[i] === "ignorar" ? 0.5 : 1 }}>
                     <p style={{ fontSize: 14, color: "var(--fg)", margin: "0 0 8px", fontWeight: 500 }}>{it.nome}</p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px", gap: 8, alignItems: "center" }}>
-                      <select value={match[i]} onChange={e => setMatch(m => m.map((v, j) => j === i ? e.target.value : v))} style={{ ...inp, cursor: "pointer" }}>
-                        <option value="novo">➕ Criar insumo novo</option>
-                        {preview.insumos.map(ins => <option key={ins.id} value={ins.id}>{ins.nome}</option>)}
-                        <option value="ignorar">Ignorar este item</option>
-                      </select>
+                      <div style={{ position: "relative", minWidth: 0 }}>
+                        <select
+                          value={match[i]}
+                          onChange={e => setMatch(m => m.map((v, j) => j === i ? e.target.value : v))}
+                          style={{ ...inp, cursor: "pointer", padding: "9px 34px 9px 12px", appearance: "none", WebkitAppearance: "none", MozAppearance: "none", textOverflow: "ellipsis" }}
+                        >
+                          <option value="novo">✨ Criar insumo novo</option>
+                          {preview.insumos.map(ins => <option key={ins.id} value={ins.id}>{ins.nome}</option>)}
+                          <option value="ignorar">Ignorar este item</option>
+                        </select>
+                        <ChevronDown size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "var(--fg-subtle)", pointerEvents: "none" }} />
+                      </div>
                       <input value={qtds[i]} onChange={e => setQtds(q => q.map((v, j) => j === i ? e.target.value : v))} style={inp} title="Quantidade" />
                       <input value={custos[i]} onChange={e => setCustos(c => c.map((v, j) => j === i ? e.target.value : v))} style={inp} title="Custo unitário (R$)" />
                     </div>
