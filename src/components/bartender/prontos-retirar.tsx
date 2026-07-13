@@ -157,7 +157,7 @@ export function ProntosRetirar({ barId, turnoId }: { barId: string; turnoId: str
               ))}
             </div>
             <button onClick={() => entregar(p.id)} style={{
-              padding: "9px 14px", borderRadius: 999, border: "none", background: "var(--accent)",
+              padding: "9px 14px", borderRadius: "var(--r-pill)", border: "none", background: "var(--accent)",
               color: "var(--accent-fg)", fontSize: 13, fontWeight: 600, cursor: "pointer",
             }}>
               Entregar →

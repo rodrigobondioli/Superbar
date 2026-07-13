@@ -238,7 +238,7 @@ export function ScanCartao() {
           <div>
             <p style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", margin: 0 }}>
               Nenhuma comanda ativa para{" "}
-              <span style={{ fontFamily: "var(--font-mono)", color: "var(--fg-subtle)" }}>{cardId}</span>
+              <span style={{ fontVariantNumeric: "tabular-nums", color: "var(--fg-subtle)" }}>{cardId}</span>
             </p>
             <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: "4px 0 0" }}>
               Abrir nova comanda para este cartão?

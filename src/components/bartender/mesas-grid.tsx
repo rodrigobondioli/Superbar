@@ -204,7 +204,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, 
                 </span>
               )}
             </div>
-            <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
+            <span style={{ fontSize: 17, fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 16px" }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: comandas.some(c => c.status === "aguardando_pagamento") ? "var(--warn)" : "var(--fg-subtle)" }}>
@@ -226,7 +226,7 @@ function MesaCard({ label, comandas, capacidade, chamadaId, onAbrir, onAtender, 
                 </span>
               )}
             </div>
-            <span style={{ fontSize: 17, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
+            <span style={{ fontSize: 17, fontWeight: 800, fontVariantNumeric: "tabular-nums", color: "var(--fg)", letterSpacing: "-0.5px" }}>{currency.format(totalValor)}</span>
           </div>
           {comandas.map((c) => {
             const querPagar = c.status === "aguardando_pagamento";
@@ -483,7 +483,7 @@ export function MesasGrid({ barId, initialMesas, initialBalcao }: MesasGridProps
                   <button key={f.id} type="button" onClick={() => setFiltro(f.id)}
                     style={{
                       display: "inline-flex", alignItems: "center", gap: 6,
-                      padding: "7px 14px", borderRadius: 999, cursor: "pointer",
+                      padding: "7px 14px", borderRadius: "var(--r-pill)", cursor: "pointer",
                       fontSize: 13, fontWeight: 500,
                       background: active ? "var(--accent)" : "var(--bg-card)",
                       border: active ? "1px solid var(--accent)" : "1px solid var(--border)",

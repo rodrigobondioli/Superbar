@@ -294,10 +294,10 @@ export function VejaFuncionandoSection() {
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.55)", margin: "0 0 8px" }}>
                   Margem média por drink
                 </p>
-                <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
+                <div style={{ height: 8, borderRadius: "var(--r-pill)", background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
                   <div
                     className="vf-bar"
-                    style={{ height: "100%", width: "72%", background: ACCENT, borderRadius: 999, animationDelay: "3.5s" }}
+                    style={{ height: "100%", width: "72%", background: ACCENT, borderRadius: "var(--r-pill)", animationDelay: "3.5s" }}
                   />
                 </div>
                 <p style={{ fontFamily: "var(--font-roboto-mono)", fontSize: 15, color: "#fff", margin: "8px 0 0" }}>

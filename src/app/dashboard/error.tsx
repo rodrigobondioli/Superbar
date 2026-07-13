@@ -22,7 +22,7 @@ export default function DashboardError({
       </p>
       <button
         onClick={reset}
-        style={{ marginTop: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 9999, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+        style={{ marginTop: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)", padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
       >
         Tentar de novo
       </button>

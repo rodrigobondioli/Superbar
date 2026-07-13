@@ -45,7 +45,7 @@ function ordemOf(l: Lead): number {
 
 // Linha fina que indica onde o card vai cair.
 function InsertLine() {
-  return <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", margin: "1px 2px" }} />;
+  return <div style={{ height: 2, borderRadius: "var(--r-pill)", background: "var(--accent)", margin: "1px 2px" }} />;
 }
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
@@ -243,7 +243,7 @@ function LeadPanel({
                   key={s.id}
                   onClick={() => handleStageClick(s.id)}
                   style={{
-                    padding: "5px 12px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    padding: "5px 12px", borderRadius: "var(--r-pill)", fontSize: 13, fontWeight: 500, cursor: "pointer",
                     border: active ? "1px solid var(--accent)" : "1px solid var(--border-strong)",
                     background: active ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "transparent",
                     color: active ? "var(--accent)" : "var(--fg-muted)",
@@ -422,7 +422,7 @@ function LeadPanel({
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 12, color: "var(--fg-muted)" }}>Confirmar?</span>
               <button onClick={handleDelete} style={{
-                background: "var(--danger)", border: "none", borderRadius: 999,
+                background: "var(--danger)", border: "none", borderRadius: "var(--r-pill)",
                 padding: "6px 14px", fontSize: 13, color: "#fff", cursor: "pointer", fontWeight: 500,
               }}>Excluir</button>
               <button onClick={() => setDeleteConfirm(false)} style={{
@@ -662,7 +662,7 @@ export function LeadsKanban({ leads: initial, stages }: { leads: Lead[]; stages:
                   <span style={{
                     fontSize: 12, color: "var(--fg-muted)",
                     background: "color-mix(in srgb, var(--fg) 8%, transparent)",
-                    borderRadius: 999, padding: "1px 8px", fontVariantNumeric: "tabular-nums",
+                    borderRadius: "var(--r-pill)", padding: "1px 8px", fontVariantNumeric: "tabular-nums",
                     opacity: stageLeads.length === 0 ? 0.45 : 1,
                   }}>
                     {stageLeads.length}

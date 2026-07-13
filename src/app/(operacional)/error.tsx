@@ -24,7 +24,7 @@ export default function OperacionalError({
       </p>
       <button
         onClick={reset}
-        style={{ marginTop: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 9999, padding: "14px 28px", fontSize: 16, fontWeight: 600, cursor: "pointer", minHeight: 52 }}
+        style={{ marginTop: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)", padding: "14px 28px", fontSize: 16, fontWeight: 600, cursor: "pointer", minHeight: 52 }}
       >
         Tentar de novo
       </button>

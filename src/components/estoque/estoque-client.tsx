@@ -540,7 +540,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                     <span style={{ fontSize: 11, fontWeight: 600, color: meta.cor, minWidth: 52, flexShrink: 0 }}>
                       {meta.label}
                     </span>
-                    <span style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: meta.cor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+                    <span style={{ fontSize: 13, color: meta.cor, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
                       {meta.sinal}{mov.quantidade}
                     </span>
                     <span style={{ fontSize: 13, color: "var(--fg)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

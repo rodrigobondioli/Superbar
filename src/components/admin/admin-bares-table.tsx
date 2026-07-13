@@ -99,7 +99,7 @@ export function AdminBaresTable({ bares }: { bares: BarResumo[] }) {
           <input
             value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder="Filtrar bares…"
-            style={{ width: "100%", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 14px 10px 34px", fontSize: 14, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
+            style={{ width: "100%", background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: "var(--r-pill)", padding: "10px 14px 10px 34px", fontSize: 14, color: "var(--fg)", outline: "none", boxSizing: "border-box" }}
           />
         </div>
         <span style={{ fontSize: 12, color: "var(--fg-subtle)", marginLeft: "auto" }}>

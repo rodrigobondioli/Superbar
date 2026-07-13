@@ -31,7 +31,7 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
       <p style={{ fontSize: "11px", fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.6px", margin: 0 }}>
         {(point.payload as { label: string }).label}
       </p>
-      <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--fg)", margin: "2px 0 0", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
+      <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--fg)", margin: "2px 0 0", fontVariantNumeric: "tabular-nums" }}>
         {currency.format(Number(point.value))}
       </p>
     </div>

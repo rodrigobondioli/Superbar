@@ -36,7 +36,7 @@ export function PessoaTabs({ comandas, atualId, mesaId, onSwitch, onAddPessoa }:
         const nome = c.nome_cliente ?? `Pessoa ${i + 1}`;
         const estilo: React.CSSProperties = {
           flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+          padding: "8px 14px", borderRadius: "var(--r-pill)", fontSize: 13, fontWeight: 600,
           textDecoration: "none", whiteSpace: "nowrap", cursor: "pointer",
           background: active ? "var(--accent)" : "var(--bg-card)",
           border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
@@ -52,7 +52,7 @@ export function PessoaTabs({ comandas, atualId, mesaId, onSwitch, onAddPessoa }:
         onClick={addPessoa}
         disabled={pending}
         className="hover:!text-[var(--accent)]"
-        style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600, background: "transparent", border: "1px dashed var(--border-strong)", color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap" }}
+        style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 14px", borderRadius: "var(--r-pill)", fontSize: 13, fontWeight: 600, background: "transparent", border: "1px dashed var(--border-strong)", color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap" }}
       >
         {pending ? "…" : "+ pessoa"}
       </button>

@@ -48,7 +48,7 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
     <section>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
         <Smartphone style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: 0 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums", margin: 0 }}>
           Operação
         </h3>
       </div>
@@ -157,7 +157,7 @@ export function OperacaoSection({ barId, autoPedido, fluxoPronto, taxaServicoPct
             onClick={handleTaxaSave}
             disabled={taxaSaving}
             style={{
-              padding: "10px 20px", borderRadius: 999, border: "none",
+              padding: "10px 20px", borderRadius: "var(--r-pill)", border: "none",
               background: "var(--accent)", color: "var(--accent-fg)",
               fontSize: 14, fontWeight: 500, cursor: taxaSaving ? "default" : "pointer",
               opacity: taxaSaving ? 0.6 : 1,

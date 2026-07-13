@@ -51,7 +51,7 @@ export function ClassicosPicker({
   return (
     <div style={{ width: "100%", maxWidth: 560 }}>
       <div style={{ textAlign: "center", marginBottom: 28 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", letterSpacing: "-0.01em", margin: "0 0 8px" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em", margin: "0 0 8px" }}>
           Marque os clássicos que você serve
         </h1>
         <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0 }}>
@@ -132,7 +132,7 @@ export function ClassicosPicker({
           onClick={confirmar}
           disabled={total === 0 || salvando}
           style={{
-            background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999,
+            background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)",
             padding: "12px 24px", fontSize: 14, fontWeight: 600,
             cursor: total === 0 || salvando ? "not-allowed" : "pointer",
             opacity: total === 0 || salvando ? 0.5 : 1,

@@ -45,7 +45,7 @@ function AcoesStatus({ id, status }: { id: string; status: AnotacaoStatus }) {
   const set = (s: AnotacaoStatus) => start(() => { atualizarStatusAnotacao(id, s); });
   const btn: React.CSSProperties = {
     display: "inline-flex", alignItems: "center", gap: 5, background: "transparent",
-    border: "1px solid var(--border-strong)", borderRadius: 999, padding: "5px 12px",
+    border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "5px 12px",
     fontSize: 12, color: "var(--fg-muted)", cursor: pending ? "default" : "pointer",
   };
   return (
@@ -92,7 +92,7 @@ function ItemCard({ a, comExcluir = false }: { a: AnotacaoComBar; comExcluir?: b
             <button
               disabled={pending}
               onClick={async () => { if (await confirmDialog({ title: "Excluir esta nota?", confirmLabel: "Excluir", danger: true })) start(() => { deletarAnotacao(a.id); }); }}
-              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)", borderRadius: 999, padding: "5px 12px", fontSize: 12, color: "var(--danger)", cursor: "pointer" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "1px solid color-mix(in srgb, var(--danger) 40%, transparent)", borderRadius: "var(--r-pill)", padding: "5px 12px", fontSize: 12, color: "var(--danger)", cursor: "pointer" }}
             >
               <Trash2 style={{ width: 13, height: 13 }} /> Excluir
             </button>
@@ -130,7 +130,7 @@ function NovaNota() {
       <button
         onClick={salvar}
         disabled={pending || !corpo.trim()}
-        style={{ alignSelf: "flex-start", background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 14, fontWeight: 500, cursor: pending || !corpo.trim() ? "default" : "pointer", opacity: !corpo.trim() ? 0.5 : 1 }}
+        style={{ alignSelf: "flex-start", background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)", padding: "9px 20px", fontSize: 14, fontWeight: 500, cursor: pending || !corpo.trim() ? "default" : "pointer", opacity: !corpo.trim() ? 0.5 : 1 }}
       >
         {pending ? "Salvando..." : "Adicionar nota"}
       </button>
@@ -191,7 +191,7 @@ export function AnotacoesClient({
               <t.Icon style={{ width: 15, height: 15, color: ativa ? "var(--accent)" : "var(--fg-subtle)" }} strokeWidth={1.75} />
               {t.label}
               {t.badge > 0 && (
-                <span style={{ background: "var(--accent)", color: "var(--accent-fg)", fontSize: 11, fontWeight: 700, borderRadius: 999, minWidth: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0 5px" }}>
+                <span style={{ background: "var(--accent)", color: "var(--accent-fg)", fontSize: 11, fontWeight: 700, borderRadius: "var(--r-pill)", minWidth: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0 5px" }}>
                   {t.badge}
                 </span>
               )}

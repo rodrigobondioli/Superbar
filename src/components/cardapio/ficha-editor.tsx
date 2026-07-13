@@ -279,7 +279,7 @@ export function FichaEditor({
             disabled={saving || loading}
             style={{
               width: "100%", background: "var(--accent)", color: "var(--accent-fg)", border: "none",
-              borderRadius: 999, padding: "13px", fontSize: 14, fontWeight: 600,
+              borderRadius: "var(--r-pill)", padding: "13px", fontSize: 14, fontWeight: 600,
               cursor: saving ? "wait" : "pointer", opacity: saving || loading ? 0.6 : 1,
             }}
           >

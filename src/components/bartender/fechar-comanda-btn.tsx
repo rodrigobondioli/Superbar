@@ -64,7 +64,7 @@ export function FecharComandaBtn({ comandaId }: { comandaId: string }) {
           ? "color-mix(in srgb, var(--accent) 60%, transparent)"
           : "var(--accent)",
         color: "var(--accent-fg)",
-        border: "none", borderRadius: 999,
+        border: "none", borderRadius: "var(--r-pill)",
         fontSize: 15, fontWeight: 500,
         cursor: estado === "enviando" ? "not-allowed" : "pointer",
         opacity: estado === "enviando" ? 0.7 : 1,

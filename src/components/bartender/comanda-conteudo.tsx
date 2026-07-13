@@ -119,10 +119,10 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
                     </button>
                   )}
                   {!podeSelecionarRemover && <div style={{ width: 32 }} />}
-                  <span style={{ fontSize: 14, color: "var(--fg)", width: 20, textAlign: "center", fontFamily: "var(--font-mono)" }}>
+                  <span style={{ fontSize: 14, color: "var(--fg)", width: 20, textAlign: "center", fontVariantNumeric: "tabular-nums" }}>
                     {item.quantidade}
                   </span>
-                  <span style={{ fontSize: 14, color: "var(--fg)", fontFamily: "var(--font-mono)", width: 70, textAlign: "right" }}>
+                  <span style={{ fontSize: 14, color: "var(--fg)", fontVariantNumeric: "tabular-nums", width: 70, textAlign: "right" }}>
                     {currency.format(item.precoTotal)}
                   </span>
                 </div>
@@ -176,7 +176,7 @@ export function ComandaConteudo({ comanda, itens, subtotal }: ComandaConteudoPro
               background: "color-mix(in srgb, var(--fg) 5%, transparent)",
               color: cancelando ? "var(--fg-subtle)" : "var(--fg-muted)",
               border: "1px solid var(--border-strong)",
-              borderRadius: 999, fontSize: 15, fontWeight: 500,
+              borderRadius: "var(--r-pill)", fontSize: 15, fontWeight: 500,
               cursor: cancelando ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               opacity: cancelando ? 0.7 : 1, transition: "opacity 150ms",

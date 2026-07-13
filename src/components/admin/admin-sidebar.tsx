@@ -45,7 +45,7 @@ export function AdminSidebar({ anotacoesCount = 0, adminEmail = "" }: AdminSideb
         </span>
         <span style={{
           fontSize: 12, fontWeight: 600,
-          padding: "3px 10px", borderRadius: 999,
+          padding: "3px 10px", borderRadius: "var(--r-pill)",
           background: "var(--bg-card-hi)",
           color: "var(--fg-muted)",
         }}>

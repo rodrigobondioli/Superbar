@@ -340,7 +340,7 @@ function PainelAtivo({ barId, pedido, usaPronto, onIniciar, onPronto, onCancelar
 
 function btnPrimary(enabled: boolean): React.CSSProperties {
   return {
-    width: "100%", padding: "16px", borderRadius: 999, border: "none",
+    width: "100%", padding: "16px", borderRadius: "var(--r-pill)", border: "none",
     background: enabled ? "var(--accent)" : "color-mix(in srgb, var(--fg) 8%, transparent)",
     color: enabled ? "var(--accent-fg)" : "var(--fg-subtle)",
     fontSize: 15, fontWeight: 700, cursor: enabled ? "pointer" : "not-allowed",
@@ -444,7 +444,7 @@ export function ProducaoTab({ barId, turnoId, usaPronto = true }: { barId: strin
               const on = filtro === c.id;
               return (
                 <button key={c.id} onClick={() => setFiltro(c.id)} style={{
-                  display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 999, border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: "var(--r-pill)", border: "none", cursor: "pointer",
                   background: on ? "var(--accent)" : "var(--bg-card-hi)",
                   color: on ? "var(--accent-fg)" : "var(--fg-muted)", fontSize: 13, fontWeight: on ? 500 : 400,
                 }}>

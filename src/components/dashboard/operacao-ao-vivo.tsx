@@ -161,8 +161,8 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
               </>
             )}
           </div>
-          <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
-            <div style={{ height: 2, borderRadius: 999, background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(v.metaProgresso / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)" }} />
+          <div style={{ height: 2, borderRadius: "var(--r-pill)", background: "var(--border-strong)", overflow: "hidden", marginTop: 25 }}>
+            <div style={{ height: 2, borderRadius: "var(--r-pill)", background: "var(--accent)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(v.metaProgresso / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 11 }}>
             <span style={{ fontSize: 15, fontWeight: 400, color: "var(--fg-muted)" }}>Meta Mensal - R$ {Math.round(meta).toLocaleString("pt-BR")}</span>
@@ -264,8 +264,8 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
                       </span>
                       <span style={{ fontSize: 15, color: "var(--fg)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{currency.format(p.total)}</span>
                     </div>
-                    <div style={{ height: 2, borderRadius: 999, background: "var(--border-strong)", overflow: "hidden" }}>
-                      <div style={{ height: 2, borderRadius: 999, background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(pct / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)", transitionDelay: `${i * 70}ms` }} />
+                    <div style={{ height: 2, borderRadius: "var(--r-pill)", background: "var(--border-strong)", overflow: "hidden" }}>
+                      <div style={{ height: 2, borderRadius: "var(--r-pill)", background: "linear-gradient(90deg, var(--warn) 0%, var(--accent) 100%)", width: "100%", transformOrigin: "left", transform: `scaleX(${barrasVisiveis ? Math.min(pct / 100, 1) : 0})`, transition: "transform 850ms cubic-bezier(0.22, 1, 0.36, 1)", transitionDelay: `${i * 70}ms` }} />
                     </div>
                   </div>
                 );
@@ -275,7 +275,7 @@ export function OperacaoAoVivo({ views, meta, comandasAbertas, barId, alertCount
               )}
             </div>
           </div>
-          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: isMobile ? 20 : 32, alignSelf: isMobile ? "stretch" : "flex-start", textAlign: "center", padding: isMobile ? "12px 16px" : "8px 16px", borderRadius: 999, background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
+          <Link href={`/dashboard/turnos/${turnoId}`} style={{ marginTop: isMobile ? 20 : 32, alignSelf: isMobile ? "stretch" : "flex-start", textAlign: "center", padding: isMobile ? "12px 16px" : "8px 16px", borderRadius: "var(--r-pill)", background: "transparent", border: "1px solid var(--border-strong)", color: "var(--fg-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Comparar com turno anterior</Link>
         </div>
       </div>
 

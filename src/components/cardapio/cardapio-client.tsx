@@ -67,7 +67,7 @@ function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
   const c = cor[status];
   return {
     display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-    background: c.bg, border: "none", borderRadius: 999,
+    background: c.bg, border: "none", borderRadius: "var(--r-pill)",
     padding: compact ? "5px 12px" : "7px 14px",
     color: c.fg, fontSize: compact ? 12 : 13, fontWeight: 500, cursor: "pointer",
   };
@@ -76,7 +76,7 @@ function fichaPill(status: CustoStatus, compact = false): React.CSSProperties {
 /** Botão do segmentado "Drink / Revenda" — discreto, com cara de toggle. */
 function segBtn(active: boolean): React.CSSProperties {
   return {
-    padding: "6px 14px", borderRadius: 999, fontSize: 12, fontWeight: 500,
+    padding: "6px 14px", borderRadius: "var(--r-pill)", fontSize: 12, fontWeight: 500,
     border: "none", cursor: "pointer", whiteSpace: "nowrap",
     background: active ? "var(--bg-elevated)" : "transparent",
     color: active ? "var(--fg)" : "var(--fg-subtle)",
@@ -111,7 +111,7 @@ const btnPrimary: React.CSSProperties = {
   background: "var(--accent)",
   color: "var(--accent-fg)",
   border: "none",
-  borderRadius: 999,
+  borderRadius: "var(--r-pill)",
   padding: "10px 24px",
   fontSize: 14,
   fontWeight: 500,
@@ -122,7 +122,7 @@ const btnSecondary: React.CSSProperties = {
   background: "transparent",
   color: "var(--fg)",
   border: "1px solid var(--border-strong)",
-  borderRadius: 999,
+  borderRadius: "var(--r-pill)",
   padding: "10px 24px",
   fontSize: 14,
   fontWeight: 500,
@@ -557,7 +557,7 @@ function ProdutoRow({
             title="Definir custo direto"
             style={{
               display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
-              padding: "5px 12px", borderRadius: 999, fontSize: 13, cursor: "pointer",
+              padding: "5px 12px", borderRadius: "var(--r-pill)", fontSize: 13, cursor: "pointer",
               border: "1px solid var(--border-strong)", background: "transparent",
               color: "var(--warn)", whiteSpace: "nowrap",
             }}
@@ -893,7 +893,7 @@ export function CardapioClient({
             {pendentesFicha > 0 && (
               <button
                 onClick={() => router.push("/dashboard/cardapio/fichas")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
                 title="Gerar fichas dos drinks sem custo, em lote, com IA"
                 className="max-lg:!px-3"
               >
@@ -903,7 +903,7 @@ export function CardapioClient({
             )}
             <button
               onClick={() => setDestaquesOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <Megaphone style={{ width: 15, height: 15 }} />
@@ -911,7 +911,7 @@ export function CardapioClient({
             </button>
             <button
               onClick={() => setClassicosOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <Sparkles style={{ width: 15, height: 15 }} />
@@ -919,7 +919,7 @@ export function CardapioClient({
             </button>
             <button
               onClick={() => setImportPanelOpen(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "10px 24px", color: "var(--fg)", fontSize: 14, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
               className="max-lg:!px-3"
             >
               <FileSpreadsheet style={{ width: 15, height: 15 }} />
@@ -1046,11 +1046,11 @@ export function CardapioClient({
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar produto no cardápio…"
-              style={{ flex: "1 1 260px", maxWidth: 360, minWidth: 0, boxSizing: "border-box", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "10px 16px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark" }}
+              style={{ flex: "1 1 260px", maxWidth: 360, minWidth: 0, boxSizing: "border-box", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--r-pill)", padding: "10px 16px", fontSize: 13, color: "var(--fg)", outline: "none", colorScheme: "dark" }}
             />
             {!buscaQ && selectedGrupo && selectedGrupo.categoria.id !== "__sem__" && (
               <div
-                style={{ display: "flex", gap: 2, background: "transparent", border: "1px solid var(--border)", borderRadius: 999, padding: 3, flexShrink: 0 }}
+                style={{ display: "flex", gap: 2, background: "transparent", border: "1px solid var(--border)", borderRadius: "var(--r-pill)", padding: 3, flexShrink: 0 }}
                 title="Com ficha = drink montado (receita). Sem ficha = custo direto (águas, cervejas, comida)."
               >
                 <button type="button" onClick={() => toggleFicha(true)} style={segBtn(usaFichaDe(selectedGrupo.categoria.id, selectedGrupo.categoria.usa_ficha))}>Com ficha</button>
@@ -1171,7 +1171,7 @@ export function CardapioClient({
           className="hover:brightness-110"
           style={{
             position: "fixed", right: 24, bottom: "calc(24px + env(safe-area-inset-bottom))",
-            zIndex: 60, width: 56, height: 56, borderRadius: 999,
+            zIndex: 60, width: 56, height: 56, borderRadius: "var(--r-pill)",
             background: "var(--accent)", color: "var(--accent-fg)", border: "none",
             display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: "0 8px 24px rgba(0,0,0,0.4)", cursor: "pointer",

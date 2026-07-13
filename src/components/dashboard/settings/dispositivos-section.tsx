@@ -7,7 +7,7 @@ export function DispositivosSection() {
     <section>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
         <Tablet style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: 0 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums", margin: 0 }}>
           Dispositivos
         </h3>
       </div>

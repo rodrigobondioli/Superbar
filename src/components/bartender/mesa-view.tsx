@@ -134,7 +134,7 @@ export function MesaDrawer({
                       </div>
                       {!pagando && (
                         <Link href={`/garcom/${c.id}`} className="hover:brightness-110"
-                          style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: 999, padding: "9px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+                          style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--accent-fg)", borderRadius: "var(--r-pill)", padding: "9px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
                           Pedir
                         </Link>
                       )}
@@ -221,7 +221,7 @@ export function MesaDrawer({
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 12 }}>
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <button key={n} onClick={() => { setSlots(Array(n).fill("")); setMode("slots"); }} className="hover:!border-[var(--accent)]"
-                    style={{ height: 60, borderRadius: 16, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 20, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-mono)" }}>
+                    style={{ height: 60, borderRadius: 16, background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--fg)", fontSize: 20, fontWeight: 800, cursor: "pointer", fontVariantNumeric: "tabular-nums" }}>
                     {n}
                   </button>
                 ))}

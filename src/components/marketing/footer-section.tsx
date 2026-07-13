@@ -148,7 +148,7 @@ export function FooterSection() {
                   style={{
                     background: "transparent",
                     border: DASH,
-                    borderRadius: 999,
+                    borderRadius: "var(--r-pill)",
                     padding: "14px 22px",
                     fontFamily: "var(--font-sans)",
                     fontSize: 15,

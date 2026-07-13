@@ -64,7 +64,7 @@ function Sucesso({ titulo, texto, onClose }: { titulo: string; texto: string; on
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'center', padding: '24px 0' }}>
       <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ok)', margin: 0 }}>{titulo}</p>
       <p style={{ fontSize: '13px', color: 'var(--fg-muted)', margin: 0 }}>{texto}</p>
-      <button onClick={onClose} style={{ alignSelf: 'center', marginTop: 8, background: 'var(--bg-hover)', border: '1px solid var(--border-strong)', borderRadius: 999, padding: '9px 22px', color: 'var(--fg)', fontSize: '14px', cursor: 'pointer' }}>
+      <button onClick={onClose} style={{ alignSelf: 'center', marginTop: 8, background: 'var(--bg-hover)', border: '1px solid var(--border-strong)', borderRadius: "var(--r-pill)", padding: '9px 22px', color: 'var(--fg)', fontSize: '14px', cursor: 'pointer' }}>
         Fechar
       </button>
     </div>
@@ -113,7 +113,7 @@ function SuporteContent({ onClose }: { onClose: () => void }) {
         <button
           onClick={enviar}
           disabled={pending || !corpo.trim()}
-          style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none', borderRadius: 999, padding: '10px 24px', color: 'var(--accent-fg)', fontWeight: 500, fontSize: '14px', cursor: pending || !corpo.trim() ? 'default' : 'pointer', opacity: !corpo.trim() ? 0.5 : 1 }}>
+          style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none', borderRadius: "var(--r-pill)", padding: '10px 24px', color: 'var(--accent-fg)', fontWeight: 500, fontSize: '14px', cursor: pending || !corpo.trim() ? 'default' : 'pointer', opacity: !corpo.trim() ? 0.5 : 1 }}>
           {pending ? 'Enviando...' : 'Abrir chamado'}
         </button>
       </div>
@@ -189,7 +189,7 @@ function SugestaoContent({ onClose }: { onClose: () => void }) {
       <button
         onClick={enviar}
         disabled={pending || !corpo.trim()}
-        style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none', borderRadius: 999, padding: '10px 24px', color: 'var(--accent-fg)', fontWeight: 500, fontSize: '14px', cursor: pending || !corpo.trim() ? 'default' : 'pointer', opacity: !corpo.trim() ? 0.5 : 1 }}>
+        style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none', borderRadius: "var(--r-pill)", padding: '10px 24px', color: 'var(--accent-fg)', fontWeight: 500, fontSize: '14px', cursor: pending || !corpo.trim() ? 'default' : 'pointer', opacity: !corpo.trim() ? 0.5 : 1 }}>
         {pending ? 'Enviando...' : 'Enviar sugestão'}
       </button>
     </div>

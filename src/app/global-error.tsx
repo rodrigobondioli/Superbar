@@ -23,7 +23,7 @@ export default function GlobalError({
             onClick={reset}
             style={{
               marginTop: 8, background: "#FF3500", color: "#000",
-              border: "none", borderRadius: 9999, padding: "10px 24px",
+              border: "none", borderRadius: "var(--r-pill)", padding: "10px 24px",
               fontSize: 14, fontWeight: 600, cursor: "pointer",
             }}
           >

@@ -28,8 +28,8 @@ function DimBar({ label, pct, ok }: { label: string; pct: number; ok: boolean })
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
       <span style={{ fontSize: 13, color: "var(--fg-subtle)", width: 72, flexShrink: 0 }}>{label}</span>
-      <div style={{ flex: 1, height: 4, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
-        <div style={{ width: `${pct}%`, height: "100%", background: cor, borderRadius: 999 }} />
+      <div style={{ flex: 1, height: 4, background: "var(--border)", borderRadius: "var(--r-pill)", overflow: "hidden" }}>
+        <div style={{ width: `${pct}%`, height: "100%", background: cor, borderRadius: "var(--r-pill)" }} />
       </div>
       <span style={{ fontSize: 13, color: cor, fontVariantNumeric: "tabular-nums", width: 40, textAlign: "right", flexShrink: 0 }}>
         {pct}%

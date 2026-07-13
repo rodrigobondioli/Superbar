@@ -316,7 +316,7 @@ export function OperadorShell({
               style={{
                 display: "flex", alignItems: "center", gap: 8,
                 background: "var(--bg-card)", border: "1px solid var(--border)",
-                borderRadius: 999, padding: "5px 14px 5px 5px", cursor: "pointer",
+                borderRadius: "var(--r-pill)", padding: "5px 14px 5px 5px", cursor: "pointer",
                 color: "var(--fg-muted)", fontSize: 13, fontWeight: 500, flexShrink: 0,
               }}
             >

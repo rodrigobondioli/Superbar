@@ -178,7 +178,7 @@ export function ImportarCardapioPanel({
               fontSize: 15,
               fontWeight: 600,
               color: "var(--fg)",
-              fontFamily: "var(--font-mono)",
+              fontVariantNumeric: "tabular-nums",
               margin: 0,
             }}
           >

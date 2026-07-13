@@ -156,7 +156,7 @@ export function FichasLoteClient({ drinks }: { drinks: DrinkParaFicha[] }) {
           )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, marginTop: temVendas ? 0 : 10 }}>
             {drinks.map((d) => (
-              <span key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 999, padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>
+              <span key={d.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--r-pill)", padding: "6px 14px", fontSize: 13, color: "var(--fg-muted)" }}>
                 {d.nome}
                 {d.quantidadeVendida > 0 && (
                   <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>
@@ -303,7 +303,7 @@ const inpMini: React.CSSProperties = {
 function cta(): React.CSSProperties {
   return {
     display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
-    background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999,
+    background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)",
     padding: "13px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
   };
 }

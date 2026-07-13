@@ -90,7 +90,7 @@ export default async function TurnosPage() {
                       alignItems: "center",
                       gap: 8,
                       background: "var(--bg-card-hi)",
-                      borderRadius: 999,
+                      borderRadius: "var(--r-pill)",
                       padding: "6px 12px",
                       whiteSpace: "nowrap",
                     }}>

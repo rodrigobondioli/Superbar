@@ -17,7 +17,7 @@ function Aviso({ titulo, sub, cta, href }: { titulo: string; sub: string; cta: s
     <div style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--fg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 24, gap: 8 }}>
       <p style={{ fontSize: 20, fontWeight: 800, margin: 0, letterSpacing: "-0.3px" }}>{titulo}</p>
       <p style={{ fontSize: 14, color: "var(--fg-muted)", margin: "0 0 8px", maxWidth: 340, lineHeight: 1.5 }}>{sub}</p>
-      <Link href={href} style={{ background: "var(--accent)", color: "var(--accent-fg)", fontSize: 15, fontWeight: 700, padding: "12px 24px", borderRadius: 999, textDecoration: "none" }}>{cta}</Link>
+      <Link href={href} style={{ background: "var(--accent)", color: "var(--accent-fg)", fontSize: 15, fontWeight: 700, padding: "12px 24px", borderRadius: "var(--r-pill)", textDecoration: "none" }}>{cta}</Link>
     </div>
   );
 }

@@ -105,7 +105,7 @@ function StatBlock({ label, value, sub, color }: { label: string; value: string 
   return (
     <div style={card}>
       <p style={overline}>{label}</p>
-      <p style={{ fontSize: 22, fontWeight: 700, color: color ?? "var(--fg)", fontFamily: "var(--font-mono)", margin: "0 0 2px", letterSpacing: "-0.02em" }}>
+      <p style={{ fontSize: 22, fontWeight: 700, color: color ?? "var(--fg)", fontVariantNumeric: "tabular-nums", margin: "0 0 2px", letterSpacing: "-0.02em" }}>
         {value}
       </p>
       {sub && <p style={{ fontSize: 11, color: "var(--fg-subtle)", margin: 0 }}>{sub}</p>}
@@ -322,7 +322,7 @@ export default async function AdminBarPage({
           <div style={{ ...card, padding: "14px 20px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <p style={{ ...overline, margin: 0 }}>Cobertura de ficha técnica</p>
-              <span style={{ fontSize: 13, fontWeight: 700, color: coberturaBg, fontFamily: "var(--font-mono)" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: coberturaBg, fontVariantNumeric: "tabular-nums" }}>
                 {bar.cobertura_custo_pct}%
               </span>
             </div>
@@ -399,7 +399,7 @@ export default async function AdminBarPage({
                 <p style={overline}>Plano</p>
                 <p style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{bar.plano_nome ?? "—"}</p>
                 {bar.plano_preco !== null && (
-                  <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0", fontFamily: "var(--font-mono)" }}>
+                  <p style={{ fontSize: 12, color: "var(--fg-muted)", margin: "2px 0 0", fontVariantNumeric: "tabular-nums" }}>
                     {currency.format(bar.plano_preco)}/mês
                   </p>
                 )}
@@ -475,7 +475,7 @@ export default async function AdminBarPage({
         <summary style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--fg-muted)", cursor: "pointer", userSelect: "none" }}>
           Configurações técnicas do bar
         </summary>
-        <pre style={{ marginTop: 12, fontSize: 12, color: "var(--fg-muted)", fontFamily: "var(--font-mono)", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+        <pre style={{ marginTop: 12, fontSize: 12, color: "var(--fg-muted)", fontVariantNumeric: "tabular-nums", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
           {JSON.stringify(bar.configuracoes, null, 2)}
         </pre>
       </details>

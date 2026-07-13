@@ -87,7 +87,7 @@ export function DestaquesPanel({
                 {produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
             </div>
-            <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
+            <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)", padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
               {salvando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Plus style={{ width: 14, height: 14 }} />}
               Adicionar destaque
             </button>
@@ -153,11 +153,11 @@ function DestaqueRow({ d, produtos }: { d: Destaque; produtos: { id: string; nom
           </select>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
+          <button type="submit" disabled={salvando} style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)", padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: salvando ? "wait" : "pointer" }}>
             {salvando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Check style={{ width: 14, height: 14 }} />}
             Salvar
           </button>
-          <button type="button" onClick={() => { setEditing(false); setImagemUrl(d.imagem_url ?? null); }} style={{ background: "none", border: "1px solid var(--border)", color: "var(--fg-muted)", borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+          <button type="button" onClick={() => { setEditing(false); setImagemUrl(d.imagem_url ?? null); }} style={{ background: "none", border: "1px solid var(--border)", color: "var(--fg-muted)", borderRadius: "var(--r-pill)", padding: "10px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
             Cancelar
           </button>
         </div>

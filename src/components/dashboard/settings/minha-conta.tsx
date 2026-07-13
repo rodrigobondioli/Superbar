@@ -41,7 +41,7 @@ export function MinhaConta({
     <section>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
         <User style={{ width: 14, height: 14, color: "var(--fg-subtle)" }} />
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)", margin: 0 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums", margin: 0 }}>
           Minha Conta
         </h3>
       </div>
@@ -87,7 +87,7 @@ export function MinhaConta({
           style={{
             alignSelf: "flex-start",
             background: "var(--accent)", color: "var(--accent-fg)",
-            border: "none", borderRadius: 999,
+            border: "none", borderRadius: "var(--r-pill)",
             padding: "10px 24px", fontSize: 14, fontWeight: 500,
             cursor: pending ? "default" : "pointer",
             opacity: pending ? 0.7 : 1,

@@ -68,7 +68,7 @@ export function OrderWorkspace({
         <button
           onClick={() => router.push("/garcom")}
           className="hover:brightness-110"
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--bg-card)", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "8px 16px", color: "var(--fg)", fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0 }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--bg-card)", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", padding: "8px 16px", color: "var(--fg)", fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0 }}
         >
           <ArrowLeft style={{ width: 16, height: 16 }} /> Mesas
         </button>

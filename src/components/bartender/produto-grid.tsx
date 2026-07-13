@@ -110,7 +110,7 @@ function VariantePicker({
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", margin: 0 }}>{v.nome}</p>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontFamily: "var(--font-mono)" }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-muted)", margin: 0, fontVariantNumeric: "tabular-nums" }}>
                 {currency.format(v.preco)}
               </p>
             </button>
@@ -260,11 +260,11 @@ function CartBar({
                       <button type="button" onClick={() => onChangeQty(key, -1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Minus style={{ width: 12, height: 12 }} />
                       </button>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", width: 18, textAlign: "center", fontFamily: "var(--font-mono)" }}>{e.quantidade}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", width: 18, textAlign: "center", fontVariantNumeric: "tabular-nums" }}>{e.quantidade}</span>
                       <button type="button" onClick={() => onChangeQty(key, +1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: "color-mix(in srgb, var(--fg) 8%, transparent)", color: "var(--fg-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Plus style={{ width: 12, height: 12 }} />
                       </button>
-                      <span style={{ fontSize: 13, color: "var(--fg-muted)", width: 64, textAlign: "right", fontFamily: "var(--font-mono)" }}>
+                      <span style={{ fontSize: 13, color: "var(--fg-muted)", width: 64, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
                         {currency.format(e.preco * e.quantidade)}
                       </span>
                     </div>
@@ -293,13 +293,13 @@ function CartBar({
             style={{ display: "flex", alignItems: "center", gap: 8, background: "color-mix(in srgb, var(--fg) 6%, transparent)", border: "none", borderRadius: 8, padding: "10px 14px", cursor: "pointer", flexShrink: 0 }}
           >
             <ShoppingCart style={{ width: 16, height: 16, color: "var(--fg-muted)" }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
               {totalQty} {totalQty === 1 ? "item" : "itens"}
             </span>
             <span style={{ fontSize: 12, color: "var(--fg-subtle)" }}>{expanded ? "▼" : "▲"}</span>
           </button>
 
-          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", fontFamily: "var(--font-mono)", marginRight: "auto" }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)", fontVariantNumeric: "tabular-nums", marginRight: "auto" }}>
             {currency.format(totalValor)}
           </span>
 
@@ -307,7 +307,7 @@ function CartBar({
             type="button"
             onClick={() => { onClear(); setExpanded(false); }}
             disabled={pending}
-            style={{ background: "transparent", border: "1px solid var(--border-strong)", borderRadius: 999, color: "var(--fg)", cursor: "pointer", fontSize: 15, fontWeight: 500, padding: "12px 24px", flexShrink: 0 }}
+            style={{ background: "transparent", border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)", color: "var(--fg)", cursor: "pointer", fontSize: 15, fontWeight: 500, padding: "12px 24px", flexShrink: 0 }}
           >
             Limpar
           </button>
@@ -319,7 +319,7 @@ function CartBar({
             style={{
               background: resultado?.startsWith("✓") ? "var(--ok)" : "var(--accent)",
               color: resultado?.startsWith("✓") ? "#fff" : "var(--accent-fg)",
-              border: "none", borderRadius: 999, padding: "12px 24px", minHeight: 44,
+              border: "none", borderRadius: "var(--r-pill)", padding: "12px 24px", minHeight: 44,
               fontSize: 15, fontWeight: 500, cursor: pending ? "wait" : "pointer",
               opacity: pending ? 0.7 : 1, transition: "background 0.2s", flexShrink: 0,
             }}
@@ -403,7 +403,7 @@ export function ProdutoGrid({ cardapio, comandaId, onEnviado }: { cardapio: Cate
                     <button
                       key={grupo.categoria.id}
                       onClick={() => setCategoriaAtiva(grupo.categoria.id)}
-                      style={{ fontSize: 13, fontWeight: active ? 600 : 500, padding: "8px 16px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all 0.15s", background: active ? "var(--accent)" : "var(--bg-card)", border: active ? "1px solid var(--accent)" : "1px solid var(--border)", color: active ? "var(--accent-fg)" : "var(--fg-muted)" }}
+                      style={{ fontSize: 13, fontWeight: active ? 600 : 500, padding: "8px 16px", borderRadius: "var(--r-pill)", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all 0.15s", background: active ? "var(--accent)" : "var(--bg-card)", border: active ? "1px solid var(--accent)" : "1px solid var(--border)", color: active ? "var(--accent-fg)" : "var(--fg-muted)" }}
                     >
                       {grupo.categoria.nome}
                     </button>

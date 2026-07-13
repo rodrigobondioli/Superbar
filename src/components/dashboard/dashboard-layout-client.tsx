@@ -118,7 +118,7 @@ export function DashboardLayoutClient({
                 color: "var(--accent-fg)",
                 fontSize: 15, fontWeight: 600,
                 textDecoration: "none",
-                borderRadius: 999,
+                borderRadius: "var(--r-pill)",
                 letterSpacing: "0.02em",
                 transition: "filter 150ms",
               }}
@@ -183,7 +183,7 @@ export function DashboardLayoutClient({
             flexShrink: 0,
             borderBottom: "1px solid var(--border)",
           }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", fontFamily: "var(--font-mono)" }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>
               {barNome}
             </span>
             <button

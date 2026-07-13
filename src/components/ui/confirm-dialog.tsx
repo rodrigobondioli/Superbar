@@ -111,7 +111,7 @@ export function ConfirmHost() {
               onClick={() => close(false)}
               style={{
                 background: "transparent", color: "var(--fg-muted)",
-                border: "1px solid var(--border-strong)", borderRadius: 9999,
+                border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 cursor: "pointer", minHeight: 44,
               }}
@@ -123,7 +123,7 @@ export function ConfirmHost() {
               onClick={() => close(true)}
               style={{
                 background: accent, color: confirmFg,
-                border: "none", borderRadius: 9999,
+                border: "none", borderRadius: "var(--r-pill)",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 cursor: "pointer", minHeight: 44,
               }}

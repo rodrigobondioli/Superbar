@@ -69,7 +69,7 @@ export default async function TurnoDetalhePage({
             fontSize: 13,
             fontWeight: 600,
             padding: "4px 12px",
-            borderRadius: 999,
+            borderRadius: "var(--r-pill)",
             background: isAberto ? "var(--ok-bg)" : "var(--bg-card-hi)",
             color: isAberto ? "var(--ok)" : "var(--fg-muted)",
           }}>
@@ -133,7 +133,7 @@ export default async function TurnoDetalhePage({
                     fontSize: "11px",
                     fontWeight: 500,
                     padding: "3px 10px",
-                    borderRadius: 999,
+                    borderRadius: "var(--r-pill)",
                     background: cfg.bg,
                     color: cfg.color,
                     whiteSpace: "nowrap",

@@ -102,7 +102,7 @@ export function ClientesTable({ clientes }: Props) {
           style={{
             width: "100%", maxWidth: 360, boxSizing: "border-box",
             background: "var(--bg-card)", border: "1px solid var(--border)",
-            borderRadius: 999, padding: "10px 16px", fontSize: 13,
+            borderRadius: "var(--r-pill)", padding: "10px 16px", fontSize: 13,
             color: "var(--fg)", outline: "none", colorScheme: "dark",
           }}
         />
@@ -189,7 +189,7 @@ export function ClientesTable({ clientes }: Props) {
                   disabled={isPending || !form.nome?.trim()}
                   style={{
                     background: "var(--accent)", color: "var(--accent-fg)", border: "none",
-                    borderRadius: 999, padding: "10px 24px", fontSize: 14,
+                    borderRadius: "var(--r-pill)", padding: "10px 24px", fontSize: 14,
                     fontWeight: 500, cursor: "pointer",
                   }}
                 >
@@ -199,7 +199,7 @@ export function ClientesTable({ clientes }: Props) {
                   onClick={() => setEditando(null)}
                   style={{
                     background: "transparent", color: "var(--fg)",
-                    border: "1px solid var(--border-strong)", borderRadius: 999,
+                    border: "1px solid var(--border-strong)", borderRadius: "var(--r-pill)",
                     padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
                   }}
                 >
@@ -237,7 +237,7 @@ export function ClientesTable({ clientes }: Props) {
                   <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>{fmtUltima(c.ultima_visita)}</span>
                   {waHref ? (
                     <a href={waHref} target="_blank" rel="noopener noreferrer" title="WhatsApp"
-                      style={{ width: 32, height: 32, borderRadius: 999, background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg-muted)", flexShrink: 0 }}
+                      style={{ width: 32, height: 32, borderRadius: "var(--r-pill)", background: "var(--bg-card-hi)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg-muted)", flexShrink: 0 }}
                       className="hover:!text-[var(--fg)]">
                       <MessageCircle style={{ width: 16, height: 16 }} />
                     </a>

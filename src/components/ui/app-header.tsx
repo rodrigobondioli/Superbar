@@ -36,7 +36,7 @@ export function AppHeader({
         </span>
         <span style={{
           fontSize: 12, fontWeight: 600,
-          padding: "3px 10px", borderRadius: 999, flexShrink: 0,
+          padding: "3px 10px", borderRadius: "var(--r-pill)", flexShrink: 0,
           background: "var(--bg-card-hi)",
           color: "var(--fg-muted)",
         }}>

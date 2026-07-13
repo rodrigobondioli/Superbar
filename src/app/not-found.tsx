@@ -17,7 +17,7 @@ export default function NotFound() {
         href="/dashboard"
         style={{
           marginTop: 8, background: "var(--accent)", color: "var(--accent-fg)",
-          textDecoration: "none", borderRadius: 9999, padding: "10px 24px",
+          textDecoration: "none", borderRadius: "var(--r-pill)", padding: "10px 24px",
           fontSize: 14, fontWeight: 600,
         }}
       >

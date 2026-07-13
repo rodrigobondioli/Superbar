@@ -36,13 +36,12 @@ const eslintConfig = defineConfig([
         varsIgnorePattern: "^_",
         caughtErrorsIgnorePattern: "^_",
       }],
-      // ── Guarda-corpo do DS ──────────────────────────────────────────────
-      // Impede a volta dos padrões que causaram inconsistência crônica.
-      // Hoje "warn" (há ~57 botões-pílula na mão + ~28 font-mono legados);
-      // vira "error" assim que a migração em lote (P1) zerar os existentes —
-      // aí passa a BLOQUEAR botão novo na mão de verdade (não é texto no
-      // DESIGN.md que se ignora). Ver docs/auditoria-app.md.
-      "no-restricted-syntax": ["warn",
+      // ── Guarda-corpo do DS (ARMADO) ─────────────────────────────────────
+      // Bloqueia (error) a volta dos padrões que causaram inconsistência
+      // crônica: pílula na mão (borderRadius literal) e var(--font-mono).
+      // Migração em lote zerou os existentes (jul/2026); agora barra novos.
+      // Ver docs/auditoria-app.md.
+      "no-restricted-syntax": ["error",
         {
           selector: "Property[key.name='borderRadius'][value.value=999]",
           message: "Pílula na mão (borderRadius: 999): use o componente <Button> do DS para AÇÃO, ou borderRadius: 'var(--r-pill)' para container. Foi o que causou botões de altura diferente (DESIGN.md § Botões).",

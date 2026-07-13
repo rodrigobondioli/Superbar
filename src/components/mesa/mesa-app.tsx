@@ -50,7 +50,7 @@ const IconReceipt = () => (
 
 function Stepper({ qty, onAdd, onRemove }: { qty: number; onAdd: () => void; onRemove: () => void }) {
   const round: React.CSSProperties = {
-    width: 32, height: 32, borderRadius: 999, border: "none", cursor: "pointer",
+    width: 32, height: 32, borderRadius: "var(--r-pill)", border: "none", cursor: "pointer",
     display: "flex", alignItems: "center", justifyContent: "center",
     fontSize: 18, fontWeight: 800, lineHeight: 1, WebkitTapHighlightColor: "transparent",
   };

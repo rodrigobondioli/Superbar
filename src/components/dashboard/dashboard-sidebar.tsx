@@ -118,7 +118,7 @@ export function DashboardSidebar({
               </span>
               <span style={{
                 fontSize: 12, fontWeight: 600, marginTop: 6,
-                padding: "3px 10px", borderRadius: 999,
+                padding: "3px 10px", borderRadius: "var(--r-pill)",
                 background: "var(--bg-card-hi)", color: "var(--fg-muted)",
               }}>
                 {ROLE_LABEL[role] ?? role}
