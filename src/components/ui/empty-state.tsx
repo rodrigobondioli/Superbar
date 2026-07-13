@@ -7,13 +7,15 @@ interface EmptyStateProps {
   action?: ReactNode;
   /** Quando true, centraliza verticalmente no espaço disponível (padrão: true) */
   fill?: boolean;
+  /** Largura máxima da descrição em px (padrão: 300). Aumente para menos linhas. */
+  descriptionMaxWidth?: number;
 }
 
 /**
  * Estado vazio padronizado — igual em todas as telas.
  * Usa `fill` para centralizar verticalmente na área de conteúdo.
  */
-export function EmptyState({ icon, title, description, action, fill = true }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, fill = true, descriptionMaxWidth = 300 }: EmptyStateProps) {
   return (
     <div
       style={{
@@ -38,7 +40,7 @@ export function EmptyState({ icon, title, description, action, fill = true }: Em
             color: "var(--fg-subtle)",
             margin: "0 0 24px",
             lineHeight: 1.65,
-            maxWidth: 300,
+            maxWidth: descriptionMaxWidth,
           }}
         >
           {description}

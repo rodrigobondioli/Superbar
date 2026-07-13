@@ -65,7 +65,7 @@ function montarPassosSetup(p: PrimeirosPassosData): PassoConfig[] {
         ? "Custo dos insumos"
         : `Custo — ${p.nInsumosComCusto} ${p.nInsumosComCusto === 1 ? "insumo" : "insumos"} com custo`,
       apoio: "Suba a nota da sua compra — o custo entra pronto e os drinks já vêm com margem. Sem digitar.",
-      done: p.nInsumosComCusto > 0, href: "/dashboard/estoque", cta: "Importar nota (NF-e)", critico: true, icon: <Receipt size={20} strokeWidth={1.75} />,
+      done: p.nInsumosComCusto > 0, href: "/dashboard/estoque?importar=nfe", cta: "Importar nota (NF-e)", critico: true, icon: <Receipt size={20} strokeWidth={1.75} />,
     },
     {
       label: `Cardápio — ${p.nProdutos} ${p.nProdutos === 1 ? "produto" : "produtos"}`,

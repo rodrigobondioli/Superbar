@@ -5,9 +5,16 @@ import { EstoqueClient } from "@/components/estoque/estoque-client";
 import { DinheiroParadoCard } from "@/components/estoque/dinheiro-parado-card";
 import { EstoqueHeaderActions } from "@/components/estoque/estoque-header-actions";
 
-export default async function EstoquePage() {
+export default async function EstoquePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ importar?: string }>;
+}) {
   const current = await getCurrentBar();
   if (!current) redirect("/login");
+
+  const { importar } = await searchParams;
+  const abrirImportacao = importar === "nfe";
 
   const [itens, movimentos, dinheiroParado] = await Promise.all([
     getEstoque(current.bar.id),
@@ -57,7 +64,7 @@ export default async function EstoquePage() {
       )}
 
       {/* Lista */}
-      <EstoqueClient itens={itens} movimentos={movimentos} />
+      <EstoqueClient itens={itens} movimentos={movimentos} abrirImportacao={abrirImportacao} />
     </div>
   );
 }
