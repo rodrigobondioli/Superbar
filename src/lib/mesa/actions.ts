@@ -131,12 +131,17 @@ export async function chamarAtendimento(
 
   if (!turno) return { error: "Bar fechado." };
 
-  await supabase.from("chamadas").insert({
+  // Silêncio aqui = cliente acha que chamou e ninguém é avisado. Checa e reporta.
+  const { error } = await supabase.from("chamadas").insert({
     bar_id: barId,
     mesa_id: mesaId,
     turno_id: turno.id,
     status: "pendente",
   });
+  if (error) {
+    console.error("chamarAtendimento: falha ao criar chamada", error);
+    return { error: "Não consegui chamar o garçom. Tente de novo." };
+  }
 
   return { ok: true };
 }
