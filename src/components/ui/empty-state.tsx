@@ -25,11 +25,14 @@ export function EmptyState({ icon, title, description, action, fill = true, desc
         justifyContent: "center",
         textAlign: "center",
         padding: "64px 24px",
-        minHeight: fill ? "40vh" : undefined,
+        // Cresce pra ocupar a altura disponível quando o pai é flex-col (centraliza
+        // de verdade, H+V); minHeight é o piso quando não há espaço pra crescer.
+        flex: fill ? "1 1 auto" : undefined,
+        minHeight: fill ? "52vh" : undefined,
         width: "100%",
       }}
     >
-      <p style={{ fontSize: 36, margin: "0 0 18px", lineHeight: 1 }}>{icon}</p>
+      <p style={{ fontSize: 36, margin: "0 0 16px", lineHeight: 1 }}>{icon}</p>
       <p style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)", margin: "0 0 8px" }}>
         {title}
       </p>

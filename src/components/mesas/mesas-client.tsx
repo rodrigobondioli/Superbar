@@ -236,12 +236,14 @@ export function MesasClient({ mesas, mesasOcupadas, nextNumero }: MesasClientPro
         </Button>
       </div>
 
-      {/* Contagem */}
-      <div style={{ margin: "24px 0" }}>
-        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>
-          ({mesas.length}) {mesas.length === 1 ? "mesa cadastrada" : "mesas cadastradas"}
-        </span>
-      </div>
+      {/* Contagem — some quando vazio (aí o empty state manda) */}
+      {mesas.length > 0 && (
+        <div style={{ margin: "24px 0" }}>
+          <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>
+            ({mesas.length}) {mesas.length === 1 ? "mesa cadastrada" : "mesas cadastradas"}
+          </span>
+        </div>
+      )}
 
       {mesas.length === 0 ? (
         <EmptyState
