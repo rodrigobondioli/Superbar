@@ -163,7 +163,7 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
               return (
                 <div key={i} style={{
                   background: ativo ? "var(--bg-card)" : "transparent",
-                  border: ativo ? "1px solid var(--border-strong)" : "1px dashed var(--border-strong)",
+                  border: ativo ? "none" : "1px dashed var(--border-strong)",
                   boxShadow: ativo ? "0 8px 28px rgba(0,0,0,0.28)" : undefined,
                   borderRadius: 16, padding: 20, minHeight: 176,
                   display: "flex", flexDirection: "column",
@@ -173,7 +173,7 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                     <div style={{
                       width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      background: p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
+                      background: p.done ? "var(--ok-bg)" : ativo ? "var(--bg-card-hi)" : "var(--bg-hover)",
                       color: p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
                     }}>
                       {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
@@ -219,7 +219,8 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
             <div style={{
               width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
-              background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+              background: "transparent",
+              border: "1.5px solid var(--accent)",
             }}>
               <AlertTriangle size={20} strokeWidth={2} style={{ color: "var(--accent)" }} />
             </div>
