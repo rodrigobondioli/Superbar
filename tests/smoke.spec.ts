@@ -46,7 +46,11 @@ test.beforeEach(async ({ page }) => {
   await page.fill("input[type=email], input[name=email]", EMAIL);
   await page.fill("input[type=password], input[name=password]", PASSWORD);
   await page.click("button[type=submit]");
-  await page.waitForURL("**/dashboard**", { timeout: 30_000 }).catch(() => {});
+  // SEM catch: se o login não chegar no dashboard, o teste falha aqui com
+  // "login não completou" — em vez de seguir deslogado e dar alarme falso numa
+  // rota lá na frente (era o que fazia /contagem parecer quebrada).
+  await page.waitForURL("**/dashboard**", { timeout: 30_000 });
+  await page.waitForLoadState("networkidle"); // sessão assentada antes de navegar
 });
 
 for (const rota of ROTAS) {
