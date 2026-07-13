@@ -127,7 +127,7 @@ export function ParallaxScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex flex-col justify-center overflow-hidden"
+      className="relative flex flex-col justify-center overflow-x-clip"
       style={{ height: "clamp(380px, 62vh, 640px)", background: "#111113" }}
     >
       <style>{`
