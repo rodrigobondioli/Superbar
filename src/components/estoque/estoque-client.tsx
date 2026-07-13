@@ -420,7 +420,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
               <button onClick={copiarLista} style={{
                 background: copiadoLista ? "color-mix(in srgb, var(--ok) 14%, transparent)" : "var(--bg-card)",
                 border: `1px solid ${copiadoLista ? "color-mix(in srgb, var(--ok) 30%, transparent)" : "var(--border-strong)"}`,
-                borderRadius: 999, padding: "6px 14px", fontSize: 12,
+                borderRadius: "var(--r-pill)", padding: "6px 14px", fontSize: 12,
                 color: copiadoLista ? "var(--ok)" : "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
               }}>
                 {copiadoLista ? "✓ Copiado!" : "Copiar lista de compra"}
@@ -440,7 +440,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                       background: on ? "var(--fg)" : "var(--bg-card)",
                       color: on ? "var(--bg)" : "var(--fg-muted)",
                       border: `1px solid ${on ? "var(--fg)" : "var(--border-strong)"}`,
-                      borderRadius: 999, padding: "5px 14px", fontSize: 13, cursor: "pointer",
+                      borderRadius: "var(--r-pill)", padding: "5px 14px", fontSize: 13, cursor: "pointer",
                       transition: "background 120ms, color 120ms",
                     }}>
                       {c}
@@ -498,7 +498,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
                       </span>
                       <Sep />
                       <button onClick={() => setModalItem(item)} style={{
-                        background: "none", border: "1px solid var(--border)", borderRadius: 999,
+                        background: "none", border: "1px solid var(--border)", borderRadius: "var(--r-pill)",
                         padding: "6px 14px", fontSize: 12, color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap",
                       }} className="hover:!text-[var(--fg)]" title="Entrada, saída ou acerto de estoque">
                         Ajustar

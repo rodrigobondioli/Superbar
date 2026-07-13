@@ -257,7 +257,7 @@ function Wrap({ children, onVoltar }: { children: React.ReactNode; onVoltar: () 
 function cta(disabled: boolean): React.CSSProperties {
   return {
     display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
-    background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: 999,
+    background: "var(--accent)", color: "var(--accent-fg)", border: "none", borderRadius: "var(--r-pill)",
     padding: "13px 24px", fontSize: 14, fontWeight: 600,
     cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1,
   };

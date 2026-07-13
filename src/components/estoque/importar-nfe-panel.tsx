@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Upload, CheckCircle2, AlertTriangle, X, ChevronDown } from "lucide-react";
 import { previewNfe, confirmarNfe, type NfePreview } from "@/lib/nfe/actions";
 import { baseDoItem, quantidadeBaseImportada } from "@/lib/nfe/converter";
+import { Button } from "@/components/ui/button";
 import { PassosImport } from "@/components/ui/passos-import";
 import { currency } from "@/lib/format";
 
@@ -246,14 +247,14 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             {step === "preview" && (
               <>
-                <button onClick={() => setStep("upload")} style={{ background: "none", border: "1px solid var(--border-strong)", borderRadius: 999, padding: "9px 18px", fontSize: 13, color: "var(--fg-muted)", cursor: "pointer" }}>Voltar</button>
-                <button onClick={handleConfirm} disabled={loading || preview?.jaImportada} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: loading || preview?.jaImportada ? "not-allowed" : "pointer", opacity: loading || preview?.jaImportada ? 0.6 : 1 }}>
+                <Button variant="secondary" onClick={() => setStep("upload")}>Voltar</Button>
+                <Button variant="primary" onClick={handleConfirm} disabled={loading || preview?.jaImportada}>
                   {loading ? "Importando…" : "Importar para o estoque"}
-                </button>
+                </Button>
               </>
             )}
             {step === "done" && (
-              <button onClick={fechar} style={{ background: "var(--accent)", border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13, fontWeight: 500, color: "var(--accent-fg)", cursor: "pointer" }}>Concluir</button>
+              <Button variant="primary" onClick={fechar}>Concluir</Button>
             )}
           </div>
         </div>

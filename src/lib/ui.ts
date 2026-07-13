@@ -53,7 +53,7 @@ export const CARD: CSSProperties = {
 const BTN_BASE: CSSProperties = {
   height: 40,
   padding: "0 24px",
-  borderRadius: 999,
+  borderRadius: "var(--r-pill)",
   fontSize: 15,
   fontWeight: 500,
   display: "inline-flex",
