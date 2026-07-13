@@ -11,16 +11,7 @@ import { Input } from "@/components/ui/input";
 // turno viram itens do checklist na home (Guia de configuração) — cada um um
 // clique pra sua tela. Fricção mínima na largada; o painel guia o resto.
 // Componentes do DS: <Button> (pill) e <Input> (rounded-xl) — nada de inline.
-
-const lbl: React.CSSProperties = {
-  fontSize: "11px",
-  fontWeight: 500,
-  color: "var(--fg-subtle)",
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-  display: "block",
-  marginBottom: "6px",
-};
+// Inputs sem label visível: o rótulo vive no placeholder + aria-label (igual login).
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -69,8 +60,8 @@ export default function OnboardingPage() {
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <Image
             src="/favicon.svg"
-            width={76}
-            height={76}
+            width={91}
+            height={91}
             alt="Superbar"
             priority
             style={{ display: "block", margin: "0 auto 20px" }}
@@ -106,33 +97,25 @@ export default function OnboardingPage() {
             gap: "20px",
           }}
         >
-          <div>
-            <label htmlFor="nome" style={lbl}>
-              Nome do bar
-            </label>
-            <Input
-              id="nome"
-              name="nome"
-              placeholder="Ex: Aurora Bar"
-              value={nomeBar}
-              onChange={(e) => setNomeBar(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
+          <Input
+            id="nome"
+            name="nome"
+            placeholder="Nome do bar"
+            aria-label="Nome do bar"
+            value={nomeBar}
+            onChange={(e) => setNomeBar(e.target.value)}
+            required
+            autoFocus
+          />
 
-          <div>
-            <label htmlFor="nome_usuario" style={lbl}>
-              Seu nome
-            </label>
-            <Input
-              id="nome_usuario"
-              name="nome_usuario"
-              placeholder="Como você quer ser chamado"
-              value={nomeUsuario}
-              onChange={(e) => setNomeUsuario(e.target.value)}
-            />
-          </div>
+          <Input
+            id="nome_usuario"
+            name="nome_usuario"
+            placeholder="Seu nome"
+            aria-label="Seu nome"
+            value={nomeUsuario}
+            onChange={(e) => setNomeUsuario(e.target.value)}
+          />
 
           {criarError && (
             <p
