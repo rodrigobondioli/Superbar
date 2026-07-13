@@ -31,6 +31,49 @@ function fmtCusto(v: number): string {
   return "R$ " + v.toFixed(casas).replace(".", ",");
 }
 
+function fmtBRL(v: number): string {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: v < 100 ? 2 : 0 });
+}
+
+function fmtNum(n: number): string {
+  return (n % 1 === 0 ? n : Number(n.toFixed(2))).toLocaleString("pt-BR");
+}
+
+// Quantidade legível: ml→L e g→kg quando grande (6000 ml → "6 L").
+function fmtBase(q: number, unidade: string): string {
+  if (unidade === "ml" && Math.abs(q) >= 1000) return `${fmtNum(q / 1000)} L`;
+  if (unidade === "g" && Math.abs(q) >= 1000) return `${fmtNum(q / 1000)} kg`;
+  return `${fmtNum(q)} ${unidade}`;
+}
+
+function pluralUnidade(u: string, n: number): string {
+  if (n === 1) return u;
+  return u.endsWith("s") ? u : u + "s";
+}
+
+// "6 garrafas" (principal) + "6 L" (base) quando há embalagem; senão só a base.
+function formatEstoque(item: ItemEstoque): { principal: string; base: string } {
+  const base = fmtBase(item.quantidadeAtual, item.unidade);
+  if (item.tamanhoEmbalagem && item.tamanhoEmbalagem > 0 && item.unidadeCompra) {
+    const emb = item.quantidadeAtual / item.tamanhoEmbalagem;
+    return { principal: `${fmtNum(emb)} ${pluralUnidade(item.unidadeCompra, emb)}`, base };
+  }
+  return { principal: base, base: "" };
+}
+
+// Categorização best-effort por palavra-chave no nome (sem coluna no banco).
+type Cat = "Destilados" | "Licores" | "Xaropes & mixers" | "Frutas & ervas" | "Secos" | "Outros";
+const CAT_ORDER: Cat[] = ["Destilados", "Licores", "Xaropes & mixers", "Frutas & ervas", "Secos", "Outros"];
+function categoriaDe(nome: string): Cat {
+  const n = nome.toLowerCase();
+  if (/gin|vodka|rum|whisk|cacha|tequila|conhaque|pisco|aguardente|steinh|bourbon|licor de/.test(n)) return "Destilados";
+  if (/licor|cointreau|campari|aperol|vermute|martini|triple ?sec|curac|amaretto|jager|fernet|aperitivo/.test(n)) return "Licores";
+  if (/xarope|goma|tonica|tônica|refri|suco|soda|energ|groselha|grenadine|monin|xpe/.test(n)) return "Xaropes & mixers";
+  if (/limao|limão|laranja|hortela|hortelã|morango|maracuj|gengibre|manjeric|abacaxi|menta|amora|framboesa|fruta|capim/.test(n)) return "Frutas & ervas";
+  if (/acucar|açúcar|açucar|acúcar|\bsal\b|gelo|canela|cafe|café|\bcha\b|chá|mel|leite|creme|noz/.test(n)) return "Secos";
+  return "Outros";
+}
+
 function dataRelativa(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60_000);
@@ -237,6 +280,8 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
   const [modalItem, setModalItem] = useState<ItemEstoque | null>(null);
   const [copiadoLista, setCopiadoLista] = useState(false);
   const [nfeAberto, setNfeAberto] = useState(abrirImportacao);
+  const [busca, setBusca]       = useState("");
+  const [cat, setCat]           = useState<Cat | "Todos">("Todos");
 
   const alertas = itens
     .filter(i => i.abaixoDoMinimo)
@@ -247,7 +292,15 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
         ? ((b.quantidadeMinima - b.quantidadeAtual) / b.quantidadeMinima) : 0;
       return gB - gA;
     });
-  const ok = itens.filter(i => !i.abaixoDoMinimo);
+  // Lista principal: categoria (por nome) + filtro de busca/categoria.
+  const comCat = itens.map(i => ({ ...i, categoria: categoriaDe(i.nome) }));
+  const cats = CAT_ORDER.filter(c => comCat.some(i => i.categoria === c));
+  const buscaLower = busca.trim().toLowerCase();
+  const filtrados = comCat.filter(i =>
+    (cat === "Todos" || i.categoria === cat) &&
+    (buscaLower === "" || i.nome.toLowerCase().includes(buscaLower))
+  );
+  const totalValor = itens.reduce((s, i) => s + i.valorEstoque, 0);
 
   // Quantidade sugerida: enche até 2× o mínimo — evita reordenar toda semana
   function calcularSugerida(item: ItemEstoque): number {
@@ -298,7 +351,7 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
       {/* Tabs */}
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)" }}>
         {(["atencao", "movimentacoes"] as const).map(t => {
-          const label = t === "atencao" ? "Comprar" : "Movimentações";
+          const label = t === "atencao" ? "Estoque" : "Movimentações";
           const count = t === "atencao" ? alertas.length : undefined;
           const ativo = tab === t;
           return (
@@ -333,128 +386,112 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
         })}
       </div>
 
-      {/* ── Tab: Atenção ── */}
+      {/* ── Tab: Estoque (lista de insumos) ── */}
       {tab === "atencao" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          {alertas.length > 0 ? (
-            <div>
-              {/* Header */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
-                  {alertas.length} {alertas.length === 1 ? "item" : "itens"} para comprar
-                </p>
-                <button
-                  onClick={copiarLista}
-                  style={{
-                    background: copiadoLista
-                      ? "color-mix(in srgb, var(--ok) 12%, transparent)"
-                      : "none",
-                    border: `1px solid ${copiadoLista ? "color-mix(in srgb, var(--ok) 30%, transparent)" : "var(--border)"}`,
-                    borderRadius: 8, padding: "5px 12px",
-                    fontSize: 12,
-                    color: copiadoLista ? "var(--ok)" : "var(--fg-muted)",
-                    cursor: "pointer", transition: "all 150ms",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {copiadoLista ? "✓ Copiado!" : "Copiar lista"}
-                </button>
-              </div>
-
-              {/* Lista de compra — linhas estilo Figma */}
-              <div style={{
-                background: "var(--bg-card)",
-                border: "1px solid var(--border)",
-                borderRadius: 16, overflow: "hidden",
+          {/* Repor: só quando há item abaixo do mínimo */}
+          {alertas.length > 0 && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
+              background: "color-mix(in srgb, var(--warn) 10%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--warn) 30%, transparent)",
+              borderRadius: 12, padding: "12px 16px",
+            }}>
+              <span style={{ fontSize: 13, color: "var(--fg)" }}>
+                <strong>{alertas.length}</strong> {alertas.length === 1 ? "insumo abaixo" : "insumos abaixo"} do mínimo — hora de repor.
+              </span>
+              <button onClick={copiarLista} style={{
+                background: copiadoLista ? "color-mix(in srgb, var(--ok) 14%, transparent)" : "var(--bg-card)",
+                border: `1px solid ${copiadoLista ? "color-mix(in srgb, var(--ok) 30%, transparent)" : "var(--border-strong)"}`,
+                borderRadius: 999, padding: "6px 14px", fontSize: 12,
+                color: copiadoLista ? "var(--ok)" : "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
               }}>
-                {alertas.map((item, i) => {
-                  const sugerida = calcularSugerida(item);
-                  const critico = item.quantidadeAtual <= 0;
-                  const cor = critico ? "var(--danger)" : "var(--warn)";
-                  return (
-                    <div key={item.id} style={{
-                      display: "flex", alignItems: "center", gap: 16,
-                      padding: "16px 24px",
-                      borderBottom: i < alertas.length - 1 ? "1px solid var(--border-strong)" : "none",
-                    }}>
-                      {/* Esquerda: dot + nome + status */}
-                      <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0, alignSelf: "center" }} />
-                        <span style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)" }}>{item.nome}</span>
-                        <span style={{ fontSize: 13 }}>
-                          <span style={{ color: cor }}>{fmtQtd(item.quantidadeAtual)}</span>
-                          <span style={{ color: "var(--fg-muted)" }}> em estoque · mínimo {fmtQtd(item.quantidadeMinima)}</span>
-                        </span>
-                      </div>
-
-                      {/* Direita: Comprar N un (abre modal) */}
-                      <button
-                        onClick={() => setModalItem(item)}
-                        style={{
-                          background: "none", border: "none", padding: 0, cursor: "pointer",
-                          fontSize: 15, fontWeight: 500, color: "var(--fg)", whiteSpace: "nowrap", flexShrink: 0,
-                        }}
-                        className="hover:!text-[var(--accent)]"
-                      >
-                        Comprar {fmtQtd(sugerida)} {item.unidade}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div style={{ padding: "28px 0", textAlign: "center" as const }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ok)", marginBottom: 4 }}>✓ Estoque em dia</p>
-              <p style={{ fontSize: 12, color: "var(--fg-subtle)", margin: 0 }}>Nenhum item abaixo do mínimo.</p>
+                {copiadoLista ? "✓ Copiado!" : "Copiar lista de compra"}
+              </button>
             </div>
           )}
 
-          {ok.length > 0 && (
-            <div>
-              {alertas.length > 0 && (
-                <p style={{ fontSize: 11, fontWeight: 500, color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
-                  Em dia
-                </p>
-              )}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {ok.map(item => (
-                  <div key={item.id} style={{
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                    display: "flex", alignItems: "center",
-                    gap: 12, padding: "12px 20px",
+          {/* Busca + total parado */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar insumo…"
+              style={{ ...inp, flex: 1, minWidth: 200, maxWidth: 360 }}
+            />
+            <span style={{ fontSize: 13, color: "var(--fg-muted)", marginLeft: "auto", whiteSpace: "nowrap" }}>
+              Em estoque: <strong style={{ color: "var(--fg)", fontVariantNumeric: "tabular-nums" }}>{fmtBRL(totalValor)}</strong>
+            </span>
+          </div>
+
+          {/* Categorias */}
+          {cats.length > 1 && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {(["Todos", ...cats] as const).map(c => {
+                const on = cat === c;
+                return (
+                  <button key={c} onClick={() => setCat(c)} style={{
+                    background: on ? "var(--fg)" : "var(--bg-card)",
+                    color: on ? "var(--bg)" : "var(--fg-muted)",
+                    border: `1px solid ${on ? "var(--fg)" : "var(--border-strong)"}`,
+                    borderRadius: 999, padding: "5px 14px", fontSize: 13, cursor: "pointer",
+                    transition: "background 120ms, color 120ms",
                   }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: 13, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {item.nome}
-                      </span>
-                      {item.custoAtual > 0 && (
-                        <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>
-                          {fmtCusto(item.custoAtual)}/{item.unidade}
-                        </span>
-                      )}
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Lista */}
+          {filtrados.length === 0 ? (
+            <p style={{ fontSize: 13, color: "var(--fg-subtle)", padding: "24px 0", textAlign: "center" }}>
+              Nenhum insumo encontrado.
+            </p>
+          ) : (
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden" }}>
+              {filtrados.map((item, i) => {
+                const est = formatEstoque(item);
+                const critico = item.quantidadeAtual <= 0;
+                const cor = critico ? "var(--danger)" : item.abaixoDoMinimo ? "var(--warn)" : null;
+                return (
+                  <div key={item.id} style={{
+                    display: "flex", alignItems: "center", gap: 16, padding: "14px 20px",
+                    borderBottom: i < filtrados.length - 1 ? "1px solid var(--border-strong)" : "none",
+                  }}>
+                    {/* nome + custo */}
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10 }}>
+                      {cor && <span style={{ width: 8, height: 8, borderRadius: "50%", background: cor, flexShrink: 0 }} />}
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{ fontSize: 14, fontWeight: 500, color: "var(--fg)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nome}</span>
+                        {item.custoAtual > 0 && (
+                          <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>{fmtCusto(item.custoAtual)}/{item.unidade}</span>
+                        )}
+                      </div>
                     </div>
-                    <span style={{ fontSize: 15, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: "var(--fg)" }}>
-                      {item.quantidadeAtual % 1 === 0 ? item.quantidadeAtual : item.quantidadeAtual.toFixed(1)}
-                      <span style={{ fontSize: 11, fontWeight: 400, color: "var(--fg-subtle)", marginLeft: 3 }}>{item.unidade}</span>
-                    </span>
-                    <button
-                      onClick={() => setModalItem(item)}
-                      style={{
-                        background: "none", border: "1px solid var(--border)",
-                        borderRadius: 8, padding: "5px 12px",
-                        fontSize: 12, color: "var(--fg-muted)", cursor: "pointer",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+
+                    {/* quantidade + valor */}
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: cor ?? "var(--fg)", fontVariantNumeric: "tabular-nums", display: "block" }}>
+                        {est.principal}
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--fg-subtle)" }}>
+                        {est.base ? `${est.base} · ` : ""}{fmtBRL(item.valorEstoque)}
+                      </span>
+                    </div>
+
+                    {/* ação */}
+                    <button onClick={() => setModalItem(item)} style={{
+                      background: "none", border: "1px solid var(--border)", borderRadius: 999,
+                      padding: "6px 14px", fontSize: 12, color: "var(--fg-muted)", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+                    }} className="hover:!text-[var(--fg)]">
                       + Registrar
                     </button>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
         </div>

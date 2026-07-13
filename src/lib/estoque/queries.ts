@@ -5,10 +5,13 @@ import type { MovimentoTipo } from "@/types/database";
 export interface ItemEstoque {
   id: string;               // ingrediente_id
   nome: string;             // nome do insumo
-  quantidadeAtual: number;
+  quantidadeAtual: number;  // na unidade-base (ml/g/un)
   quantidadeMinima: number;
   unidade: string;          // base: un/ml/l/g/kg
   custoAtual: number;       // R$ por unidade-base (custo é rei — Princípio 10)
+  tamanhoEmbalagem: number | null;  // base por embalagem (ex: 750 = garrafa 750ml)
+  unidadeCompra: string | null;     // rótulo: "garrafa" | "lata" | "pacote"
+  valorEstoque: number;     // quantidadeAtual × custoAtual (R$ parado)
   abaixoDoMinimo: boolean;
 }
 
@@ -27,14 +30,15 @@ export interface MovimentoEstoque {
 // antiga `estoque`/`produtos` era um segundo sistema paralelo que a NF-e não
 // alimentava; por isso a tela ficava vazia mesmo com insumos importados.
 export async function getEstoque(barId: string): Promise<ItemEstoque[]> {
-  const supabase = await createClient();
-
-  const { data } = await supabase
+  // Admin (untyped): tamanho_embalagem/unidade_compra são colunas novas fora dos
+  // tipos gerados. Read escopado por bar_id.
+  const admin = createAdminClient();
+  const { data } = await admin
     .from("ingredientes")
-    .select("id, nome, unidade, estoque_atual, estoque_minimo, custo_atual")
+    .select("id, nome, unidade, estoque_atual, estoque_minimo, custo_atual, tamanho_embalagem, unidade_compra")
     .eq("bar_id", barId)
     .eq("ativo", true)
-    .order("estoque_atual", { ascending: true })
+    .order("nome", { ascending: true })
     .returns<Array<{
       id: string;
       nome: string;
@@ -42,18 +46,24 @@ export async function getEstoque(barId: string): Promise<ItemEstoque[]> {
       estoque_atual: number;
       estoque_minimo: number;
       custo_atual: number;
+      tamanho_embalagem: number | null;
+      unidade_compra: string | null;
     }>>();
 
   return (data ?? []).map((row) => {
     const qtd = Number(row.estoque_atual);
     const min = Number(row.estoque_minimo);
+    const custo = Number(row.custo_atual);
     return {
       id: row.id,
       nome: row.nome,
       quantidadeAtual: qtd,
       quantidadeMinima: min,
       unidade: row.unidade,
-      custoAtual: Number(row.custo_atual),
+      custoAtual: custo,
+      tamanhoEmbalagem: row.tamanho_embalagem != null ? Number(row.tamanho_embalagem) : null,
+      unidadeCompra: row.unidade_compra,
+      valorEstoque: qtd * custo,
       // Só "abaixo do mínimo" quando há mínimo definido (>0). Insumo sem mínimo
       // e zerado cai em "crítico" pelo semáforo, não aqui.
       abaixoDoMinimo: min > 0 && qtd < min,

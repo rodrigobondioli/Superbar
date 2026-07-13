@@ -89,17 +89,27 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
     const itens = preview.itens
       .map((it, i) => ({ it, i }))
       .filter(({ i }) => match[i] !== "ignorar")
-      .map(({ it, i }) => ({
-        ingredienteId: match[i] === "novo" ? null : match[i],
-        nome: it.nome,
-        unidade: baseDoItem(it).unidade,
-        custoUnitario: parseFloat((custos[i] ?? "0").replace(",", ".")) || 0,
-        quantidade: parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0,
-        gtin: it.gtin,
-        cprod: it.cprod,
-        tamanhoEmbalagem: it.tamanhoEmbalagem,
-        unidadeCompra: it.unidadeCompra,
-      }));
+      .map(({ it, i }) => {
+        const b = baseDoItem(it);
+        const qtyNota = parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0;
+        // Quando o custo é convertido pra base (ex: R$/ml), a QUANTIDADE também
+        // precisa virar base: 6 garrafas × 750ml = 4500ml. Antes ficava "6" com
+        // unidade ml → estoque irreal ("6 ml") e CMV/consumo quebrados.
+        const quantidadeBase = b.convertido && it.tamanhoEmbalagem
+          ? qtyNota * it.tamanhoEmbalagem
+          : qtyNota;
+        return {
+          ingredienteId: match[i] === "novo" ? null : match[i],
+          nome: it.nome,
+          unidade: b.unidade,
+          custoUnitario: parseFloat((custos[i] ?? "0").replace(",", ".")) || 0,
+          quantidade: quantidadeBase,
+          gtin: it.gtin,
+          cprod: it.cprod,
+          tamanhoEmbalagem: it.tamanhoEmbalagem,
+          unidadeCompra: it.unidadeCompra,
+        };
+      });
 
     if (itens.length === 0) { setError("Nenhum item selecionado para importar."); setLoading(false); return; }
 
@@ -222,6 +232,10 @@ export function ImportarNfePanel({ open, onClose }: { open: boolean; onClose: ()
                     {baseDoItem(it).convertido && (
                       <p style={{ fontSize: 11, color: "var(--ok)", margin: "4px 0 0" }}>
                         → entra como {currency.format(baseDoItem(it).custo)}/{baseDoItem(it).unidade} — já convertido pra você usar por {baseDoItem(it).unidade} na ficha do drink.
+                        {it.tamanhoEmbalagem && (() => {
+                          const q = parseFloat((qtds[i] ?? "0").replace(",", ".")) || 0;
+                          return <> Estoque: {q} {it.unidadeCompra ?? "un"} = {(q * it.tamanhoEmbalagem).toLocaleString("pt-BR")} {baseDoItem(it).unidade}.</>;
+                        })()}
                       </p>
                     )}
                   </div>
