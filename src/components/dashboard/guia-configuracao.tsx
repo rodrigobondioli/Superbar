@@ -162,7 +162,7 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
               const laranja = !!p.critico && !p.done;
               return (
                 <div key={i} style={{
-                  background: laranja ? "var(--accent)" : "transparent",
+                  background: laranja ? "var(--accent)" : "var(--bg-card)",
                   border: laranja
                     ? "1px solid var(--accent)"
                     : `1px dashed ${ativo ? "var(--accent)" : "var(--border-strong)"}`,
@@ -196,7 +196,10 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
                     {p.done ? (
                       <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
                     ) : p.href ? (
-                      <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: laranja ? "#fff" : ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      <a
+                        href={p.href}
+                        className="inline-flex h-8 w-fit items-center justify-center gap-2 rounded-full border border-border-strong bg-bg-card px-4 text-[13px] font-medium text-fg no-underline transition-colors hover:border-fg-subtle hover:bg-bg-hover"
+                      >
                         {p.cta ?? "Configurar"} →
                       </a>
                     ) : null}
@@ -210,8 +213,8 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
           <div style={{ marginTop: 28, display: "flex", alignItems: "flex-start", gap: 10, maxWidth: 720, marginLeft: "auto", marginRight: "auto" }}>
             <AlertTriangle size={16} strokeWidth={2} style={{ color: "var(--accent)", flexShrink: 0, marginTop: 2 }} />
             <p style={{ fontSize: 13, color: "var(--fg-subtle)", margin: 0, lineHeight: 1.6 }}>
-              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Dica de ouro:</strong> suba a nota (NF-e) da sua última compra pra começar.
-              Ela traz o custo real de cada insumo já convertido — e é isso que faz cada drink nascer com a margem certa, sem planilha nem conta de cabeça.
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>Dica de ouro:</strong> comece subindo suas notas (NF-e) de compra — se a última foi pequena, sobe mais de uma.
+              Cada nota traz o custo real dos insumos já convertido, e é isso que faz cada drink nascer com a margem certa. Sem planilha, sem conta de cabeça.
             </p>
           </div>
         </div>
