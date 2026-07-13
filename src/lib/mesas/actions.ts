@@ -16,13 +16,14 @@ export async function criarMesa(formData: FormData) {
   if (isNaN(numero)) return;
 
   const supabase = await createClient();
-  await supabase.from("mesas").insert({
+  const { error } = await supabase.from("mesas").insert({
     bar_id: current.bar.id,
     numero,
     nome,
     capacidade,
     ativo: true,
   });
+  if (error) console.error("criarMesa:", error);
 
   revalidatePath("/dashboard/mesas");
 }
@@ -33,13 +34,15 @@ export async function editarMesa(id: string, formData: FormData) {
   const capacidade = capStr ? parseInt(capStr, 10) : null;
 
   const supabase = await createClient();
-  await supabase.from("mesas").update({ nome, capacidade }).eq("id", id);
+  const { error } = await supabase.from("mesas").update({ nome, capacidade }).eq("id", id);
+  if (error) console.error("editarMesa:", error);
   revalidatePath("/dashboard/mesas");
 }
 
 export async function removerMesa(id: string) {
   const supabase = await createClient();
-  await supabase.from("mesas").update({ ativo: false }).eq("id", id);
+  const { error } = await supabase.from("mesas").update({ ativo: false }).eq("id", id);
+  if (error) console.error("removerMesa:", error);
   revalidatePath("/dashboard/mesas");
 }
 

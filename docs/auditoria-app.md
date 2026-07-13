@@ -2,6 +2,13 @@
 
 _Varredura estática de 13/07/2026. Objetivo: trocar o conserto reativo (tela por tela) por uma lista finita + guarda-corpos automáticos, pra parar o loop de "toda hora um problema novo"._
 
+## Status (13/07/2026)
+
+- **P0 (quebra/dinheiro):** ✅ #1 dashboard nos insumos reais · ✅ #2 contas com teste (Vitest, trava o "6 ml") · ✅ #3 escritas não falham mais em silêncio (operacional bartender + cliente + CRUD do dono) · ✅ #4 /demo era cache velho.
+- **Guarda-corpos:** ✅ ESLint bloqueia botão-pílula na mão (error) · ✅ smoke test de rotas (`npm run test:smoke`) · ✅ `npm run check` (typecheck+lint+test) verde.
+- **P1 botões:** ✅ pílula literal zerada (token `--r-pill`), prominentes do dono no `<Button>`.
+- **Resta (dívida baixa):** stats de CRM (mesa/caixa `clientes`), audit de contagem, espaçamento base-4 (P2), font-mono em classe Tailwind (2 casos), migrar botões inline restantes pro `<Button>` (usam token, consistentes).
+
 Prioridade: **P0** = quebra ou dinheiro errado (bloqueia vender) · **P1** = inconsistência sistêmica (o loop visual) · **P2** = polimento.
 
 ---
