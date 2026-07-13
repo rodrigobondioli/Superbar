@@ -71,7 +71,7 @@ export default async function TurnosPage() {
           title="Nenhum turno ainda"
           description="Abra o primeiro turno para começar a registrar vendas. O histórico completo fica aqui."
           action={
-            <EmptyStateButton href="/dashboard/caixa" variant="secondary">
+            <EmptyStateButton href="/dashboard/caixa">
               Abrir turno no Caixa →
             </EmptyStateButton>
           }
