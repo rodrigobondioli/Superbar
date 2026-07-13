@@ -7,7 +7,7 @@ interface EmptyStateProps {
   action?: ReactNode;
   /** Quando true, centraliza verticalmente no espaço disponível (padrão: true) */
   fill?: boolean;
-  /** Largura máxima da descrição em px (padrão: 300). Aumente para menos linhas. */
+  /** Largura máxima da descrição em px (padrão: 460 — folga p/ ~2 linhas). */
   descriptionMaxWidth?: number;
 }
 
@@ -15,7 +15,7 @@ interface EmptyStateProps {
  * Estado vazio padronizado — igual em todas as telas.
  * Usa `fill` para centralizar verticalmente na área de conteúdo.
  */
-export function EmptyState({ icon, title, description, action, fill = true, descriptionMaxWidth = 300 }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, fill = true, descriptionMaxWidth = 460 }: EmptyStateProps) {
   return (
     <div
       style={{
@@ -51,7 +51,11 @@ export function EmptyState({ icon, title, description, action, fill = true, desc
   );
 }
 
-/** Botão primário reutilizável dentro de EmptyState */
+/**
+ * Botão dentro de EmptyState. Renderiza EXATAMENTE o DS `<Button>` (pill, h-10,
+ * peso 500) — mesmas classes de `components/ui/button`. Nunca inventar estilo
+ * próprio aqui: se o Button mudar, isto acompanha.
+ */
 export function EmptyStateButton({
   onClick,
   href,
@@ -63,36 +67,23 @@ export function EmptyStateButton({
   children: ReactNode;
   variant?: "primary" | "secondary";
 }) {
-  const style: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "10px 20px",
-    borderRadius: 8,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    textDecoration: "none",
-    border: "none",
-    background:
-      variant === "primary"
-        ? "var(--accent)"
-        : "color-mix(in srgb, var(--fg) 6%, transparent)",
-    color:
-      variant === "primary" ? "var(--accent-fg)" : "var(--fg-muted)",
-    ...(variant === "secondary" && { border: "1px solid var(--border)" }),
-  };
+  const cls =
+    "inline-flex h-10 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-medium " +
+    "no-underline whitespace-nowrap transition-[background,filter,border-color] duration-150 active:scale-[0.97] " +
+    (variant === "primary"
+      ? "bg-accent text-accent-fg hover:brightness-105"
+      : "border border-border-strong bg-bg-card text-fg hover:bg-bg-hover hover:border-fg-subtle");
 
   if (href) {
     return (
-      <a href={href} style={style}>
+      <a href={href} className={cls}>
         {children}
       </a>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} style={style}>
+    <button type="button" onClick={onClick} className={cls}>
       {children}
     </button>
   );

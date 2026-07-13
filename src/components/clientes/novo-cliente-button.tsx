@@ -5,7 +5,7 @@ import { criarCliente } from "@/lib/clientes/actions";
 
 const BTN_PRIMARY = {
   background: "var(--accent)", color: "var(--accent-fg)", border: "none",
-  borderRadius: 999, padding: "10px 24px", fontSize: 14,
+  borderRadius: 999, padding: "10px 24px", fontSize: 15,
   fontWeight: 500, cursor: "pointer",
 } as const;
 
@@ -106,7 +106,7 @@ export function NovoClienteButton() {
                 style={{
                   background: "transparent", color: "var(--fg)",
                   border: "1px solid var(--border-strong)", borderRadius: 999,
-                  padding: "10px 24px", fontSize: 14, fontWeight: 500, cursor: "pointer",
+                  padding: "10px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer",
                 }}
               >
                 Cancelar

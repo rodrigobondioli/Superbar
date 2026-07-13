@@ -378,7 +378,7 @@ Todo card-grid do dashboard usa **16** — não misturar 16 e 24 pro mesmo tipo 
 ### Padrões já unificados (não regredir)
 - **Header de tela** (dashboard): título **18px Medium** + subtítulo inline 13px muted + divisória `1px var(--border-strong)`. Vale para todas as telas do dono.
 - **Cards**: `var(--border)` + radius **16** (padrão) ou **24** (grande/hero). Nunca `#2C2C2E`/20 no dashboard.
-- **Botões**: sempre pill (9999) — componente `<Button>` ou `BTN_PRIMARY/SECONDARY` de `@/lib/ui`.
+- **Botões — FONTE ÚNICA**: sempre pill (9999), peso **500**, altura **h-10** (default) / **h-8** (sm), texto **15px** (default) / **13px** (sm). Use o componente `<Button>`. `EmptyStateButton` e `BTN_PRIMARY/SECONDARY` (@/lib/ui) espelham o `<Button>` — se mudar um, alinhar os três. **Proibido** botão na mão com radius 8, peso 600 ou tamanho próprio (era o que fazia empty state ≠ header ≠ card).
 - **Fonte**: Inter em tudo. Não usar `var(--font-mono)` (é alias de Inter, mas polui) — usar `var(--font-sans)`.
 
 ---

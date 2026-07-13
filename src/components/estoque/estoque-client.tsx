@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { ImportarNfePanel } from "@/components/estoque/importar-nfe-panel";
 import { registrarMovimento, type EstoqueResult } from "@/lib/estoque/actions";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
+import { EmptyState, EmptyStateButton } from "@/components/ui/empty-state";
 import type { ItemEstoque, MovimentoRecente } from "@/lib/estoque/queries";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -267,17 +266,11 @@ export function EstoqueClient({ itens, movimentos, abrirImportacao = false }: Es
         <EmptyState
           icon="📦"
           title="Nenhum produto com estoque ativo"
-          description="Suba a nota fiscal da sua compra e a gente puxa produtos, custos e fornecedor pro estoque — sem digitar. Ou ative o controle por produto no Cardápio."
-          descriptionMaxWidth={520}
+          description="Suba a NF-e da sua compra: puxamos produtos, custos e fornecedor pro estoque, sem digitar. Ou ative o controle por produto no Cardápio."
           action={
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-              <Button variant="primary" onClick={() => setNfeAberto(true)}>Importar nota fiscal</Button>
-              <a
-                href="/dashboard/cardapio"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border-strong bg-bg-card px-6 text-[15px] font-medium text-fg no-underline transition-colors hover:border-fg-subtle hover:bg-bg-hover"
-              >
-                Ir para o Cardápio →
-              </a>
+              <EmptyStateButton onClick={() => setNfeAberto(true)}>Importar nota fiscal</EmptyStateButton>
+              <EmptyStateButton href="/dashboard/cardapio" variant="secondary">Ir para o Cardápio →</EmptyStateButton>
             </div>
           }
         />
