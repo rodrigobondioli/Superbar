@@ -2,12 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { criarCliente } from "@/lib/clientes/actions";
-
-const BTN_PRIMARY = {
-  background: "var(--accent)", color: "var(--accent-fg)", border: "none",
-  borderRadius: 999, padding: "10px 24px", fontSize: 15,
-  fontWeight: 500, cursor: "pointer",
-} as const;
+import { Button } from "@/components/ui/button";
 
 const INPUT = {
   width: "100%", boxSizing: "border-box" as const,
@@ -42,9 +37,9 @@ export function NovoClienteButton() {
 
   return (
     <>
-      <button style={BTN_PRIMARY} onClick={() => setAberto(true)}>
+      <Button variant="primary" size="sm" onClick={() => setAberto(true)}>
         + Novo cliente
-      </button>
+      </Button>
 
       {aberto && (
         <div style={{
@@ -101,23 +96,12 @@ export function NovoClienteButton() {
             )}
 
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button
-                onClick={() => setAberto(false)}
-                style={{
-                  background: "transparent", color: "var(--fg)",
-                  border: "1px solid var(--border-strong)", borderRadius: 999,
-                  padding: "10px 24px", fontSize: 15, fontWeight: 500, cursor: "pointer",
-                }}
-              >
+              <Button variant="secondary" onClick={() => setAberto(false)}>
                 Cancelar
-              </button>
-              <button
-                onClick={salvar}
-                disabled={isPending || !form.nome.trim()}
-                style={BTN_PRIMARY}
-              >
+              </Button>
+              <Button variant="primary" onClick={salvar} disabled={isPending || !form.nome.trim()}>
                 {isPending ? "Salvando..." : "Salvar"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
