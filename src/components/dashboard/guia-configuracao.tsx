@@ -118,69 +118,96 @@ export function GuiaConfiguracao({ passos, variante = "hero", titulo, subtitulo 
 
   if (hero) {
     return (
-      <div style={{ width: "100%", maxWidth: 1040, margin: "0 auto", padding: "32px 0 48px" }}>
-        {/* Header: título + subtítulo + barra embaixo */}
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--fg)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
-            {titulo ?? "Vamos configurar seu bar"}
-          </h2>
-          {subtitulo && (
-            <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: 0, maxWidth: 560, lineHeight: 1.5 }}>{subtitulo}</p>
-          )}
-          <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ flex: 1, maxWidth: 560 }}>
+      <div
+        style={{
+          minHeight: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "56px 0",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 1040 }}>
+          {/* Cabeçalho centralizado */}
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <h2 style={{ fontSize: 26, fontWeight: 700, color: "var(--fg)", margin: "0 0 10px", letterSpacing: "-0.02em" }}>
+              {titulo ?? "Vamos configurar seu bar"}
+            </h2>
+            {subtitulo && (
+              <p style={{ fontSize: 15, color: "var(--fg-muted)", margin: "0 auto", maxWidth: 620, lineHeight: 1.5 }}>{subtitulo}</p>
+            )}
+            <p style={{ fontSize: 14, color: "var(--fg-subtle)", margin: "14px auto 0", maxWidth: 640, lineHeight: 1.6 }}>
+              Dica de ouro pra começar com o pé direito: suba a{" "}
+              <strong style={{ color: "var(--fg)", fontWeight: 600 }}>nota (NF-e)</strong> da sua última compra.
+              Ela traz o custo real de cada insumo já convertido — e é isso que faz cada drink nascer com a
+              margem certa, sem planilha nem conta de cabeça.
+            </p>
+
+            {/* Barra de progresso — largura total dos cards */}
+            <div style={{ marginTop: 28 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                  Seu progresso
+                </span>
+                <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
+                  {feitos} de {total} concluídos
+                </span>
+              </div>
               <BarraProgresso valor={pct} altura={6} raio={3} corBarra="var(--accent)" />
             </div>
-            <span style={{ fontSize: 13, color: "var(--fg-muted)", fontWeight: 500, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-              {feitos} de {total}
-            </span>
           </div>
-        </div>
 
-        {/* Grid 3 colunas de cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
-          {passos.map((p, i) => {
-            const ativo = i === proximoIdx;
-            const depois = !p.done && !ativo;
-            return (
-              <div key={i} style={{
-                background: "var(--bg-card)",
-                border: `1px solid ${ativo ? "var(--accent)" : "var(--border)"}`,
-                borderRadius: 16, padding: 20, minHeight: 176,
-                display: "flex", flexDirection: "column",
-                opacity: depois ? 0.6 : 1,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    background: p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
-                    color: p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
-                  }}>
-                    {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
+          {/* Grid 3 colunas de cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
+            {passos.map((p, i) => {
+              const ativo = i === proximoIdx;
+              const depois = !p.done && !ativo;
+              // Card do custo (NF-e) preenchido de branco — o passo que destrava a margem.
+              const branco = !!p.critico && !p.done;
+              return (
+                <div key={i} style={{
+                  background: branco ? "#FFFFFF" : "var(--bg-card)",
+                  border: `1px solid ${branco ? "#FFFFFF" : ativo ? "var(--accent)" : "var(--border)"}`,
+                  boxShadow: branco ? "0 10px 34px rgba(0,0,0,0.30)" : undefined,
+                  borderRadius: 16, padding: 20, minHeight: 176,
+                  display: "flex", flexDirection: "column",
+                  opacity: depois ? 0.6 : 1,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: branco
+                        ? "color-mix(in srgb, var(--accent) 12%, #fff)"
+                        : p.done ? "var(--ok-bg)" : ativo ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--bg-hover)",
+                      color: branco ? "var(--accent)" : p.done ? "var(--ok)" : ativo ? "var(--accent)" : "var(--fg-muted)",
+                    }}>
+                      {p.done ? <span style={{ fontSize: 17, fontWeight: 700 }}>✓</span> : p.icon}
+                    </div>
+                    {ativo && (
+                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)" }}>
+                        Comece por aqui
+                      </span>
+                    )}
                   </div>
-                  {ativo && (
-                    <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)" }}>
-                      Comece por aqui
-                    </span>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: branco ? "#141414" : p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
+                  {p.apoio && !p.done && (
+                    <p style={{ fontSize: 12.5, color: branco ? "#5a5a5a" : "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
                   )}
+                  <div style={{ marginTop: "auto", paddingTop: 16 }}>
+                    {p.done ? (
+                      <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
+                    ) : p.href ? (
+                      <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                        {p.cta ?? "Configurar"} →
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
-                <span style={{ fontSize: 15, fontWeight: 600, color: p.done ? "var(--fg-muted)" : "var(--fg)", lineHeight: 1.3 }}>{p.label}</span>
-                {p.apoio && !p.done && (
-                  <p style={{ fontSize: 12.5, color: "var(--fg-subtle)", margin: "8px 0 0", lineHeight: 1.45 }}>{p.apoio}</p>
-                )}
-                <div style={{ marginTop: "auto", paddingTop: 16 }}>
-                  {p.done ? (
-                    <span style={{ fontSize: 12.5, color: "var(--ok)", fontWeight: 500 }}>Concluído</span>
-                  ) : p.href ? (
-                    <a href={p.href} style={{ fontSize: 13, fontWeight: 600, color: ativo ? "var(--accent)" : "var(--fg-muted)", textDecoration: "none", whiteSpace: "nowrap" }}>
-                      {p.cta ?? "Configurar"} →
-                    </a>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     );
