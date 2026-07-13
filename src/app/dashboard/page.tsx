@@ -102,28 +102,30 @@ export default async function DashboardPage() {
   // Só o dono vê o financeiro. Bar Manager cai no Estoque.
   if (!podeVerFinanceiro(current.role)) redirect("/dashboard/estoque");
 
+  // ── Setup ainda não fechou (cardápio, custo em todo produto, mesas) → o GUIA
+  //    é a home, MESMO com turno aberto. O checklist não some no meio do caminho:
+  //    abrir um turno de teste não pode enterrar a configuração.
+  const passos = await getPrimeirosPassos(current.bar.id, current.userId);
+  if (setupIncompleto(passos)) {
+    return (
+      <GuiaConfiguracao
+        variante="hero"
+        passos={montarPassosSetup(passos)}
+        subtitulo="Um passo por vez — a gente te mostra por onde começar. Sem pressa."
+      />
+    );
+  }
+
   const turno = await getTurnoAtual(current.bar.id);
 
   if (!turno) {
-    const [passos, ultimoTurno, inteligencia, alertas, metaMes, variacaoCusto] = await Promise.all([
-      getPrimeirosPassos(current.bar.id, current.userId),
+    const [ultimoTurno, inteligencia, alertas, metaMes, variacaoCusto] = await Promise.all([
       getUltimoTurnoFechado(current.bar.id),
       getInteligenciaStage(current.bar.id),
       getAlertasEstoque(current.bar.id),
       getMetaMes(current.bar.id, current.bar.configuracoes?.meta_mensal ?? undefined),
       getVariacaoCusto(current.bar.id),
     ]);
-
-    // ── Bar novo: nunca teve turno → guia de configuração ───────────────────
-    if (passos.nTurnos === 0) {
-      return (
-        <GuiaConfiguracao
-          variante="hero"
-          passos={montarPassosSetup(passos)}
-          subtitulo="Um passo por vez — a gente te mostra por onde começar. Sem pressa."
-        />
-      );
-    }
 
     // ── Bar com histórico: mostra última noite + inteligência ───────────────
     function labelTurno(abertoEm: string, fechadoEm: string): { dia: string; horas: string } {
@@ -163,18 +165,6 @@ export default async function DashboardPage() {
 
             <AiHeroInput barId={current.bar.id} alertCount={inteligencia.stage === 2 ? inteligencia.insightsNaoLidos : 0} />
           </section>
-
-          {/* 0.5. Guia de configuração — persiste enquanto o setup (incl. custo) não fecha */}
-          {setupIncompleto(passos) && (
-            <section style={{ ...card }}>
-              <GuiaConfiguracao
-                variante="card"
-                passos={montarPassosSetup(passos)}
-                titulo="Termine de configurar seu bar"
-                subtitulo="Enquanto faltar custo, sua margem e seu CMV ficam cegos."
-              />
-            </section>
-          )}
 
           {/* 1. APRENDIZADO (stage 1) ou ATENÇÃO (stage 2) */}
           {inteligencia.stage === 1 ? (
