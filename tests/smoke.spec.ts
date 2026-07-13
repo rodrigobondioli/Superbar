@@ -13,6 +13,18 @@ import { test, expect } from "@playwright/test";
 const EMAIL = process.env.E2E_EMAIL || "dono@aurorabar.dev";
 const PASSWORD = process.env.E2E_PASSWORD || "SenhaForte123!";
 
+// Rodar em série: cada teste faz login; em paralelo isso vira corrida de sessão
+// (redirect falso pro /login). Um worker só = confiável.
+test.describe.configure({ mode: "serial" });
+
+// Avisos SÓ de dev do React/framework (framer-motion, styled-jsx, next). Não
+// aparecem em produção e não significam tela quebrada — não podem reprovar o smoke.
+const RUIDO_DEV = [
+  "useInsertionEffect must not schedule updates",
+  "Download the React DevTools",
+  "Warning: ReactDOM.render", // legado
+];
+
 const ROTAS = [
   "/dashboard",
   "/dashboard/cardapio",
@@ -42,7 +54,10 @@ for (const rota of ROTAS) {
     const erros: string[] = [];
     page.on("pageerror", (e) => erros.push(`pageerror: ${e.message}`));
     page.on("console", (msg) => {
-      if (msg.type() === "error") erros.push(`console.error: ${msg.text()}`);
+      if (msg.type() !== "error") return;
+      const t = msg.text();
+      if (RUIDO_DEV.some((s) => t.includes(s))) return; // ignora ruído de framework em dev
+      erros.push(`console.error: ${t}`);
     });
 
     const resp = await page.goto(rota, { waitUntil: "domcontentloaded" });
