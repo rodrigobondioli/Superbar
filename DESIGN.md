@@ -383,6 +383,7 @@ Todo card-grid do dashboard usa **16** — não misturar 16 e 24 pro mesmo tipo 
 - **Botões — FONTE ÚNICA**: sempre pill (9999), peso **500**, altura **h-10** (default) / **h-8** (sm), texto **15px** (default) / **13px** (sm). Use o componente `<Button>`. `EmptyStateButton` e `BTN_PRIMARY/SECONDARY` (@/lib/ui) espelham o `<Button>` com **altura fixa 40px** (não padding vertical — senão dá diferença de ~2px) — se mudar um, alinhar os três. **Proibido** botão na mão com radius 8, peso 600 ou tamanho próprio.
   - **Qual tamanho:** ação **proeminente** — header de tela, empty-state, rodapé de modal, CTA — é **default (h-10)**, SEMPRE. `sm` (h-8) é **só** para controle **denso inline** (editar-no-lugar, chip, toolbar compacta tipo seletor de período). Nunca use `sm` numa ação de header — foi o que fez "Nova mesa" (40px) ≠ "Importar NF-e"/"Novo cliente" (32px). Na dúvida, é default.
 - **Fonte**: Inter em tudo. Não usar `var(--font-mono)` (é alias de Inter, mas polui) — usar `var(--font-sans)`.
+- **Empty state — FONTE ÚNICA**: use SEMPRE o componente `<EmptyState>` (`ui/empty-state.tsx`) — ícone (emoji) + título + descrição + **ação em botão** (`<EmptyStateButton>`, primário; secundário quando a ação é ir pra outra tela). Centralizado H+V (cresce no flex), **sem card/borda em volta**. E **esconda os cards de stat/KPI quando a tela está vazia** (semáforo do Estoque, KPIs de Clientes) — aí o empty state manda sozinho. Proibido: empty state dentro de card, com link de texto solto no lugar de botão, ou stats zerados por cima.
 
 ---
 
